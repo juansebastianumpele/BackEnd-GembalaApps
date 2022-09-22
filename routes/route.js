@@ -7,6 +7,7 @@ const PenyakitController = require("../controllers/penyakit.controller");
 const VarietasController = require("../controllers/varietas.controller");
 const KawinController = require("../controllers/kawin.controller");
 const TimbanganController = require("../controllers/timbangan.controller");
+const TernakController = require("../controllers/ternak.controller");
 
 
 // Define url API in here
@@ -20,6 +21,7 @@ const _routes = [
     ['/varietas', VarietasController],
     ['/kawin', KawinController],
     ['/timbangan', TimbanganController],
+    ['/ternak', TernakController],
 ];
 
 const routes = (app) => {

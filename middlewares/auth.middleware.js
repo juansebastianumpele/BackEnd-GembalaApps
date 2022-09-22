@@ -13,7 +13,6 @@ const userSession = async (req, res, next) => {
         const decoded = jwt.verify(token, config.jwt.secret)
 
         const user = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [decoded.username]);
-        console.log(user);
         if (user.length <= 0) {
           res.status(401).send({ message: 'Not authorized' })
         }
