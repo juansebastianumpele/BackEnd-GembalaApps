@@ -20,7 +20,7 @@ class _penyakit{
                     error: errorDetails
                 }
             }
-            const list = await mysql.query('SELECT id_penyakit, nama_penyakit, deskripsi, ciri_penyakit, pengobatan FROM d_penyakit WHERE id_users = ?', [id]);
+            const list = await mysql.query('SELECT id_penyakit, nama_penyakit, deskripsi, ciri_penyakit, pengobatan FROM d_penyakit WHERE id_users = ?', [data.id_users]);
             return {
                 status: true,
                 data: list,
