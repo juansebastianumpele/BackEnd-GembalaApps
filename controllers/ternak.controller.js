@@ -44,7 +44,7 @@ TernakController.get('/:id', userSession, async (req, res, next) => {
 });
 
 /**
- * Create new data kawin
+ * Create new data ternak
  * @param {string} rf_id
  * @param {number} id_varietas
  * @param {number} id_induk
@@ -95,7 +95,7 @@ TernakController.put('/', userSession, async (req, res, next) => {
 });
 
 /**
- * Delete Varietas
+ * Delete data ternak
  * @param {number} id_ternak
 */
 
