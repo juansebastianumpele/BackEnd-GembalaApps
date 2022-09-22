@@ -36,7 +36,7 @@ class _kawin{
     }
 
     // Create new Kawin
-    createTernak = async (data) => {
+    createDataKawin = async (data) => {
         try {
             const schema = joi.object({
                 id_users: joi.number().required(),
@@ -72,7 +72,7 @@ class _kawin{
         }
     }
 
-    updateTernak = async (data) => {
+    updateDataKawin = async (data) => {
         try {
             const schema = joi.object({
                 id_users: joi.number().required(),
@@ -112,7 +112,7 @@ class _kawin{
     }
 
 
-    deleteVarietas = async (data) => {
+    deleteDataKawin = async (data) => {
         try {
             const schema = joi.object({
                 id_users: joi.number().required(),

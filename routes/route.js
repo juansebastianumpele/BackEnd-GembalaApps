@@ -1,13 +1,25 @@
 const UserController = require("../controllers/user.controller");
 const AuthController = require("../controllers/auth.controller");
 const KandangController = require("../controllers/kandang.controller");
+const PakanController = require("../controllers/pakan.controller");
+const FaseController = require("../controllers/fase.controller");
+const PenyakitController = require("../controllers/penyakit.controller");
+const VarietasController = require("../controllers/varietas.controller");
+const KawinController = require("../controllers/kawin.controller");
+const TimbanganController = require("../controllers/timbangan.controller");
 
 
 // Define url API in here
 const _routes = [
     ['/auth', AuthController],
     ['/user', UserController],
-    ['/kandang', KandangController]
+    ['/kandang', KandangController],
+    ['/pakan', PakanController],
+    ['/fase', FaseController],
+    ['/penyakit', PenyakitController],
+    ['/varietas', VarietasController],
+    ['/kawin', KawinController],
+    ['/timbangan', TimbanganController],
 ];
 
 const routes = (app) => {

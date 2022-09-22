@@ -46,4 +46,4 @@ FaseController.delete('/', userSession, async (req, res, next) => {
     response.sendResponse(res, del);
 });
 
-module.exports = PakanController;
+module.exports = FaseController;
