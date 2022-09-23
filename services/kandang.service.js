@@ -10,13 +10,12 @@ class _kandang{
                 id_users: joi.number().required(),
                 role: joi.string().required(),
             });
-            const validate = schema.validate(data);
-            if (validate.error) {
-                const errorDetails = validate.error.details.map(detail => detail.message);
-
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 422,
+                    code: 400,
                     error: errorDetails
                 }
             }
@@ -24,20 +23,21 @@ class _kandang{
             const list = await mysql.query('SELECT id_kandang, nama_kandang, blok_kandang FROM d_kandang WHERE id_users = ?', [data.id_users]);
             return {
                 status: true,
+                total: list.length,
                 data: list,
             };
         }catch (error){
             console.error('ListKandang Kandang Service Error: ', error);
-
             return {
                 status: false,
+                massage: "Data tidak ditemukan",
                 error
             }
         }
     }
 
     // Create new kandang
-    createKandang = async (body) => {
+    createKandang = async (data) => {
         try {
             const schema = joi.object({
                 id_users: joi.number().required(),
@@ -46,29 +46,28 @@ class _kandang{
                 blok_kandang: joi.string().required(),
             });
 
-            const { error, value } = schema.validate(body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
-                console.log(errorDetails)
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 4222,
-                    error: errorDetails.join(', '),
+                    code: 400,
+                    error: errorDetails
                 }
             }
 
-            const add = await mysql.query('INSERT INTO d_kandang (id_users, nama_kandang, blok_kandang) VALUES (?, ?, ?)', [body.id_users, body.nama_kandang, body.blok_kandang]);
+            const add = await mysql.query('INSERT INTO d_kandang (id_users, nama_kandang, blok_kandang) VALUES (?, ?, ?)', [data.id_users, data.nama_kandang, data.blok_kandang]);
 
             return {
                 status: true,
-                data: add,
+                massage: 'Data kandang berhasil ditambahkan',
             };
         }
         catch (error) {
             console.error('createKandang kandang service Error: ', error);
-
             return {
                 status: false,
+                massage: 'Data kandang gagal ditambahkan',
                 error
             }
         }
@@ -84,13 +83,13 @@ class _kandang{
                 blok_kandang: joi.string().required()
             });
 
-            const { error, value } = schema.validate(data);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 422,
-                    error: errorDetails.join(', '),
+                    code: 400,
+                    error: errorDetails
                 }
             }
 
@@ -98,14 +97,14 @@ class _kandang{
 
             return {
                 status: true,
-                data: update,
+                massage: 'Data kandang berhasil diubah',
             };
         }
         catch (error) {
             console.error('updateKandang kandang service Error: ', error);
-
             return {
                 status: false,
+                massage: 'Data kandang gagal diubah',
                 error
             }
         }
@@ -120,13 +119,13 @@ class _kandang{
                 id_kandang: joi.number().required(),
             });
 
-            const { error, value } = schema.validate(data);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 422,
-                    error: errorDetails.join(', '),
+                    code: 400,
+                    error: errorDetails
                 }
             }
 
@@ -134,14 +133,14 @@ class _kandang{
 
             return {
                 status: true,
-                data: del,
+                massage: 'Data kandang berhasil dihapus',
             };
         }
         catch (error) {
             console.error('deleteKandang kandang service Error: ', error);
-
             return {
                 status: false,
+                massage: 'Data kandang gagal dihapus',
                 error
             }
         }

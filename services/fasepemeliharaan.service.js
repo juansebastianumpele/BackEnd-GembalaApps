@@ -10,13 +10,12 @@ class _fase{
                 id_users: joi.number().required(),
                 role: joi.string().required(),
             });
-            const validate = schema.validate(data);
-            if (validate.error) {
-                const errorDetails = validate.error.details.map(detail => detail.message);
-
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 422,
+                    code: 400,
                     error: errorDetails
                 }
             }
@@ -24,11 +23,11 @@ class _fase{
             const list = await mysql.query('SELECT id_fp, fase FROM d_fase_pemeliharaan WHERE id_users = ?', [data.id_users]);
             return {
                 status: true,
+                total: list.length,
                 data: list,
             };
         }catch (error){
             console.error('listFase fase Service Error: ', error);
-
             return {
                 status: false,
                 error
@@ -45,14 +44,13 @@ class _fase{
                 fase: joi.string().required()
             });
 
-            const { error, value } = schema.validate(body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
-                console.log(errorDetails)
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 4222,
-                    error: errorDetails.join(', '),
+                    code: 400,
+                    error: errorDetails
                 }
             }
 
@@ -60,7 +58,7 @@ class _fase{
 
             return {
                 status: true,
-                data: add,
+                message: 'Fase berhasil ditambahkan',
             };
         }
         catch (error) {
@@ -81,13 +79,13 @@ class _fase{
                 fase: joi.number().required(),
             });
 
-            const { error, value } = schema.validate(data);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 422,
-                    error: errorDetails.join(', '),
+                    code: 400,
+                    error: errorDetails
                 }
             }
 
@@ -95,7 +93,7 @@ class _fase{
 
             return {
                 status: true,
-                data: update,
+                message: 'Fase berhasil diubah',
             };
         }
         catch (error) {
@@ -116,13 +114,13 @@ class _fase{
                 id_fp: joi.number().required(),
             });
 
-            const { error, value } = schema.validate(data);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 422,
-                    error: errorDetails.join(', '),
+                    code: 400,
+                    error: errorDetails
                 }
             }
 
@@ -130,7 +128,7 @@ class _fase{
 
             return {
                 status: true,
-                data: del,
+                message: 'Fase berhasil dihapus',
             };
         }
         catch (error) {

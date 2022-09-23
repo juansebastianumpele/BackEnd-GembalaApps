@@ -1,17 +1,9 @@
 class _response {
     sendResponse(res, data) {
         try{
-            if(data.status){
-                // res.status(data.code)
-                res.status(200)
+            res.status(data.status ? 200 : data.code ? data.code : 500)
 
-                delete data.code
-
-                res.send(data)
-                return true
-            }
-
-            res.status(!data && data.status ? 200 : 500)
+            delete data.code;
             res.send(data)
             return true
         }catch (error){

@@ -21,7 +21,7 @@ TernakController.get('/all', async (req, res, next) => {
 */
 
 TernakController.get('/', userSession, async (req, res, next) => {
-    const detail = await s$ternak.listTernakByIdUser(req.body);
+    const detail = await s$ternak.listMyTernak(req.body);
     response.sendResponse(res, detail);
 });
 
@@ -29,7 +29,7 @@ TernakController.get('/', userSession, async (req, res, next) => {
  * Get List Ternak by Id User
 */
 
-TernakController.get('/user/:id', userSession, async (req, res, next) => {
+TernakController.get('/user/:id', async (req, res, next) => {
     const detail = await s$ternak.listTernakByIdUser(req.params.id);
     response.sendResponse(res, detail);
 });

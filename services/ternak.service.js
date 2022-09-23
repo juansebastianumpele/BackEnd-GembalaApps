@@ -17,7 +17,9 @@ class _ternak{
                 s_ternak.berat_berkala, 
                 s_ternak.suhu_berkala, 
                 s_ternak.tanggal_lahir,
-                s_ternak.tanggal_masuk, s_ternak.id_induk, s_ternak.id_pejantan, 
+                s_ternak.tanggal_masuk, 
+                s_ternak.id_induk, 
+                s_ternak.id_pejantan, 
                 s_ternak.status_sehat, 
                 d_kandang.nama_kandang,
                 d_fase_pemeliharaan.fase,
@@ -35,6 +37,7 @@ class _ternak{
                 ON s_ternak.id_kandang=d_kandang.id_kandang`);
             return {
                 status: true,
+                total: list.length,
                 data: list,
             };
         }catch (error){
@@ -63,6 +66,7 @@ class _ternak{
                     error: errorDetails
                 }
             }
+            
             const list = await mysql.query(
                 `SELECT
                 s_ternak.id_users,
@@ -74,7 +78,9 @@ class _ternak{
                 s_ternak.berat_berkala, 
                 s_ternak.suhu_berkala, 
                 s_ternak.tanggal_lahir,
-                s_ternak.tanggal_masuk, s_ternak.id_induk, s_ternak.id_pejantan, 
+                s_ternak.tanggal_masuk, 
+                s_ternak.id_induk, 
+                s_ternak.id_pejantan, 
                 s_ternak.status_sehat, 
                 d_kandang.nama_kandang,
                 d_fase_pemeliharaan.fase,
@@ -93,6 +99,7 @@ class _ternak{
                 WHERE s_ternak.id_users=?`, [data.id_users]);
             return {
                 status: true,
+                total: list.length,
                 data: list,
             };
         }catch (error){
@@ -118,7 +125,9 @@ class _ternak{
                 s_ternak.berat_berkala, 
                 s_ternak.suhu_berkala, 
                 s_ternak.tanggal_lahir,
-                s_ternak.tanggal_masuk, s_ternak.id_induk, s_ternak.id_pejantan, 
+                s_ternak.tanggal_masuk, 
+                s_ternak.id_induk, 
+                s_ternak.id_pejantan, 
                 s_ternak.status_sehat, 
                 d_kandang.nama_kandang,
                 d_fase_pemeliharaan.fase,
@@ -137,6 +146,7 @@ class _ternak{
                 WHERE s_ternak.id_users=?`, [id]);
             return {
                 status: true,
+                total: list.length,
                 data: list,
             };
         }catch (error){
@@ -162,7 +172,9 @@ class _ternak{
                 s_ternak.berat_berkala, 
                 s_ternak.suhu_berkala, 
                 s_ternak.tanggal_lahir,
-                s_ternak.tanggal_masuk, s_ternak.id_induk, s_ternak.id_pejantan, 
+                s_ternak.tanggal_masuk, 
+                s_ternak.id_induk, 
+                s_ternak.id_pejantan, 
                 s_ternak.status_sehat, 
                 d_kandang.nama_kandang,
                 d_fase_pemeliharaan.fase,
@@ -181,10 +193,195 @@ class _ternak{
                 WHERE s_ternak.id_ternak=?`, [id]);
             return {
                 status: true,
+                total: list.length,
                 data: list,
             };
         }catch (error){
-            console.error('listTernakByIdUser ternak service Error: ', error);
+            console.error('getTernakById ternak service Error: ', error);
+            return {
+                status: false,
+                error
+            }
+        }
+    }
+
+    // Get Ternak Sakit
+    getTernakSakit = async (data) => {
+        try{
+            const schema = joi.object({
+                id_users: joi.number().required(),
+                role: joi.string().required(),
+            });
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
+                    status: false,
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+            
+            const list = await mysql.query(
+                `SELECT
+                s_ternak.id_users,
+                s_ternak.id_ternak,
+                s_ternak.rf_id,
+                s_ternak.jenis_kelamin,
+                s_ternak.foto,
+                d_varietas.nama_varietas ,
+                s_ternak.berat_berkala,
+                s_ternak.suhu_berkala,
+                s_ternak.tanggal_lahir,
+                s_ternak.tanggal_masuk, 
+                s_ternak.id_induk, 
+                s_ternak.id_pejantan,
+                s_ternak.status_sehat,
+                d_kandang.nama_kandang,
+                d_fase_pemeliharaan.fase,
+                d_pakan.nama_pakan,
+                s_ternak.tanggal_keluar,
+                s_ternak.status_keluar
+                FROM s_ternak
+                LEFT JOIN d_varietas
+                ON s_ternak.id_varietas=d_varietas.id_varietas
+                LEFT JOIN d_pakan
+                ON s_ternak.id_pakan=d_pakan.id_pakan
+                LEFT JOIN d_fase_pemeliharaan
+                ON s_ternak.fase_pemeliharaan=d_fase_pemeliharaan.id_fp
+                LEFT JOIN d_kandang
+                ON s_ternak.id_kandang=d_kandang.id_kandang
+                WHERE s_ternak.id_users=? AND s_ternak.status_sehat = ?`, [data.id_users, "Sakit"]);
+            return {
+                status: true,
+                total: list.length,
+                data: list,
+            };
+        }catch (error){
+            console.error('listTernakSakit ternak service Error: ', error);
+            return {
+                status: false,
+                error
+            }
+        }
+    }
+
+    // Get Ternak Sehat
+    getTernakSakit = async (data) => {
+        try{
+            const schema = joi.object({
+                id_users: joi.number().required(),
+                role: joi.string().required(),
+            });
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
+                    status: false,
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+            
+            const list = await mysql.query(
+                `SELECT
+                s_ternak.id_users,
+                s_ternak.id_ternak,
+                s_ternak.rf_id,
+                s_ternak.jenis_kelamin,
+                s_ternak.foto,
+                d_varietas.nama_varietas ,
+                s_ternak.berat_berkala,
+                s_ternak.suhu_berkala,
+                s_ternak.tanggal_lahir,
+                s_ternak.tanggal_masuk, 
+                s_ternak.id_induk, 
+                s_ternak.id_pejantan,
+                s_ternak.status_sehat,
+                d_kandang.nama_kandang,
+                d_fase_pemeliharaan.fase,
+                d_pakan.nama_pakan,
+                s_ternak.tanggal_keluar,
+                s_ternak.status_keluar
+                FROM s_ternak
+                LEFT JOIN d_varietas
+                ON s_ternak.id_varietas=d_varietas.id_varietas
+                LEFT JOIN d_pakan
+                ON s_ternak.id_pakan=d_pakan.id_pakan
+                LEFT JOIN d_fase_pemeliharaan
+                ON s_ternak.fase_pemeliharaan=d_fase_pemeliharaan.id_fp
+                LEFT JOIN d_kandang
+                ON s_ternak.id_kandang=d_kandang.id_kandang
+                WHERE s_ternak.id_users=? AND s_ternak.status_sehat = ?`, [data.id_users, "Sakit"]);
+            return {
+                status: true,
+                total: list.length,
+                data: list,
+            };
+        }catch (error){
+            console.error('listTernakSehat ternak service Error: ', error);
+            return {
+                status: false,
+                error
+            }
+        }
+    }
+
+    // Get Ternak By Kandang
+    getTernakByKandang = async (data) => {
+        try{
+            const schema = joi.object({
+                id_users: joi.number().required(),
+                role: joi.string().required(),
+                id_kandang: joi.number().required(),
+            });
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
+                    status: false,
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+
+            const list = await mysql.query(
+                `SELECT
+                s_ternak.id_users,
+                s_ternak.id_ternak,
+                s_ternak.rf_id,
+                s_ternak.jenis_kelamin,
+                s_ternak.foto,
+                d_varietas.nama_varietas ,
+                s_ternak.berat_berkala,
+                s_ternak.suhu_berkala,
+                s_ternak.tanggal_lahir,
+                s_ternak.tanggal_masuk,
+                s_ternak.id_induk,
+                s_ternak.id_pejantan,
+                s_ternak.status_sehat,
+                d_kandang.nama_kandang,
+                d_fase_pemeliharaan.fase,
+                d_pakan.nama_pakan,
+                s_ternak.tanggal_keluar,
+                s_ternak.status_keluar
+                FROM s_ternak
+                LEFT JOIN d_varietas
+                ON s_ternak.id_varietas=d_varietas.id_varietas
+                LEFT JOIN d_pakan
+                ON s_ternak.id_pakan=d_pakan.id_pakan
+                LEFT JOIN d_fase_pemeliharaan
+                ON s_ternak.fase_pemeliharaan=d_fase_pemeliharaan.id_fp
+                LEFT JOIN d_kandang
+                ON s_ternak.id_kandang=d_kandang.id_kandang
+                WHERE s_ternak.id_users=? AND s_ternak.id_kandang = ?`, [data.id_users, data.id_kandang]);
+            return {
+                status: true,
+                total: list.length,
+                data: list,
+            };
+        }catch (error){
+            console.error('getTernakByKandang ternak service Error: ', error);
             return {
                 status: false,
                 error
@@ -215,20 +412,20 @@ class _ternak{
                 status_keluar: joi.string()
             });
 
-            const { error, value } = schema.validate(data);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 422,
-                    error: errorDetails.join(', '),
+                    code: 400,
+                    error: errorDetails
                 }
             }
 
             const add = await mysql.query(
                 `INSERT INTO s_ternak(rf_id, id_users, jenis_kelamin, id_varietas, berat_berkala,
                     suhu_berkala, tanggal_lahir, tanggal_masuk, id_induk, id_pejantan, status_sehat,
-                     id_pakan, id_ternak, fase_pemeliharaan, tanggal_keluar, status_keluar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+                     id_pakan, id_kandang, fase_pemeliharaan, tanggal_keluar, status_keluar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
                 [
                     data.rf_id, data.id_users, data.jenis_kelamin, data.id_varietas, data.berat, data.suhu,
                     data.tanggal_lahir, data.tanggal_masuk, data.id_induk, data.id_pejantan, data.status_sehat,
@@ -273,13 +470,13 @@ class _ternak{
                 status_keluar: joi.string()
             });
 
-            const { error, value } = schema.validate(data);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 422,
-                    error: errorDetails.join(', '),
+                    code: 400,
+                    error: errorDetails
                 }
             }
 
@@ -318,13 +515,13 @@ class _ternak{
                 id_ternak: joi.number().required(),
             });
 
-            const { error, value } = schema.validate(body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
-                return {
+            const {error, value} = schema.validate(data);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
                     status: false,
-                    code: 422,
-                    error: errorDetails.join(', '),
+                    code: 400,
+                    error: errorDetails
                 }
             }
 
