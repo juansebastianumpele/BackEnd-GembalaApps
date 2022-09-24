@@ -1,16 +1,15 @@
 // Helper databse yang dibuat
 const mysql = require('../utils/database');
 const joi = require('joi');
-
 class _fase{
-    // List Kandang
-    listFase = async (data) => {
+    // Get Fase
+    getFase = async (req) => {
         try{
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
             });
-            const {error, value} = schema.validate(data);
+            const {error, value} = schema.validate(req.body);
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
@@ -20,7 +19,19 @@ class _fase{
                 }
             }
             
-            const list = await mysql.query('SELECT id_fp, fase FROM d_fase_pemeliharaan WHERE id_users = ?', [data.id_users]);
+            // Query Data
+            let query = 'SELECT id_fp, fase FROM d_fase_pemeliharaan WHERE id_users = ?';
+            for (let i = 0; i < Object.keys(req.query).length; i++) {
+                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+            }
+            const list = await mysql.query(query, [req.body.id_users]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: 'Data fase tidak ditemukan'
+                }
+            }
             return {
                 status: true,
                 total: list.length,
@@ -36,7 +47,7 @@ class _fase{
     }
 
     // Create new fase
-    createFase = async (body) => {
+    createFase = async (data) => {
         try {
             const schema = joi.object({
                 id_users: joi.number().required(),
@@ -54,11 +65,11 @@ class _fase{
                 }
             }
 
-            const add = await mysql.query('INSERT INTO d_fase_pemeliharaan (id_users, fase) VALUES (?, ?)', [body.id_users, body.fase]);
+            const add = await mysql.query('INSERT INTO d_fase_pemeliharaan (id_users, fase) VALUES (?, ?)', [data.id_users, data.fase]);
 
             return {
                 status: true,
-                message: 'Fase berhasil ditambahkan',
+                message: `Fase ${data.fase} berhasil ditambahkan`,
             };
         }
         catch (error) {
@@ -70,6 +81,7 @@ class _fase{
         }
     }
 
+    // Update fase
     updateFase = async (data) => {
         try {
             const schema = joi.object({
@@ -105,7 +117,7 @@ class _fase{
         }
     }
 
-
+    // Delete fase
     deleteFase = async (data) => {
         try {
             const schema = joi.object({

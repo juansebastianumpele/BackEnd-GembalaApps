@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const s$fase = require('../services/fasepemeliharaan.service');
 const response = require('../utils/response');
-const userSession = require('../middlewares/auth.middleware');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 
 const FaseController = Router();
@@ -11,8 +11,8 @@ const FaseController = Router();
  * Get List Fase
 */
 
-FaseController.get('/', userSession, async (req, res, next) => {
-    const detail = await s$fase.listFase(req.body);
+FaseController.get('/', authMiddleware, async (req, res, next) => {
+    const detail = await s$fase.getFase(req);
     response.sendResponse(res, detail);
 } );
 
@@ -21,7 +21,7 @@ FaseController.get('/', userSession, async (req, res, next) => {
  * @param {string} fase
  */
 
-FaseController.post('/', userSession, async (req, res, next) => {
+FaseController.post('/', authMiddleware, async (req, res, next) => {
     const add = await s$fase.createFase(req.body);
     response.sendResponse(res, add);
 });
@@ -31,7 +31,7 @@ FaseController.post('/', userSession, async (req, res, next) => {
  * @param {string} fase
 */
 
-FaseController.put('/', userSession, async (req, res, next) => {
+FaseController.put('/', authMiddleware, async (req, res, next) => {
     const edit = await s$fase.updateFase(req.body);
     response.sendResponse(res, edit);
 });
@@ -41,7 +41,7 @@ FaseController.put('/', userSession, async (req, res, next) => {
  * @param {number} id_fp
 */
 
-FaseController.delete('/', userSession, async (req, res, next) => {
+FaseController.delete('/', authMiddleware, async (req, res, next) => {
     const del = await s$fase.deleteFase(req.body);
     response.sendResponse(res, del);
 });

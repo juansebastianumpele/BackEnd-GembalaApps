@@ -4,15 +4,15 @@ const joi = require('joi');
 
 class _timbangan{
 
-    // List Ternak by id
-    getMonitoringById = async (data) => {
+    // get Data Timbangan
+    getDataTimbangan = async (req) => {
         try{
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
-                id_ternak: joi.number().required(),
             });
-            const {error, value} = schema.validate(data);
+            const {error, value} = schema.validate(req.body);
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
@@ -21,13 +21,27 @@ class _timbangan{
                     error: errorDetails
                 }
             }
-            const list = await mysql.query(`SELECT id_timbangan, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal FROM d_timbangan WHERE id_users = ? AND id_ternak = ?`, [data.id_users, data.id_ternak]);
+
+            // Query data
+            let query = `SELECT id_timbangan, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal FROM d_timbangan WHERE id_users = ?`;
+            for (let i = 0; i < Object.keys(req.query).length; i++) {
+                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+            }
+            const list = await mysql.query(query, [req.body.id_users]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: `Data timbangan tidak ditemukan`
+                }
+            }
             return {
                 status: true,
+                total: list.length,
                 data: list,
             };
         }catch (error){
-            console.error('getMonitoringById timbangan service Error: ', error);
+            console.error('getTimbangan timbangan service Error: ', error);
             return {
                 status: false,
                 error
@@ -38,6 +52,7 @@ class _timbangan{
     // Create new Data Timbangan
     createDataTimbangan = async (data) => {
         try {
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -58,11 +73,12 @@ class _timbangan{
                 }
             }
 
+            // Query data
             const add = await mysql.query(`INSERT INTO d_timbangan (id_users, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal) VALUES (?, ?, ?, ?, ?, ?)`, [data.id_users, data.id_ternak, data.rf_id, data.berat_berkala, data.suhu_berkala, data.tanggal]);
 
             return {
                 status: true,
-                data: add,
+                message: 'Data Timbangan berhasil ditambahkan',
             };
         }
         catch (error) {
@@ -74,8 +90,10 @@ class _timbangan{
         }
     }
 
+    // Update Data Timbangan
     updateDataTimbangan = async (data) => {
         try {
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -97,11 +115,12 @@ class _timbangan{
                 }
             }
 
+            // Query data
             const update = await mysql.query(`UPDATE d_timbangan SET id_ternak = ?, rf_id = ?, berat_berkala = ?, suhu_berkala = ?, tanggal = ? WHERE id_timbangan = ? AND id_users = ?`, [data.id_ternak, data.rf_id, data.berat_berkala, data.suhu_berkala, data.tanggal, data.id_timbangan, data.id_users]);
 
             return {
                 status: true,
-                data: update,
+                message: 'Data Timbangan berhasil diupdate',
             };
         }
         catch (error) {
@@ -113,9 +132,10 @@ class _timbangan{
         }
     }
 
-
+    // Delete Data Timbangan
     deleteDataTimbangan = async (data) => {
         try {
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -132,11 +152,12 @@ class _timbangan{
                 }
             }
 
+            // Query data
             const del = await mysql.query(`DELETE FROM d_timbangan WHERE id_timbangan = ? AND id_users = ?`, [data.id_timbangan, data.id_users]);
 
             return {
                 status: true,
-                data: del,
+                message: 'Data Timbangan berhasil dihapus',
             };
         }
         catch (error) {

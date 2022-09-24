@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const s$ternak = require('../services/ternak.service');
 const response = require('../utils/response');
-const userSession = require('../middlewares/auth.middleware');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 
 const TernakController = Router();
@@ -20,7 +20,7 @@ TernakController.get('/all', async (req, res, next) => {
  * Get List My ternak
 */
 
-TernakController.get('/', userSession, async (req, res, next) => {
+TernakController.get('/', authMiddleware, async (req, res, next) => {
     const detail = await s$ternak.listMyTernak(req.body);
     response.sendResponse(res, detail);
 });
@@ -38,7 +38,7 @@ TernakController.get('/user/:id', async (req, res, next) => {
  * Get Ternak by Id
 */
 
-TernakController.get('/:id', userSession, async (req, res, next) => {
+TernakController.get('/:id', authMiddleware, async (req, res, next) => {
     const detail = await s$ternak.getTernakById(req.params.id);
     response.sendResponse(res, detail);
 });
@@ -63,7 +63,7 @@ TernakController.get('/:id', userSession, async (req, res, next) => {
  * @param {number} status_keluar
  */
 
-TernakController.post('/', userSession, async (req, res, next) => {
+TernakController.post('/', authMiddleware, async (req, res, next) => {
     const add = await s$ternak.createTernak(req.body);
     response.sendResponse(res, add);
 });
@@ -89,7 +89,7 @@ TernakController.post('/', userSession, async (req, res, next) => {
  * @param {number} status_keluar
  */
 
-TernakController.put('/', userSession, async (req, res, next) => {
+TernakController.put('/', authMiddleware, async (req, res, next) => {
     const edit = await s$ternak.updateTernak(req.body);
     response.sendResponse(res, edit);
 });
@@ -99,7 +99,7 @@ TernakController.put('/', userSession, async (req, res, next) => {
  * @param {number} id_ternak
 */
 
-TernakController.delete('/', userSession, async (req, res, next) => {
+TernakController.delete('/', authMiddleware, async (req, res, next) => {
     const del = await s$ternak.deleteTernak(req.body);
     response.sendResponse(res, del);
 });

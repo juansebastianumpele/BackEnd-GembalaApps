@@ -3,68 +3,37 @@ const mysql = require('../utils/database');
 const joi = require('joi');
 
 class _user{
-    // List all users
-    listUser = async (username) => {
+    // Get Data users
+    getUsers = async (req) => {
         try{
-            if(username){
-                const list = await mysql.query('SELECT id_users, foto, nama_mitra, username, email, no_hp, alamat, level, userLastAccess, createdAt, updateAt FROM d_users WHERE username = ?', [username]);
-                return {
-                    status: true,
-                    data: list,
-                };
+            // Query Data
+            let query = 'SELECT id_users, foto, nama_mitra, username, email, no_hp, alamat, level, userLastAccess, createdAt, updatedAt FROM auth_users';
+            for (let i = 0; i < Object.entries(req.query).length; i++) {
+                query += (i === 0) ? ' WHERE ' : ' AND ';
+                query += Object.keys(req.query)[i] == 'username' || Object.keys(req.query)[i] == 'nama_mitra' 
+                ? `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'` 
+                : `${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`;
             }
-            const list = await mysql.query('SELECT id_users, foto, nama_mitra, username, email, no_hp, alamat, level, userLastAccess, createdAt, updateAt FROM auth_users');
-            return {
-                status: true,
-                data: list,
-            };
-        }catch (error){
-            console.error('ListUser user module Error: ', error);
-            return {
-                status: false,
-                error
-            }
-        }
-    }
-
-    getUserById = async (id) => {
-        try {
-            const schema = joi.number().required();
-            const validate = schema.validate(id);
-            if (validate.error) {
-                const errorDetails = validate.error.details.map(detail => detail.message);
-
-                return {
-                    status: false,
-                    code: 422,
-                    error: errorDetails
-                }
-            }
-
-            const detailUser = await mysql.query('SELECT id_users, foto, nama_mitra, username, email, no_hp, alamat FROM auth_users WHERE id_users = ?', [id]);
-
-            if (detailUser.length <= 0) {
-                return {
+            const users = await mysql.query(query);
+            if(users.length <= 0){
+                return{
                     status: false,
                     code: 404,
-                    data: 'Sorry, user not found'
+                    error: 'Data users tidak ditemukan'
                 }
             }
-
-
             return {
                 status: true,
-                data: detailUser,
-            }
-
-        } catch (error) {
-            console.error('GetUserById user module Error: ', error);
-
+                data: users,
+            };
+        }catch (error){
+            console.error('getUsers user module Error: ', error);
             return {
                 status: false,
                 error
             }
         }
+        
     }
 
     // Create new user

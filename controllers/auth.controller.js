@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const s$auth = require('../services/auth.service');
 const response = require('../utils/response');
-const userSession = require('../middlewares/auth.middleware');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 const AuthController = Router();
 
@@ -36,7 +36,7 @@ AuthController.post('/register', async (req, res, next) => {
  * Logout
  */
 
-AuthController.post('/logout', userSession, async (req, res, next) => {
+AuthController.post('/logout', authMiddleware, async (req, res, next) => {
     const logout = await s$auth.logout(req, res);
     response.sendResponse(res, logout);
 });
@@ -46,7 +46,7 @@ AuthController.post('/logout', userSession, async (req, res, next) => {
  * @param {string} password
  */
 
-AuthController.delete('/delete-account', userSession, async (req, res, next) => {
+AuthController.delete('/delete-account', authMiddleware, async (req, res, next) => {
     const deleteAccount = await s$auth.deleteAccount(req.body);
     response.sendResponse(res, deleteAccount);
 });
@@ -60,7 +60,7 @@ AuthController.delete('/delete-account', userSession, async (req, res, next) => 
  * @param {string} alamat
  */
 
-AuthController.put('/update-account', userSession, async (req, res, next) => {
+AuthController.put('/update-account', authMiddleware, async (req, res, next) => {
     const updateAccount = await s$auth.updateAccount(req.body);
     response.sendResponse(res, updateAccount);
 });
@@ -71,7 +71,7 @@ AuthController.put('/update-account', userSession, async (req, res, next) => {
  * @param {string} newPassword
  */
 
-AuthController.put('/update-password', userSession, async (req, res, next) => {
+AuthController.put('/update-password', authMiddleware, async (req, res, next) => {
     const updatePassword = await s$auth.updatePassword(req.body);
     response.sendResponse(res, updatePassword);
 });

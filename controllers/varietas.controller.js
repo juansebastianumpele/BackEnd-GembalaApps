@@ -1,18 +1,18 @@
 const { Router } = require('express');
 const s$varietas = require('../services/varietas.service');
 const response = require('../utils/response');
-const userSession = require('../middlewares/auth.middleware');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 
 const VarietasController = Router();
 
 
 /**
- * Get List Varietas
+ * Get Data Varietas
 */
 
-VarietasController.get('/', userSession, async (req, res, next) => {
-    const detail = await s$varietas.listVarietas(req.body);
+VarietasController.get('/', authMiddleware, async (req, res, next) => {
+    const detail = await s$varietas.getVarietas(req);
     response.sendResponse(res, detail);
 } );
 
@@ -21,7 +21,7 @@ VarietasController.get('/', userSession, async (req, res, next) => {
  * @param {string} nama_varietas
  */
 
-VarietasController.post('/', userSession, async (req, res, next) => {
+VarietasController.post('/', authMiddleware, async (req, res, next) => {
     const add = await s$varietas.createVarietas(req.body);
     response.sendResponse(res, add);
 });
@@ -32,7 +32,7 @@ VarietasController.post('/', userSession, async (req, res, next) => {
  * @param {string} nama_varietas
 */
 
-VarietasController.put('/', userSession, async (req, res, next) => {
+VarietasController.put('/', authMiddleware, async (req, res, next) => {
     const edit = await s$varietas.updateVarietas(req.body);
     response.sendResponse(res, edit);
 });
@@ -42,7 +42,7 @@ VarietasController.put('/', userSession, async (req, res, next) => {
  * @param {number} id_varietas
 */
 
-VarietasController.delete('/', userSession, async (req, res, next) => {
+VarietasController.delete('/', authMiddleware, async (req, res, next) => {
     const del = await s$varietas.deleteVarietas(req.body);
     response.sendResponse(res, del);
 });

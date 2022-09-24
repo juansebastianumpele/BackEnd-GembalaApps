@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const m$user = require('../services/user.service');
-// const response = require('../helpers/response');
-const { userSession } = require('../utils/auth');
+const response = require('../utils/response');
+// const { userSession } = require('../utils/auth');
 
 const UserController = Router();
 
@@ -9,19 +9,19 @@ const UserController = Router();
  * List User
  */
 UserController.get('/', async (req, res, next) => {
-    const list = await m$user.listUser(req.query.username);
+    const list = await m$user.getUsers(req);
     response.sendResponse(res, list);
 });
 
-/**
- * Detail User
- * @param {number} id_users
-*/
+// /**
+//  * Detail User
+//  * @param {number} id_users
+// */
 
-UserController.get('/:id', async (req, res, next) => {
-    const detail = await m$user.getUserById(req.params.id);
-    response.sendResponse(res, detail);
-} );
+// UserController.get('/:id', async (req, res, next) => {
+//     const detail = await m$user.getUserById(req.params.id);
+//     response.sendResponse(res, detail);
+// } );
 
 // /**
 //  * Add User

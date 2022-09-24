@@ -1,18 +1,18 @@
 const { Router } = require('express');
 const s$timbangan = require('../services/timbangan.service');
 const response = require('../utils/response');
-const userSession = require('../middlewares/auth.middleware');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 
 const TimbanganController = Router();
 
 
 /**
- * Get List data timbangan
+ * Get data timbangan
 */
 
-TimbanganController.get('/', userSession, async (req, res, next) => {
-    const detail = await s$timbangan.getMonitoringById(req.body);
+TimbanganController.get('/', authMiddleware, async (req, res, next) => {
+    const detail = await s$timbangan.getDataTimbangan(req);
     response.sendResponse(res, detail);
 } );
 
@@ -25,7 +25,7 @@ TimbanganController.get('/', userSession, async (req, res, next) => {
  * @param {string} tanggal
  */
 
-TimbanganController.post('/', userSession, async (req, res, next) => {
+TimbanganController.post('/', authMiddleware, async (req, res, next) => {
     const add = await s$timbangan.createDataTimbangan(req.body);
     response.sendResponse(res, add);
 });
@@ -40,7 +40,7 @@ TimbanganController.post('/', userSession, async (req, res, next) => {
  * @param {string} tanggal
 */
 
-TimbanganController.put('/', userSession, async (req, res, next) => {
+TimbanganController.put('/', authMiddleware, async (req, res, next) => {
     const edit = await s$timbangan.updateDataTimbangan(req.body);
     response.sendResponse(res, edit);
 });
@@ -50,7 +50,7 @@ TimbanganController.put('/', userSession, async (req, res, next) => {
  * @param {number} id_timbangan
 */
 
-TimbanganController.delete('/', userSession, async (req, res, next) => {
+TimbanganController.delete('/', authMiddleware, async (req, res, next) => {
     const del = await s$timbangan.deleteDataTimbangan(req.body);
     response.sendResponse(res, del);
 });

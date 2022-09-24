@@ -1,18 +1,18 @@
 const { Router } = require('express');
 const s$pakan = require('../services/pakan.service');
 const response = require('../utils/response');
-const userSession = require('../middlewares/auth.middleware');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 
 const PakanController = Router();
 
 
 /**
- * Get List Pakan
+ * Get Data Pakan
 */
 
-PakanController.get('/', userSession, async (req, res, next) => {
-    const detail = await s$pakan.listPakan(req.body);
+PakanController.get('/', authMiddleware, async (req, res, next) => {
+    const detail = await s$pakan.getPakan(req);
     response.sendResponse(res, detail);
 } );
 
@@ -24,7 +24,7 @@ PakanController.get('/', userSession, async (req, res, next) => {
  * @param {number} jumlah
  */
 
-PakanController.post('/', userSession, async (req, res, next) => {
+PakanController.post('/', authMiddleware, async (req, res, next) => {
     const add = await s$pakan.createPakan(req.body);
     response.sendResponse(res, add);
 });
@@ -37,7 +37,7 @@ PakanController.post('/', userSession, async (req, res, next) => {
  * @param {number} jumlah
 */
 
-PakanController.put('/', userSession, async (req, res, next) => {
+PakanController.put('/', authMiddleware, async (req, res, next) => {
     const edit = await s$pakan.updatePakan(req.body);
     response.sendResponse(res, edit);
 });
@@ -47,7 +47,7 @@ PakanController.put('/', userSession, async (req, res, next) => {
  * @param {number} id_pakan
 */
 
-PakanController.delete('/', userSession, async (req, res, next) => {
+PakanController.delete('/', authMiddleware, async (req, res, next) => {
     const del = await s$pakan.deletePakan(req.body);
     response.sendResponse(res, del);
 });

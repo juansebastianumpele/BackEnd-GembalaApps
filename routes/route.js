@@ -13,7 +13,7 @@ const TernakController = require("../controllers/ternak.controller");
 // Define url API in here
 const _routes = [
     ['/auth', AuthController],
-    ['/user', UserController],
+    ['/users', UserController],
     ['/kandang', KandangController],
     ['/pakan', PakanController],
     ['/fase', FaseController],

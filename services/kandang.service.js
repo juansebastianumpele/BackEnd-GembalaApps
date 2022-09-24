@@ -3,14 +3,15 @@ const mysql = require('../utils/database');
 const joi = require('joi');
 
 class _kandang{
-    // List Kandang
-    listKandang = async (data) => {
+    // Get Kandang
+    getKandang = async (req) => {
         try{
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
             });
-            const {error, value} = schema.validate(data);
+            const {error, value} = schema.validate(req.body);
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
@@ -20,17 +21,28 @@ class _kandang{
                 }
             }
             
-            const list = await mysql.query('SELECT id_kandang, nama_kandang, blok_kandang FROM d_kandang WHERE id_users = ?', [data.id_users]);
+            // Query data
+            let query = `SELECT id_kandang, nama_kandang, blok_kandang FROM d_kandang WHERE id_users = ?`
+            for (let i = 0; i < Object.keys(req.query).length; i++) {
+                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+            }
+            const list = await mysql.query(query, [req.body.id_users]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: 'Data kandang tidak ditemukan'
+                }
+            }
             return {
                 status: true,
                 total: list.length,
                 data: list,
             };
         }catch (error){
-            console.error('ListKandang Kandang Service Error: ', error);
+            console.error('GetKandang Kandang Service Error: ', error);
             return {
                 status: false,
-                massage: "Data tidak ditemukan",
                 error
             }
         }
@@ -39,6 +51,7 @@ class _kandang{
     // Create new kandang
     createKandang = async (data) => {
         try {
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -56,6 +69,7 @@ class _kandang{
                 }
             }
 
+            // Query data
             const add = await mysql.query('INSERT INTO d_kandang (id_users, nama_kandang, blok_kandang) VALUES (?, ?, ?)', [data.id_users, data.nama_kandang, data.blok_kandang]);
 
             return {
@@ -67,14 +81,15 @@ class _kandang{
             console.error('createKandang kandang service Error: ', error);
             return {
                 status: false,
-                massage: 'Data kandang gagal ditambahkan',
                 error
             }
         }
     }
 
+    // Update kandang
     updateKandang = async (data) => {
         try {
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -93,6 +108,7 @@ class _kandang{
                 }
             }
 
+            // Query data
             const update = await mysql.query('UPDATE d_kandang SET nama_kandang = ?, blok_kandang = ? WHERE id_kandang = ? AND id_users = ?', [data.nama_kandang, data.blok_kandang, data.id_kandang, data.id_users]);
 
             return {
@@ -104,15 +120,15 @@ class _kandang{
             console.error('updateKandang kandang service Error: ', error);
             return {
                 status: false,
-                massage: 'Data kandang gagal diubah',
                 error
             }
         }
     }
 
-
+    // Delete kandang
     deleteKandang = async (data) => {
         try {
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -129,6 +145,7 @@ class _kandang{
                 }
             }
 
+            // Query data
             const del = await mysql.query('DELETE FROM d_kandang WHERE id_kandang = ? AND id_users = ?', [data.id_kandang, data.id_users]);
 
             return {
@@ -140,7 +157,6 @@ class _kandang{
             console.error('deleteKandang kandang service Error: ', error);
             return {
                 status: false,
-                massage: 'Data kandang gagal dihapus',
                 error
             }
         }

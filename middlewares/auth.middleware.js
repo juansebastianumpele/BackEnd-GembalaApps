@@ -3,7 +3,7 @@ const mysql = require('../utils/database');
 const jwt = require('jsonwebtoken')
 // const m$user = require('../modules/user.modules')
 
-const userSession = async (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
     let token
   
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -33,4 +33,4 @@ const userSession = async (req, res, next) => {
     }
 }
 
-module.exports = userSession
+module.exports = authMiddleware

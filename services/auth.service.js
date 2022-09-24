@@ -1,12 +1,10 @@
 const joi = require('joi');
 const mysql = require('../utils/database');
 const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
-const m$user = require('./user.service');
-
+const date = require('date-and-time');
 
 class _auth{
     login = async (data) => {
-
         // Validate data
         const schema = joi.object({
             username: joi.string().required(),
@@ -15,10 +13,9 @@ class _auth{
         const validate = schema.validate(data);
         if (validate.error) {
             const errorDetails = validate.error.details.map(detail => detail.message);
-
             return {
                 status: false,
-                code: 422,
+                code: 400,
                 error: errorDetails
             }
         }
@@ -55,7 +52,11 @@ class _auth{
 
         return {
             status: true,
-            data: token,
+            message: 'Login successful',
+            data: {
+                token,
+                expiresIn: date.format(date.addSeconds(new Date(), 3600), 'YYYY-MM-DD HH:mm:ss')
+            },
         }
     }
 
@@ -76,7 +77,7 @@ class _auth{
 
             return {
                 status: false,
-                code: 422,
+                code: 400,
                 error: errorDetails
             }
         }
@@ -86,7 +87,7 @@ class _auth{
         if (checkUser.length > 0) {
             return {
                 status: false,
-                code: 422,
+                code: 400,
                 data: 'Sorry, username already exist'
             }
         }
@@ -108,7 +109,7 @@ class _auth{
 
         return {
             status: true,
-            data: 'Register success'
+            message: 'Register successful',
         }
     }
 
@@ -123,7 +124,7 @@ class _auth{
 
             return {
                 status: false,
-                code: 422,
+                code: 400,
                 error: errorDetails
             }
         }
@@ -139,7 +140,7 @@ class _auth{
         }
         return {
             status: true,
-            data: 'Logout success'
+            message: 'Logout successful',
         }
     }
 
@@ -157,7 +158,7 @@ class _auth{
 
             return {
                 status: false,
-                code: 422,
+                code: 400,
                 error: errorDetails
             }
         }
@@ -194,7 +195,7 @@ class _auth{
 
         return {
             status: true,
-            data: 'Delete account success'
+            message: 'Delete account successful',
         }
     }
     
@@ -215,7 +216,7 @@ class _auth{
             const errorDetails = validate.error.details.map(detail => detail.message);
             return {
                 status: false,
-                code: 422,
+                code: 400,
                 error: errorDetails
             }
         }
@@ -234,7 +235,7 @@ class _auth{
 
         return {
             status: true,
-            data: 'Update account success'
+            message: 'Update account successful',
         }
     }
 
@@ -251,7 +252,7 @@ class _auth{
             const errorDetails = validate.error.details.map(detail => detail.message);
             return {
                 status: false,
-                code: 422,
+                code: 400,
                 error: errorDetails
             }
         }
@@ -291,7 +292,7 @@ class _auth{
 
         return {
             status: true,
-            data: 'Update password success'
+            message: 'Update password successful',
         }
     }
         

@@ -1,16 +1,16 @@
 const { Router } = require('express');
 const s$kandang = require('../services/kandang.service');
 const response = require('../utils/response');
-const userSession = require('../middlewares/auth.middleware');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 const KandangController = Router();
 
 /**
- * Get List Kandang
+ * Get List Kandang (use query)
 */
 
-KandangController.get('/', userSession, async (req, res, next) => {
-    const detail = await s$kandang.listKandang(req.body);
+KandangController.get('/', authMiddleware, async (req, res, next) => {
+    const detail = await s$kandang.getKandang(req);
     response.sendResponse(res, detail);
 } );
 
@@ -20,7 +20,7 @@ KandangController.get('/', userSession, async (req, res, next) => {
  * @param {string} blok_kandang
  */
 
-KandangController.post('/', userSession, async (req, res, next) => {
+KandangController.post('/', authMiddleware, async (req, res, next) => {
     const add = await s$kandang.createKandang(req.body);
     response.sendResponse(res, add);
 });
@@ -31,7 +31,7 @@ KandangController.post('/', userSession, async (req, res, next) => {
  * @param {string} blok_kandang
 */
 
-KandangController.put('/', userSession, async (req, res, next) => {
+KandangController.put('/', authMiddleware, async (req, res, next) => {
     const edit = await s$kandang.updateKandang(req.body);
     response.sendResponse(res, edit);
 });
@@ -41,7 +41,7 @@ KandangController.put('/', userSession, async (req, res, next) => {
  * @param {number} id_kandang
 */
 
-KandangController.delete('/', userSession, async (req, res, next) => {
+KandangController.delete('/', authMiddleware, async (req, res, next) => {
     const del = await s$kandang.deleteKandang(req.body);
     response.sendResponse(res, del);
 });

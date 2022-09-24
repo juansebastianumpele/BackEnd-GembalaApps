@@ -3,15 +3,15 @@ const mysql = require('../utils/database');
 const joi = require('joi');
 
 class _kawin{
-
     // List Ternak by id
-    listKawinByIdUsers = async (data) => {
+    getKawin = async (req) => {
         try{
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
             });
-            const {error, value} = schema.validate(data);
+            const {error, value} = schema.validate(req.body);
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
@@ -20,10 +20,23 @@ class _kawin{
                     error: errorDetails
                 }
             }
-            const list = await mysql.query(
-                `SELECT id_kawin, id_ternak, tanggal_kawin, id_pemancek WHERE id_users = ?`, [data.id_users]);
+
+            // Query data
+            let query = `SELECT id_kawin, id_ternak, tanggal_kawin, id_pemancek FROM d_kawin WHERE id_users = ?`;
+            for (let i = 0; i < Object.keys(req.query).length; i++) {
+                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+            }
+            const list = await mysql.query(query, [req.body.id_users]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: 'Data kawin tidak ditemukan'
+                }
+            }
             return {
                 status: true,
+                total: list.length,
                 data: list,
             };
         }catch (error){
@@ -38,6 +51,7 @@ class _kawin{
     // Create new Kawin
     createDataKawin = async (data) => {
         try {
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -56,11 +70,12 @@ class _kawin{
                 }
             }
 
+            // Query data
             const add = await mysql.query('INSERT INTO d_kawin (id_users, id_ternak, tanggal_kawin, id_pemancek) VALUES (?, ?, ?, ?)', [data.id_users, data.id_ternak, data.tanggal_kawin, data.id_pemancek]);
 
             return {
                 status: true,
-                data: add,
+                message: 'Data kawin berhasil ditambahkan',
             };
         }
         catch (error) {
@@ -72,8 +87,10 @@ class _kawin{
         }
     }
 
+    // Update ternak
     updateDataKawin = async (data) => {
         try {
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -93,13 +110,14 @@ class _kawin{
                 }
             }
 
+            // Query data
             const update = await mysql.query(
                 `UPDATE d_kawin SET id_ternak = ?, tanggal_kawin = ?, id_pemancek = ? WHERE id_kawin = ? AND id_users = ?`,
                 [data.id_ternak, data.tanggal_kawin, data.id_pemancek, data.id_kawin, data.id_users]);
 
             return {
                 status: true,
-                data: update,
+                message: 'Data kawin berhasil diubah',
             };
         }
         catch (error) {
@@ -111,9 +129,10 @@ class _kawin{
         }
     }
 
-
+    // Delete Kawin
     deleteDataKawin = async (data) => {
         try {
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -130,11 +149,12 @@ class _kawin{
                 }
             }
 
+            // Query data
             const del = await mysql.query(`DELETE FROM d_kawin WHERE id_kawin = ? AND id_users = ?`, [data.id_kawin, data.id_users]);
 
             return {
                 status: true,
-                data: del,
+                message: 'Data kawin berhasil dihapus',
             };
         }
         catch (error) {

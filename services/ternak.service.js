@@ -6,6 +6,7 @@ class _ternak{
     // List all Ternak
     listTernak = async () => {
         try{
+            // Query Data
             const list = await mysql.query(
                 `SELECT
                 s_ternak.id_users,
@@ -35,6 +36,14 @@ class _ternak{
                 ON s_ternak.fase_pemeliharaan=d_fase_pemeliharaan.id_fp
                 LEFT JOIN d_kandang
                 ON s_ternak.id_kandang=d_kandang.id_kandang`);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: 'Data ternak kosong'
+                }
+            }
+
             return {
                 status: true,
                 total: list.length,
@@ -42,7 +51,6 @@ class _ternak{
             };
         }catch (error){
             console.error('listTernak ternak service Error: ', error);
-
             return {
                 status: false,
                 error
@@ -53,6 +61,7 @@ class _ternak{
     // List Ternak My Ternak
     listMyTernak = async (data) => {
         try{
+            // Validate Data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -67,6 +76,7 @@ class _ternak{
                 }
             }
             
+            // Query Data
             const list = await mysql.query(
                 `SELECT
                 s_ternak.id_users,
@@ -97,6 +107,14 @@ class _ternak{
                 LEFT JOIN d_kandang
                 ON s_ternak.id_kandang=d_kandang.id_kandang
                 WHERE s_ternak.id_users=?`, [data.id_users]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: 'Data ternak kosong'
+                }
+            }
+
             return {
                 status: true,
                 total: list.length,
@@ -114,6 +132,7 @@ class _ternak{
     // List Ternak by id User
     listTernakByIdUser = async (id) => {
         try{
+            // Query Data
             const list = await mysql.query(
                 `SELECT
                 s_ternak.id_users,
@@ -144,6 +163,14 @@ class _ternak{
                 LEFT JOIN d_kandang
                 ON s_ternak.id_kandang=d_kandang.id_kandang
                 WHERE s_ternak.id_users=?`, [id]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: `Data ternak dengan id user = ${id} kosong.`
+                }
+            }
+
             return {
                 status: true,
                 total: list.length,
@@ -158,9 +185,10 @@ class _ternak{
         }
     }
 
-    // Get Ternak by id
+    // Get Ternak by id ternak
     getTernakById = async (id) => {
         try{
+            // Query Data
             const list = await mysql.query(
                 `SELECT
                 s_ternak.id_users,
@@ -191,6 +219,14 @@ class _ternak{
                 LEFT JOIN d_kandang
                 ON s_ternak.id_kandang=d_kandang.id_kandang
                 WHERE s_ternak.id_ternak=?`, [id]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: 'Data ternak tidak ditemukan.'
+                }
+            }
+
             return {
                 status: true,
                 total: list.length,
@@ -208,6 +244,7 @@ class _ternak{
     // Get Ternak Sakit
     getTernakSakit = async (data) => {
         try{
+            // Validate Data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -222,6 +259,7 @@ class _ternak{
                 }
             }
             
+            // Query Data
             const list = await mysql.query(
                 `SELECT
                 s_ternak.id_users,
@@ -252,6 +290,14 @@ class _ternak{
                 LEFT JOIN d_kandang
                 ON s_ternak.id_kandang=d_kandang.id_kandang
                 WHERE s_ternak.id_users=? AND s_ternak.status_sehat = ?`, [data.id_users, "Sakit"]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: 'Data ternak sakit kosong'
+                }
+            }
+
             return {
                 status: true,
                 total: list.length,
@@ -267,8 +313,9 @@ class _ternak{
     }
 
     // Get Ternak Sehat
-    getTernakSakit = async (data) => {
+    getTernakSehat = async (data) => {
         try{
+            // Validate Data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -283,6 +330,7 @@ class _ternak{
                 }
             }
             
+            // Query Data
             const list = await mysql.query(
                 `SELECT
                 s_ternak.id_users,
@@ -312,7 +360,15 @@ class _ternak{
                 ON s_ternak.fase_pemeliharaan=d_fase_pemeliharaan.id_fp
                 LEFT JOIN d_kandang
                 ON s_ternak.id_kandang=d_kandang.id_kandang
-                WHERE s_ternak.id_users=? AND s_ternak.status_sehat = ?`, [data.id_users, "Sakit"]);
+                WHERE s_ternak.id_users=? AND s_ternak.status_sehat = ?`, [data.id_users, "Sehat"]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: 'Data ternak sehat kosong'
+                }
+            }
+
             return {
                 status: true,
                 total: list.length,
@@ -330,6 +386,7 @@ class _ternak{
     // Get Ternak By Kandang
     getTernakByKandang = async (data) => {
         try{
+            // Validate data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -345,6 +402,7 @@ class _ternak{
                 }
             }
 
+            // Query Data
             const list = await mysql.query(
                 `SELECT
                 s_ternak.id_users,
@@ -375,6 +433,13 @@ class _ternak{
                 LEFT JOIN d_kandang
                 ON s_ternak.id_kandang=d_kandang.id_kandang
                 WHERE s_ternak.id_users=? AND s_ternak.id_kandang = ?`, [data.id_users, data.id_kandang]);
+            if(list.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    error: `Data ternak dengan ID kandang = ${data.id_kandang} kosong.`
+                }
+            }
             return {
                 status: true,
                 total: list.length,
@@ -392,6 +457,7 @@ class _ternak{
     // Create new Ternak
     createTernak = async (data) => {
         try {
+            // Validate Data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -422,6 +488,7 @@ class _ternak{
                 }
             }
 
+            // Query Data
             const add = await mysql.query(
                 `INSERT INTO s_ternak(rf_id, id_users, jenis_kelamin, id_varietas, berat_berkala,
                     suhu_berkala, tanggal_lahir, tanggal_masuk, id_induk, id_pejantan, status_sehat,
@@ -435,7 +502,7 @@ class _ternak{
 
             return {
                 status: true,
-                data: add,
+                message: 'Data ternak berhasil ditambahkan',
             };
         }
         catch (error) {
@@ -447,6 +514,7 @@ class _ternak{
         }
     }
 
+    // Update Ternak
     updateTernak = async (data) => {
         try {
             const schema = joi.object({
@@ -494,7 +562,7 @@ class _ternak{
 
             return {
                 status: true,
-                data: update,
+                message: 'Data ternak berhasil diubah',
             };
         }
         catch (error) {
@@ -506,9 +574,10 @@ class _ternak{
         }
     }
 
-
+    // Delete Ternak
     deleteTernak = async (data) => {
         try {
+            // Validate Data
             const schema = joi.object({
                 id_users: joi.number().required(),
                 role: joi.string().required(),
@@ -525,11 +594,12 @@ class _ternak{
                 }
             }
 
+            // Query Data
             const del = await mysql.query('DELETE FROM s_ternak WHERE id_ternak = ? AND id_users', [data.id_ternak, data.id_users]);
 
             return {
                 status: true,
-                data: del,
+                message: 'Data ternak berhasil dihapus',
             };
         }
         catch (error) {
