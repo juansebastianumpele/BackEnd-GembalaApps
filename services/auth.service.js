@@ -114,23 +114,9 @@ class _auth{
     }
 
     logout = async (req, res) => {
-        const schema = joi.object({
-            id_users: joi.number().required(),
-            role: joi.string().required()
-        });
-        const validate = schema.validate(req.body);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message);
-
-            return {
-                status: false,
-                code: 400,
-                error: errorDetails
-            }
-        }
-
         res.clearCookie('token');
-        const update = await mysql.query(`UPDATE auth_users SET userLastAccess = ? WHERE id_users = ?`, [new Date(), res.body.id_users]);
+        console.log(req.dataAuth);
+        const update = await mysql.query(`UPDATE auth_users SET userLastAccess = ? WHERE id_users = ?`, [new Date(), req.dataAuth.id_users]);
         if (update.affectedRows <= 0) {
             return {
                 status: false,
@@ -144,15 +130,13 @@ class _auth{
         }
     }
 
-    deleteAccount = async (data) => {
+    deleteAccount = async (req) => {
 
         // Validate data
         const schema = joi.object({
-            id_users: joi.number().required(),
-            role: joi.string().required(),
             password: joi.string().required()
         });
-        const validate = schema.validate(data);
+        const validate = schema.validate(req.body);
         if (validate.error) {
             const errorDetails = validate.error.details.map(detail => detail.message);
 
@@ -164,7 +148,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE id_users = ?', [id]);
+        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         if (checkUser.length <= 0) {
             return {
                 status: false,
@@ -184,12 +168,12 @@ class _auth{
         }
 
         // Delete data
-        const deletedAccount = await mysql.query('DELETE FROM auth_users WHERE id_users = ?', [data.id_users]);
+        const deletedAccount = await mysql.query('DELETE FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         if (deletedAccount.affectedRows <= 0) {
             return {
                 status: false,
                 code: 500,
-                data: `Sorry, delete account failed, Error: ${deleteAccount.error}`
+                data: `Sorry, delete account failed, Error: ${deletedAccount.error}`
             }
         }
 
@@ -199,21 +183,19 @@ class _auth{
         }
     }
     
-    updateAccount = async (data) => {
+    updateAccount = async (req) => {
 
         // Validate data
         const schema = joi.object({
-            id_users: joi.number().required(),
-            role: joi.string().required(),
             nama_lengkap: joi.string().required(),
             username: joi.string().required(),
             email: joi.string().required(),
             no_hp: joi.string().required(),
             alamat: joi.string().required()
         });
-        const validate = schema.validate(data);
+        const validate = schema.validate(req.body);
         if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message);
+            const errorDetails = validate.error.details.map(detail => detail.message).join(', ');
             return {
                 status: false,
                 code: 400,
@@ -224,12 +206,12 @@ class _auth{
         // Update data
         const updatedAccount = await mysql.query(
             'UPDATE auth_users SET nama_mitra = ?, username = ?, email = ?, no_hp = ?, alamat = ?  WHERE id_users = ?', 
-            [data.nama_mitra, data.username, data.email, data.no_hp, data.alamat, data.id_users]);
+            [req.body.nama_mitra, req.body.username, req.body.email, req.body.no_hp, req.body.alamat, req.dataAuth.id_users]);
         if (updatedAccount.affectedRows <= 0) {
             return {
                 status: false,
                 code: 500,
-                data: `Sorry, update account failed, Error: ${updateAccount.error}`
+                data: `Sorry, update account failed, Error: ${updatedAccount.error}`
             }
         }
 
@@ -239,17 +221,16 @@ class _auth{
         }
     }
 
-    updatePassword = async (data) => {
+    updatePassword = async (req) => {
 
         // Validate Data
         const schema = joi.object({
-            id_users: joi.number().required(),
             password: joi.string().required(),
             new_password: joi.string().required()
         });
-        const validate = schema.validate(data);
+        const validate = schema.validate(req.body);
         if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message);
+            const errorDetails = validate.error.details.map(detail => detail.message).join(', ');
             return {
                 status: false,
                 code: 400,
@@ -258,7 +239,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE id_users = ?', [data.id_users]);
+        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         if (checkUser.length <= 0) {
             return {
                 status: false,
@@ -268,7 +249,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(data.password, checkUser[0].password);
+        const isMatch = await comparePassword(req.body.password, checkUser[0].password);
         if (!isMatch) {
             return {
                 status: false,
@@ -278,15 +259,15 @@ class _auth{
         }
 
         // Hash password
-        data.new_password = await hashPassword(data.new_password);
+        const newPassword = await hashPassword(req.body.new_password);
 
         // Update data
-        const updatedPassword = await mysql.query('UPDATE auth_users SET password = ? WHERE id_users = ?', [data.new_password, data.id_users]);
+        const updatedPassword = await mysql.query('UPDATE auth_users SET password = ? WHERE id_users = ?', [newPassword, req.dataAuth.id_users]);
         if (updatedPassword.affectedRows <= 0) {
             return {
                 status: false,
                 code: 500,
-                data: `Sorry, update password failed, Error: ${updatePassword.error}`
+                data: `Sorry, update password failed, Error: ${updatedPassword.error}`
             }
         }
 

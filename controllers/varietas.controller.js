@@ -22,7 +22,7 @@ VarietasController.get('/', authMiddleware, async (req, res, next) => {
  */
 
 VarietasController.post('/', authMiddleware, async (req, res, next) => {
-    const add = await s$varietas.createVarietas(req.body);
+    const add = await s$varietas.createVarietas(req);
     response.sendResponse(res, add);
 });
 
@@ -33,7 +33,7 @@ VarietasController.post('/', authMiddleware, async (req, res, next) => {
 */
 
 VarietasController.put('/', authMiddleware, async (req, res, next) => {
-    const edit = await s$varietas.updateVarietas(req.body);
+    const edit = await s$varietas.updateVarietas(req);
     response.sendResponse(res, edit);
 });
 
@@ -43,7 +43,7 @@ VarietasController.put('/', authMiddleware, async (req, res, next) => {
 */
 
 VarietasController.delete('/', authMiddleware, async (req, res, next) => {
-    const del = await s$varietas.deleteVarietas(req.body);
+    const del = await s$varietas.deleteVarietas(req);
     response.sendResponse(res, del);
 });
 

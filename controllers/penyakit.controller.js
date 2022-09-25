@@ -25,7 +25,7 @@ PenyakitController.get('/', authMiddleware, async (req, res, next) => {
  */
 
 PenyakitController.post('/', authMiddleware, async (req, res, next) => {
-    const add = await s$penyakit.createPenyakit(req.body);
+    const add = await s$penyakit.createPenyakit(req);
     response.sendResponse(res, add);
 });
 
@@ -39,7 +39,7 @@ PenyakitController.post('/', authMiddleware, async (req, res, next) => {
 */
 
 PenyakitController.put('/', authMiddleware, async (req, res, next) => {
-    const edit = await s$penyakit.updatePenyakit(req.body);
+    const edit = await s$penyakit.updatePenyakit(req);
     response.sendResponse(res, edit);
 });
 
@@ -49,7 +49,7 @@ PenyakitController.put('/', authMiddleware, async (req, res, next) => {
 */
 
 PenyakitController.delete('/', authMiddleware, async (req, res, next) => {
-    const del = await s$penyakit.deletePenyakit(req.body);
+    const del = await s$penyakit.deletePenyakit(req);
     response.sendResponse(res, del);
 });
 

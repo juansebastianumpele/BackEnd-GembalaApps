@@ -7,27 +7,12 @@ class _timbangan{
     // get Data Timbangan
     getDataTimbangan = async (req) => {
         try{
-            // Validate data
-            const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
-            });
-            const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    status: false,
-                    code: 400,
-                    error: errorDetails
-                }
-            }
-
             // Query data
             let query = `SELECT id_timbangan, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal FROM d_timbangan WHERE id_users = ?`;
             for (let i = 0; i < Object.keys(req.query).length; i++) {
                 query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
             }
-            const list = await mysql.query(query, [req.body.id_users]);
+            const list = await mysql.query(query, [req.dataAuth.id_users]);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -50,12 +35,10 @@ class _timbangan{
     }
 
     // Create new Data Timbangan
-    createDataTimbangan = async (data) => {
+    createDataTimbangan = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_ternak: joi.number().required(),
                 rf_id: joi.string().required(),
                 berat_berkala: joi.number().required(),
@@ -63,18 +46,18 @@ class _timbangan{
                 tanggal: joi.date().required()
             });
 
-            const { error, value } = schema.validate(data);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const add = await mysql.query(`INSERT INTO d_timbangan (id_users, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal) VALUES (?, ?, ?, ?, ?, ?)`, [data.id_users, data.id_ternak, data.rf_id, data.berat_berkala, data.suhu_berkala, data.tanggal]);
+            const add = await mysql.query(`INSERT INTO d_timbangan (id_users, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal) VALUES (?, ?, ?, ?, ?, ?)`, [req.dataAuth.id_users, req.body.id_ternak, req.body.rf_id, req.body.berat_berkala, req.body.suhu_berkala, req.body.tanggal]);
 
             return {
                 status: true,
@@ -91,12 +74,10 @@ class _timbangan{
     }
 
     // Update Data Timbangan
-    updateDataTimbangan = async (data) => {
+    updateDataTimbangan = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_timbangan: joi.number().required(),
                 id_ternak: joi.number().required(),
                 rf_id: joi.string().required(),
@@ -105,18 +86,18 @@ class _timbangan{
                 tanggal: joi.date().required()
             });
 
-            const { error, value } = schema.validate(data);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const update = await mysql.query(`UPDATE d_timbangan SET id_ternak = ?, rf_id = ?, berat_berkala = ?, suhu_berkala = ?, tanggal = ? WHERE id_timbangan = ? AND id_users = ?`, [data.id_ternak, data.rf_id, data.berat_berkala, data.suhu_berkala, data.tanggal, data.id_timbangan, data.id_users]);
+            const update = await mysql.query(`UPDATE d_timbangan SET id_ternak = ?, rf_id = ?, berat_berkala = ?, suhu_berkala = ?, tanggal = ? WHERE id_timbangan = ? AND id_users = ?`, [req.bosy.id_ternak, req.bosy.rf_id, req.bosy.berat_berkala, req.bosy.suhu_berkala, req.bosy.tanggal, req.bosy.id_timbangan, req.dataAuth.id_users]);
 
             return {
                 status: true,
@@ -133,27 +114,25 @@ class _timbangan{
     }
 
     // Delete Data Timbangan
-    deleteDataTimbangan = async (data) => {
+    deleteDataTimbangan = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_timbangan: joi.number().required()
             });
 
-            const { error, value } = schema.validate(body);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const del = await mysql.query(`DELETE FROM d_timbangan WHERE id_timbangan = ? AND id_users = ?`, [data.id_timbangan, data.id_users]);
+            const del = await mysql.query(`DELETE FROM d_timbangan WHERE id_timbangan = ? AND id_users = ?`, [req.body.id_timbangan, req.dataAuth.id_users]);
 
             return {
                 status: true,

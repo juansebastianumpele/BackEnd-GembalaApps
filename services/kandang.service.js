@@ -6,27 +6,16 @@ class _kandang{
     // Get Kandang
     getKandang = async (req) => {
         try{
-            // Validate data
-            const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
-            });
-            const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    status: false,
-                    code: 400,
-                    error: errorDetails
-                }
-            }
-            
             // Query data
             let query = `SELECT id_kandang, nama_kandang, blok_kandang FROM d_kandang WHERE id_users = ?`
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+                if(Object.keys(req.query)[i] == 'nama_kandang'){
+                    query += ` AND ${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`
+                }else{
+                    query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+                }
             }
-            const list = await mysql.query(query, [req.body.id_users]);
+            const list = await mysql.query(query, [req.dataAuth.id_users]);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -49,17 +38,15 @@ class _kandang{
     }
 
     // Create new kandang
-    createKandang = async (data) => {
+    createKandang = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 nama_kandang: joi.string().required(),
                 blok_kandang: joi.string().required(),
             });
 
-            const {error, value} = schema.validate(data);
+            const {error, value} = schema.validate(req.body);
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
@@ -70,7 +57,7 @@ class _kandang{
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_kandang (id_users, nama_kandang, blok_kandang) VALUES (?, ?, ?)', [data.id_users, data.nama_kandang, data.blok_kandang]);
+            const add = await mysql.query('INSERT INTO d_kandang (id_users, nama_kandang, blok_kandang) VALUES (?, ?, ?)', [req.dataAuth.id_users, req.body.nama_kandang, req.body.blok_kandang]);
 
             return {
                 status: true,
@@ -87,18 +74,16 @@ class _kandang{
     }
 
     // Update kandang
-    updateKandang = async (data) => {
+    updateKandang = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_kandang: joi.number().required(),
                 nama_kandang: joi.string().required(),
                 blok_kandang: joi.string().required()
             });
 
-            const {error, value} = schema.validate(data);
+            const {error, value} = schema.validate(req.body);
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
@@ -109,7 +94,7 @@ class _kandang{
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_kandang SET nama_kandang = ?, blok_kandang = ? WHERE id_kandang = ? AND id_users = ?', [data.nama_kandang, data.blok_kandang, data.id_kandang, data.id_users]);
+            const update = await mysql.query('UPDATE d_kandang SET nama_kandang = ?, blok_kandang = ? WHERE id_kandang = ? AND id_users = ?', [req.body.nama_kandang, req.body.blok_kandang, req.body.id_kandang, req.dataAuth.id_users]);
 
             return {
                 status: true,
@@ -126,16 +111,14 @@ class _kandang{
     }
 
     // Delete kandang
-    deleteKandang = async (data) => {
+    deleteKandang = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_kandang: joi.number().required(),
             });
 
-            const {error, value} = schema.validate(data);
+            const {error, value} = schema.validate(req.body);
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
@@ -146,7 +129,7 @@ class _kandang{
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_kandang WHERE id_kandang = ? AND id_users = ?', [data.id_kandang, data.id_users]);
+            const del = await mysql.query('DELETE FROM d_kandang WHERE id_kandang = ? AND id_users = ?', [req.body.id_kandang, req.dataAuth.id_users]);
 
             return {
                 status: true,

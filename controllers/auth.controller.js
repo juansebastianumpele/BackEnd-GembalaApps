@@ -47,7 +47,7 @@ AuthController.post('/logout', authMiddleware, async (req, res, next) => {
  */
 
 AuthController.delete('/delete-account', authMiddleware, async (req, res, next) => {
-    const deleteAccount = await s$auth.deleteAccount(req.body);
+    const deleteAccount = await s$auth.deleteAccount(req);
     response.sendResponse(res, deleteAccount);
 });
 
@@ -61,7 +61,7 @@ AuthController.delete('/delete-account', authMiddleware, async (req, res, next) 
  */
 
 AuthController.put('/update-account', authMiddleware, async (req, res, next) => {
-    const updateAccount = await s$auth.updateAccount(req.body);
+    const updateAccount = await s$auth.updateAccount(req);
     response.sendResponse(res, updateAccount);
 });
 
@@ -72,7 +72,7 @@ AuthController.put('/update-account', authMiddleware, async (req, res, next) => 
  */
 
 AuthController.put('/update-password', authMiddleware, async (req, res, next) => {
-    const updatePassword = await s$auth.updatePassword(req.body);
+    const updatePassword = await s$auth.updatePassword(req);
     response.sendResponse(res, updatePassword);
 });
 

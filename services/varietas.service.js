@@ -6,27 +6,12 @@ class _varietas{
     // Get data varietas
     getVarietas = async (req) => {
         try{
-            // Validate data
-            const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
-            });
-            const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    status: false,
-                    code: 400,
-                    error: errorDetails
-                }
-            }
-
             // Query data
             let query = 'SELECT id_varietas, nama_varietas FROM d_varietas WHERE id_users = ?';
             for (let i = 0; i < Object.keys(req.query).length; i++) {
                 query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
             }
-            const list = await mysql.query(query, [req.body.id_users]);
+            const list = await mysql.query(query, [req.dataAuth.id_users]);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -49,27 +34,25 @@ class _varietas{
     }
 
     // Create new Varietas
-    createVarietas = async (data) => {
+    createVarietas = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 nama_varietas: joi.string().required()
             });
 
-            const { error, value } = schema.validate(data);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_varietas (id_users, nama_varietas) VALUES (?, ?)', [data.id_users, data.nama_varietas]);
+            const add = await mysql.query('INSERT INTO d_varietas (id_users, nama_varietas) VALUES (?, ?)', [req.dataAuth.id_users, req.body.nama_varietas]);
 
             return {
                 status: true,
@@ -86,28 +69,26 @@ class _varietas{
     }
 
     // Update varietas
-    updateVarietas = async (data) => {
+    updateVarietas = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_varietas: joi.number().required(),
                 nama_varietas: joi.string().required()
             });
 
-            const { error, value } = schema.validate(data);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_varietas SET nama_varietas = ? WHERE id_varietas = ? AND id_users = ?', [data.nama_varietas, data.id_varietas, data.id_users]);
+            const update = await mysql.query('UPDATE d_varietas SET nama_varietas = ? WHERE id_varietas = ? AND id_users = ?', [req.body.nama_varietas, req.body.id_varietas, req.dataAuth.id_users]);
 
             return {
                 status: true,
@@ -124,28 +105,25 @@ class _varietas{
     }
 
     // Delete varietas
-    deleteVarietas = async (data) => {
+    deleteVarietas = async (req) => {
         try {
             // Validate data
-            const body = { data };
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_varietas: joi.number().required(),
             });
 
-            const { error, value } = schema.validate(body);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_varietas WHERE id_varietas = ? AND id_users', [data.id_varietas, data.id_users]);
+            const del = await mysql.query('DELETE FROM d_varietas WHERE id_varietas = ? AND id_users', [req.body.id_varietas, req.dataAuth.id_users]);
 
             return {
                 status: true,

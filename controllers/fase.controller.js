@@ -22,7 +22,7 @@ FaseController.get('/', authMiddleware, async (req, res, next) => {
  */
 
 FaseController.post('/', authMiddleware, async (req, res, next) => {
-    const add = await s$fase.createFase(req.body);
+    const add = await s$fase.createFase(req);
     response.sendResponse(res, add);
 });
 
@@ -32,7 +32,7 @@ FaseController.post('/', authMiddleware, async (req, res, next) => {
 */
 
 FaseController.put('/', authMiddleware, async (req, res, next) => {
-    const edit = await s$fase.updateFase(req.body);
+    const edit = await s$fase.updateFase(req);
     response.sendResponse(res, edit);
 });
 
@@ -42,7 +42,7 @@ FaseController.put('/', authMiddleware, async (req, res, next) => {
 */
 
 FaseController.delete('/', authMiddleware, async (req, res, next) => {
-    const del = await s$fase.deleteFase(req.body);
+    const del = await s$fase.deleteFase(req);
     response.sendResponse(res, del);
 });
 

@@ -25,7 +25,7 @@ PakanController.get('/', authMiddleware, async (req, res, next) => {
  */
 
 PakanController.post('/', authMiddleware, async (req, res, next) => {
-    const add = await s$pakan.createPakan(req.body);
+    const add = await s$pakan.createPakan(req);
     response.sendResponse(res, add);
 });
 
@@ -38,7 +38,7 @@ PakanController.post('/', authMiddleware, async (req, res, next) => {
 */
 
 PakanController.put('/', authMiddleware, async (req, res, next) => {
-    const edit = await s$pakan.updatePakan(req.body);
+    const edit = await s$pakan.updatePakan(req);
     response.sendResponse(res, edit);
 });
 
@@ -48,7 +48,7 @@ PakanController.put('/', authMiddleware, async (req, res, next) => {
 */
 
 PakanController.delete('/', authMiddleware, async (req, res, next) => {
-    const del = await s$pakan.deletePakan(req.body);
+    const del = await s$pakan.deletePakan(req);
     response.sendResponse(res, del);
 });
 

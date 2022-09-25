@@ -6,27 +6,12 @@ class _kawin{
     // List Ternak by id
     getKawin = async (req) => {
         try{
-            // Validate data
-            const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
-            });
-            const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    status: false,
-                    code: 400,
-                    error: errorDetails
-                }
-            }
-
             // Query data
             let query = `SELECT id_kawin, id_ternak, tanggal_kawin, id_pemancek FROM d_kawin WHERE id_users = ?`;
             for (let i = 0; i < Object.keys(req.query).length; i++) {
                 query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
             }
-            const list = await mysql.query(query, [req.body.id_users]);
+            const list = await mysql.query(query, [req.dataAuth.id_users]);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -49,29 +34,27 @@ class _kawin{
     }
 
     // Create new Kawin
-    createDataKawin = async (data) => {
+    createDataKawin = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_ternak: joi.number().required(),
                 tanggal_kawin: joi.date().required(),
                 id_pemancek: joi.number().required()
             });
 
-            const { error, value } = schema.validate(data);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_kawin (id_users, id_ternak, tanggal_kawin, id_pemancek) VALUES (?, ?, ?, ?)', [data.id_users, data.id_ternak, data.tanggal_kawin, data.id_pemancek]);
+            const add = await mysql.query('INSERT INTO d_kawin (id_users, id_ternak, tanggal_kawin, id_pemancek) VALUES (?, ?, ?, ?)', [req.dataAuth.id_users, req.body.id_ternak, req.body.tanggal_kawin, req.body.id_pemancek]);
 
             return {
                 status: true,
@@ -88,32 +71,30 @@ class _kawin{
     }
 
     // Update ternak
-    updateDataKawin = async (data) => {
+    updateDataKawin = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_kawin: joi.number().required(),
                 id_ternak: joi.number().required(),
                 tanggal_kawin: joi.date().required(),
                 id_pemancek: joi.number().required()
             });
 
-            const { error, value } = schema.validate(data);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
             const update = await mysql.query(
                 `UPDATE d_kawin SET id_ternak = ?, tanggal_kawin = ?, id_pemancek = ? WHERE id_kawin = ? AND id_users = ?`,
-                [data.id_ternak, data.tanggal_kawin, data.id_pemancek, data.id_kawin, data.id_users]);
+                [req.body.id_ternak, req.body.tanggal_kawin, req.body.id_pemancek, req.body.id_kawin, req.dataAuth.id_users]);
 
             return {
                 status: true,
@@ -130,27 +111,25 @@ class _kawin{
     }
 
     // Delete Kawin
-    deleteDataKawin = async (data) => {
+    deleteDataKawin = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_kawin: joi.number().required(),
             });
 
-            const { error, value } = schema.validate(body);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const del = await mysql.query(`DELETE FROM d_kawin WHERE id_kawin = ? AND id_users = ?`, [data.id_kawin, data.id_users]);
+            const del = await mysql.query(`DELETE FROM d_kawin WHERE id_kawin = ? AND id_users = ?`, [req.body.id_kawin, req.dataAuth.id_users]);
 
             return {
                 status: true,

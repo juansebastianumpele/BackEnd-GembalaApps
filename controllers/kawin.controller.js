@@ -24,7 +24,7 @@ KawinController.get('/', authMiddleware, async (req, res, next) => {
  */
 
 KawinController.post('/', authMiddleware, async (req, res, next) => {
-    const add = await s$kawin.createDataKawin(req.body);
+    const add = await s$kawin.createDataKawin(req);
     response.sendResponse(res, add);
 });
 
@@ -37,7 +37,7 @@ KawinController.post('/', authMiddleware, async (req, res, next) => {
 */
 
 KawinController.put('/', authMiddleware, async (req, res, next) => {
-    const edit = await s$kawin.updateDataKawin(req.body);
+    const edit = await s$kawin.updateDataKawin(req);
     response.sendResponse(res, edit);
 });
 
@@ -47,7 +47,7 @@ KawinController.put('/', authMiddleware, async (req, res, next) => {
 */
 
 KawinController.delete('/', authMiddleware, async (req, res, next) => {
-    const del = await s$kawin.deleteDataKawin(req.body);
+    const del = await s$kawin.deleteDataKawin(req);
     response.sendResponse(res, del);
 });
 

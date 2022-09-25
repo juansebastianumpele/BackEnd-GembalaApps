@@ -26,7 +26,7 @@ TimbanganController.get('/', authMiddleware, async (req, res, next) => {
  */
 
 TimbanganController.post('/', authMiddleware, async (req, res, next) => {
-    const add = await s$timbangan.createDataTimbangan(req.body);
+    const add = await s$timbangan.createDataTimbangan(req);
     response.sendResponse(res, add);
 });
 
@@ -41,7 +41,7 @@ TimbanganController.post('/', authMiddleware, async (req, res, next) => {
 */
 
 TimbanganController.put('/', authMiddleware, async (req, res, next) => {
-    const edit = await s$timbangan.updateDataTimbangan(req.body);
+    const edit = await s$timbangan.updateDataTimbangan(req);
     response.sendResponse(res, edit);
 });
 
@@ -51,7 +51,7 @@ TimbanganController.put('/', authMiddleware, async (req, res, next) => {
 */
 
 TimbanganController.delete('/', authMiddleware, async (req, res, next) => {
-    const del = await s$timbangan.deleteDataTimbangan(req.body);
+    const del = await s$timbangan.deleteDataTimbangan(req);
     response.sendResponse(res, del);
 });
 

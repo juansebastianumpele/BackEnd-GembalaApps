@@ -17,8 +17,12 @@ const authMiddleware = async (req, res, next) => {
           res.status(401).send({ message: 'Not authorized' })
         }
         
-        req.body.id_users = user[0].id_users
-        req.body.role = user[0].level[0]
+        // req.body.id_users = user[0].id_users
+        // req.body.role = user[0].level[0]
+        req.dataAuth = {
+          id_users: user[0].id_users,
+          role: user[0].level[0]
+        }
         next()
         
       } catch (error) {

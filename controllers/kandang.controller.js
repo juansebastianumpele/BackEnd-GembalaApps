@@ -21,7 +21,7 @@ KandangController.get('/', authMiddleware, async (req, res, next) => {
  */
 
 KandangController.post('/', authMiddleware, async (req, res, next) => {
-    const add = await s$kandang.createKandang(req.body);
+    const add = await s$kandang.createKandang(req);
     response.sendResponse(res, add);
 });
 
@@ -32,7 +32,7 @@ KandangController.post('/', authMiddleware, async (req, res, next) => {
 */
 
 KandangController.put('/', authMiddleware, async (req, res, next) => {
-    const edit = await s$kandang.updateKandang(req.body);
+    const edit = await s$kandang.updateKandang(req);
     response.sendResponse(res, edit);
 });
 
@@ -42,7 +42,7 @@ KandangController.put('/', authMiddleware, async (req, res, next) => {
 */
 
 KandangController.delete('/', authMiddleware, async (req, res, next) => {
-    const del = await s$kandang.deleteKandang(req.body);
+    const del = await s$kandang.deleteKandang(req);
     response.sendResponse(res, del);
 });
 

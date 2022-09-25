@@ -6,28 +6,16 @@ class _pakan{
     // get data pakan
     getPakan = async (req) => {
         try{
-            // Validate data
-            const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
-            });
-            const validate = schema.validate(req.body);
-            if (validate.error) {
-                const errorDetails = validate.error.details.map(detail => detail.message);
-
-                return {
-                    status: false,
-                    code: 400,
-                    error: errorDetails
-                }
-            }
-        
             // Query data
             let query = 'SELECT id_pakan, nama_pakan, deskripsi, komposisi, jumlah FROM d_pakan WHERE id_users = ?';
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+                if(Object.keys(req.query)[i] == 'id_pakan' || Object.keys(req.query)[i] == 'jumlah'){
+                    query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+                }else{
+                    query += ` AND ${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`
+                }
             }
-            const list = await mysql.query(query, [req.body.id_users]);
+            const list = await mysql.query(query, [req.dataAuth.id_users]);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -51,30 +39,28 @@ class _pakan{
     }
 
     // Create new Pakan
-    createPakan = async (data) => {
+    createPakan = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 nama_pakan: joi.string().required(),
                 deskripsi: joi.string().required(),
                 komposisi: joi.string().required(),
                 jumlah: joi.number().required(),
             });
 
-            const { error, value } = schema.validate(data);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_pakan (id_users, nama_pakan, deskripsi, komposisi, jumlah) VALUES (?, ?, ?, ?, ?)', [data.id_users, data.nama_pakan, data.deskripsi, data.komposisi, data.jumlah]);
+            const add = await mysql.query('INSERT INTO d_pakan (id_users, nama_pakan, deskripsi, komposisi, jumlah) VALUES (?, ?, ?, ?, ?)', [req.dataAuth.id_users, req.body.nama_pakan, req.body.deskripsi, req.body.komposisi, req.body.jumlah]);
 
             return {
                 status: true,
@@ -91,30 +77,28 @@ class _pakan{
     }
 
     // Update Pakan
-    updatePakan = async (data) => {
+    updatePakan = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_pakan: joi.number().required(),
-                role: joi.string().required(),
                 nama_pakan: joi.string().required(),
                 deskripsi: joi.string().required(),
                 komposisi: joi.string().required(),
                 jumlah: joi.number().required()
             });
 
-            const { error, value } = schema.validate(data);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_pakan SET nama_pakan = ?, deskripsi = ?, komposisi = ?, jumlah = ? WHERE id_pakan = ? AND id_users = ?', [data.nama_pakan, data.deskripsi, data.komposisi, data.jumlah, data.id_pakan, data.id_users]);
+            const update = await mysql.query('UPDATE d_pakan SET nama_pakan = ?, deskripsi = ?, komposisi = ?, jumlah = ? WHERE id_pakan = ? AND id_users = ?', [req.body.nama_pakan, req.body.deskripsi, req.body.komposisi, req.body.jumlah, req.body.id_pakan, req.dataAuth.id_users]);
 
             return {
                 status: true,
@@ -131,27 +115,25 @@ class _pakan{
     }
 
     // Delete Pakan
-    deletePakan = async (data) => {
+    deletePakan = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_users: joi.number().required(),
-                role: joi.string().required(),
                 id_pakan: joi.number().required(),
             });
 
-            const { error, value } = schema.validate(body);
+            const { error, value } = schema.validate(req.body);
             if (error) {
-                const errorDetails = error.details.map((detail) => detail.message);
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
                     status: false,
                     code: 400,
-                    error: errorDetails.join(', '),
+                    error: errorDetails,
                 }
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_pakan WHERE id_pakan = ? AND id_users = ?', [data.id_pakan, data.id_users]);
+            const del = await mysql.query('DELETE FROM d_pakan WHERE id_pakan = ? AND id_users = ?', [req.body.id_pakan, req.dataAuth.id_users]);
 
             return {
                 status: true,
