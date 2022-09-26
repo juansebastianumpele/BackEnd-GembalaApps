@@ -69,7 +69,7 @@ class _auth{
             no_hp: joi.string().required(),
             alamat: joi.string().required(),
             password: joi.string().min(8).required(),
-            repeat_password: joi.ref('password').required()
+            repeat_password: joi.ref('password')
         });
         const validate = schema.validate(data);
         if (validate.error) {

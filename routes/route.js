@@ -8,6 +8,7 @@ const VarietasController = require("../controllers/varietas.controller");
 const KawinController = require("../controllers/kawin.controller");
 const TimbanganController = require("../controllers/timbangan.controller");
 const TernakController = require("../controllers/ternak.controller");
+const TernakForSaleController = require("../controllers/ternakforsale.controller");
 
 
 // Define url API in here
@@ -22,6 +23,7 @@ const _routes = [
     ['/kawin', KawinController],
     ['/timbangan', TimbanganController],
     ['/ternak', TernakController],
+    ['/ternak-for-sale', TernakForSaleController],
 ];
 
 const routes = (app) => {

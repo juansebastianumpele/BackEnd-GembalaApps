@@ -12,7 +12,7 @@ const TernakController = Router();
 */
 
 TernakController.get('/', async (req, res, next) => {
-    const detail = await s$ternak.listTernak(req);
+    const detail = await s$ternak.getTernak(req);
     response.sendResponse(res, detail);
 });
 
@@ -21,7 +21,7 @@ TernakController.get('/', async (req, res, next) => {
 */
 
 TernakController.get('/myternak', authMiddleware, async (req, res, next) => {
-    const detail = await s$ternak.listMyTernak(req);
+    const detail = await s$ternak.getMyTernak(req);
     response.sendResponse(res, detail);
 });
 
