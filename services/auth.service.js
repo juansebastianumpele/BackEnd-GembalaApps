@@ -61,20 +61,19 @@ class _auth{
     }
 
     register = async (data) => {
-
         // Validate data
         const schema = joi.object({
             nama_mitra: joi.string().required(),
-            username: joi.string().required(),
-            email: joi.string().required(),
+            username: joi.string().alphanum().min(4).max(30).required(),
+            email: joi.string().email().required(),
             no_hp: joi.string().required(),
             alamat: joi.string().required(),
-            password: joi.string().required()
+            password: joi.string().min(8).required(),
+            repeat_password: joi.ref('password').required()
         });
         const validate = schema.validate(data);
         if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message);
-
+            const errorDetails = validate.error.details.map(detail => detail.message).join(', ');
             return {
                 status: false,
                 code: 400,

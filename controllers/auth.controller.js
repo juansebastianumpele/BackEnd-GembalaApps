@@ -25,6 +25,7 @@ AuthController.post('/login', async (req, res, next) => {
  * @param {string} no_hp
  * @param {string} alamat
  * @param {string} password
+ * @param {string} repeat_password
  */
 
 AuthController.post('/register', async (req, res, next) => {
