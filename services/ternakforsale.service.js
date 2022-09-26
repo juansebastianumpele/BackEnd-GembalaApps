@@ -8,35 +8,7 @@ class _ternakForSale{
         try{
             // Query Data
             let query =  `
-            SELECT
-            d_ternak_for_sale.id_ternak_for_sale,
-            d_ternak_for_sale.id_users,
-            d_ternak_for_sale.id_ternak,
-            s_ternak.rf_id,
-            s_ternak.jenis_kelamin,
-            s_ternak.foto,
-            d_varietas.nama_varietas , 
-            s_ternak.berat_berkala, 
-            s_ternak.suhu_berkala, 
-            s_ternak.tanggal_lahir,
-            s_ternak.tanggal_masuk, 
-            s_ternak.id_induk, 
-            s_ternak.id_pejantan, 
-            s_ternak.status_sehat, 
-            d_penyakit.nama_penyakit,
-            d_kandang.nama_kandang,
-            d_fase_pemeliharaan.fase,
-            d_pakan.nama_pakan,
-            d_ternak_for_sale.harga_per,
-            d_ternak_for_sale.harga,
-            d_ternak_for_sale.harga_total,
-            FROM d_ternak_for_sale
-            LEFT JOIN s_ternak ON s_ternak.id_ternak = d_ternak_for_sale.id_ternak
-            LEFT JOIN d_varietas ON d_varietas.id_varietas = s_ternak.id_varietas
-            LEFT JOIN d_penyakit ON d_penyakit.id_penyakit = s_ternak.id_penyakit
-            LEFT JOIN d_kandang ON d_kandang.id_kandang = s_ternak.id_kandang
-            LEFT JOIN d_fase_pemeliharaan ON d_fase_pemeliharaan.id_fase_pemeliharaan = s_ternak.fase_pemeliharaan
-            LEFT JOIN d_pakan ON d_pakan.id_pakan = s_ternak.id_pakan
+            SELECT * FROM d_ternak_for_sale
             `;
             
             for(let i = 0; i < Object.keys(req.query).length; i++){
@@ -71,35 +43,7 @@ class _ternakForSale{
     getMyTernak = async (req) => {
         try{            
             // Query Data
-            let query = `SELECT
-            s_ternak.id_users,
-            s_ternak.id_ternak,
-            s_ternak.rf_id,
-            s_ternak.jenis_kelamin,
-            s_ternak.foto,
-            d_varietas.nama_varietas , 
-            s_ternak.berat_berkala, 
-            s_ternak.suhu_berkala, 
-            s_ternak.tanggal_lahir,
-            s_ternak.tanggal_masuk, 
-            s_ternak.id_induk, 
-            s_ternak.id_pejantan, 
-            s_ternak.status_sehat, 
-            d_kandang.nama_kandang,
-            d_fase_pemeliharaan.fase,
-            d_pakan.nama_pakan,
-            s_ternak.tanggal_keluar, 
-            s_ternak.status_keluar 
-            FROM s_ternak
-            LEFT JOIN d_varietas
-            ON s_ternak.id_varietas=d_varietas.id_varietas
-            LEFT JOIN d_pakan
-            ON s_ternak.id_pakan=d_pakan.id_pakan
-            LEFT JOIN d_fase_pemeliharaan
-            ON s_ternak.fase_pemeliharaan=d_fase_pemeliharaan.id_fp
-            LEFT JOIN d_kandang
-            ON s_ternak.id_kandang=d_kandang.id_kandang
-            WHERE s_ternak.id_users=?`;
+            let query = `SELECT * WHERE d_ternak_for_sale.id_users=?`;
 
             for(let i = 0; i < Object.keys(req.query).length; i++){
                 query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`;
@@ -133,21 +77,9 @@ class _ternakForSale{
         try {
             // Validate Data
             const schema = joi.object({
-                rf_id: joi.string().required(),
-                jenis_kelamin: joi.string().required(),
-                id_varietas: joi.number().required(),
-                berat: joi.number().required(),
-                suhu: joi.number().required(),
-                tanggal_lahir: joi.date().required(),
-                tanggal_masuk: joi.date().required(),
-                id_induk: joi.number().required(),
-                id_pejantan: joi.number().required(),
-                status_sehat: joi.string().required(),
-                id_pakan: joi.number().required(),
-                id_kandang: joi.number().required(),
-                fase_pemeliharaan: joi.number().required(),
-                tanggal_keluar: joi.date(),
-                status_keluar: joi.string()
+                id_ternak: joi.number().required(),
+                harga_per: joi.number().required(),
+                harga: joi.number().required(),
             });
 
             const {error, value} = schema.validate(req.body);
@@ -160,16 +92,30 @@ class _ternakForSale{
                 }
             }
 
+            if(req.body.harga_per === 'kg'){
+                const berat = await mysql.query('SELECT berat_berkala FROM s_ternak WHERE id_ternak = ? AND id_users = ?', [req.body.id_ternak, req.dataAuth.id_users]);
+                if(berat.length <= 0){
+                    return{
+                        status: false,
+                        code: 404,
+                        error: 'Data ternak tidak ditemukan'
+                    }
+                }
+                req.body.harga_total = req.body.harga * berat;
+            } else if(req.body.harga_per === 'ekor'){
+                req.body.harga_total = req.body.harga;
+            } else {
+                return{
+                    status: false,
+                    code: 400,
+                    error: 'Satuan harga tidak valid'
+                }
+            }
+
             // Query Data
             const add = await mysql.query(
-                `INSERT INTO s_ternak(rf_id, id_users, jenis_kelamin, id_varietas, berat_berkala,
-                    suhu_berkala, tanggal_lahir, tanggal_masuk, id_induk, id_pejantan, status_sehat,
-                     id_pakan, id_kandang, fase_pemeliharaan, tanggal_keluar, status_keluar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-                [
-                    req.body.rf_id, req.dataAuth.id_users, req.body.jenis_kelamin, req.body.id_varietas, req.body.berat, req.body.suhu,
-                    req.body.tanggal_lahir, req.body.tanggal_masuk, req.body.id_induk, req.body.id_pejantan, req.body.status_sehat,
-                    req.body.id_pakan, req.body.id_kandang, req.body.fase_pemeliharaan, req.body.tanggal_keluar, req.body.status_keluar
-                ]
+                `INSERT INTO d_ternak_for_sale (id_ternak, id_users, harga_per, harga, harga_total) VALUES (?, ?, ?, ?, ?)`,
+                [req.body.id_ternak, req.dataAuth.id_users, req.body.harga_per, req.body.harga, req.body.harga_total]
             );
 
             return {
@@ -189,23 +135,12 @@ class _ternakForSale{
     // Update Ternak
     updateTernak = async (req) => {
         try {
+            // Validate Data
             const schema = joi.object({
+                id_ternak_for_sale: joi.number().required(),
                 id_ternak: joi.number().required(),
-                rf_id: joi.string().required(),
-                jenis_kelamin: joi.string().required(),
-                id_varietas: joi.number().required(),
-                berat: joi.number().required(),
-                suhu: joi.number().required(),
-                tanggal_lahir: joi.date().required(),
-                tanggal_masuk: joi.date().required(),
-                id_induk: joi.number().required(),
-                id_pejantan: joi.number().required(),
-                status_sehat: joi.string().required(),
-                id_pakan: joi.number().required(),
-                id_kandang: joi.number().required(),
-                fase_pemeliharaan: joi.number().required(),
-                tanggal_keluar: joi.date(),
-                status_keluar: joi.string()
+                harga_per: joi.number().required(),
+                harga: joi.number().required(),
             });
 
             const {error, value} = schema.validate(req.body);
@@ -218,16 +153,29 @@ class _ternakForSale{
                 }
             }
 
+            if(req.body.harga_per === 'kg'){
+                const berat = await mysql.query('SELECT berat_berkala FROM s_ternak WHERE id_ternak = ? AND id_users = ?', [req.body.id_ternak, req.dataAuth.id_users]);
+                if(berat.length <= 0){
+                    return{
+                        status: false,
+                        code: 404,
+                        error: 'Data ternak tidak ditemukan'
+                    }
+                }
+                req.body.harga_total = req.body.harga * berat;
+            } else if(req.body.harga_per === 'ekor'){
+                req.body.harga_total = req.body.harga;
+            } else {
+                return{
+                    status: false,
+                    code: 400,
+                    error: 'Satuan harga tidak valid'
+                }
+            }
+
             const update = await mysql.query(
-                `UPDATE s_ternak SET rf_id = ?, jenis_kelamin = ?,
-                id_varietas = ?, berat_berkala = ?, suhu_berkala = ?, tanggal_lahir = ?, tanggal_masuk = ?, 
-                id_induk = ?, id_pejantan = ?, status_sehat = ?, id_pakan = ?, id_kandang = ?, fase_pemeliharaan = ?,
-                tanggal_keluar = ?, status_keluar = ?  WHERE id_ternak = ? AND id_users = ?`,
-                [
-                    req.body.rf_id, req.body.jenis_kelamin, req.body.id_varietas, req.body.berat, req.body.suhu,
-                    req.body.tanggal_lahir, req.body.tanggal_masuk, req.body.id_induk, req.body.id_pejantan, req.body.status_sehat,
-                    req.body.id_pakan, req.body.id_kandang, req.body.fase_pemeliharaan, req.body.tanggal_keluar, req.body.status_keluar, req.body.id_ternak, req.dataAuth.id_users
-                ]
+                `UPDATE d_ternak_for_sale SET id_ternak=?, harga_per=?, harga=?, harga_total = ? WHERE id_ternak_for_sale=? AND id_users=?`
+                [req.body.id_ternak, req.body.harga_per, req.body.harga, req.body.harga_total, req.body.id_ternak_for_sale, req.dataAuth.id_users]
             );
 
             return {
@@ -249,7 +197,7 @@ class _ternakForSale{
         try {
             // Validate Data
             const schema = joi.object({
-                id_ternak: joi.number().required(),
+                id_ternak_for_sale: joi.number().required(),
             });
 
             const {error, value} = schema.validate(req.body);
@@ -263,7 +211,7 @@ class _ternakForSale{
             }
 
             // Query Data
-            const del = await mysql.query('DELETE FROM s_ternak WHERE id_ternak = ? AND id_users', [req.body.id_ternak, req.dataAuth.id_users]);
+            const del = await mysql.query('DELETE FROM d_ternak_for_sale WHERE id_ternak_for_sale = ? AND id_users', [req.body.id_ternak_for_sale, req.dataAuth.id_users]);
 
             return {
                 status: true,
