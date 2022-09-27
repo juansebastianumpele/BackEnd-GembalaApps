@@ -53,6 +53,13 @@ class _varietas{
 
             // Query data
             const add = await mysql.query('INSERT INTO d_varietas (id_users, nama_varietas) VALUES (?, ?)', [req.dataAuth.id_users, req.body.nama_varietas]);
+            if(add.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menambahkan varietas ${req.body.nama_varietas}`
+                }
+            }
 
             return {
                 status: true,
@@ -89,6 +96,13 @@ class _varietas{
 
             // Query data
             const update = await mysql.query('UPDATE d_varietas SET nama_varietas = ? WHERE id_varietas = ? AND id_users = ?', [req.body.nama_varietas, req.body.id_varietas, req.dataAuth.id_users]);
+            if(update.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal mengubah varietas ${req.body.nama_varietas}`
+                }
+            }
 
             return {
                 status: true,
@@ -124,7 +138,14 @@ class _varietas{
 
             // Query data
             const del = await mysql.query('DELETE FROM d_varietas WHERE id_varietas = ? AND id_users', [req.body.id_varietas, req.dataAuth.id_users]);
-
+            if(del.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menghapus varietas ${req.body.nama_varietas}`
+                }
+            }
+            
             return {
                 status: true,
                 message: 'Data varietas berhasil dihapus',

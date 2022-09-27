@@ -58,6 +58,13 @@ class _timbangan{
 
             // Query data
             const add = await mysql.query(`INSERT INTO d_timbangan (id_users, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal) VALUES (?, ?, ?, ?, ?, ?)`, [req.dataAuth.id_users, req.body.id_ternak, req.body.rf_id, req.body.berat_berkala, req.body.suhu_berkala, req.body.tanggal]);
+            if(add.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Data timbangan gagal ditambahkan`
+                }
+            }
 
             return {
                 status: true,
@@ -97,7 +104,14 @@ class _timbangan{
             }
 
             // Query data
-            const update = await mysql.query(`UPDATE d_timbangan SET id_ternak = ?, rf_id = ?, berat_berkala = ?, suhu_berkala = ?, tanggal = ? WHERE id_timbangan = ? AND id_users = ?`, [req.bosy.id_ternak, req.bosy.rf_id, req.bosy.berat_berkala, req.bosy.suhu_berkala, req.bosy.tanggal, req.bosy.id_timbangan, req.dataAuth.id_users]);
+            const update = await mysql.query(`UPDATE d_timbangan SET id_ternak = ?, rf_id = ?, berat_berkala = ?, suhu_berkala = ?, tanggal = ? WHERE id_timbangan = ? AND id_users = ?`, [req.body.id_ternak, req.body.rf_id, req.body.berat_berkala, req.body.suhu_berkala, req.body.tanggal, req.body.id_timbangan, req.dataAuth.id_users]);
+            if(update.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Data timbangan gagal diubah`
+                }
+            }
 
             return {
                 status: true,
@@ -133,7 +147,14 @@ class _timbangan{
 
             // Query data
             const del = await mysql.query(`DELETE FROM d_timbangan WHERE id_timbangan = ? AND id_users = ?`, [req.body.id_timbangan, req.dataAuth.id_users]);
-
+            if(del.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Data timbangan gagal dihapus`
+                }
+            }
+            
             return {
                 status: true,
                 message: 'Data Timbangan berhasil dihapus',

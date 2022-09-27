@@ -20,7 +20,8 @@ class _ternak{
             s_ternak.tanggal_masuk, 
             s_ternak.id_induk, 
             s_ternak.id_pejantan, 
-            s_ternak.status_sehat, 
+            s_ternak.status_sehat,
+            d_penyakit.nama_penyakit, 
             d_kandang.nama_kandang,
             d_fase_pemeliharaan.fase,
             d_pakan.nama_pakan,
@@ -34,7 +35,9 @@ class _ternak{
             LEFT JOIN d_fase_pemeliharaan
             ON s_ternak.fase_pemeliharaan=d_fase_pemeliharaan.id_fp
             LEFT JOIN d_kandang
-            ON s_ternak.id_kandang=d_kandang.id_kandang`;
+            ON s_ternak.id_kandang=d_kandang.id_kandang
+            LEFT JOIN d_penyakit
+            ON s_ternak.id_penyakit=d_penyakit.id_penyakit`;
             
             for(let i = 0; i < Object.keys(req.query).length; i++){
                 query += (i === 0) ? ` WHERE` : ` AND`;
@@ -82,6 +85,7 @@ class _ternak{
             s_ternak.id_induk, 
             s_ternak.id_pejantan, 
             s_ternak.status_sehat, 
+            d_penyakit.nama_penyakit,
             d_kandang.nama_kandang,
             d_fase_pemeliharaan.fase,
             d_pakan.nama_pakan,
@@ -96,6 +100,8 @@ class _ternak{
             ON s_ternak.fase_pemeliharaan=d_fase_pemeliharaan.id_fp
             LEFT JOIN d_kandang
             ON s_ternak.id_kandang=d_kandang.id_kandang
+            LEFT JOIN d_penyakit
+            ON s_ternak.id_penyakit=d_penyakit.id_penyakit
             WHERE s_ternak.id_users=?`;
 
             for(let i = 0; i < Object.keys(req.query).length; i++){
@@ -131,20 +137,20 @@ class _ternak{
             // Validate Data
             const schema = joi.object({
                 rf_id: joi.string().required(),
+                foto: joi.string().required(),
                 jenis_kelamin: joi.string().required(),
                 id_varietas: joi.number().required(),
-                berat: joi.number().required(),
-                suhu: joi.number().required(),
-                tanggal_lahir: joi.date().required(),
+                berat_berkala: joi.number().required(),
+                suhu_berkala: joi.number().allow(null),
+                tanggal_lahir: joi.date().allow(null),
                 tanggal_masuk: joi.date().required(),
                 id_induk: joi.number().required(),
                 id_pejantan: joi.number().required(),
                 status_sehat: joi.string().required(),
+                id_penyakit: joi.number().allow(null),
                 id_pakan: joi.number().required(),
-                id_kandang: joi.number().required(),
                 fase_pemeliharaan: joi.number().required(),
-                tanggal_keluar: joi.date(),
-                status_keluar: joi.string()
+                id_kandang: joi.number().required()
             });
 
             const {error, value} = schema.validate(req.body);
@@ -159,15 +165,22 @@ class _ternak{
 
             // Query Data
             const add = await mysql.query(
-                `INSERT INTO s_ternak(rf_id, id_users, jenis_kelamin, id_varietas, berat_berkala,
-                    suhu_berkala, tanggal_lahir, tanggal_masuk, id_induk, id_pejantan, status_sehat,
-                     id_pakan, id_kandang, fase_pemeliharaan, tanggal_keluar, status_keluar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+                `INSERT INTO s_ternak(rf_id, id_users, foto, jenis_kelamin, id_varietas, berat_berkala,
+                    suhu_berkala, tanggal_lahir, tanggal_masuk, id_induk, id_pejantan, status_sehat, id_penyakit,
+                     id_pakan, id_kandang, fase_pemeliharaan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
                 [
-                    req.body.rf_id, req.dataAuth.id_users, req.body.jenis_kelamin, req.body.id_varietas, req.body.berat, req.body.suhu,
+                    req.body.rf_id, req.dataAuth.id_users, req.body.foto, req.body.jenis_kelamin, req.body.id_varietas, req.body.berat_berkala, req.body.suhu_berkala,
                     req.body.tanggal_lahir, req.body.tanggal_masuk, req.body.id_induk, req.body.id_pejantan, req.body.status_sehat,
-                    req.body.id_pakan, req.body.id_kandang, req.body.fase_pemeliharaan, req.body.tanggal_keluar, req.body.status_keluar
+                    req.body.id_penyakit, req.body.id_pakan, req.body.id_kandang, req.body.fase_pemeliharaan
                 ]
             );
+            if(add.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menambahkan data ternak`
+                }
+            }
 
             return {
                 status: true,
@@ -189,20 +202,22 @@ class _ternak{
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 rf_id: joi.string().required(),
+                foto: joi.string().required(),
                 jenis_kelamin: joi.string().required(),
                 id_varietas: joi.number().required(),
-                berat: joi.number().required(),
-                suhu: joi.number().required(),
+                berat_berkala: joi.number().allow(null),
+                suhu_berkala: joi.number().allow(null),
                 tanggal_lahir: joi.date().required(),
                 tanggal_masuk: joi.date().required(),
                 id_induk: joi.number().required(),
                 id_pejantan: joi.number().required(),
                 status_sehat: joi.string().required(),
+                id_penyakit: joi.number().allow(null),
                 id_pakan: joi.number().required(),
-                id_kandang: joi.number().required(),
                 fase_pemeliharaan: joi.number().required(),
-                tanggal_keluar: joi.date(),
-                status_keluar: joi.string()
+                id_kandang: joi.number().required(),
+                tanggal_keluar: joi.date().allow(null),
+                status_keluar: joi.number().allow(null)
             });
 
             const {error, value} = schema.validate(req.body);
@@ -216,16 +231,23 @@ class _ternak{
             }
 
             const update = await mysql.query(
-                `UPDATE s_ternak SET rf_id = ?, jenis_kelamin = ?,
+                `UPDATE s_ternak SET rf_id = ?, foto = ?, jenis_kelamin = ?,
                 id_varietas = ?, berat_berkala = ?, suhu_berkala = ?, tanggal_lahir = ?, tanggal_masuk = ?, 
-                id_induk = ?, id_pejantan = ?, status_sehat = ?, id_pakan = ?, id_kandang = ?, fase_pemeliharaan = ?,
+                id_induk = ?, id_pejantan = ?, status_sehat = ?, id_penyakit = ?, id_pakan = ?, id_kandang = ?, fase_pemeliharaan = ?,
                 tanggal_keluar = ?, status_keluar = ?  WHERE id_ternak = ? AND id_users = ?`,
                 [
-                    req.body.rf_id, req.body.jenis_kelamin, req.body.id_varietas, req.body.berat, req.body.suhu,
-                    req.body.tanggal_lahir, req.body.tanggal_masuk, req.body.id_induk, req.body.id_pejantan, req.body.status_sehat,
+                    req.body.rf_id, req.body.foto, req.body.jenis_kelamin, req.body.id_varietas, req.body.berat_berkala, req.body.suhu_berkala,
+                    req.body.tanggal_lahir, req.body.tanggal_masuk, req.body.id_induk, req.body.id_pejantan, req.body.status_sehat, req.body.id_penyakit,
                     req.body.id_pakan, req.body.id_kandang, req.body.fase_pemeliharaan, req.body.tanggal_keluar, req.body.status_keluar, req.body.id_ternak, req.dataAuth.id_users
                 ]
             );
+            if(update.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal mengubah data ternak`
+                }
+            }
 
             return {
                 status: true,
@@ -261,6 +283,13 @@ class _ternak{
 
             // Query Data
             const del = await mysql.query('DELETE FROM s_ternak WHERE id_ternak = ? AND id_users', [req.body.id_ternak, req.dataAuth.id_users]);
+            if(del.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menghapus data ternak`
+                }
+            }
 
             return {
                 status: true,

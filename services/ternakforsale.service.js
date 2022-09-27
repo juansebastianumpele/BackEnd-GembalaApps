@@ -78,7 +78,7 @@ class _ternakForSale{
             // Validate Data
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                harga_per: joi.number().required(),
+                harga_per: joi.string().required(),
                 harga: joi.number().required(),
             });
 
@@ -92,31 +92,18 @@ class _ternakForSale{
                 }
             }
 
-            if(req.body.harga_per === 'kg'){
-                const berat = await mysql.query('SELECT berat_berkala FROM s_ternak WHERE id_ternak = ? AND id_users = ?', [req.body.id_ternak, req.dataAuth.id_users]);
-                if(berat.length <= 0){
-                    return{
-                        status: false,
-                        code: 404,
-                        message: 'Data ternak tidak ditemukan'
-                    }
-                }
-                req.body.harga_total = req.body.harga * berat;
-            } else if(req.body.harga_per === 'ekor'){
-                req.body.harga_total = req.body.harga;
-            } else {
+            // Query Data
+            const add = await mysql.query(
+                `INSERT INTO d_ternak_for_sale (id_ternak, id_users, harga_per, harga) VALUES (?, ?, ?, ?)`,
+                [req.body.id_ternak, req.dataAuth.id_users, req.body.harga_per, req.body.harga]
+            );
+            if(add.affectedRows <= 0){
                 return{
                     status: false,
                     code: 400,
-                    message: 'Satuan harga tidak valid'
+                    message: `Gagal menambahkan data ternak`
                 }
             }
-
-            // Query Data
-            const add = await mysql.query(
-                `INSERT INTO d_ternak_for_sale (id_ternak, id_users, harga_per, harga, harga_total) VALUES (?, ?, ?, ?, ?)`,
-                [req.body.id_ternak, req.dataAuth.id_users, req.body.harga_per, req.body.harga, req.body.harga_total]
-            );
 
             return {
                 status: true,
@@ -139,7 +126,7 @@ class _ternakForSale{
             const schema = joi.object({
                 id_ternak_for_sale: joi.number().required(),
                 id_ternak: joi.number().required(),
-                harga_per: joi.number().required(),
+                harga_per: joi.string().required(),
                 harga: joi.number().required(),
             });
 
@@ -152,31 +139,17 @@ class _ternakForSale{
                     error: errorDetails
                 }
             }
-
-            if(req.body.harga_per === 'kg'){
-                const berat = await mysql.query('SELECT berat_berkala FROM s_ternak WHERE id_ternak = ? AND id_users = ?', [req.body.id_ternak, req.dataAuth.id_users]);
-                if(berat.length <= 0){
-                    return{
-                        status: false,
-                        code: 404,
-                        message: 'Data ternak tidak ditemukan'
-                    }
-                }
-                req.body.harga_total = req.body.harga * berat;
-            } else if(req.body.harga_per === 'ekor'){
-                req.body.harga_total = req.body.harga;
-            } else {
+            const update = await mysql.query(`UPDATE d_ternak_for_sale SET id_ternak=?, harga_per=?, harga=? WHERE id_ternak_for_sale=? AND id_users=?`,
+                [req.body.id_ternak, req.body.harga_per, req.body.harga, req.body.id_ternak_for_sale, req.dataAuth.id_users]
+            );
+            console.log(`update`, update);
+            if(update.affectedRows <= 0){
                 return{
                     status: false,
                     code: 400,
-                    message: 'Satuan harga tidak valid'
+                    message: `Gagal mengubah data ternak`
                 }
             }
-
-            const update = await mysql.query(
-                `UPDATE d_ternak_for_sale SET id_ternak=?, harga_per=?, harga=?, harga_total = ? WHERE id_ternak_for_sale=? AND id_users=?`
-                [req.body.id_ternak, req.body.harga_per, req.body.harga, req.body.harga_total, req.body.id_ternak_for_sale, req.dataAuth.id_users]
-            );
 
             return {
                 status: true,
@@ -212,7 +185,14 @@ class _ternakForSale{
 
             // Query Data
             const del = await mysql.query('DELETE FROM d_ternak_for_sale WHERE id_ternak_for_sale = ? AND id_users', [req.body.id_ternak_for_sale, req.dataAuth.id_users]);
-
+            if(del.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menghapus data ternak`
+                }
+            }
+            
             return {
                 status: true,
                 message: 'Data ternak berhasil dihapus',
