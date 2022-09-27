@@ -17,7 +17,7 @@ KandangController.get('/', authMiddleware, async (req, res, next) => {
 /**
  * Create Kandang
  * @param {string} nama_kandang
- * @param {string} blok_kandang
+ * @param {number} id_blok
  */
 
 KandangController.post('/', authMiddleware, async (req, res, next) => {
@@ -28,7 +28,7 @@ KandangController.post('/', authMiddleware, async (req, res, next) => {
 /**
  * Update Kandang
  * @param {string} name_kandang
- * @param {string} blok_kandang
+ * @param {string} id_blok
 */
 
 KandangController.put('/', authMiddleware, async (req, res, next) => {

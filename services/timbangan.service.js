@@ -17,7 +17,7 @@ class _timbangan{
                 return{
                     status: false,
                     code: 404,
-                    error: `Data timbangan tidak ditemukan`
+                    message: `Data timbangan tidak ditemukan`
                 }
             }
             return {

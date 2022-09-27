@@ -26,7 +26,7 @@ class _auth{
             return {
                 status: false,
                 code: 404,
-                data: 'Sorry, user not found'
+                message: 'Sorry, user not found'
             }
         }
 
@@ -36,7 +36,7 @@ class _auth{
             return {
                 status: false,
                 code: 404,
-                data: 'Sorry, password not match'
+                message: 'Sorry, password not match'
             }
         }
 
@@ -46,7 +46,7 @@ class _auth{
             return {
                 status: false,
                 code: 500,
-                data: 'Sorry, something went wrong'
+                message: 'Sorry, something went wrong'
             }
         }
 
@@ -87,7 +87,7 @@ class _auth{
             return {
                 status: false,
                 code: 400,
-                data: 'Sorry, username already exist'
+                message: 'Sorry, username already exist'
             }
         }
 
@@ -102,7 +102,7 @@ class _auth{
             return {
                 status: false,
                 code: 500,
-                data: 'Sorry, something went wrong'
+                message: 'Sorry, something went wrong'
             }
         }
 
@@ -120,7 +120,7 @@ class _auth{
             return {
                 status: false,
                 code: 500,
-                data: 'Sorry, something went wrong'
+                message: 'Sorry, something went wrong'
             }
         }
         return {
@@ -152,17 +152,17 @@ class _auth{
             return {
                 status: false,
                 code: 404,
-                data: 'Sorry, user not found'
+                message: 'Sorry, user not found'
             }
         }
 
         // Compare password
-        const isMatch = await comparePassword(data.password, checkUser.data[0].password);
+        const isMatch = await comparePassword(req.body.password, checkUser[0].password);
         if (!isMatch) {
             return {
                 status: false,
                 code: 404,
-                data: 'Sorry, password not match'
+                message: 'Sorry, password not match'
             }
         }
 
@@ -172,7 +172,7 @@ class _auth{
             return {
                 status: false,
                 code: 500,
-                data: `Sorry, delete account failed, Error: ${deletedAccount.error}`
+                message: `Sorry, delete account failed, Error: ${deletedAccount.error}`
             }
         }
 
@@ -186,7 +186,7 @@ class _auth{
 
         // Validate data
         const schema = joi.object({
-            nama_lengkap: joi.string().required(),
+            nama_mitra: joi.string().required(),
             username: joi.string().required(),
             email: joi.string().required(),
             no_hp: joi.string().required(),
@@ -210,7 +210,7 @@ class _auth{
             return {
                 status: false,
                 code: 500,
-                data: `Sorry, update account failed, Error: ${updatedAccount.error}`
+                message: `Sorry, update account failed, Error: ${updatedAccount.error}`
             }
         }
 
@@ -243,7 +243,7 @@ class _auth{
             return {
                 status: false,
                 code: 404,
-                data: 'Sorry, user not found'
+                message: 'Sorry, user not found'
             }
         }
 
@@ -253,7 +253,7 @@ class _auth{
             return {
                 status: false,
                 code: 404,
-                data: 'Sorry, password not match'
+                message: 'Sorry, password not match'
             }
         }
 
@@ -266,7 +266,7 @@ class _auth{
             return {
                 status: false,
                 code: 500,
-                data: `Sorry, update password failed, Error: ${updatedPassword.error}`
+                message: `Sorry, update password failed, Error: ${updatedPassword.error}`
             }
         }
 

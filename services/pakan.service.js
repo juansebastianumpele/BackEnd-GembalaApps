@@ -20,7 +20,7 @@ class _pakan{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data pakan tidak ditemukan'
+                    message: 'Data pakan tidak ditemukan'
                 }
             }
             
@@ -61,6 +61,13 @@ class _pakan{
 
             // Query data
             const add = await mysql.query('INSERT INTO d_pakan (id_users, nama_pakan, deskripsi, komposisi, jumlah) VALUES (?, ?, ?, ?, ?)', [req.dataAuth.id_users, req.body.nama_pakan, req.body.deskripsi, req.body.komposisi, req.body.jumlah]);
+            if(add.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menambahkan data pakan`
+                }
+            }
 
             return {
                 status: true,
@@ -81,6 +88,7 @@ class _pakan{
         try {
             // Validate data
             const schema = joi.object({
+                id_pakan: joi.number().required(),
                 nama_pakan: joi.string().required(),
                 deskripsi: joi.string().required(),
                 komposisi: joi.string().required(),
@@ -99,6 +107,13 @@ class _pakan{
 
             // Query data
             const update = await mysql.query('UPDATE d_pakan SET nama_pakan = ?, deskripsi = ?, komposisi = ?, jumlah = ? WHERE id_pakan = ? AND id_users = ?', [req.body.nama_pakan, req.body.deskripsi, req.body.komposisi, req.body.jumlah, req.body.id_pakan, req.dataAuth.id_users]);
+            if(update.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal mengubah data pakan`
+                }
+            }
 
             return {
                 status: true,
@@ -134,6 +149,13 @@ class _pakan{
 
             // Query data
             const del = await mysql.query('DELETE FROM d_pakan WHERE id_pakan = ? AND id_users = ?', [req.body.id_pakan, req.dataAuth.id_users]);
+            if(del.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menghapus data pakan`
+                }
+            }
 
             return {
                 status: true,

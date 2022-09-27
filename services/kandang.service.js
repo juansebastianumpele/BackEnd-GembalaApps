@@ -7,7 +7,15 @@ class _kandang{
     getKandang = async (req) => {
         try{
             // Query data
-            let query = `SELECT id_kandang, nama_kandang, blok_kandang FROM d_kandang WHERE id_users = ?`
+            let query = `
+            SELECT 
+            d_kandang.id_kandang, 
+            d_kandang.nama_kandang, 
+            d_blok_kandang.blok
+            FROM d_kandang 
+            LEFT JOIN d_blok_kandang 
+            ON d_kandang.id_blok = d_blok_kandang.id_blok
+            WHERE d_kandang.id_users = ?`;
             for (let i = 0; i < Object.keys(req.query).length; i++) {
                 if(Object.keys(req.query)[i] == 'nama_kandang'){
                     query += ` AND ${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`
@@ -20,7 +28,7 @@ class _kandang{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data kandang tidak ditemukan'
+                    message: 'Data kandang tidak ditemukan'
                 }
             }
             return {
@@ -43,7 +51,7 @@ class _kandang{
             // Validate data
             const schema = joi.object({
                 nama_kandang: joi.string().required(),
-                blok_kandang: joi.string().required(),
+                id_blok: joi.number().required(),
             });
 
             const {error, value} = schema.validate(req.body);
@@ -57,7 +65,14 @@ class _kandang{
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_kandang (id_users, nama_kandang, blok_kandang) VALUES (?, ?, ?)', [req.dataAuth.id_users, req.body.nama_kandang, req.body.blok_kandang]);
+            const add = await mysql.query('INSERT INTO d_kandang (id_users, nama_kandang, id_blok) VALUES (?, ?, ?)', [req.dataAuth.id_users, req.body.nama_kandang, req.body.id_blok]);
+            if(add.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menambahkan data kandang`
+                }
+            }
 
             return {
                 status: true,
@@ -80,7 +95,7 @@ class _kandang{
             const schema = joi.object({
                 id_kandang: joi.number().required(),
                 nama_kandang: joi.string().required(),
-                blok_kandang: joi.string().required()
+                id_blok: joi.number().required()
             });
 
             const {error, value} = schema.validate(req.body);
@@ -94,7 +109,14 @@ class _kandang{
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_kandang SET nama_kandang = ?, blok_kandang = ? WHERE id_kandang = ? AND id_users = ?', [req.body.nama_kandang, req.body.blok_kandang, req.body.id_kandang, req.dataAuth.id_users]);
+            const update = await mysql.query('UPDATE d_kandang SET nama_kandang = ?, id_blok = ? WHERE id_kandang = ? AND id_users = ?', [req.body.nama_kandang, req.body.id_blok, req.body.id_kandang, req.dataAuth.id_users]);
+            if(update.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal mengubah data kandang`
+                }
+            }
 
             return {
                 status: true,
@@ -130,7 +152,14 @@ class _kandang{
 
             // Query data
             const del = await mysql.query('DELETE FROM d_kandang WHERE id_kandang = ? AND id_users = ?', [req.body.id_kandang, req.dataAuth.id_users]);
-
+            if(del.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menghapus data kandang`
+                }
+            }
+            
             return {
                 status: true,
                 massage: 'Data kandang berhasil dihapus',

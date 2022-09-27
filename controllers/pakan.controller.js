@@ -31,6 +31,7 @@ PakanController.post('/', authMiddleware, async (req, res, next) => {
 
 /**
  * Update Pakan
+ * @param {number} id_pakan
  * @param {string} name_pakan
  * @param {string} deskripsi
  * @param {string} komposisi

@@ -28,6 +28,7 @@ FaseController.post('/', authMiddleware, async (req, res, next) => {
 
 /**
  * Update Fase
+ * @param {number} id_fp
  * @param {string} fase
 */
 

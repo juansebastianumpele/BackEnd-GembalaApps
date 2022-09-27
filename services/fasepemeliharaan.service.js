@@ -19,7 +19,7 @@ class _fase{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data fase tidak ditemukan'
+                    message: 'Data fase tidak ditemukan'
                 }
             }
             return {
@@ -54,6 +54,13 @@ class _fase{
             }
 
             const add = await mysql.query('INSERT INTO d_fase_pemeliharaan (id_users, fase) VALUES (?, ?)', [req.dataAuth.id_users, req.body.fase]);
+            if(add.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menambahkan fase`
+                }
+            }
 
             return {
                 status: true,
@@ -75,7 +82,7 @@ class _fase{
             // Validate Data
             const schema = joi.object({
                 id_fp: joi.number().required(),
-                fase: joi.number().required(),
+                fase: joi.string().required(),
             });
 
             const {error, value} = schema.validate(req.body);
@@ -89,6 +96,13 @@ class _fase{
             }
 
             const update = await mysql.query('UPDATE d_fase_pemeliharaan SET fase = ? WHERE id_fp = ? AND id_users = ?', [req.body.fase, req.body.id_fp, req.dataAuth.id_users]);
+            if(update.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal mengubah fase`
+                }
+            }
 
             return {
                 status: true,
@@ -121,7 +135,14 @@ class _fase{
                 }
             }
 
-            const del = await mysql.query('DELETE FROM d_fase_pemeliharaan WHERE id_fase = ? AND id_users = ?', [req.body.id_fp, req.dataAuth.id_users]);
+            const del = await mysql.query('DELETE FROM d_fase_pemeliharaan WHERE id_fp = ? AND id_users = ?', [req.body.id_fp, req.dataAuth.id_users]);
+            if(del.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menghapus fase`
+                }
+            }
 
             return {
                 status: true,

@@ -46,7 +46,7 @@ class _ternak{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data ternak tidak ditemukan'
+                    message: 'Data ternak tidak ditemukan'
                 }
             }
 
@@ -107,7 +107,7 @@ class _ternak{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data ternak tidak ditemukan'
+                    message: 'Data ternak tidak ditemukan'
                 }
             }
 

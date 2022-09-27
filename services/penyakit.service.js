@@ -20,7 +20,7 @@ class _penyakit{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data penyakit tidak ditemukan'
+                    message: 'Data penyakit tidak ditemukan'
                 }
             }
             return {
@@ -60,7 +60,13 @@ class _penyakit{
 
             // Query data
             const add = await mysql.query('INSERT INTO d_penyakit (id_users, nama_penyakit, deskripsi, ciri_penyakit, pengobatan) VALUES (?, ?, ?, ?, ?)', [req.dataAuth.id_users, req.body.nama_penyakit, req.body.deskripsi, req.body.ciri_penyakit, req.body.pengobatan]);
-
+            if(add.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menambahkan data penyakit`
+                }
+            }
             return {
                 status: true,
                 message: 'Data penyakit berhasil ditambahkan',
@@ -99,6 +105,13 @@ class _penyakit{
 
             // Query data
             const update = await mysql.query('UPDATE d_penyakit SET nama_penyakit = ?, deskripsi = ?, ciri_penyakit = ?, pengobatan = ? WHERE id_penyakit = ? AND id_users = ?', [req.body.nama_penyakit, req.body.deskripsi, req.body.ciri_penyakit, req.body.pengobatan, req.body.id_penyakit, req.dataAuth.id_users]);
+            if(update.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal mengubah data penyakit`
+                }
+            }
 
             return {
                 status: true,
@@ -134,7 +147,14 @@ class _penyakit{
 
             // Query data
             const del = await mysql.query('DELETE FROM d_penyakit WHERE id_penyakit = ? AND id_users = ?', [req.body.id_penyakit, req.dataAuth.id_users]);
-
+            if(del.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: `Gagal menghapus data penyakit`
+                }
+            }
+            
             return {
                 status: true,
                 message: 'Data penyakit berhasil dihapus',

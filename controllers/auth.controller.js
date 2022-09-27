@@ -69,7 +69,7 @@ AuthController.put('/update-account', authMiddleware, async (req, res, next) => 
 /**
  * Update Password
  * @param {string} password
- * @param {string} newPassword
+ * @param {string} new_password
  */
 
 AuthController.put('/update-password', authMiddleware, async (req, res, next) => {

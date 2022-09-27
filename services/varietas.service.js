@@ -16,7 +16,7 @@ class _varietas{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data varietas tidak ditemukan'
+                    message: 'Data varietas tidak ditemukan'
                 }
             }
             return {

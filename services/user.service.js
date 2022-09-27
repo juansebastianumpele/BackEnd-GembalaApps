@@ -19,11 +19,12 @@ class _user{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data users tidak ditemukan'
+                    message: 'Data users tidak ditemukan'
                 }
             }
             return {
                 status: true,
+                total: users.length,
                 data: users,
             };
         }catch (error){

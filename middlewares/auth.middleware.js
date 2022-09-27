@@ -14,7 +14,7 @@ const authMiddleware = async (req, res, next) => {
 
         const user = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [decoded.username]);
         if (user.length <= 0) {
-          res.status(401).send({ message: 'Not authorized' })
+          res.status(401).send({ status: false, message: 'Not authorized' })
         }
         
         // req.body.id_users = user[0].id_users
@@ -26,12 +26,13 @@ const authMiddleware = async (req, res, next) => {
         next()
         
       } catch (error) {
-        res.status(401).send({ message: 'Not authorized Error. Token Expired.', error })
+        res.status(401).send({ status: false, message: 'Not authorized Error. Token Expired.', error })
       }
     }
   
     if (!token) {
       res.status(401).send({
+        status: false,
         message: 'Not authenticated, no token'
       })
     }

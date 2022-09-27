@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 26, 2022 at 11:02 AM
+-- Generation Time: Sep 27, 2022 at 04:52 AM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.6
 
@@ -47,16 +47,7 @@ CREATE TABLE `auth_users` (
 --
 
 INSERT INTO `auth_users` (`id_users`, `foto`, `nama_mitra`, `username`, `password`, `email`, `no_hp`, `alamat`, `level`, `userLastAccess`, `createdAt`, `updatedAt`) VALUES
-(1, NULL, 'Sembada', 'sembada02', '9f35d680a485420f674852a2279aed9a7b0e130b0ad56a525f595b43b14e8b70', 'sembada@gmail.com', '1', '', 'Super Admin', '2022-09-17 05:01:06', '2022-04-04 08:30:52', '2022-04-04 08:30:52'),
-(10, '1654699590130_0a0b4362f6a04668581f7f1b41f0ad15', 'Sembada Farm', '02', '9f35d680a485420f674852a2279aed9a7b0e130b0ad56a525f595b43b14e8b70', 'dian@gmail.com', '082132501111', 'Banyuwangi', 'Mitra', '2022-09-21 07:55:43', '2022-09-26 02:22:05', '2022-09-26 02:22:32'),
-(30, NULL, 'wisnu putra wardana', 'whisky', '9f35d680a485420f674852a2279aed9a7b0e130b0ad56a525f595b43b14e8b70', 'wisnupw7@gmail.com', '081249122477', 'Banyuwangi, Jawa Timur', 'Non Mitra', '2022-06-08 03:19:31', '2022-09-26 02:22:05', '2022-09-26 02:22:32'),
-(31, NULL, 'Wiyanto ', 'wiyanto', 'd2e5161ea242999893736b0bab59f787cd2fcdd2acd69c51f0862b8dad9a0371', 'wiyanto419@gmail.com', '08386033827', 'Boyolali', 'Non Mitra', '2022-06-08 05:31:52', '2022-09-26 02:22:05', '2022-09-26 02:22:32'),
-(32, NULL, 'sembadafarm', 'sembadafarm', 'dbdcb9c2a9cd6e99baab68629b1524faa82b4563ac7936c798f88c0c18b914ba', 'sgembalamuda@gmail.com', '081234575820', 'Selomartani Kalasan Sleman', 'Non Mitra', NULL, '2022-09-26 02:22:05', '2022-09-26 02:22:32'),
-(33, NULL, 'Muhammad Fauzi Hanif', 'muhammadhanif010', '80c1826ac4d9c21137d6fa4cc826c99e05e2df7e762ee64df18d076b21da0713', 'muhammad.hanif010@binus.ac.id', '+971588236074', 'Yogyakarta', 'Non Mitra', '2022-09-20 04:57:49', '2022-09-26 02:22:05', '2022-09-26 02:22:32'),
-(36, NULL, 'Dian', 'dian', '9f35d680a485420f674852a2279aed9a7b0e130b0ad56a525f595b43b14e8b70', 'dian1@gmail.com', '0813838874738', 'probolinggo', 'Non Mitra', '2022-09-20 02:02:09', '2022-09-26 02:22:05', '2022-09-26 02:22:32'),
-(37, NULL, 'dian', 'dian1', '9f35d680a485420f674852a2279aed9a7b0e130b0ad56a525f595b43b14e8b70', 'diansyang@gmail.com', '01828237997', 'probolinggo', 'Non Mitra', NULL, '2022-09-26 02:22:05', '2022-09-26 02:22:32'),
-(38, NULL, 'Buat Akun', 'buatakun', '83b9a6c39c7e61704942e5cc118b29e3435096fae1e44a95c125175a724e8f50', 'buatakun', 'buatakun', 'buatakun', 'Non Mitra', '2022-09-20 07:49:20', '2022-09-26 02:22:05', '2022-09-26 02:22:32'),
-(39, NULL, 'test', 'test', '$2b$10$8uwPLdcbkSU2WBubE0xW/.WlzcnfTJQXaG.HJ8b9.nyfu87.vJj5q', 'test', 'test', 'test', 'Non Mitra', '2022-09-25 03:55:46', '2022-09-26 02:22:05', '2022-09-26 02:22:32');
+(41, NULL, 'test2', 'test', '$2b$10$ugCumDoTNGV/Zai8dRPzBO8bn5E1vlzGD2mcx40eBxa5FMaLFd0Oi', 'test@test.com', 'isbfuwq', 'wqind', 'Non Mitra', NULL, '2022-09-27 01:15:27', '2022-09-27 01:19:37');
 
 -- --------------------------------------------------------
 
@@ -71,6 +62,13 @@ CREATE TABLE `d_blok_kandang` (
   `createdAd` timestamp NOT NULL DEFAULT current_timestamp(),
   `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `d_blok_kandang`
+--
+
+INSERT INTO `d_blok_kandang` (`id_blok`, `id_users`, `blok`, `createdAd`, `updatedAt`) VALUES
+(3, 41, 'test', '2022-09-27 02:03:45', '2022-09-27 02:03:45');
 
 -- --------------------------------------------------------
 
@@ -110,6 +108,13 @@ CREATE TABLE `d_kandang` (
   `nama_kandang` varchar(50) NOT NULL,
   `id_blok` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `d_kandang`
+--
+
+INSERT INTO `d_kandang` (`id_kandang`, `id_users`, `nama_kandang`, `id_blok`) VALUES
+(107, 41, 'test', 3);
 
 -- --------------------------------------------------------
 
@@ -199,14 +204,7 @@ CREATE TABLE `d_pakan` (
 --
 
 INSERT INTO `d_pakan` (`id_pakan`, `id_users`, `nama_pakan`, `deskripsi`, `komposisi`, `jumlah`, `createdAt`, `updatedAt`) VALUES
-(1, 10, 'Rumput Pakchong', 'Hijauan', 'Pakchong', '10 Kg', '2022-09-26 02:38:11', '2022-09-26 02:38:11'),
-(2, 10, 'Konsentrat', 'Sumber Energi, Sumber Protein', 'Jagung, Bungkil Kedelai, Pongkol, Onggok', 'N/A', '2022-09-26 02:38:11', '2022-09-26 02:38:11'),
-(3, 10, 'Complete Feed', 'Pakan Komplit', 'Hijauan Rumput Segar, Konsentrat', 'N/A', '2022-09-26 02:38:11', '2022-09-26 02:38:11'),
-(4, 10, 'Silase', 'Hijauan Fermentasi', 'Pakchong', 'N/A', '2022-09-26 02:38:11', '2022-09-26 02:38:11'),
-(7, 10, 'Susu', 'Susu Formula', 'Susu Bubuk', 'N/A', '2022-09-26 02:38:11', '2022-09-26 02:38:11'),
-(12, 39, 'pakan1', 'pakan', 'test', '100', '2022-09-26 02:38:11', '2022-09-26 02:38:11'),
-(13, 39, 'pakan2', 'pakan', 'test', '100', '2022-09-26 02:38:11', '2022-09-26 02:38:11'),
-(14, 39, 'pakan2', 'pakan', 'test', '50', '2022-09-26 02:38:11', '2022-09-26 02:38:11');
+(15, 41, 'test3', 'test2', 'test2', '100', '2022-09-27 02:16:13', '2022-09-27 02:41:01');
 
 -- --------------------------------------------------------
 
@@ -230,7 +228,8 @@ CREATE TABLE `d_penyakit` (
 --
 
 INSERT INTO `d_penyakit` (`id_penyakit`, `id_users`, `nama_penyakit`, `deskripsi`, `ciri_penyakit`, `pengobatan`, `createdAt`, `updatedAt`) VALUES
-(39, 10, 'test', 'test', 'test', 'test', '2022-09-26 04:20:46', '2022-09-26 04:20:46');
+(40, 41, 'test3', 'test2', 'test2', 'test2', '2022-09-27 02:15:53', '2022-09-27 02:50:37'),
+(41, 41, 'test2', 'test2', 'test2', 'test2', '2022-09-27 02:49:31', '2022-09-27 02:49:31');
 
 -- --------------------------------------------------------
 
@@ -320,6 +319,13 @@ CREATE TABLE `d_varietas` (
   `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `d_varietas`
+--
+
+INSERT INTO `d_varietas` (`id_varietas`, `id_users`, `nama_varietas`, `createdAt`, `updatedAt`) VALUES
+(45, 41, 'test', '2022-09-27 02:15:20', '2022-09-27 02:15:20');
+
 -- --------------------------------------------------------
 
 --
@@ -343,12 +349,20 @@ CREATE TABLE `s_ternak` (
   `id_penyakit` int(11) DEFAULT NULL,
   `id_pakan` int(11) DEFAULT NULL,
   `fase_pemeliharaan` int(11) DEFAULT NULL,
-  `id_kandang` int(11) NOT NULL,
+  `id_kandang` int(11) DEFAULT NULL,
   `tanggal_keluar` datetime DEFAULT NULL,
   `status_keluar` int(11) DEFAULT NULL,
   `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
   `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `s_ternak`
+--
+
+INSERT INTO `s_ternak` (`id_ternak`, `rf_id`, `id_users`, `foto`, `jenis_kelamin`, `id_varietas`, `berat_berkala`, `suhu_berkala`, `tanggal_lahir`, `tanggal_masuk`, `id_induk`, `id_pejantan`, `status_sehat`, `id_penyakit`, `id_pakan`, `fase_pemeliharaan`, `id_kandang`, `tanggal_keluar`, `status_keluar`, `createdAt`, `updatedAt`) VALUES
+(301, 'test', 41, 'test', 'Betina', 45, 10, 10, '2022-09-27', '2022-09-27 04:21:55', NULL, NULL, 'Sehat', NULL, NULL, NULL, NULL, NULL, NULL, '2022-09-27 02:23:14', '2022-09-27 02:23:14'),
+(302, 'test2', 41, 'test', 'Jantan', 45, 10, 10, '2022-09-27', '2022-09-27 04:21:55', NULL, NULL, 'Sehat', NULL, NULL, NULL, NULL, NULL, NULL, '2022-09-27 02:23:14', '2022-09-27 02:23:14');
 
 --
 -- Indexes for dumped tables
@@ -495,13 +509,13 @@ ALTER TABLE `s_ternak`
 -- AUTO_INCREMENT for table `auth_users`
 --
 ALTER TABLE `auth_users`
-  MODIFY `id_users` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id_users` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `d_blok_kandang`
 --
 ALTER TABLE `d_blok_kandang`
-  MODIFY `id_blok` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_blok` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `d_detail_penjualan`
@@ -513,19 +527,19 @@ ALTER TABLE `d_detail_penjualan`
 -- AUTO_INCREMENT for table `d_fase_pemeliharaan`
 --
 ALTER TABLE `d_fase_pemeliharaan`
-  MODIFY `id_fp` int(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id_fp` int(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT for table `d_kandang`
 --
 ALTER TABLE `d_kandang`
-  MODIFY `id_kandang` int(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=105;
+  MODIFY `id_kandang` int(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
 
 --
 -- AUTO_INCREMENT for table `d_kawin`
 --
 ALTER TABLE `d_kawin`
-  MODIFY `id_kawin` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id_kawin` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `d_kesehatan`
@@ -537,13 +551,13 @@ ALTER TABLE `d_kesehatan`
 -- AUTO_INCREMENT for table `d_pakan`
 --
 ALTER TABLE `d_pakan`
-  MODIFY `id_pakan` int(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id_pakan` int(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `d_penyakit`
 --
 ALTER TABLE `d_penyakit`
-  MODIFY `id_penyakit` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id_penyakit` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `d_status_keluar`
@@ -573,13 +587,13 @@ ALTER TABLE `d_transaksi`
 -- AUTO_INCREMENT for table `d_varietas`
 --
 ALTER TABLE `d_varietas`
-  MODIFY `id_varietas` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id_varietas` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `s_ternak`
 --
 ALTER TABLE `s_ternak`
-  MODIFY `id_ternak` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=301;
+  MODIFY `id_ternak` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=303;
 
 --
 -- Constraints for dumped tables
@@ -683,6 +697,10 @@ ALTER TABLE `d_varietas`
 ALTER TABLE `s_ternak`
   ADD CONSTRAINT `s_ternak_ibfk_10` FOREIGN KEY (`fase_pemeliharaan`) REFERENCES `d_fase_pemeliharaan` (`id_fp`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `s_ternak_ibfk_11` FOREIGN KEY (`id_penyakit`) REFERENCES `d_penyakit` (`id_penyakit`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `s_ternak_ibfk_12` FOREIGN KEY (`id_induk`) REFERENCES `s_ternak` (`id_ternak`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `s_ternak_ibfk_13` FOREIGN KEY (`id_pejantan`) REFERENCES `s_ternak` (`id_ternak`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `s_ternak_ibfk_14` FOREIGN KEY (`id_varietas`) REFERENCES `d_varietas` (`id_varietas`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `s_ternak_ibfk_15` FOREIGN KEY (`id_kandang`) REFERENCES `d_kandang` (`id_kandang`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `s_ternak_ibfk_6` FOREIGN KEY (`id_pakan`) REFERENCES `d_pakan` (`id_pakan`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `s_ternak_ibfk_7` FOREIGN KEY (`id_users`) REFERENCES `auth_users` (`id_users`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;

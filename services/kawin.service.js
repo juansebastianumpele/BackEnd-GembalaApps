@@ -16,7 +16,7 @@ class _kawin{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data kawin tidak ditemukan'
+                    message: 'Data kawin tidak ditemukan'
                 }
             }
             return {
@@ -55,6 +55,13 @@ class _kawin{
 
             // Query data
             const add = await mysql.query('INSERT INTO d_kawin (id_users, id_ternak, tanggal_kawin, id_pemancek) VALUES (?, ?, ?, ?)', [req.dataAuth.id_users, req.body.id_ternak, req.body.tanggal_kawin, req.body.id_pemancek]);
+            if(add.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: 'Data kawin gagal ditambahkan'
+                }
+            }
 
             return {
                 status: true,
@@ -95,6 +102,13 @@ class _kawin{
             const update = await mysql.query(
                 `UPDATE d_kawin SET id_ternak = ?, tanggal_kawin = ?, id_pemancek = ? WHERE id_kawin = ? AND id_users = ?`,
                 [req.body.id_ternak, req.body.tanggal_kawin, req.body.id_pemancek, req.body.id_kawin, req.dataAuth.id_users]);
+            if(update.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: 'Data kawin gagal diubah'
+                }
+            }
 
             return {
                 status: true,
@@ -130,7 +144,14 @@ class _kawin{
 
             // Query data
             const del = await mysql.query(`DELETE FROM d_kawin WHERE id_kawin = ? AND id_users = ?`, [req.body.id_kawin, req.dataAuth.id_users]);
-
+            if(del.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: 'Data kawin gagal dihapus'
+                }
+            }
+            
             return {
                 status: true,
                 message: 'Data kawin berhasil dihapus',

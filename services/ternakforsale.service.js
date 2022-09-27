@@ -21,7 +21,7 @@ class _ternakForSale{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data ternak tidak ditemukan'
+                    message: 'Data ternak tidak ditemukan'
                 }
             }
 
@@ -54,7 +54,7 @@ class _ternakForSale{
                 return{
                     status: false,
                     code: 404,
-                    error: 'Data ternak tidak ditemukan'
+                    message: 'Data ternak tidak ditemukan'
                 }
             }
 
@@ -98,7 +98,7 @@ class _ternakForSale{
                     return{
                         status: false,
                         code: 404,
-                        error: 'Data ternak tidak ditemukan'
+                        message: 'Data ternak tidak ditemukan'
                     }
                 }
                 req.body.harga_total = req.body.harga * berat;
@@ -108,7 +108,7 @@ class _ternakForSale{
                 return{
                     status: false,
                     code: 400,
-                    error: 'Satuan harga tidak valid'
+                    message: 'Satuan harga tidak valid'
                 }
             }
 
@@ -159,7 +159,7 @@ class _ternakForSale{
                     return{
                         status: false,
                         code: 404,
-                        error: 'Data ternak tidak ditemukan'
+                        message: 'Data ternak tidak ditemukan'
                     }
                 }
                 req.body.harga_total = req.body.harga * berat;
@@ -169,7 +169,7 @@ class _ternakForSale{
                 return{
                     status: false,
                     code: 400,
-                    error: 'Satuan harga tidak valid'
+                    message: 'Satuan harga tidak valid'
                 }
             }
 
