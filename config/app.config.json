@@ -4,7 +4,7 @@
         "port": 3306,
         "user": "ppab8569_ppabimanyu",
         "password": "XN)H)*9aZlpg",
-        "database": "sembadafarm_db"
+        "database": "ppab8569_sembadafarm_db"
     },
     "jwt":{
         "secret": "secret",
