@@ -41,7 +41,7 @@ class _auth{
         }
 
         // Generate token
-        const token = generateToken({ username: data.username });
+        const token = generateToken({ name: data.username, id: checkUsername[0].id_users, role: checkUsername[0].level[0] });
         if (!token) {
             return {
                 status: false,

@@ -2,8 +2,8 @@
     "db": {
         "host": "localhost",
         "port": 3306,
-        "user": "root",
-        "password": "",
+        "user": "ppab8569_ppabimanyu",
+        "password": "ppabimanyu",
         "database": "sembadafarm_db"
     },
     "jwt":{

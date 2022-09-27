@@ -2,11 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const route = require('./routes/route');
 const app = express();
+const cookieParser = require('cookie-parser');
 
-const port = process.env.POST || 3000;
+const port = process.env.POST || 51009;
 
 // Handler Cors
 app.use(cors());
+
+app.use(cookieParser());
 
 // Serialize dan Deserialize Input
 app.use(express.json());
