@@ -28,6 +28,28 @@ const authMiddleware = async (req, res, next) => {
       } catch (error) {
         res.status(401).send({ status: false, message: 'Not authorized Error. Token Expired.', error })
       }
+    }else{
+      try{
+        const token = req.cookies.CERT;
+
+        const decoded = jwt.verify(token, config.jwt.secret)
+
+        const user = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [decoded.username]);
+        if (user.length <= 0) {
+          res.status(401).send({ status: false, message: 'Not authorized' })
+        }
+        
+        // req.body.id_users = user[0].id_users
+        // req.body.role = user[0].level[0]
+        req.dataAuth = {
+          id_users: user[0].id_users,
+          role: user[0].level[0]
+        }
+        next()
+        
+      } catch (error) {
+        res.status(401).send({ status: false, message: 'Not authorized Error. Token Expired.', error })
+      }
     }
   
     if (!token) {
