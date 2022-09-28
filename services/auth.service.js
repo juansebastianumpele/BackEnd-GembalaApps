@@ -55,7 +55,7 @@ class _auth{
             message: 'Login successful',
             data: {
                 token,
-                expiresIn: date.format(date.addSeconds(new Date(), 3600), 'YYYY-MM-DD HH:mm:ss')
+                expiresAt: date.format(date.addSeconds(new Date(), 3600), 'YYYY-MM-DD HH:mm:ss')
             },
         }
     }
