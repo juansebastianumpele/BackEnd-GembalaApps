@@ -6,12 +6,14 @@ const jwt = require('jsonwebtoken')
 const authMiddleware = async (req, res, next) => {
     let token
   
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer') || req.cookies.token) {
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       try {
-        token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : req.cookies.token
+        token = req.headers.authorization.split(' ')[1]
         console.log(token)
 
         const decoded = jwt.verify(token, config.jwt.secret)
+
+        console.log(decoded)
 
         const user = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [decoded.username]);
         if (user.length <= 0) {
