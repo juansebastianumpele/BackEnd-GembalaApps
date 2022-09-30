@@ -14,16 +14,14 @@ class _kandang{
             d_blok_kandang.blok
             FROM d_kandang 
             LEFT JOIN d_blok_kandang 
-            ON d_kandang.id_blok = d_blok_kandang.id_blok
-            WHERE d_kandang.id_users = ?`;
+            ON d_kandang.id_blok = d_blok_kandang.id_blok`;
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                if(Object.keys(req.query)[i] == 'nama_kandang'){
-                    query += ` AND ${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`
-                }else{
-                    query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
-                }
+                query += (i == 0) ? ` WHERE d_kandang.` : ` AND d_kandang.`;
+                query += Object.keys(req.query)[i] == 'id_kandang'
+                ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
+                : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
+            const list = await mysql.query(query);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -65,7 +63,11 @@ class _kandang{
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_kandang (id_users, nama_kandang, id_blok) VALUES (?, ?, ?)', [req.dataAuth.id_users, req.body.nama_kandang, req.body.id_blok]);
+            const add = await mysql.query(`INSERT INTO d_kandang (nama_kandang, id_blok) VALUES (?, ?)`, 
+            [
+                value.nama_kandang, 
+                value.id_blok
+            ]);
             if(add.affectedRows <= 0){
                 return{
                     status: false,
@@ -109,7 +111,12 @@ class _kandang{
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_kandang SET nama_kandang = ?, id_blok = ? WHERE id_kandang = ? AND id_users = ?', [req.body.nama_kandang, req.body.id_blok, req.body.id_kandang, req.dataAuth.id_users]);
+            const update = await mysql.query('UPDATE d_kandang SET nama_kandang = ?, id_blok = ? WHERE id_kandang = ?', 
+            [
+                value.nama_kandang, 
+                value.id_blok, 
+                value.id_kandang, 
+            ]);
             if(update.affectedRows <= 0){
                 return{
                     status: false,
@@ -151,7 +158,10 @@ class _kandang{
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_kandang WHERE id_kandang = ? AND id_users = ?', [req.body.id_kandang, req.dataAuth.id_users]);
+            const del = await mysql.query('DELETE FROM d_kandang WHERE id_kandang = ?', 
+            [
+                value.id_kandang
+            ]);
             if(del.affectedRows <= 0){
                 return{
                     status: false,

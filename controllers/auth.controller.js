@@ -1,80 +1,86 @@
 const { Router } = require('express');
-const s$auth = require('../services/auth.service');
 const response = require('../utils/response');
-const authMiddleware = require('../middlewares/auth.middleware');
+const authentication = require('../middlewares/authentication');
+const authService = require('../services/auth.service');
 
-const AuthController = Router();
+const authController = (db) => {
+    const s$auth = authService(db);
 
-/**
- * Login
- * @param {string} username
- * @param {string} password
- */
+    const AuthController = Router();
 
-AuthController.post('/login', async (req, res, next) => {
-    req.cookies = req.headers.cookie;
-    const login = await s$auth.login(req.body);
-    response.sendResponse(res, login);
-});
+    /**
+     * Login
+     * @param {string} username
+     * @param {string} password
+     */
 
-/**
- * Register
- * @param {string} nama_mitra
- * @param {string} username
- * @param {string} email
- * @param {string} no_hp
- * @param {string} alamat
- * @param {string} password
- * @param {string} repeat_password
- */
+    AuthController.post('/login', async (req, res, next) => {
+        req.cookies = req.headers.cookie;
+        const login = await s$auth.login(req.body);
+        response.sendResponse(res, login);
+    });
 
-AuthController.post('/register', async (req, res, next) => {
-    const register = await s$auth.register(req.body);
-    response.sendResponse(res, register);
-});
+    /**
+     * Register
+     * @param {string} nama_mitra
+     * @param {string} username
+     * @param {string} email
+     * @param {string} no_hp
+     * @param {string} alamat
+     * @param {string} password
+     * @param {string} repeat_password
+     */
 
-/**
- * Logout
- */
+    AuthController.post('/register', async (req, res, next) => {
+        const register = await s$auth.register(req.body);
+        response.sendResponse(res, register);
+    });
 
-AuthController.post('/logout', authMiddleware, async (req, res, next) => {
-    const logout = await s$auth.logout(req, res);
-    response.sendResponse(res, logout);
-});
+    /**
+     * Logout
+     */
 
-/**
- * Delete Account
- * @param {string} password
- */
+    AuthController.post('/logout', authentication, async (req, res, next) => {
+        const logout = await s$auth.logout(req, res);
+        response.sendResponse(res, logout);
+    });
 
-AuthController.delete('/delete-account', authMiddleware, async (req, res, next) => {
-    const deleteAccount = await s$auth.deleteAccount(req);
-    response.sendResponse(res, deleteAccount);
-});
+    /**
+     * Delete Account
+     * @param {string} password
+     */
 
-/**
- * Update Account
- * @param {string} nama_mitra
- * @param {string} username
- * @param {string} email
- * @param {string} no_hp
- * @param {string} alamat
- */
+    AuthController.delete('/delete-account', authentication, async (req, res, next) => {
+        const deleteAccount = await s$auth.deleteAccount(req);
+        response.sendResponse(res, deleteAccount);
+    });
 
-AuthController.put('/update-account', authMiddleware, async (req, res, next) => {
-    const updateAccount = await s$auth.updateAccount(req);
-    response.sendResponse(res, updateAccount);
-});
+    /**
+     * Update Account
+     * @param {string} nama_mitra
+     * @param {string} username
+     * @param {string} email
+     * @param {string} no_hp
+     * @param {string} alamat
+     */
 
-/**
- * Update Password
- * @param {string} password
- * @param {string} new_password
- */
+    AuthController.put('/update-account', authentication, async (req, res, next) => {
+        const updateAccount = await s$auth.updateAccount(req);
+        response.sendResponse(res, updateAccount);
+    });
 
-AuthController.put('/update-password', authMiddleware, async (req, res, next) => {
-    const updatePassword = await s$auth.updatePassword(req);
-    response.sendResponse(res, updatePassword);
-});
+    /**
+     * Update Password
+     * @param {string} password
+     * @param {string} new_password
+     */
 
-module.exports = AuthController;
+    AuthController.put('/update-password', authentication, async (req, res, next) => {
+        const updatePassword = await s$auth.updatePassword(req);
+        response.sendResponse(res, updatePassword);
+    });
+
+    return AuthController;
+}
+
+module.exports = authController;

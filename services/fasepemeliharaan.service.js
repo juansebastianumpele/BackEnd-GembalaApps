@@ -6,15 +6,14 @@ class _fase{
     getFase = async (req) => {
         try{            
             // Query Data
-            let query = 'SELECT id_fp, fase FROM d_fase_pemeliharaan WHERE id_users = ?';
+            let query = 'SELECT * FROM d_fase_pemeliharaan';
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                if(Object.keys(req.query)[i] == 'id_fp'){
-                    query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
-                }else{
-                    query += ` AND ${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`
-                }
+                query += (i == 0) ? ` WHERE ` : ` AND `;
+                query += Object.keys(req.query)[i] == 'id_fase_pemeliharaan'
+                ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
+                : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
+            const list = await mysql.query(query);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -53,7 +52,7 @@ class _fase{
                 }
             }
 
-            const add = await mysql.query('INSERT INTO d_fase_pemeliharaan (id_users, fase) VALUES (?, ?)', [req.dataAuth.id_users, req.body.fase]);
+            const add = await mysql.query('INSERT INTO d_fase_pemeliharaan (fase) VALUES (?)', [value.fase]);
             if(add.affectedRows <= 0){
                 return{
                     status: false,
@@ -64,7 +63,7 @@ class _fase{
 
             return {
                 status: true,
-                message: `Fase ${req.body.fase} berhasil ditambahkan`,
+                message: `Fase ${value.fase} berhasil ditambahkan`,
             };
         }
         catch (error) {
@@ -95,7 +94,7 @@ class _fase{
                 }
             }
 
-            const update = await mysql.query('UPDATE d_fase_pemeliharaan SET fase = ? WHERE id_fp = ? AND id_users = ?', [req.body.fase, req.body.id_fp, req.dataAuth.id_users]);
+            const update = await mysql.query('UPDATE d_fase_pemeliharaan SET fase = ? WHERE id_fp = ?', [value.fase, value.id_fp]);
             if(update.affectedRows <= 0){
                 return{
                     status: false,
@@ -135,7 +134,7 @@ class _fase{
                 }
             }
 
-            const del = await mysql.query('DELETE FROM d_fase_pemeliharaan WHERE id_fp = ? AND id_users = ?', [req.body.id_fp, req.dataAuth.id_users]);
+            const del = await mysql.query('DELETE FROM d_fase_pemeliharaan WHERE id_fp = ?', [value.id_fp]);
             if(del.affectedRows <= 0){
                 return{
                     status: false,

@@ -1,7 +1,8 @@
 const { Router } = require('express');
 const s$ternak = require('../services/ternak.service');
 const response = require('../utils/response');
-const authMiddleware = require('../middlewares/auth.middleware');
+const authentication = require('../middlewares/authentication');
+const {adminAuth, employeeAuth} = require('../middlewares/authorization');
 
 
 const TernakController = Router();
@@ -11,17 +12,8 @@ const TernakController = Router();
  * Get List Ternak
 */
 
-TernakController.get('/', async (req, res, next) => {
+TernakController.get('/', authentication, async (req, res, next) => {
     const detail = await s$ternak.getTernak(req);
-    response.sendResponse(res, detail);
-});
-
-/**
- * Get List My ternak
-*/
-
-TernakController.get('/myternak', authMiddleware, async (req, res, next) => {
-    const detail = await s$ternak.getMyTernak(req);
     response.sendResponse(res, detail);
 });
 
@@ -45,7 +37,7 @@ TernakController.get('/myternak', authMiddleware, async (req, res, next) => {
  * @param {number} status_keluar
  */
 
-TernakController.post('/', authMiddleware, async (req, res, next) => {
+TernakController.post('/', authentication, employeeAuth, async (req, res, next) => {
     const add = await s$ternak.createTernak(req);
     response.sendResponse(res, add);
 });
@@ -71,7 +63,7 @@ TernakController.post('/', authMiddleware, async (req, res, next) => {
  * @param {number} status_keluar
  */
 
-TernakController.put('/', authMiddleware, async (req, res, next) => {
+TernakController.put('/', authentication, employeeAuth, async (req, res, next) => {
     const edit = await s$ternak.updateTernak(req);
     response.sendResponse(res, edit);
 });
@@ -81,7 +73,7 @@ TernakController.put('/', authMiddleware, async (req, res, next) => {
  * @param {number} id_ternak
 */
 
-TernakController.delete('/', authMiddleware, async (req, res, next) => {
+TernakController.delete('/', authentication, employeeAuth, async (req, res, next) => {
     const del = await s$ternak.deleteTernak(req);
     response.sendResponse(res, del);
 });

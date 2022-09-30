@@ -7,9 +7,12 @@ class _varietas{
     getVarietas = async (req) => {
         try{
             // Query data
-            let query = 'SELECT id_varietas, nama_varietas FROM d_varietas WHERE id_users = ?';
+            let query = 'SELECT id_varietas, nama_varietas FROM d_varietas';
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+                query += (i == 0) ? ` WHERE ` : ` AND `;
+                query += Object.keys(req.query)[i] == 'id_varietas'
+                ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
+                : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
             const list = await mysql.query(query, [req.dataAuth.id_users]);
             if(list.length <= 0){
@@ -52,12 +55,15 @@ class _varietas{
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_varietas (id_users, nama_varietas) VALUES (?, ?)', [req.dataAuth.id_users, req.body.nama_varietas]);
+            const add = await mysql.query('INSERT INTO d_varietas (nama_varietas) VALUES (?)', 
+            [
+                value.nama_varietas
+            ]);
             if(add.affectedRows <= 0){
                 return{
                     status: false,
                     code: 400,
-                    message: `Gagal menambahkan varietas ${req.body.nama_varietas}`
+                    message: `Gagal menambahkan varietas ${value.nama_varietas}`
                 }
             }
 
@@ -95,12 +101,16 @@ class _varietas{
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_varietas SET nama_varietas = ? WHERE id_varietas = ? AND id_users = ?', [req.body.nama_varietas, req.body.id_varietas, req.dataAuth.id_users]);
+            const update = await mysql.query('UPDATE d_varietas SET nama_varietas = ? WHERE id_varietas = ?', 
+            [
+                value.nama_varietas, 
+                value.id_varietas
+            ]);
             if(update.affectedRows <= 0){
                 return{
                     status: false,
                     code: 400,
-                    message: `Gagal mengubah varietas ${req.body.nama_varietas}`
+                    message: `Gagal mengubah varietas ${value.nama_varietas}`
                 }
             }
 
@@ -137,12 +147,15 @@ class _varietas{
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_varietas WHERE id_varietas = ? AND id_users', [req.body.id_varietas, req.dataAuth.id_users]);
+            const del = await mysql.query('DELETE FROM d_varietas WHERE id_varietas = ?', 
+            [
+                value.id_varietas
+            ]);
             if(del.affectedRows <= 0){
                 return{
                     status: false,
                     code: 400,
-                    message: `Gagal menghapus varietas ${req.body.nama_varietas}`
+                    message: `Gagal menghapus varietas ${value.nama_varietas}`
                 }
             }
             

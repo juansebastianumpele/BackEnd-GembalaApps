@@ -4,15 +4,18 @@ const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
 
 class _auth{
+    constructor(db){
+        this.db = db;
+    }
     login = async (data) => {
         // Validate data
         const schema = joi.object({
             username: joi.string().required(),
             password: joi.string().required()
         });
-        const validate = schema.validate(data);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message);
+        const {error, value} = schema.validate(data);
+        if (error) {
+            const errorDetails = error.details.map(detail => detail.message).join(',');
             return {
                 status: false,
                 code: 400,
@@ -21,7 +24,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUsername = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [data.username]);
+        const checkUsername = await this.db.query('SELECT * FROM auth_users WHERE username = ?', [value.username]);
         if (checkUsername.length <= 0) {
             return {
                 status: false,
@@ -31,7 +34,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(data.password, checkUsername[0].password);
+        const isMatch = await comparePassword(value.password, checkUsername[0].password);
         if (!isMatch) {
             return {
                 status: false,
@@ -41,7 +44,11 @@ class _auth{
         }
 
         // Generate token
-        const token = generateToken({ username: data.username, id: checkUsername[0].id_users, role: checkUsername[0].level[0] });
+        const token = generateToken({ 
+            id: checkUsername[0].id_users, 
+            username: value.username, 
+            role: checkUsername[0].role
+        });
         if (!token) {
             return {
                 status: false,
@@ -63,7 +70,7 @@ class _auth{
     register = async (data) => {
         // Validate data
         const schema = joi.object({
-            nama_mitra: joi.string().required(),
+            nama_lengkap: joi.string().required(),
             username: joi.string().alphanum().min(4).max(30).required(),
             email: joi.string().email().required(),
             no_hp: joi.string().required(),
@@ -71,9 +78,9 @@ class _auth{
             password: joi.string().min(8).required(),
             repeat_password: joi.ref('password')
         });
-        const validate = schema.validate(data);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message).join(', ');
+        const {error, value} = schema.validate(data);
+        if (error) {
+            const errorDetails = error.details.map(detail => detail.message).join(', ');
             return {
                 status: false,
                 code: 400,
@@ -82,7 +89,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [data.username]);
+        const checkUser = await this.db.query('SELECT * FROM auth_users WHERE username = ?', [value.username]);
         if (checkUser.length > 0) {
             return {
                 status: false,
@@ -92,12 +99,20 @@ class _auth{
         }
 
         // Hash password
-        data.password = await hashPassword(data.password);
+        value.password = await hashPassword(value.password);
         
         // Insert data
-        const register = await mysql.query(
-            'INSERT INTO auth_users (nama_mitra, username, email, no_hp, alamat, password) VALUES (?, ?, ?, ?, ?, ?)',
-            [data.nama_mitra, data.username, data.email, data.no_hp, data.alamat, data.password]);
+        const register = await this.db.query(`
+        INSERT INTO auth_users (nama_lengkap, username, email, no_hp, alamat, password) 
+        VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+            value.nama_lengkap, 
+            value.username, 
+            value.email, 
+            value.no_hp, 
+            value.alamat, 
+            value.password
+        ]);
         if (register.affectedRows <= 0) {
             return {
                 status: false,
@@ -114,8 +129,7 @@ class _auth{
 
     logout = async (req, res) => {
         res.clearCookie('token');
-        console.log(req.dataAuth);
-        const update = await mysql.query(`UPDATE auth_users SET userLastAccess = ? WHERE id_users = ?`, [new Date(), req.dataAuth.id_users]);
+        const update = await this.db.query(`UPDATE auth_users SET userLastAccess = ? WHERE id_users = ?`, [new Date(), req.dataAuth.id_users]);
         if (update.affectedRows <= 0) {
             return {
                 status: false,
@@ -135,10 +149,9 @@ class _auth{
         const schema = joi.object({
             password: joi.string().required()
         });
-        const validate = schema.validate(req.body);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message);
-
+        const {error, value} = schema.validate(req.body);
+        if (error) {
+            const errorDetails = error.details.map(detail => detail.message).join(', ');
             return {
                 status: false,
                 code: 400,
@@ -147,7 +160,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
+        const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         if (checkUser.length <= 0) {
             return {
                 status: false,
@@ -157,7 +170,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(req.body.password, checkUser[0].password);
+        const isMatch = await comparePassword(value.password, checkUser[0].password);
         if (!isMatch) {
             return {
                 status: false,
@@ -167,7 +180,7 @@ class _auth{
         }
 
         // Delete data
-        const deletedAccount = await mysql.query('DELETE FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
+        const deletedAccount = await this.db.query('DELETE FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         if (deletedAccount.affectedRows <= 0) {
             return {
                 status: false,
@@ -186,15 +199,15 @@ class _auth{
 
         // Validate data
         const schema = joi.object({
-            nama_mitra: joi.string().required(),
+            nama_lengkap: joi.string().required(),
             username: joi.string().required(),
             email: joi.string().required(),
             no_hp: joi.string().required(),
             alamat: joi.string().required()
         });
-        const validate = schema.validate(req.body);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message).join(', ');
+        const {error, value} = schema.validate(req.body);
+        if (error) {
+            const errorDetails = error.details.map(detail => detail.message).join(', ');
             return {
                 status: false,
                 code: 400,
@@ -203,9 +216,22 @@ class _auth{
         }
 
         // Update data
-        const updatedAccount = await mysql.query(
-            'UPDATE auth_users SET nama_mitra = ?, username = ?, email = ?, no_hp = ?, alamat = ?  WHERE id_users = ?', 
-            [req.body.nama_mitra, req.body.username, req.body.email, req.body.no_hp, req.body.alamat, req.dataAuth.id_users]);
+        const updatedAccount = await this.db.query(
+            `UPDATE auth_users 
+            SET nama_lengkap = ?,
+            username = ?,
+            email = ?,
+            no_hp = ?,
+            alamat = ?  
+            WHERE id_users = ?`,
+            [
+                value.nama_lengkap,
+                value.username,
+                value.email,
+                value.no_hp,
+                value.alamat,
+                req.dataAuth.id_users
+            ]);
         if (updatedAccount.affectedRows <= 0) {
             return {
                 status: false,
@@ -227,9 +253,9 @@ class _auth{
             password: joi.string().required(),
             new_password: joi.string().required()
         });
-        const validate = schema.validate(req.body);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message).join(', ');
+        const {error, value} = schema.validate(req.body);
+        if (error) {
+            const errorDetails = error.details.map(detail => detail.message).join(', ');
             return {
                 status: false,
                 code: 400,
@@ -238,7 +264,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
+        const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         if (checkUser.length <= 0) {
             return {
                 status: false,
@@ -248,7 +274,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(req.body.password, checkUser[0].password);
+        const isMatch = await comparePassword(value.password, checkUser[0].password);
         if (!isMatch) {
             return {
                 status: false,
@@ -258,10 +284,10 @@ class _auth{
         }
 
         // Hash password
-        const newPassword = await hashPassword(req.body.new_password);
+        const newPassword = await hashPassword(value.new_password);
 
         // Update data
-        const updatedPassword = await mysql.query('UPDATE auth_users SET password = ? WHERE id_users = ?', [newPassword, req.dataAuth.id_users]);
+        const updatedPassword = await this.db.query('UPDATE auth_users SET password = ? WHERE id_users = ?', [newPassword, req.dataAuth.id_users]);
         if (updatedPassword.affectedRows <= 0) {
             return {
                 status: false,
@@ -274,8 +300,11 @@ class _auth{
             status: true,
             message: 'Update password successful',
         }
-    }
-        
+    }  
 }
 
-module.exports = new _auth();
+const authService = (db) => {
+    return new _auth(db);
+}
+
+module.exports = authService;

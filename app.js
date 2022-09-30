@@ -3,6 +3,7 @@ const cors = require('cors');
 const route = require('./routes/route');
 const app = express();
 const cookieParser = require('cookie-parser');
+const db = require('./utils/database');
 
 const port = process.env.POST || 51009;
 
@@ -26,7 +27,7 @@ app.use((req, res, next) => {
     next();
 });
 
-route(app);
+route(app, db);
 
 
 app.listen(port, () => {

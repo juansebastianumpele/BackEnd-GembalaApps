@@ -7,15 +7,14 @@ class _penyakit{
     getPenyakit = async (req) => {
         try{
             // Query data
-            let query = 'SELECT id_penyakit, nama_penyakit, deskripsi, ciri_penyakit, pengobatan FROM d_penyakit WHERE id_users = ?';
+            let query = 'SELECT * FROM d_penyakit';
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                if(Object.keys(req.query)[i] == 'id_penyakit'){
-                    query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
-                }else{
-                    query += ` AND ${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`
-                }   
+                query += (i == 0) ? ` WHERE ` : ` AND `;
+                query += Object.keys(req.query)[i] == 'id_penyakit'
+                ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
+                : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
+            const list = await mysql.query(query);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -59,7 +58,13 @@ class _penyakit{
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_penyakit (id_users, nama_penyakit, deskripsi, ciri_penyakit, pengobatan) VALUES (?, ?, ?, ?, ?)', [req.dataAuth.id_users, req.body.nama_penyakit, req.body.deskripsi, req.body.ciri_penyakit, req.body.pengobatan]);
+            const add = await mysql.query('INSERT INTO d_penyakit (nama_penyakit, deskripsi, ciri_penyakit, pengobatan) VALUES (?, ?, ?, ?)', 
+            [
+                value.nama_penyakit, 
+                value.deskripsi, 
+                value.ciri_penyakit, 
+                value.pengobatan
+            ]);
             if(add.affectedRows <= 0){
                 return{
                     status: false,
@@ -104,7 +109,14 @@ class _penyakit{
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_penyakit SET nama_penyakit = ?, deskripsi = ?, ciri_penyakit = ?, pengobatan = ? WHERE id_penyakit = ? AND id_users = ?', [req.body.nama_penyakit, req.body.deskripsi, req.body.ciri_penyakit, req.body.pengobatan, req.body.id_penyakit, req.dataAuth.id_users]);
+            const update = await mysql.query('UPDATE d_penyakit SET nama_penyakit = ?, deskripsi = ?, ciri_penyakit = ?, pengobatan = ? WHERE id_penyakit = ?', 
+            [
+                value.nama_penyakit, 
+                value.deskripsi, 
+                value.ciri_penyakit, 
+                value.pengobatan, 
+                value.id_penyakit, 
+            ]);
             if(update.affectedRows <= 0){
                 return{
                     status: false,
@@ -146,7 +158,10 @@ class _penyakit{
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_penyakit WHERE id_penyakit = ? AND id_users = ?', [req.body.id_penyakit, req.dataAuth.id_users]);
+            const del = await mysql.query('DELETE FROM d_penyakit WHERE id_penyakit = ?', 
+            [
+                value.id_penyakit
+            ]);
             if(del.affectedRows <= 0){
                 return{
                     status: false,

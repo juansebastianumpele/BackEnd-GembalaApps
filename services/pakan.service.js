@@ -7,15 +7,14 @@ class _pakan{
     getPakan = async (req) => {
         try{
             // Query data
-            let query = 'SELECT id_pakan, nama_pakan, deskripsi, komposisi, jumlah FROM d_pakan WHERE id_users = ?';
+            let query = 'SELECT * FROM d_pakan';
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                if(Object.keys(req.query)[i] == 'id_pakan' || Object.keys(req.query)[i] == 'jumlah'){
-                    query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
-                }else{
-                    query += ` AND ${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`
-                }
+               query += (i == 0) ? ` WHERE ` : ` AND `;
+               query += Object.keys(req.query)[i] == 'id_pakan'
+                ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
+                : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
+            const list = await mysql.query(query);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -60,7 +59,13 @@ class _pakan{
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_pakan (id_users, nama_pakan, deskripsi, komposisi, jumlah) VALUES (?, ?, ?, ?, ?)', [req.dataAuth.id_users, req.body.nama_pakan, req.body.deskripsi, req.body.komposisi, req.body.jumlah]);
+            const add = await mysql.query('INSERT INTO d_pakan (nama_pakan, deskripsi, komposisi, jumlah) VALUES (?, ?, ?, ?)', 
+            [
+                value.nama_pakan, 
+                value.deskripsi, 
+                value.komposisi, 
+                value.jumlah
+            ]);
             if(add.affectedRows <= 0){
                 return{
                     status: false,
@@ -106,7 +111,14 @@ class _pakan{
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_pakan SET nama_pakan = ?, deskripsi = ?, komposisi = ?, jumlah = ? WHERE id_pakan = ? AND id_users = ?', [req.body.nama_pakan, req.body.deskripsi, req.body.komposisi, req.body.jumlah, req.body.id_pakan, req.dataAuth.id_users]);
+            const update = await mysql.query('UPDATE d_pakan SET nama_pakan = ?, deskripsi = ?, komposisi = ?, jumlah = ? WHERE id_pakan = ?', 
+            [
+                value.nama_pakan, 
+                value.deskripsi, 
+                value.komposisi, 
+                value.jumlah, 
+                value.id_pakan, 
+            ]);
             if(update.affectedRows <= 0){
                 return{
                     status: false,
@@ -148,7 +160,10 @@ class _pakan{
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_pakan WHERE id_pakan = ? AND id_users = ?', [req.body.id_pakan, req.dataAuth.id_users]);
+            const del = await mysql.query('DELETE FROM d_pakan WHERE id_pakan = ?', 
+            [
+                value.id_pakan
+            ]);
             if(del.affectedRows <= 0){
                 return{
                     status: false,

@@ -1,7 +1,8 @@
 const { Router } = require('express');
 const s$varietas = require('../services/varietas.service');
 const response = require('../utils/response');
-const authMiddleware = require('../middlewares/auth.middleware');
+const authentication = require('../middlewares/authentication');
+const {adminAuth, employeeAuth} = require('../middlewares/authorization');
 
 
 const VarietasController = Router();
@@ -11,7 +12,7 @@ const VarietasController = Router();
  * Get Data Varietas
 */
 
-VarietasController.get('/', authMiddleware, async (req, res, next) => {
+VarietasController.get('/', authentication, async (req, res, next) => {
     const detail = await s$varietas.getVarietas(req);
     response.sendResponse(res, detail);
 } );
@@ -21,7 +22,7 @@ VarietasController.get('/', authMiddleware, async (req, res, next) => {
  * @param {string} nama_varietas
  */
 
-VarietasController.post('/', authMiddleware, async (req, res, next) => {
+VarietasController.post('/', authentication, employeeAuth, async (req, res, next) => {
     const add = await s$varietas.createVarietas(req);
     response.sendResponse(res, add);
 });
@@ -32,7 +33,7 @@ VarietasController.post('/', authMiddleware, async (req, res, next) => {
  * @param {string} nama_varietas
 */
 
-VarietasController.put('/', authMiddleware, async (req, res, next) => {
+VarietasController.put('/', authentication, employeeAuth, async (req, res, next) => {
     const edit = await s$varietas.updateVarietas(req);
     response.sendResponse(res, edit);
 });
@@ -42,7 +43,7 @@ VarietasController.put('/', authMiddleware, async (req, res, next) => {
  * @param {number} id_varietas
 */
 
-VarietasController.delete('/', authMiddleware, async (req, res, next) => {
+VarietasController.delete('/', authentication, employeeAuth, async (req, res, next) => {
     const del = await s$varietas.deleteVarietas(req);
     response.sendResponse(res, del);
 });

@@ -7,10 +7,10 @@ class _user{
     getUsers = async (req) => {
         try{
             // Query Data
-            let query = 'SELECT id_users, foto, nama_mitra, username, email, no_hp, alamat, level, userLastAccess, createdAt, updatedAt FROM auth_users';
+            let query = 'SELECT id_users, foto, nama_lengkap, username, email, no_hp, alamat, role, userLastAccess, createdAt, updatedAt FROM auth_users';
             for (let i = 0; i < Object.entries(req.query).length; i++) {
                 query += (i === 0) ? ' WHERE ' : ' AND ';
-                query += Object.keys(req.query)[i] == 'username' || Object.keys(req.query)[i] == 'nama_mitra' 
+                query += Object.keys(req.query)[i] == 'username' || Object.keys(req.query)[i] == 'nama_lengkap' 
                 ? `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'` 
                 : `${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`;
             }
@@ -34,151 +34,131 @@ class _user{
                 error
             }
         }
-        
     }
 
-    // Create new user
-    // addUser = async (body) => {
-    //     try {
-    //         const schema = joi.object({
-    //             username: joi.string().required(),
-    //             // email: joi.string().email().required(),
-    //             password: joi.string().required(),
-    //         });
+    // Req to Employee
+    reqToEmployee = async (req) => {
+        try{
+            // Query data
+            const add = await mysql.query('INSERT INTO req_to_employee (id_users) VALUES (?)',
+            [
+                req.dataAuth.id_users
+            ]);
+            if(add.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: 'Permintaan gagal'
+                }
+            }
+            return {
+                status: true,
+                message: 'Permintaan berhasil'
+            };
+        }
+        catch (error){
+            console.error('reqToEmployee user module Error: ', error);
+            return {
+                status: false,
+                error
+            }
+        }
+    }
 
-    //         const { error, value } = schema.validate(body);
-    //         if (error) {
-    //             const errorDetails = error.details.map((detail) => detail.message);
-    //             return {
-    //                 status: false,
-    //                 code: 422,
-    //                 error: errorDetails.join(', '),
-    //             }
-    //         }
+    // Get req list
+    getReqList = async (req) => {
+        try{
+            // Query data
+            let query = 'SELECT id_req, id_users, createdAt, updatedAt FROM req_to_employee';
+            for (let i = 0; i < Object.entries(req.query).length; i++) {
+                query += (i === 0) ? ' WHERE ' : ' AND ';
+                query += `${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`;
+            }
+            const reqList = await mysql.query(query);
+            if(reqList.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    message: 'Data permintaan tidak ditemukan'
+                }
+            }
+            return {
+                status: true,
+                total: reqList.length,
+                data: reqList,
+            };
+        }
+        catch (error){
+            console.error('getReqList user module Error: ', error);
+            return {
+                status: false,
+                error
+            }
+        }
+    }
 
-    //         const add = await mysql.query('INSERT INTO auth_users (username, password) VALUES (?, ?)', [body.username, body.password]);
+    // Accept to Employee
+    acceptToEmployee = async (req) => {
+        try{
+            // Validate data
+            const schema = joi.object({
+                id_req: joi.number().required(),
+                status: joi.string().required()
+            });
 
-    //         return {
-    //             status: true,
-    //             data: add,
-    //         };
-    //     }
-    //     catch (error) {
-    //         console.error('CreateUser user module Error: ', error);
+            const { error, value } = schema.validate(req.body);
+            if (error) {
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
+                return {
+                    status: false,
+                    code: 400,
+                    message: errorDetails
+                };
+            }
+            // Query id_user
+            const user = await mysql.query('SELECT id_users FROM req_to_employee WHERE id_req = ?', [value.id_req]);
+            if(user.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    message: 'Data permintaan tidak ditemukan'
+                }
+            }
 
-    //         return {
-    //             status: false,
-    //             error
-    //         }
-    //     }
-    // }
+            // Update req status
+            const updateReq = await mysql.query('UPDATE req_to_employee SET status = ? WHERE id_req = ?',[value.status, value.id_req]);
+            if(updateReq.affectedRows <= 0){
+                return{
+                    status: false,
+                    code: 400,
+                    message: 'Permintaan gagal'
+                }
+            }
 
-    // updateUser = async (data) => {
-    //     try {
-    //         const schema = joi.object({
-    //             id_user: joi.number().required(),
-    //             username: joi.string().required(),
-    //             password: joi.string().required()
-    //         });
-
-    //         const { error, value } = schema.validate(data);
-    //         if (error) {
-    //             const errorDetails = error.details.map((detail) => detail.message);
-    //             return {
-    //                 status: false,
-    //                 code: 422,
-    //                 error: errorDetails.join(', '),
-    //             }
-    //         }
-
-    //         const update = await mysql.query('UPDATE auth_users SET username = ? WHERE id_user = ?', [data.username, data.id_user]);
-
-    //         return {
-    //             status: true,
-    //             data: update,
-    //         };
-    //     }
-    //     catch (error) {
-    //         console.error('UpdateUser user module Error: ', error);
-
-    //         return {
-    //             status: false,
-    //             error
-    //         }
-    //     }
-    // }
-
-    // updatePassword = async (data) => {
-    //     try {
-    //         const schema = joi.object({
-    //             id_user: joi.number().required(),
-    //             password: joi.string().required(),
-    //             new_password: joi.string().required()
-    //         });
-
-    //         const { error, value } = schema.validate(data);
-    //         if (error) {
-    //             const errorDetails = error.details.map((detail) => detail.message);
-    //             return {
-    //                 status: false,
-    //                 code: 422,
-    //                 error: errorDetails.join(', '),
-    //             }
-    //         }
-
-    //         console.log(data.password)
-    //         console.log(data.new_password)
-
-    //         const update = await mysql.query('UPDATE auth_users SET password = ? WHERE id_user = ?', [data.new_password, data.id_user]);
-
-    //         return {
-    //             status: true,
-    //             data: update,
-    //         };
-    //     }
-    //     catch (error) {
-    //         console.error('UpdatePassword user module Error: ', error);
-            
-    //         return {
-    //             status: false,
-    //             error
-    //         }
-    //     }
-    // }
-
-    // deleteUser = async (id) => {
-    //     try {
-    //         const body = { id };
-    //         const schema = joi.object({
-    //             id: joi.number().required(),
-    //         });
-
-    //         const { error, value } = schema.validate(body);
-    //         if (error) {
-    //             const errorDetails = error.details.map((detail) => detail.message);
-    //             return {
-    //                 status: false,
-    //                 code: 422,
-    //                 error: errorDetails.join(', '),
-    //             }
-    //         }
-
-    //         const del = await mysql.query('DELETE FROM auth_users WHERE id_user = ?', [id]);
-
-    //         return {
-    //             status: true,
-    //             data: del,
-    //         };
-    //     }
-    //     catch (error) {
-    //         console.error('DeleteUser user module Error: ', error);
-
-    //         return {
-    //             status: false,
-    //             error
-    //         }
-    //     }
-    // }
+            // Update Role User
+            if(value.status == 'accept'){
+                const update = await mysql.query('UPDATE auth_users SET role = "employee" WHERE id_users = ?', [user[0].id_users]);
+                if(update.affectedRows <= 0){
+                    return{
+                        status: false,
+                        code: 400,
+                        message: 'Permintaan gagal'
+                    }
+                }
+            }
+            return {
+                status: true,
+                message: 'Permintaan berhasil'
+            };
+        }
+        catch (error){
+            console.error('acceptToEmployee user module Error: ', error);
+            return {
+                status: false,
+                error
+            }
+        }
+    }
 }
 
 module.exports = new _user();

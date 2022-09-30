@@ -7,11 +7,12 @@ class _kawin{
     getKawin = async (req) => {
         try{
             // Query data
-            let query = `SELECT id_kawin, id_ternak, tanggal_kawin, id_pemancek FROM d_kawin WHERE id_users = ?`;
+            let query = `SELECT * FROM d_kawin`;
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+                query += (i == 0) ? ` WHERE ` : ` AND `;
+                query += `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`;
             }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
+            const list = await mysql.query(query);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -54,7 +55,12 @@ class _kawin{
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_kawin (id_users, id_ternak, tanggal_kawin, id_pemancek) VALUES (?, ?, ?, ?)', [req.dataAuth.id_users, req.body.id_ternak, req.body.tanggal_kawin, req.body.id_pemancek]);
+            const add = await mysql.query('INSERT INTO d_kawin (id_ternak, tanggal_kawin, id_pemancek) VALUES (?, ?, ?)', 
+            [
+                value.id_ternak, 
+                value.tanggal_kawin, 
+                value.id_pemancek
+            ]);
             if(add.affectedRows <= 0){
                 return{
                     status: false,
@@ -100,8 +106,13 @@ class _kawin{
 
             // Query data
             const update = await mysql.query(
-                `UPDATE d_kawin SET id_ternak = ?, tanggal_kawin = ?, id_pemancek = ? WHERE id_kawin = ? AND id_users = ?`,
-                [req.body.id_ternak, req.body.tanggal_kawin, req.body.id_pemancek, req.body.id_kawin, req.dataAuth.id_users]);
+                `UPDATE d_kawin SET id_ternak = ?, tanggal_kawin = ?, id_pemancek = ? WHERE id_kawin = ?`,
+                [
+                    value.id_ternak, 
+                    value.tanggal_kawin, 
+                    value.id_pemancek, 
+                    value.id_kawin
+                ]);
             if(update.affectedRows <= 0){
                 return{
                     status: false,
@@ -143,7 +154,10 @@ class _kawin{
             }
 
             // Query data
-            const del = await mysql.query(`DELETE FROM d_kawin WHERE id_kawin = ? AND id_users = ?`, [req.body.id_kawin, req.dataAuth.id_users]);
+            const del = await mysql.query(`DELETE FROM d_kawin WHERE id_kawin = ?`, 
+            [
+                value.id_kawin, 
+            ]);
             if(del.affectedRows <= 0){
                 return{
                     status: false,

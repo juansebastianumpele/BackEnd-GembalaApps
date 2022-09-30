@@ -1,5 +1,5 @@
 const UserController = require("../controllers/user.controller");
-const AuthController = require("../controllers/auth.controller");
+const authController = require("../controllers/auth.controller");
 const KandangController = require("../controllers/kandang.controller");
 const PakanController = require("../controllers/pakan.controller");
 const FaseController = require("../controllers/fase.controller");
@@ -8,30 +8,29 @@ const VarietasController = require("../controllers/varietas.controller");
 const KawinController = require("../controllers/kawin.controller");
 const TimbanganController = require("../controllers/timbangan.controller");
 const TernakController = require("../controllers/ternak.controller");
-const TernakForSaleController = require("../controllers/ternakforsale.controller");
 const BlokKandangController = require("../controllers/blokkandang.controller");
-
 
 // Define url API in here
 const _routes = [
-    ['/auth', AuthController],
-    ['/users', UserController],
-    ['/kandang', KandangController],
-    ['/pakan', PakanController],
-    ['/fase', FaseController],
-    ['/penyakit', PenyakitController],
-    ['/varietas', VarietasController],
-    ['/kawin', KawinController],
-    ['/timbangan', TimbanganController],
-    ['/ternak', TernakController],
-    ['/ternak-for-sale', TernakForSaleController],
-    ['/blok-kandang', BlokKandangController],
+    ['/auth', authController],
+    // ['/users', UserController],
+    // ['/kandang', KandangController],
+    // ['/pakan', PakanController],
+    // ['/fase', FaseController],
+    // ['/penyakit', PenyakitController],
+    // ['/varietas', VarietasController],
+    // ['/kawin', KawinController],
+    // ['/timbangan', TimbanganController],
+    // ['/ternak', TernakController],
+    // ['/blok-kandang', BlokKandangController],
 ];
 
-const routes = (app) => {
+const routes = (app, db) => {
+    console.log(db);
     _routes.forEach((route) => {
+        console.log('====================')
         const [url, controller] = route;
-        app.use(`/api${url}`, controller);
+        app.use(`/api${url}`, controller(db));
     })
 }
 

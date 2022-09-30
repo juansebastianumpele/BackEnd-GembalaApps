@@ -8,11 +8,12 @@ class _timbangan{
     getDataTimbangan = async (req) => {
         try{
             // Query data
-            let query = `SELECT id_timbangan, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal FROM d_timbangan WHERE id_users = ?`;
+            let query = `SELECT * FROM d_timbangan`;
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
+                query += (i == 0) ? ` WHERE ` : ` AND `;
+                query += `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`;
             }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
+            const list = await mysql.query(query);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -39,11 +40,9 @@ class _timbangan{
         try {
             // Validate data
             const schema = joi.object({
-                id_ternak: joi.number().required(),
                 rf_id: joi.string().required(),
                 berat_berkala: joi.number().required(),
-                suhu_berkala: joi.number().required(),
-                tanggal: joi.date().required()
+                suhu_berkala: joi.number().required()
             });
 
             const { error, value } = schema.validate(req.body);
@@ -56,8 +55,32 @@ class _timbangan{
                 }
             }
 
+            // Query data ternak
+            const ternak = await mysql.query('SELECT id_ternak FROM d_ternak WHERE rf_id = ?', [value.rf_id]);
+            if(ternak.length <= 0){
+                return{
+                    status: false,
+                    code: 404,
+                    message: `Data ternak belum terdaftar`
+                }
+            }
+
             // Query data
-            const add = await mysql.query(`INSERT INTO d_timbangan (id_users, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal) VALUES (?, ?, ?, ?, ?, ?)`, [req.dataAuth.id_users, req.body.id_ternak, req.body.rf_id, req.body.berat_berkala, req.body.suhu_berkala, req.body.tanggal]);
+            const add = await mysql.query(`
+                INSERT INTO d_timbangan (
+                    id_ternak,
+                    rf_id,
+                    berat_berkala,
+                    suhu_berkala,
+                    tanggal) 
+                    VALUES (?, ?, ?, ?, ?)`, 
+                    [
+                        ternak[0].id_ternak, 
+                        value.rf_id, 
+                        value.berat_berkala, 
+                        value.suhu_berkala, 
+                        new Date()
+                    ]);
             if(add.affectedRows <= 0){
                 return{
                     status: false,
@@ -86,8 +109,6 @@ class _timbangan{
             // Validate data
             const schema = joi.object({
                 id_timbangan: joi.number().required(),
-                id_ternak: joi.number().required(),
-                rf_id: joi.string().required(),
                 berat_berkala: joi.number().required(),
                 suhu_berkala: joi.number().required(),
                 tanggal: joi.date().required()
@@ -104,7 +125,18 @@ class _timbangan{
             }
 
             // Query data
-            const update = await mysql.query(`UPDATE d_timbangan SET id_ternak = ?, rf_id = ?, berat_berkala = ?, suhu_berkala = ?, tanggal = ? WHERE id_timbangan = ? AND id_users = ?`, [req.body.id_ternak, req.body.rf_id, req.body.berat_berkala, req.body.suhu_berkala, req.body.tanggal, req.body.id_timbangan, req.dataAuth.id_users]);
+            const update = await mysql.query(`
+            UPDATE d_timbangan SET 
+            berat_berkala = ?,
+            suhu_berkala = ?,
+            tanggal = ? 
+            WHERE id_timbangan = ?`, 
+            [
+                value.berat_berkala, 
+                value.suhu_berkala, 
+                value.tanggal, 
+                value.id_timbangan, 
+            ]);
             if(update.affectedRows <= 0){
                 return{
                     status: false,
@@ -146,7 +178,10 @@ class _timbangan{
             }
 
             // Query data
-            const del = await mysql.query(`DELETE FROM d_timbangan WHERE id_timbangan = ? AND id_users = ?`, [req.body.id_timbangan, req.dataAuth.id_users]);
+            const del = await mysql.query(`DELETE FROM d_timbangan WHERE id_timbangan = ?`, 
+            [
+                value.id_timbangan
+            ]);
             if(del.affectedRows <= 0){
                 return{
                     status: false,

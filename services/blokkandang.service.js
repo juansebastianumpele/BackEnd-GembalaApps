@@ -7,17 +7,14 @@ class _blokKandang{
     getBlokKandang = async (req) => {
         try{
             // Query data
-            let query = `
-            SELECT * FROM d_blok_kandang
-            WHERE id_users = ?`;
+            let query = `SELECT * FROM d_blok_kandang`;
             for (let i = 0; i < Object.keys(req.query).length; i++) {
-                if(Object.keys(req.query)[i] == 'blok'){
-                    query += ` AND ${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`
-                }else{
-                    query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
-                }
+                query += (i == 0) ? ` WHERE ` : ` AND `;
+                query += Object.keys(req.query)[i] == 'id_blok_kandang' 
+                ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}` 
+                : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
+            const list = await mysql.query(query);
             if(list.length <= 0){
                 return{
                     status: false,
@@ -58,7 +55,7 @@ class _blokKandang{
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_blok_kandang (id_users, blok) VALUES (?, ?)', [req.dataAuth.id_users, req.body.blok]);
+            const add = await mysql.query('INSERT INTO d_blok_kandang (blok) VALUES (?)', [value.blok]);
             if(add.affectedRows <= 0){
                 return{
                     status: false,
@@ -101,7 +98,7 @@ class _blokKandang{
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_blok_kandang SET blok = ? WHERE id_blok = ? AND id_users = ?', [req.body.blok, req.body.id_blok, req.dataAuth.id_users]);
+            const update = await mysql.query('UPDATE d_blok_kandang SET blok = ? WHERE id_blok = ?', [value.blok, value.id_blok]);
             if(update.affectedRows <= 0){
                 return{
                     status: false,
@@ -143,7 +140,7 @@ class _blokKandang{
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_blok_kandang WHERE id_blok = ? AND id_users = ?', [req.body.id_blok, req.dataAuth.id_users]);
+            const del = await mysql.query('DELETE FROM d_blok_kandang WHERE id_blok = ?', [value.id_blok]);
             if(del.affectedRows <= 0){
                 return{
                     status: false,
