@@ -1,8 +1,11 @@
 // Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const date = require('date-and-time');
 
 class _user{
+    constructor(db){
+        this.db = db;
+    }
     // Get Data users
     getUsers = async (req) => {
         try{
@@ -14,23 +17,24 @@ class _user{
                 ? `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'` 
                 : `${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`;
             }
-            const users = await mysql.query(query);
-            if(users.length <= 0){
+            const list = await this.db.query(query);
+            if(list.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: 'Data users tidak ditemukan'
+                    error: 'Data users not found'
                 }
             }
             return {
-                status: true,
-                total: users.length,
-                data: users,
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
             };
         }catch (error){
             console.error('getUsers user module Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -40,26 +44,28 @@ class _user{
     reqToEmployee = async (req) => {
         try{
             // Query data
-            const add = await mysql.query('INSERT INTO req_to_employee (id_users) VALUES (?)',
+            const add = await this.db.query('INSERT INTO req_to_employee (id_users) VALUES (?)',
             [
                 req.dataAuth.id_users
             ]);
             if(add.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: 'Permintaan gagal'
+                    error: 'Failed to req employee'
                 }
             }
             return {
-                status: true,
-                message: 'Permintaan berhasil'
+                code: 200,
+                data: {
+                    id_req_to_employee: add.insertId,
+                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error){
             console.error('reqToEmployee user module Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -74,24 +80,25 @@ class _user{
                 query += (i === 0) ? ' WHERE ' : ' AND ';
                 query += `${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`;
             }
-            const reqList = await mysql.query(query);
-            if(reqList.length <= 0){
+            const list = await this.db.query(query);
+            if(list.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: 'Data permintaan tidak ditemukan'
+                    error: 'Data req list not found'
                 }
             }
             return {
-                status: true,
-                total: reqList.length,
-                data: reqList,
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
             };
         }
         catch (error){
             console.error('getReqList user module Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -110,55 +117,59 @@ class _user{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
-                    message: errorDetails
+                    error: errorDetails
                 };
             }
             // Query id_user
-            const user = await mysql.query('SELECT id_users FROM req_to_employee WHERE id_req = ?', [value.id_req]);
+            const user = await this.db.query('SELECT id_users FROM req_to_employee WHERE id_req = ?', [value.id_req]);
             if(user.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: 'Data permintaan tidak ditemukan'
+                    error: 'Data req list not found'
                 }
             }
 
             // Update req status
-            const updateReq = await mysql.query('UPDATE req_to_employee SET status = ? WHERE id_req = ?',[value.status, value.id_req]);
+            const updateReq = await this.db.query('UPDATE req_to_employee SET status = ? WHERE id_req = ?',[value.status, value.id_req]);
             if(updateReq.affectedRows <= 0){
                 return{
                     status: false,
                     code: 400,
-                    message: 'Permintaan gagal'
+                    error: 'Failed to update req status'
                 }
             }
 
             // Update Role User
             if(value.status == 'accept'){
-                const update = await mysql.query('UPDATE auth_users SET role = "employee" WHERE id_users = ?', [user[0].id_users]);
+                const update = await this.db.query('UPDATE auth_users SET role = "employee" WHERE id_users = ?', [user[0].id_users]);
                 if(update.affectedRows <= 0){
                     return{
                         status: false,
                         code: 400,
-                        message: 'Permintaan gagal'
+                        error: 'Failed to update role user'
                     }
                 }
             }
             return {
-                status: true,
-                message: 'Permintaan berhasil'
+                code: 200,
+                data: {
+                    id_req: value.id_req,
+                    id_users: user[0].id_users,
+                    status: value.status,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error){
             console.error('acceptToEmployee user module Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
     }
 }
 
-module.exports = new _user();
+const userService = (db) => new _user(db);
+module.exports = userService;

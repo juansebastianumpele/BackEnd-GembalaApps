@@ -1,55 +1,58 @@
 const { Router } = require('express');
-const s$kawin = require('../services/kawin.service');
+const kawinService = require('../services/kawin.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
 const { employeeAuth } = require('../middlewares/authorization');
 
+const kawinController = (db) => {
+    const s$kawin = kawinService(db);
+    const KawinController = Router();
 
-const KawinController = Router();
+    /**
+     * Get Data Kawin
+    */
 
+    KawinController.get('/', authentication, async (req, res, next) => {
+        const detail = await s$kawin.getKawin(req);
+        response.sendResponse(res, detail);
+    } );
 
-/**
- * Get Data Kawin
-*/
+    /**
+     * Create new data kawin
+     * @param {number} id_ternak
+     * @param {string} tanggal_kawin
+     * @param {number} id_pemancek
+     */
 
-KawinController.get('/', authentication, async (req, res, next) => {
-    const detail = await s$kawin.getKawin(req);
-    response.sendResponse(res, detail);
-} );
+    KawinController.post('/', authentication, employeeAuth, async (req, res, next) => {
+        const add = await s$kawin.createDataKawin(req);
+        response.sendResponse(res, add);
+    });
 
-/**
- * Create new data kawin
- * @param {number} id_ternak
- * @param {string} tanggal_kawin
- * @param {number} id_pemancek
- */
+    /**
+     * Update data kawin
+     * @param {number} id_kawin
+     * @param {number} id_ternak
+     * @param {string} tanggal_kawin
+     * @param {number} id_pemancek
+    */
 
-KawinController.post('/', authentication, employeeAuth, async (req, res, next) => {
-    const add = await s$kawin.createDataKawin(req);
-    response.sendResponse(res, add);
-});
+    KawinController.put('/', authentication, employeeAuth, async (req, res, next) => {
+        const edit = await s$kawin.updateDataKawin(req);
+        response.sendResponse(res, edit);
+    });
 
-/**
- * Update data kawin
- * @param {number} id_kawin
- * @param {number} id_ternak
- * @param {string} tanggal_kawin
- * @param {number} id_pemancek
-*/
+    /**
+     * Delete data kawin
+     * @param {number} id_kawin
+    */
 
-KawinController.put('/', authentication, employeeAuth, async (req, res, next) => {
-    const edit = await s$kawin.updateDataKawin(req);
-    response.sendResponse(res, edit);
-});
+    KawinController.delete('/', authentication, employeeAuth, async (req, res, next) => {
+        const del = await s$kawin.deleteDataKawin(req);
+        response.sendResponse(res, del);
+    });
 
-/**
- * Delete data kawin
- * @param {number} id_kawin
-*/
+    return KawinController;
+}
 
-KawinController.delete('/', authentication, employeeAuth, async (req, res, next) => {
-    const del = await s$kawin.deleteDataKawin(req);
-    response.sendResponse(res, del);
-});
-
-module.exports = KawinController;
+module.exports = kawinController;

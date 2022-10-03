@@ -10,11 +10,12 @@ const port = process.env.POST || 51009;
 // Handler Cors
 app.use(cors());
 
-app.use(cookieParser());
+// app.use(cookieParser());
 
 // Serialize dan Deserialize Input
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
@@ -27,8 +28,8 @@ app.use((req, res, next) => {
     next();
 });
 
+// Routing
 route(app, db);
-
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);

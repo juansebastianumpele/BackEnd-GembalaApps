@@ -1,14 +1,16 @@
 // Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const date = require('date-and-time');
 
 class _ternak{
+    constructor(db){
+        this.db = db;
+    }
     // Get Data Ternak
     getTernak = async (req) => {
         try{
             // Query Data
             let query =  `SELECT
-            s_ternak.id_users,
             s_ternak.id_ternak,
             s_ternak.rf_id,
             s_ternak.jenis_kelamin,
@@ -33,7 +35,7 @@ class _ternak{
             LEFT JOIN d_pakan
             ON s_ternak.id_pakan=d_pakan.id_pakan
             LEFT JOIN d_fase_pemeliharaan
-            ON s_ternak.fase_pemeliharaan=d_fase_pemeliharaan.id_fp
+            ON s_ternak.id_fp=d_fase_pemeliharaan.id_fp
             LEFT JOIN d_kandang
             ON s_ternak.id_kandang=d_kandang.id_kandang
             LEFT JOIN d_penyakit
@@ -44,24 +46,25 @@ class _ternak{
                 query += ` s_ternak.${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`;
             }
 
-            const list = await mysql.query(query);
+            const list = await this.db.query(query);
             if(list.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: 'Data ternak tidak ditemukan'
+                    error: 'Data Ternak not found'
                 }
             }
 
             return {
-                status: true,
-                total: list.length,
-                data: list,
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
             };
         }catch (error){
             console.error('getTernak ternak service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -85,7 +88,7 @@ class _ternak{
                 status_sehat: joi.string().allow(null),
                 id_penyakit: joi.number().allow(null),
                 id_pakan: joi.number().allow(null),
-                fase_pemeliharaan: joi.number().allow(null),
+                id_fp: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
 
@@ -93,14 +96,13 @@ class _ternak{
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
-                    status: false,
                     code: 400,
                     error: errorDetails
                 }
             }
 
             // Query Data
-            const add = await mysql.query(
+            const add = await this.db.query(
                 `INSERT INTO s_ternak(
                     rf_id,
                     foto,
@@ -116,8 +118,8 @@ class _ternak{
                     id_penyakit,
                     id_pakan,
                     id_kandang,
-                    fase_pemeliharaan) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+                    id_fp) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
                 [
                     value.rf_id,
                     value.foto,
@@ -133,26 +135,29 @@ class _ternak{
                     value.id_penyakit,
                     value.id_pakan,
                     value.id_kandang,
-                    value.fase_pemeliharaan
+                    value.id_fp
                 ]
             );
             if(add.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menambahkan data ternak`
+                    error: `Failed to create new Ternak`
                 }
             }
 
             return {
-                status: true,
-                message: 'Data ternak berhasil ditambahkan',
+                code: 200,
+                data: {
+                    id: add.insertId,
+                    rf_id: value.rf_id,
+                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('createTernak ternak service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -176,7 +181,7 @@ class _ternak{
                 status_sehat: joi.string().allow(null),
                 id_penyakit: joi.number().allow(null),
                 id_pakan: joi.number().allow(null),
-                fase_pemeliharaan: joi.number().allow(null),
+                id_fp: joi.number().allow(null),
                 id_kandang: joi.number().allow(null),
                 tanggal_keluar: joi.date().allow(null),
                 status_keluar: joi.number().allow(null)
@@ -186,13 +191,12 @@ class _ternak{
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
-                    status: false,
                     code: 400,
                     error: errorDetails
                 }
             }
 
-            const update = await mysql.query(
+            const update = await this.db.query(
                 `UPDATE s_ternak SET rf_id = ?,
                 foto = ?,
                 jenis_kelamin = ?,
@@ -207,7 +211,7 @@ class _ternak{
                 id_penyakit = ?,
                 id_pakan = ?,
                 id_kandang = ?,
-                fase_pemeliharaan = ?,
+                id_fp = ?,
                 tanggal_keluar = ?,
                 status_keluar = ?  
                 WHERE id_ternak = ?`,
@@ -226,7 +230,7 @@ class _ternak{
                     value.id_penyakit,
                     value.id_pakan,
                     value.id_kandang,
-                    value.fase_pemeliharaan,
+                    value.id_fp,
                     value.tanggal_keluar,
                     value.status_keluar,
                     value.id_ternak
@@ -234,21 +238,24 @@ class _ternak{
             );
             if(update.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal mengubah data ternak`
+                    error: `Failed to update Ternak`
                 }
             }
 
             return {
-                status: true,
-                message: 'Data ternak berhasil diubah',
+                code: 200,
+                data: {
+                    id: value.id_ternak,
+                    rf_id: value.rf_id,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('updateTernak ternak service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -266,38 +273,40 @@ class _ternak{
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
-                    status: false,
                     code: 400,
                     error: errorDetails
                 }
             }
 
             // Query Data
-            const del = await mysql.query('DELETE FROM s_ternak WHERE id_ternak = ?', 
+            const del = await this.db.query('DELETE FROM s_ternak WHERE id_ternak = ?', 
             [
                 value.id_ternak
             ]);
             if(del.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menghapus data ternak`
+                    error: `Failed to delete Ternak`
                 }
             }
 
             return {
-                status: true,
-                message: 'Data ternak berhasil dihapus',
+                code: 200,
+                data: {
+                    id: value.id_ternak,
+                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('deleteTernak ternak service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
     }
 }
 
-module.exports = new _ternak();
+const ternakService = (db) => new _ternak(db);
+module.exports = ternakService;

@@ -22,7 +22,7 @@ const authController = (db) => {
 
     /**
      * Register
-     * @param {string} nama_mitra
+     * @param {string} nama_lengkap
      * @param {string} username
      * @param {string} email
      * @param {string} no_hp
@@ -57,7 +57,7 @@ const authController = (db) => {
 
     /**
      * Update Account
-     * @param {string} nama_mitra
+     * @param {string} nama_lengkap
      * @param {string} username
      * @param {string} email
      * @param {string} no_hp

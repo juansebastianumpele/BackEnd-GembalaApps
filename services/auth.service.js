@@ -1,5 +1,4 @@
 const joi = require('joi');
-const mysql = require('../utils/database');
 const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
 
@@ -17,7 +16,6 @@ class _auth{
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(',');
             return {
-                status: false,
                 code: 400,
                 error: errorDetails
             }
@@ -27,9 +25,8 @@ class _auth{
         const checkUsername = await this.db.query('SELECT * FROM auth_users WHERE username = ?', [value.username]);
         if (checkUsername.length <= 0) {
             return {
-                status: false,
                 code: 404,
-                message: 'Sorry, user not found'
+                error: 'Sorry, user not found'
             }
         }
 
@@ -37,9 +34,8 @@ class _auth{
         const isMatch = await comparePassword(value.password, checkUsername[0].password);
         if (!isMatch) {
             return {
-                status: false,
-                code: 404,
-                message: 'Sorry, password not match'
+                code: 400,
+                error: 'Sorry, password not match'
             }
         }
 
@@ -51,15 +47,13 @@ class _auth{
         });
         if (!token) {
             return {
-                status: false,
                 code: 500,
-                message: 'Sorry, something went wrong'
+                error: 'Sorry, something went wrong'
             }
         }
 
         return {
-            status: true,
-            message: 'Login successful',
+            code : 200,
             data: {
                 token,
                 expiresAt: date.format(date.addSeconds(new Date(), 3600), 'YYYY-MM-DD HH:mm:ss')
@@ -82,7 +76,6 @@ class _auth{
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(', ');
             return {
-                status: false,
                 code: 400,
                 error: errorDetails
             }
@@ -92,9 +85,8 @@ class _auth{
         const checkUser = await this.db.query('SELECT * FROM auth_users WHERE username = ?', [value.username]);
         if (checkUser.length > 0) {
             return {
-                status: false,
                 code: 400,
-                message: 'Sorry, username already exist'
+                error: 'Sorry, username already exist'
             }
         }
 
@@ -115,31 +107,45 @@ class _auth{
         ]);
         if (register.affectedRows <= 0) {
             return {
-                status: false,
                 code: 500,
-                message: 'Sorry, something went wrong'
+                error: 'Sorry, something went wrong'
+            }
+        }
+
+        const registerDetail = await this.db.query(`SELECT * FROM auth_users WHERE id_users = ?`, [register.insertId]);
+        if (registerDetail.length <= 0) {
+            return {
+                code: 500,
+                error: 'Sorry, something went wrong'
             }
         }
 
         return {
-            status: true,
-            message: 'Register successful',
+            code: 200,
+            data : {
+                id_users: registerDetail[0].id_users,
+                username: registerDetail[0].username,
+                registeredAt: date.format(registerDetail[0].createdAt, 'YYYY-MM-DD HH:mm:ss')
+            },
         }
     }
 
     logout = async (req, res) => {
-        res.clearCookie('token');
+        // res.clearCookie('token');
         const update = await this.db.query(`UPDATE auth_users SET userLastAccess = ? WHERE id_users = ?`, [new Date(), req.dataAuth.id_users]);
         if (update.affectedRows <= 0) {
             return {
-                status: false,
                 code: 500,
-                message: 'Sorry, something went wrong'
+                error: 'Sorry, something went wrong'
             }
         }
         return {
-            status: true,
-            message: 'Logout successful',
+            code: 200,
+            data: {
+                id_users: req.dataAuth.id_users,
+                username: req.dataAuth.username,
+                logoutAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+            }
         }
     }
 
@@ -153,7 +159,6 @@ class _auth{
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(', ');
             return {
-                status: false,
                 code: 400,
                 error: errorDetails
             }
@@ -163,9 +168,8 @@ class _auth{
         const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         if (checkUser.length <= 0) {
             return {
-                status: false,
                 code: 404,
-                message: 'Sorry, user not found'
+                error: 'Sorry, user not found'
             }
         }
 
@@ -173,9 +177,8 @@ class _auth{
         const isMatch = await comparePassword(value.password, checkUser[0].password);
         if (!isMatch) {
             return {
-                status: false,
                 code: 404,
-                message: 'Sorry, password not match'
+                error: 'Sorry, password not match'
             }
         }
 
@@ -183,15 +186,18 @@ class _auth{
         const deletedAccount = await this.db.query('DELETE FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         if (deletedAccount.affectedRows <= 0) {
             return {
-                status: false,
                 code: 500,
-                message: `Sorry, delete account failed, Error: ${deletedAccount.error}`
+                error: `Sorry, delete account failed, Error: ${deletedAccount.error}`
             }
         }
 
         return {
-            status: true,
-            message: 'Delete account successful',
+            code: 200,
+            data: {
+                id_users: req.dataAuth.id_users,
+                username: req.dataAuth.username,
+                deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+            }
         }
     }
     
@@ -209,7 +215,6 @@ class _auth{
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(', ');
             return {
-                status: false,
                 code: 400,
                 error: errorDetails
             }
@@ -234,15 +239,18 @@ class _auth{
             ]);
         if (updatedAccount.affectedRows <= 0) {
             return {
-                status: false,
                 code: 500,
-                message: `Sorry, update account failed, Error: ${updatedAccount.error}`
+                error: `Sorry, update account failed, Error: ${updatedAccount.error}`
             }
         }
 
         return {
-            status: true,
-            message: 'Update account successful',
+            code : 200,
+            data : {
+                id_users: req.dataAuth.id_users,
+                username: value.username,
+                updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+            }
         }
     }
 
@@ -257,7 +265,6 @@ class _auth{
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(', ');
             return {
-                status: false,
                 code: 400,
                 error: errorDetails
             }
@@ -267,9 +274,8 @@ class _auth{
         const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         if (checkUser.length <= 0) {
             return {
-                status: false,
                 code: 404,
-                message: 'Sorry, user not found'
+                error: 'Sorry, user not found'
             }
         }
 
@@ -277,9 +283,8 @@ class _auth{
         const isMatch = await comparePassword(value.password, checkUser[0].password);
         if (!isMatch) {
             return {
-                status: false,
-                code: 404,
-                message: 'Sorry, password not match'
+                code: 400,
+                error: 'Sorry, password not match'
             }
         }
 
@@ -290,15 +295,18 @@ class _auth{
         const updatedPassword = await this.db.query('UPDATE auth_users SET password = ? WHERE id_users = ?', [newPassword, req.dataAuth.id_users]);
         if (updatedPassword.affectedRows <= 0) {
             return {
-                status: false,
                 code: 500,
-                message: `Sorry, update password failed, Error: ${updatedPassword.error}`
+                error: `Sorry, update password failed, Error: ${updatedPassword.error}`
             }
         }
 
         return {
-            status: true,
-            message: 'Update password successful',
+            code : 200,
+            data : {
+                id_users: req.dataAuth.id_users,
+                username: checkUser[0].username,
+                updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+            }
         }
     }  
 }

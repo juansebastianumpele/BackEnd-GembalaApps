@@ -1,8 +1,11 @@
 // Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const date = require('date-and-time');
 
 class _varietas{
+    constructor(db){
+        this.db = db;
+    }
     // Get data varietas
     getVarietas = async (req) => {
         try{
@@ -14,23 +17,24 @@ class _varietas{
                 ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
                 : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
+            const list = await this.db.query(query, [req.dataAuth.id_users]);
             if(list.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: 'Data varietas tidak ditemukan'
+                    error: 'Data varietas not found'
                 }
             }
             return {
-                status: true,
-                total: list.length,
-                data: list,
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
             };
         }catch (error){
             console.error('getVarietas Varietas service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -48,34 +52,36 @@ class _varietas{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_varietas (nama_varietas) VALUES (?)', 
+            const add = await this.db.query('INSERT INTO d_varietas (nama_varietas) VALUES (?)', 
             [
                 value.nama_varietas
             ]);
             if(add.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menambahkan varietas ${value.nama_varietas}`
+                    error: `Failed to create new varietas`
                 }
             }
 
             return {
-                status: true,
-                message: 'Data varietas berhasil ditambahkan',
+                code: 200,
+                data: {
+                    id_varietas: add.insertId,
+                    nama_varietas: value.nama_varietas,
+                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('createVarietas varietas service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -94,35 +100,37 @@ class _varietas{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_varietas SET nama_varietas = ? WHERE id_varietas = ?', 
+            const update = await this.db.query('UPDATE d_varietas SET nama_varietas = ? WHERE id_varietas = ?', 
             [
                 value.nama_varietas, 
                 value.id_varietas
             ]);
             if(update.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal mengubah varietas ${value.nama_varietas}`
+                    error: `Failed to update varietas`
                 }
             }
 
             return {
-                status: true,
-                message: 'Data varietas berhasil diubah',
+                code: 200,
+                data: {
+                    id_varietas: value.id_varietas,
+                    nama_varietas: value.nama_varietas,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('updateVarietas varietas service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -140,39 +148,40 @@ class _varietas{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_varietas WHERE id_varietas = ?', 
+            const del = await this.db.query('DELETE FROM d_varietas WHERE id_varietas = ?', 
             [
                 value.id_varietas
             ]);
             if(del.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menghapus varietas ${value.nama_varietas}`
+                    error: `Failed to delete varietas`
                 }
             }
             
             return {
-                status: true,
-                message: 'Data varietas berhasil dihapus',
+                code: 200,
+                data: {
+                    id_varietas: value.id_varietas,
+                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('deleteVarietas varietas service Error: ', error);
-
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
     }
 }
 
-module.exports = new _varietas();
+const varietasService = (db) => new _varietas(db);
+module.exports = varietasService;

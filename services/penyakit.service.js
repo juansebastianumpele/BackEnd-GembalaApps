@@ -1,8 +1,11 @@
 // Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const date = require('date-and-time');
 
 class _penyakit{
+    constructor(db){
+        this.db = db;
+    }
     // Get Data Penyakit
     getPenyakit = async (req) => {
         try{
@@ -14,23 +17,24 @@ class _penyakit{
                 ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
                 : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
-            const list = await mysql.query(query);
+            const list = await this.db.query(query);
             if(list.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: 'Data penyakit tidak ditemukan'
+                    error: 'Data penyakit not found'
                 }
             }
             return {
-                status: true,
-                total: list.length,
-                data: list,
+                code : 200,
+                data: {
+                    total: list.length,
+                    list
+                },
             };
         }catch (error){
             console.error('getPenyakit penyakit service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -51,14 +55,13 @@ class _penyakit{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_penyakit (nama_penyakit, deskripsi, ciri_penyakit, pengobatan) VALUES (?, ?, ?, ?)', 
+            const add = await this.db.query('INSERT INTO d_penyakit (nama_penyakit, deskripsi, ciri_penyakit, pengobatan) VALUES (?, ?, ?, ?)', 
             [
                 value.nama_penyakit, 
                 value.deskripsi, 
@@ -67,20 +70,23 @@ class _penyakit{
             ]);
             if(add.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menambahkan data penyakit`
+                    error: `Failed to create penyakit`
                 }
             }
             return {
-                status: true,
-                message: 'Data penyakit berhasil ditambahkan',
+                code: 200,
+                data: {
+                    id_penyakit: add.insertId,
+                    nama_penyakit: value.nama_penyakit,
+                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('createPenyakit penyakit service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -102,14 +108,13 @@ class _penyakit{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_penyakit SET nama_penyakit = ?, deskripsi = ?, ciri_penyakit = ?, pengobatan = ? WHERE id_penyakit = ?', 
+            const update = await this.db.query('UPDATE d_penyakit SET nama_penyakit = ?, deskripsi = ?, ciri_penyakit = ?, pengobatan = ? WHERE id_penyakit = ?', 
             [
                 value.nama_penyakit, 
                 value.deskripsi, 
@@ -119,21 +124,24 @@ class _penyakit{
             ]);
             if(update.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal mengubah data penyakit`
+                    error: `Failed to update penyakit`
                 }
             }
 
             return {
-                status: true,
-                message: 'Data penyakit berhasil diupdate',
+                code: 200,
+                data: {
+                    id_penyakit: value.id_penyakit,
+                    nama_penyakit: value.nama_penyakit,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('updatePenyakit penyakit service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -158,31 +166,34 @@ class _penyakit{
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_penyakit WHERE id_penyakit = ?', 
+            const del = await this.db.query('DELETE FROM d_penyakit WHERE id_penyakit = ?', 
             [
                 value.id_penyakit
             ]);
             if(del.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menghapus data penyakit`
+                    error: `Failed to delete penyakit`
                 }
             }
             
             return {
-                status: true,
-                message: 'Data penyakit berhasil dihapus',
+                code: 200,
+                data: {
+                    id_penyakit: value.id_penyakit,
+                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('deletePenyakit penyakit service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
     }
 }
 
-module.exports = new _penyakit();
+const penyakitService = (db) => new _penyakit(db);
+module.exports = penyakitService;

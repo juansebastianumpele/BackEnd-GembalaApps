@@ -1,7 +1,10 @@
 // Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const date = require('date-and-time');
 class _fase{
+    constructor(db){
+        this.db = db;
+    }
     // Get Fase
     getFase = async (req) => {
         try{            
@@ -13,23 +16,24 @@ class _fase{
                 ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
                 : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
-            const list = await mysql.query(query);
+            const list = await this.db.query(query);
             if(list.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: 'Data fase tidak ditemukan'
+                    error: 'Data fase not found'
                 }
             }
             return {
-                status: true,
-                total: list.length,
-                data: list,
+                code : 200,
+                data: {
+                    total: list.length,
+                    list
+                },
             };
         }catch (error){
             console.error('listFase fase Service Error: ', error);
             return {
-                status: false,
+                code : 500,
                 error
             }
         }
@@ -46,30 +50,32 @@ class _fase{
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
-                    status: false,
                     code: 400,
                     error: errorDetails
                 }
             }
 
-            const add = await mysql.query('INSERT INTO d_fase_pemeliharaan (fase) VALUES (?)', [value.fase]);
+            const add = await this.db.query('INSERT INTO d_fase_pemeliharaan (fase) VALUES (?)', [value.fase]);
             if(add.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menambahkan fase`
+                    error: `Failed to create fase`
                 }
             }
 
             return {
-                status: true,
-                message: `Fase ${value.fase} berhasil ditambahkan`,
+                code : 200,
+                data: {
+                    id_fase_pemeliharaan: add.insertId,
+                    fase: value.fase,
+                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                },
             };
         }
         catch (error) {
             console.error('createFase fase service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -88,30 +94,32 @@ class _fase{
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
-                    status: false,
                     code: 400,
                     error: errorDetails
                 }
             }
 
-            const update = await mysql.query('UPDATE d_fase_pemeliharaan SET fase = ? WHERE id_fp = ?', [value.fase, value.id_fp]);
+            const update = await this.db.query('UPDATE d_fase_pemeliharaan SET fase = ? WHERE id_fp = ?', [value.fase, value.id_fp]);
             if(update.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal mengubah fase`
+                    error: `Failed to update fase`
                 }
             }
 
             return {
-                status: true,
-                message: 'Fase berhasil diubah',
+                code: 200,
+                data: {
+                    id_fp: value.id_fp,
+                    fase: value.fase,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                },
             };
         }
         catch (error) {
             console.error('updateFase fase service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -128,34 +136,36 @@ class _fase{
             if(error){
                 const errorDetails = error.details.map(i => i.message).join(',');
                 return{
-                    status: false,
                     code: 400,
                     error: errorDetails
                 }
             }
 
-            const del = await mysql.query('DELETE FROM d_fase_pemeliharaan WHERE id_fp = ?', [value.id_fp]);
+            const del = await this.db.query('DELETE FROM d_fase_pemeliharaan WHERE id_fp = ?', [value.id_fp]);
             if(del.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menghapus fase`
+                    error: `Failed to delete fase`
                 }
             }
 
             return {
-                status: true,
-                message: 'Fase berhasil dihapus',
+                code: 200,
+                data: {
+                    id_fp: value.id_fp,
+                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                },
             };
         }
         catch (error) {
             console.error('deleteFase fase service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
     }
 }
 
-module.exports = new _fase();
+const faseService = (db) => new _fase(db);
+module.exports = faseService;

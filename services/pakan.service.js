@@ -1,8 +1,11 @@
 // Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const date = require('date-and-time');
 
 class _pakan{
+    constructor(db){
+        this.db = db;
+    }
     // get data pakan
     getPakan = async (req) => {
         try{
@@ -14,24 +17,25 @@ class _pakan{
                 ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
                 : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
             }
-            const list = await mysql.query(query);
+            const list = await this.db.query(query);
             if(list.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: 'Data pakan tidak ditemukan'
+                    error: 'Data pakan not found'
                 }
             }
             
             return {
-                status: true,
-                total: list.length,
-                data: list,
+                code : 200,
+                data: {
+                    total: list.length,
+                    list
+                },
             };
         }catch (error){
             console.error('getPakan Pakan Service Error: ', error);
             return {
-                status: false,
+                code : 500,
                 error
             }
         }
@@ -52,14 +56,13 @@ class _pakan{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_pakan (nama_pakan, deskripsi, komposisi, jumlah) VALUES (?, ?, ?, ?)', 
+            const add = await this.db.query('INSERT INTO d_pakan (nama_pakan, deskripsi, komposisi, jumlah) VALUES (?, ?, ?, ?)', 
             [
                 value.nama_pakan, 
                 value.deskripsi, 
@@ -68,21 +71,24 @@ class _pakan{
             ]);
             if(add.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menambahkan data pakan`
+                    error: `Failed to create new pakan`
                 }
             }
 
             return {
-                status: true,
-                message: 'Pakan berhasil ditambahkan',
+                code: 200,
+                data: {
+                    id_pakan: add.insertId,
+                    nama_pakan: value.nama_pakan,
+                    createdAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('createPakan pakan service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -104,14 +110,13 @@ class _pakan{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const update = await mysql.query('UPDATE d_pakan SET nama_pakan = ?, deskripsi = ?, komposisi = ?, jumlah = ? WHERE id_pakan = ?', 
+            const update = await this.db.query('UPDATE d_pakan SET nama_pakan = ?, deskripsi = ?, komposisi = ?, jumlah = ? WHERE id_pakan = ?', 
             [
                 value.nama_pakan, 
                 value.deskripsi, 
@@ -121,21 +126,24 @@ class _pakan{
             ]);
             if(update.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal mengubah data pakan`
+                    error: `Failed to update pakan`
                 }
             }
 
             return {
-                status: true,
-                message: 'Pakan berhasil diupdate',
+                code: 200,
+                data: {
+                    id_pakan: value.id_pakan,
+                    nama_pakan: value.nama_pakan,
+                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('updatePakan pakan service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -153,38 +161,40 @@ class _pakan{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_pakan WHERE id_pakan = ?', 
+            const del = await this.db.query('DELETE FROM d_pakan WHERE id_pakan = ?', 
             [
                 value.id_pakan
             ]);
             if(del.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Gagal menghapus data pakan`
+                    error: `Failed to delete pakan`
                 }
             }
 
             return {
-                status: true,
-                message: 'Pakan berhasil dihapus',
+                code: 200,
+                data: {
+                    id_pakan: value.id_pakan,
+                    deletedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('deletePakan pakan service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
     }
 }
 
-module.exports = new _pakan();
+const pakanService = (db) => new _pakan(db);
+module.exports = pakanService;

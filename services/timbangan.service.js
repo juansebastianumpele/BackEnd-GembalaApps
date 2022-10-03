@@ -1,9 +1,11 @@
 // Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const date = require('date-and-time');
 
 class _timbangan{
-
+    constructor(db){
+        this.db = db;
+    }
     // get Data Timbangan
     getDataTimbangan = async (req) => {
         try{
@@ -13,23 +15,24 @@ class _timbangan{
                 query += (i == 0) ? ` WHERE ` : ` AND `;
                 query += `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`;
             }
-            const list = await mysql.query(query);
+            const list = await this.db.query(query);
             if(list.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: `Data timbangan tidak ditemukan`
+                    error: `Data timbangan not found`
                 }
             }
             return {
-                status: true,
-                total: list.length,
-                data: list,
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
             };
         }catch (error){
             console.error('getTimbangan timbangan service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -49,24 +52,22 @@ class _timbangan{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data ternak
-            const ternak = await mysql.query('SELECT id_ternak FROM d_ternak WHERE rf_id = ?', [value.rf_id]);
+            const ternak = await this.db.query('SELECT id_ternak FROM d_ternak WHERE rf_id = ?', [value.rf_id]);
             if(ternak.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: `Data ternak belum terdaftar`
+                    error: `Data ternak not found`
                 }
             }
 
             // Query data
-            const add = await mysql.query(`
+            const add = await this.db.query(`
                 INSERT INTO d_timbangan (
                     id_ternak,
                     rf_id,
@@ -83,21 +84,24 @@ class _timbangan{
                     ]);
             if(add.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Data timbangan gagal ditambahkan`
+                    error: `Failed to add data timbangan`
                 }
             }
 
             return {
-                status: true,
-                message: 'Data Timbangan berhasil ditambahkan',
+                code: 200,
+                data: {
+                    id_timbangan: add.insertId,
+                    rf_id: value.rf_id,
+                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('createDataTimbangan timbangan service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -118,14 +122,13 @@ class _timbangan{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const update = await mysql.query(`
+            const update = await this.db.query(`
             UPDATE d_timbangan SET 
             berat_berkala = ?,
             suhu_berkala = ?,
@@ -139,21 +142,23 @@ class _timbangan{
             ]);
             if(update.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Data timbangan gagal diubah`
+                    error: `Failed to update data timbangan`
                 }
             }
 
             return {
-                status: true,
-                message: 'Data Timbangan berhasil diupdate',
+                code: 200,
+                data: {
+                    id_timbangan: value.id_timbangan,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('updateDataTimbangan timbangan service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -171,38 +176,40 @@ class _timbangan{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const del = await mysql.query(`DELETE FROM d_timbangan WHERE id_timbangan = ?`, 
+            const del = await this.db.query(`DELETE FROM d_timbangan WHERE id_timbangan = ?`, 
             [
                 value.id_timbangan
             ]);
             if(del.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: `Data timbangan gagal dihapus`
+                    error: `Failed to delete data timbangan`
                 }
             }
             
             return {
-                status: true,
-                message: 'Data Timbangan berhasil dihapus',
+                code: 200,
+                data: {
+                    id_timbangan: value.id_timbangan,
+                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('deleteDataTimbangan timbangan service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
     }
 }
 
-module.exports = new _timbangan();
+const timbanganService = (db) => new _timbangan(db);
+module.exports = timbanganService;

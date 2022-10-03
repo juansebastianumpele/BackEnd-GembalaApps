@@ -1,8 +1,11 @@
 // Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const date = require('date-and-time');
 
 class _kawin{
+    constructor(db){
+        this.db = db;
+    }
     // List Ternak by id
     getKawin = async (req) => {
         try{
@@ -12,23 +15,24 @@ class _kawin{
                 query += (i == 0) ? ` WHERE ` : ` AND `;
                 query += `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`;
             }
-            const list = await mysql.query(query);
+            const list = await this.db.query(query);
             if(list.length <= 0){
                 return{
-                    status: false,
                     code: 404,
-                    message: 'Data kawin tidak ditemukan'
+                    error: 'Data kawin not found'
                 }
             }
             return {
-                status: true,
-                total: list.length,
-                data: list,
+                code : 200,
+                data: {
+                    total: list.length,
+                    list
+                },
             };
         }catch (error){
             console.error('listKawinByIdUsers kawin service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -48,14 +52,13 @@ class _kawin{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const add = await mysql.query('INSERT INTO d_kawin (id_ternak, tanggal_kawin, id_pemancek) VALUES (?, ?, ?)', 
+            const add = await this.db.query('INSERT INTO d_kawin (id_ternak, tanggal_kawin, id_pemancek) VALUES (?, ?, ?)', 
             [
                 value.id_ternak, 
                 value.tanggal_kawin, 
@@ -63,21 +66,24 @@ class _kawin{
             ]);
             if(add.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: 'Data kawin gagal ditambahkan'
+                    error: 'Failed to create new kawin'
                 }
             }
 
             return {
-                status: true,
-                message: 'Data kawin berhasil ditambahkan',
+                code: 200,
+                data: {
+                    id_kawin: add.insertId,
+                    ...value,
+                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('createTernak ternak service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -98,14 +104,13 @@ class _kawin{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const update = await mysql.query(
+            const update = await this.db.query(
                 `UPDATE d_kawin SET id_ternak = ?, tanggal_kawin = ?, id_pemancek = ? WHERE id_kawin = ?`,
                 [
                     value.id_ternak, 
@@ -115,21 +120,24 @@ class _kawin{
                 ]);
             if(update.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: 'Data kawin gagal diubah'
+                    error: 'Failed to update data kawin'
                 }
             }
 
             return {
-                status: true,
-                message: 'Data kawin berhasil diubah',
+                code: 200,
+                data: {
+                    id_kawin: value.id_kawin,
+                    ...value,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('updateKawin kawin service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
@@ -147,38 +155,41 @@ class _kawin{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const del = await mysql.query(`DELETE FROM d_kawin WHERE id_kawin = ?`, 
+            const del = await this.db.query(`DELETE FROM d_kawin WHERE id_kawin = ?`, 
             [
                 value.id_kawin, 
             ]);
             if(del.affectedRows <= 0){
                 return{
-                    status: false,
                     code: 400,
-                    message: 'Data kawin gagal dihapus'
+                    error: 'Failed to delete data kawin'
                 }
             }
             
             return {
-                status: true,
-                message: 'Data kawin berhasil dihapus',
+                code: 200,
+                data: {
+                    id_kawin: value.id_kawin,
+                    ...value,
+                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             };
         }
         catch (error) {
             console.error('deleteKawin kawin service Error: ', error);
             return {
-                status: false,
+                code: 500,
                 error
             }
         }
     }
 }
 
-module.exports = new _kawin();
+const kawinService = (db) => new _kawin(db);
+module.exports = kawinService;
