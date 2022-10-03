@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const config = require('../config/app.config.json')
+const config = require('../config/app.config.js')
 
 const generateToken = (payload) => {
     return jwt.sign(payload, config.jwt.secret, {algorithm: "HS256", expiresIn: config.jwt.expiresIn });

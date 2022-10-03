@@ -4,8 +4,9 @@ const route = require('./routes/route');
 const app = express();
 const cookieParser = require('cookie-parser');
 const db = require('./utils/database');
+require('dotenv').config();
 
-const port = process.env.POST || 51009;
+const port = process.env.APP_PORT || 51009;
 
 // Handler Cors
 app.use(cors());

@@ -1,4 +1,4 @@
-const config = require('../config/app.config.json')
+const config = require('../config/app.config.js')
 const mysql = require('../utils/database');
 const jwt = require('jsonwebtoken')
 // const m$user = require('../modules/user.modules')
@@ -14,7 +14,7 @@ const authentication = async (req, res, next) => {
 
         const user = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [decoded.username]);
         if (user.length <= 0) {
-          res.status(401).send({ status: false, message: 'Not authorized' })
+          res.status(401).send({ code: 401, error: 'Not authorized' })
         }
 
         req.dataAuth = {
@@ -26,14 +26,14 @@ const authentication = async (req, res, next) => {
         next()
         
       } catch (error) {
-        res.status(401).send({ status: false, message: 'Not authorized Error. Token Expired.', error })
+        res.status(401).send({ code: 401, error })
       }
     }
   
     if (!token) {
       res.status(401).send({
-        status: false,
-        message: 'Not authenticated, no token'
+        code: 401,
+        error: 'Not authenticated, no token'
       })
     }
 }
