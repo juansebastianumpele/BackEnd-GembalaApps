@@ -18,8 +18,9 @@ class _ternak{
             d_varietas.nama_varietas , 
             s_ternak.berat_berkala, 
             s_ternak.suhu_berkala, 
-            s_ternak.tanggal_lahir,
-            s_ternak.tanggal_masuk, 
+            DATE_FORMAT(s_ternak.tanggal_lahir, '%d-%m-%Y') AS tanggal_lahir,
+            DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(), s_ternak.tanggal_lahir)), '%Y') + 0 AS usia,
+            DATE_FORMAT(s_ternak.tanggal_masuk, '%d-%m-%Y') AS tanggal_masuk, 
             s_ternak.id_induk, 
             s_ternak.id_pejantan, 
             s_ternak.status_sehat,
@@ -27,7 +28,7 @@ class _ternak{
             d_kandang.nama_kandang,
             d_fase_pemeliharaan.fase,
             d_pakan.nama_pakan,
-            s_ternak.tanggal_keluar, 
+            DATE_FORMAT(s_ternak.tanggal_keluar, '%d-%m-%Y') AS tanggal_keluar, 
             s_ternak.status_keluar 
             FROM s_ternak
             LEFT JOIN d_varietas

@@ -10,10 +10,19 @@ class _kawin{
     getKawin = async (req) => {
         try{
             // Query data
-            let query = `SELECT * FROM d_kawin`;
+            let query = `
+            SELECT
+            d_kawin.id_ternak, 
+            d_kawin.id_pemancek,  
+            s_ternak.id_ternak AS id_cempe,
+            d_kawin.tanggal_kawin
+            FROM d_kawin
+            LEFT JOIN s_ternak 
+            ON d_kawin.id_ternak = s_ternak.id_induk 
+            AND d_kawin.id_pemancek = s_ternak.id_pejantan`;
             for (let i = 0; i < Object.keys(req.query).length; i++) {
                 query += (i == 0) ? ` WHERE ` : ` AND `;
-                query += `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`;
+                query += `d_kawin.${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`;
             }
             const list = await this.db.query(query);
             if(list.length <= 0){
@@ -22,6 +31,7 @@ class _kawin{
                     error: 'Data kawin not found'
                 }
             }
+
             return {
                 code : 200,
                 data: {
