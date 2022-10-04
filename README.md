@@ -4,8 +4,8 @@
 ##
 # INSTALASI
 - npm i
-- buat database baru dengan nama sembadafarm_db
-- import database (/db/sembadafarm_db.sql)
+- buat database baru dengan nama new_sembada_app
+- npx sequelize db:migrate
 - npm run dev
 
 ##
