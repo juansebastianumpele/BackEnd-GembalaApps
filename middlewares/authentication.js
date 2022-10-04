@@ -1,4 +1,4 @@
-const config = require('../config/app.config.js')
+const config = require('../config/jwt.config')
 const mysql = require('../utils/database');
 const jwt = require('jsonwebtoken')
 // const m$user = require('../modules/user.modules')
@@ -10,7 +10,7 @@ const authentication = async (req, res, next) => {
       try {
         token = req.headers.authorization.split(' ')[1]
 
-        const decoded = jwt.verify(token, config.jwt.secret)
+        const decoded = jwt.verify(token, config.secret)
 
         const user = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [decoded.username]);
         if (user.length <= 0) {

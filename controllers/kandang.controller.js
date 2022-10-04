@@ -2,7 +2,7 @@ const { Router } = require('express');
 const kandangService = require('../services/kandang.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-const {adminAuth, employeeAuth} = require('../middlewares/authorization');
+const {employeeAuth} = require('../middlewares/authorization');
 
 const kandangController = (db) => {
     // Service
