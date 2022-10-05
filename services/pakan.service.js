@@ -9,23 +9,14 @@ class _pakan{
     // get data pakan
     getPakan = async (req) => {
         try{
-            // Query data
-            // let query = 'SELECT * FROM d_pakan';
-            // for (let i = 0; i < Object.keys(req.query).length; i++) {
-            //    query += (i == 0) ? ` WHERE ` : ` AND `;
-            //    query += Object.keys(req.query)[i] == 'id_pakan'
-            //     ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
-            //     : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
-            // }
-            // const list = await this.db.query(query);
             const list = await PakanModel.findAll({where : req.query});
-            if(list == null){
+            if(list.length <= 0){
                 return{
                     code: 404,
                     error: 'Data pakan not found'
                 }
             }
-            
+    
             return {
                 code : 200,
                 data: {
@@ -63,14 +54,6 @@ class _pakan{
                 }
             }
 
-            // Query data
-            // const add = await this.db.query('INSERT INTO d_pakan (nama_pakan, deskripsi, komposisi, jumlah) VALUES (?, ?, ?, ?)', 
-            // [
-            //     value.nama_pakan, 
-            //     value.deskripsi, 
-            //     value.komposisi, 
-            //     value.jumlah
-            // ]);
             const add = await PakanModel.create({
                 nama_pakan: value.nama_pakan, 
                 jenis_pakan: value.jenis_pakan,
@@ -124,16 +107,6 @@ class _pakan{
                     error: errorDetails,
                 }
             }
-
-            // Query data
-            // const update = await this.db.query('UPDATE d_pakan SET nama_pakan = ?, deskripsi = ?, komposisi = ?, jumlah = ? WHERE id_pakan = ?', 
-            // [
-            //     value.nama_pakan, 
-            //     value.deskripsi, 
-            //     value.komposisi, 
-            //     value.jumlah, 
-            //     value.id_pakan, 
-            // ]);
             const update = await PakanModel.update({
                 nama_pakan: value.nama_pakan,
                 jenis_pakan: value.deskripsi,
@@ -188,10 +161,6 @@ class _pakan{
             }
 
             // Query data
-            // const del = await this.db.query('DELETE FROM d_pakan WHERE id_pakan = ?', 
-            // [
-            //     value.id_pakan
-            // ]);
             const del = await PakanModel.destroy({
                 where: {
                     id_pakan: value.id_pakan

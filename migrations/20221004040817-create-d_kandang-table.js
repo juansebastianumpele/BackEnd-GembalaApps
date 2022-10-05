@@ -18,6 +18,19 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+        attributes: {
+          onUpdate: 'CURRENT_TIMESTAMP'
+        }
+      }
     });
   },
 

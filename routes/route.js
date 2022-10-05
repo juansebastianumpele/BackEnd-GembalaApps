@@ -14,7 +14,7 @@ const blokKandangController = require("../controllers/blokkandang.controller");
 const _routes = [
     ['/auth', authController],
     // ['/users', userController],
-    // ['/kandang', kandangController],
+    ['/kandang', kandangController],
     ['/pakan', pakanController],
     // ['/fase', faseController],
     // ['/penyakit', penyakitController],
