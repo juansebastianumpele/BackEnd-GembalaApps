@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const config = {
+module.exports = {
     db: {
         "host": process.env.DB_HOST,
         "port": process.env.DB_PORT,
@@ -13,7 +13,3 @@ const config = {
         expiresIn: 3600
     }
 }
-
-console.log(config)
-
-module.exports = config
