@@ -1,6 +1,9 @@
 const config = require('../config/jwt.config')
 const mysql = require('../utils/database');
 const jwt = require('jsonwebtoken')
+const { sequelize } = require('../models');
+const { DataTypes } = require('sequelize');
+const AuthModel = require('../models/auth.model')(sequelize, DataTypes)
 // const m$user = require('../modules/user.modules')
 
 const authentication = async (req, res, next) => {
@@ -12,15 +15,16 @@ const authentication = async (req, res, next) => {
 
         const decoded = jwt.verify(token, config.secret)
 
-        const user = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [decoded.username]);
-        if (user.length <= 0) {
+        // const user = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [decoded.username]);
+        const user = await AuthModel.findOne({where : {username: decoded.username}});
+        if (user == null) {
           res.status(401).send({ code: 401, error: 'Not authorized' })
         }
 
         req.dataAuth = {
-          id_users: user[0].id_users,
-          username: user[0].username,
-          role: user[0].role
+          id_users: user.id_users,
+          username: user.username,
+          role: user.role
         }
         
         next()

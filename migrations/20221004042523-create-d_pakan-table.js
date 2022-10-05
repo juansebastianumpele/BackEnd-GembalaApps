@@ -35,7 +35,20 @@ module.exports = {
         ],
         defaultValue: 'Kg',
         allowNull: false
-      }
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+        attributes: {
+          onUpdate: 'CURRENT_TIMESTAMP'
+        },
+      },
     });
   },
 

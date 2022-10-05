@@ -1,4 +1,4 @@
 {
-    "screetKey": "gembalaapp",
+    "secret": "gembalaapp",
     "expiresIn": 3600
 }

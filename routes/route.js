@@ -13,22 +13,22 @@ const blokKandangController = require("../controllers/blokkandang.controller");
 // Define url API in here
 const _routes = [
     ['/auth', authController],
-    ['/users', userController],
-    ['/kandang', kandangController],
+    // ['/users', userController],
+    // ['/kandang', kandangController],
     ['/pakan', pakanController],
-    ['/fase', faseController],
-    ['/penyakit', penyakitController],
-    ['/varietas', varietasController],
-    ['/kawin', kawinController],
-    ['/timbangan', timbanganController],
-    ['/ternak', ternakController],
-    ['/blok-kandang', blokKandangController],
+    // ['/fase', faseController],
+    // ['/penyakit', penyakitController],
+    // ['/varietas', varietasController],
+    // ['/kawin', kawinController],
+    // ['/timbangan', timbanganController],
+    // ['/ternak', ternakController],
+    // ['/blok-kandang', blokKandangController],
 ];
 
-const routes = (app, db) => {
+const routes = (app) => {
     _routes.forEach((route) => {
         const [url, controller] = route;
-        app.use(`/api${url}`, controller(db));
+        app.use(`/api${url}`, controller);
     })
 }
 

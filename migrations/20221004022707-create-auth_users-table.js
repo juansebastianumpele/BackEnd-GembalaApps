@@ -40,14 +40,24 @@ module.exports = {
       },
       role:{
         type: Sequelize.STRING,
+        defaultValue: 'user',
         allowNull: false
+      },
+      lastAccess:{
+        type: Sequelize.DATE,
+        allowNull: true
       },
       createdAt:{
         type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
         allowNull: false
       },
       updatedAt:{
         type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+        attributes: {
+          onUpdate: 'CURRENT_TIMESTAMP'
+        },
         allowNull: false
       }
     });
