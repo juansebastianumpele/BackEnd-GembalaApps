@@ -118,6 +118,16 @@ module.exports = {
         defaultValue: 'Dijual',
         allowNull: false
       },
+      createdAt:{
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      updateAt:{
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+      }
     }).then(() => {
       queryInterface.addConstraint('s_ternak', {
         fields: ['id_induk'],

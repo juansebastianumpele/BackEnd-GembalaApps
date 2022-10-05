@@ -1,23 +1,16 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
+const { sequelize } = require('../models');
+const { DataTypes } = require('sequelize');
+const PenyakitModel = require('../models/penyakit.model')(sequelize, DataTypes)
 
 class _penyakit{
-    constructor(db){
-        this.db = db;
-    }
     // Get Data Penyakit
     getPenyakit = async (req) => {
         try{
             // Query data
-            let query = 'SELECT * FROM d_penyakit';
-            for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += (i == 0) ? ` WHERE ` : ` AND `;
-                query += Object.keys(req.query)[i] == 'id_penyakit'
-                ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
-                : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
-            }
-            const list = await this.db.query(query);
+            const list = await PenyakitModel.findAll({ where : req.query });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -47,7 +40,7 @@ class _penyakit{
             const schema = joi.object({
                 nama_penyakit: joi.string().required(),
                 deskripsi: joi.string().required(),
-                ciri_penyakit: joi.string().required(),
+                ciri: joi.string().required(),
                 pengobatan: joi.string().required(),
             });
 
@@ -61,14 +54,13 @@ class _penyakit{
             }
 
             // Query data
-            const add = await this.db.query('INSERT INTO d_penyakit (nama_penyakit, deskripsi, ciri_penyakit, pengobatan) VALUES (?, ?, ?, ?)', 
-            [
-                value.nama_penyakit, 
-                value.deskripsi, 
-                value.ciri_penyakit, 
-                value.pengobatan
-            ]);
-            if(add.affectedRows <= 0){
+            const add = await PenyakitModel.create({
+                nama_penyakit: value.nama_penyakit,
+                deskripsi: value.deskripsi,
+                ciri: value.ciri,
+                pengobatan: value.pengobatan,
+            });
+            if(add == null){
                 return{
                     code: 400,
                     error: `Failed to create penyakit`
@@ -77,9 +69,9 @@ class _penyakit{
             return {
                 code: 200,
                 data: {
-                    id_penyakit: add.insertId,
-                    nama_penyakit: value.nama_penyakit,
-                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    id_penyakit: add.id_penyakit,
+                    nama_penyakit: add.nama_penyakit,
+                    createdAt: date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -100,7 +92,7 @@ class _penyakit{
                 id_penyakit: joi.number().required(),
                 nama_penyakit: joi.string().required(),
                 deskripsi: joi.string().required(),
-                ciri_penyakit: joi.string().required(),
+                ciri: joi.string().required(),
                 pengobatan: joi.string().required()
             });
 
@@ -114,15 +106,17 @@ class _penyakit{
             }
 
             // Query data
-            const update = await this.db.query('UPDATE d_penyakit SET nama_penyakit = ?, deskripsi = ?, ciri_penyakit = ?, pengobatan = ? WHERE id_penyakit = ?', 
-            [
-                value.nama_penyakit, 
-                value.deskripsi, 
-                value.ciri_penyakit, 
-                value.pengobatan, 
-                value.id_penyakit, 
-            ]);
-            if(update.affectedRows <= 0){
+            const update = await PenyakitModel.update({
+                nama_penyakit: value.nama_penyakit,
+                deskripsi: value.deskripsi,
+                ciri: value.ciri,
+                pengobatan: value.pengobatan,
+            }, {
+                where: {
+                    id_penyakit: value.id_penyakit
+                }
+            });
+            if(update <= 0){
                 return{
                     code: 400,
                     error: `Failed to update penyakit`
@@ -133,7 +127,6 @@ class _penyakit{
                 code: 200,
                 data: {
                     id_penyakit: value.id_penyakit,
-                    nama_penyakit: value.nama_penyakit,
                     updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
@@ -159,18 +152,18 @@ class _penyakit{
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
                 return {
-                    status: false,
                     code: 400,
                     error: errorDetails,
                 }
             }
 
             // Query data
-            const del = await this.db.query('DELETE FROM d_penyakit WHERE id_penyakit = ?', 
-            [
-                value.id_penyakit
-            ]);
-            if(del.affectedRows <= 0){
+            const del = await PenyakitModel.destroy({
+                where: {
+                    id_penyakit: value.id_penyakit
+                }
+            });
+            if(del <= 0){
                 return{
                     code: 400,
                     error: `Failed to delete penyakit`
@@ -195,5 +188,4 @@ class _penyakit{
     }
 }
 
-const penyakitService = (db) => new _penyakit(db);
-module.exports = penyakitService;
+module.exports = new _penyakit();
