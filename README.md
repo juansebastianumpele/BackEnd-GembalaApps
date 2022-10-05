@@ -4,7 +4,7 @@
 ##
 # INSTALASI
 - npm i
-- buat database baru dengan nama new_sembada_app
+- buat database baru dengan nama new_gembala_app
 - npx sequelize db:migrate
 - npm run dev
 
