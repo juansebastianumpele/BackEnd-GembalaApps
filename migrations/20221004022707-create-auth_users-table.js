@@ -40,7 +40,7 @@ module.exports = {
       },
       role:{
         type: Sequelize.STRING,
-        defaultValue: 'user',
+        defaultValue: 'employee',
         allowNull: false
       },
       lastAccess:{

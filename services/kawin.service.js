@@ -1,30 +1,32 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
+const { sequelize } = require('../models');
+const { DataTypes } = require('sequelize');
+const KawinModel = require('../models/kawin.model')(sequelize, DataTypes)
+const TernakModel = require('../models/ternak.model')(sequelize, DataTypes)
 
 class _kawin{
-    constructor(db){
-        this.db = db;
-    }
     // List Ternak by id
     getKawin = async (req) => {
         try{
             // Query data
-            let query = `
-            SELECT
-            d_kawin.id_ternak, 
-            d_kawin.id_pemancek,  
-            s_ternak.id_ternak AS id_cempe,
-            d_kawin.tanggal_kawin
-            FROM d_kawin
-            LEFT JOIN s_ternak 
-            ON d_kawin.id_ternak = s_ternak.id_induk 
-            AND d_kawin.id_pemancek = s_ternak.id_pejantan`;
-            for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += (i == 0) ? ` WHERE ` : ` AND `;
-                query += `d_kawin.${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`;
-            }
-            const list = await this.db.query(query);
+            const list = await KawinModel.findAll({
+                attributes : ['id_kawin', 'tanggal_kawin', 'createdAt', 'updatedAt'],
+                include: [
+                    {
+                        model: TernakModel,
+                        as: 'ternak',
+                        attributes: ['id_ternak', 'rf_id', 'foto', 'jenis_kelamin', 'id_induk', 'id_pejantan', 'berat', 'suhu', 'status_kesehatan', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt']
+                    },
+                    {
+                        model: TernakModel,
+                        as: 'pemacek',
+                        attributes: ['id_ternak', 'rf_id', 'foto', 'jenis_kelamin', 'id_induk', 'id_pejantan', 'berat', 'suhu', 'status_kesehatan', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt']
+                    }
+                ],
+                where : req.query
+            });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -54,8 +56,8 @@ class _kawin{
             // Validate data
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                tanggal_kawin: joi.date().required(),
-                id_pemancek: joi.number().required()
+                id_pemacek: joi.number().required(),
+                tanggal_kawin: joi.date().required()
             });
 
             const { error, value } = schema.validate(req.body);
@@ -68,13 +70,12 @@ class _kawin{
             }
 
             // Query data
-            const add = await this.db.query('INSERT INTO d_kawin (id_ternak, tanggal_kawin, id_pemancek) VALUES (?, ?, ?)', 
-            [
-                value.id_ternak, 
-                value.tanggal_kawin, 
-                value.id_pemancek
-            ]);
-            if(add.affectedRows <= 0){
+            const add = await KawinModel.create({
+                id_ternak: value.id_ternak,
+                id_pemacek: value.id_pemacek,
+                tanggal_kawin: value.tanggal_kawin
+            });
+            if(add == null){
                 return{
                     code: 400,
                     error: 'Failed to create new kawin'
@@ -84,8 +85,7 @@ class _kawin{
             return {
                 code: 200,
                 data: {
-                    id_kawin: add.insertId,
-                    ...value,
+                    id_kawin: add.id_kawin,
                     createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
@@ -106,8 +106,8 @@ class _kawin{
             const schema = joi.object({
                 id_kawin: joi.number().required(),
                 id_ternak: joi.number().required(),
-                tanggal_kawin: joi.date().required(),
-                id_pemancek: joi.number().required()
+                id_pemacek: joi.number().required(),
+                tanggal_kawin: joi.date().required()
             });
 
             const { error, value } = schema.validate(req.body);
@@ -120,15 +120,16 @@ class _kawin{
             }
 
             // Query data
-            const update = await this.db.query(
-                `UPDATE d_kawin SET id_ternak = ?, tanggal_kawin = ?, id_pemancek = ? WHERE id_kawin = ?`,
-                [
-                    value.id_ternak, 
-                    value.tanggal_kawin, 
-                    value.id_pemancek, 
-                    value.id_kawin
-                ]);
-            if(update.affectedRows <= 0){
+            const update = await KawinModel.update({
+                id_ternak: value.id_ternak,
+                id_pemacek: value.id_pemacek,
+                tanggal_kawin: value.tanggal_kawin
+            }, {
+                where: {
+                    id_kawin: value.id_kawin
+                }
+            });
+            if(update <= 0){
                 return{
                     code: 400,
                     error: 'Failed to update data kawin'
@@ -139,7 +140,6 @@ class _kawin{
                 code: 200,
                 data: {
                     id_kawin: value.id_kawin,
-                    ...value,
                     updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
@@ -171,11 +171,12 @@ class _kawin{
             }
 
             // Query data
-            const del = await this.db.query(`DELETE FROM d_kawin WHERE id_kawin = ?`, 
-            [
-                value.id_kawin, 
-            ]);
-            if(del.affectedRows <= 0){
+            const del = await KawinModel.destroy({
+                where: {
+                    id_kawin: value.id_kawin
+                }
+            });
+            if(del <= 0){
                 return{
                     code: 400,
                     error: 'Failed to delete data kawin'
@@ -186,7 +187,6 @@ class _kawin{
                 code: 200,
                 data: {
                     id_kawin: value.id_kawin,
-                    ...value,
                     deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
@@ -201,5 +201,4 @@ class _kawin{
     }
 }
 
-const kawinService = (db) => new _kawin(db);
-module.exports = kawinService;
+module.exports = new _kawin();

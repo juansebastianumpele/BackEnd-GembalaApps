@@ -94,6 +94,14 @@ module.exports = {
         defaultValue: 'Sehat',
         allowNull: false
       },
+      id_penyakit:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'd_penyakit',
+          key: 'id_penyakit'
+        }
+      },
       tanggal_lahir:{
         type: Sequelize.DATE,
         allowNull: true
@@ -115,15 +123,14 @@ module.exports = {
           'Mati',
           'Lainnya'
         ],
-        defaultValue: 'Dijual',
-        allowNull: false
+        allowNull: true
       },
       createdAt:{
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updateAt:{
+      updatedAt:{
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),

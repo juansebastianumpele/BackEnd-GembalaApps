@@ -5,9 +5,6 @@ const { sequelize } = require('../models');
 const { DataTypes } = require('sequelize');
 const AuthModel = require('../models/auth.model')(sequelize, DataTypes)
 class _auth{
-    // constructor(db){
-    //     this.db = db;
-    // }
     login = async (data) => {
         // Validate data
         const schema = joi.object({
