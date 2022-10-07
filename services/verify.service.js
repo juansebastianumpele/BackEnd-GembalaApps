@@ -10,10 +10,8 @@ class _verify{
     verify = async (req) => {
         try{
             const decoded = jwt.verify(req.body.token, config.secret)
-            console.log(decoded)
 
             const user = await db.AuthUser.findOne({where : {username: decoded.username}});
-            console.log(user);
             if (user == null) {
               res.status(401).send({ code: 401, error: 'Not authorized' })
             }
