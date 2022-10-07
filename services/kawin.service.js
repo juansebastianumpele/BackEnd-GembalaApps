@@ -47,6 +47,22 @@ class _kawin{
         }
     }
 
+    // Get data Indukan
+    getDataIndukan = async (req) => {
+        try{
+            // Query Data
+            const list = await db.Ternak.findAll({
+                attributes : ['id_ternak', 'rf_id', 'foto', 'jenis_kelamin', 'id_induk', 'id_pejantan', 'berat', 'suhu', 'status_kesehatan', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt'],
+                where : {
+                    jenis_kelamin : 'betina',
+                    id_fp : {$not : '1'}
+                }
+            });
+        }catch(error){
+
+        }
+    }    
+
     // Create new Kawin
     createDataKawin = async (req) => {
         try {

@@ -8,7 +8,7 @@ const VerifyController = Router();
 /**
  * List User
  */
-VerifyController.get('/', authentication, async (req, res, next) => {
+VerifyController.post('/', authentication, async (req, res, next) => {
     const list = await s$verify.verify(req);
     response.sendResponse(res, list);
 });
