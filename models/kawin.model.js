@@ -32,15 +32,17 @@ module.exports = (Sequelize, DataTypes) => {
         tableName: "d_kawin",
     });   
 
-    Kawin.belongsTo(Ternak, {
-      foreignKey: 'id_ternak',
-      as: 'ternak'
-    });
-    
-    Kawin.belongsTo(Ternak, {
-      foreignKey: 'id_pemacek',
-      as: 'pemacek'
-    });
+    Kawin.associate = function (models) {
+      Kawin.belongsTo(models.Ternak, {
+        foreignKey: 'id_ternak',
+        as: 'ternak'
+      });
+      
+      Kawin.belongsTo(models.Ternak, {
+        foreignKey: 'id_pemacek',
+        as: 'pemacek'
+      });
+    };
 
     return Kawin;
 }

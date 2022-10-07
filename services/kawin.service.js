@@ -1,26 +1,23 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const KawinModel = require('../models/kawin.model')(sequelize, DataTypes)
-const TernakModel = require('../models/ternak.model')(sequelize, DataTypes)
+const db = require('../models');
 
 class _kawin{
     // List Ternak by id
     getKawin = async (req) => {
         try{
             // Query data
-            const list = await KawinModel.findAll({
+            const list = await db.Kawin.findAll({
                 attributes : ['id_kawin', 'tanggal_kawin', 'createdAt', 'updatedAt'],
                 include: [
                     {
-                        model: TernakModel,
+                        model: db.Ternak,
                         as: 'ternak',
                         attributes: ['id_ternak', 'rf_id', 'foto', 'jenis_kelamin', 'id_induk', 'id_pejantan', 'berat', 'suhu', 'status_kesehatan', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt']
                     },
                     {
-                        model: TernakModel,
+                        model: db.Ternak,
                         as: 'pemacek',
                         attributes: ['id_ternak', 'rf_id', 'foto', 'jenis_kelamin', 'id_induk', 'id_pejantan', 'berat', 'suhu', 'status_kesehatan', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt']
                     }
@@ -70,7 +67,7 @@ class _kawin{
             }
 
             // Query data
-            const add = await KawinModel.create({
+            const add = await db.Kawin.create({
                 id_ternak: value.id_ternak,
                 id_pemacek: value.id_pemacek,
                 tanggal_kawin: value.tanggal_kawin
@@ -120,7 +117,7 @@ class _kawin{
             }
 
             // Query data
-            const update = await KawinModel.update({
+            const update = await db.Kawin.update({
                 id_ternak: value.id_ternak,
                 id_pemacek: value.id_pemacek,
                 tanggal_kawin: value.tanggal_kawin
@@ -171,7 +168,7 @@ class _kawin{
             }
 
             // Query data
-            const del = await KawinModel.destroy({
+            const del = await db.Kawin.destroy({
                 where: {
                     id_kawin: value.id_kawin
                 }

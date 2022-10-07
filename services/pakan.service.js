@@ -1,15 +1,13 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const PakanModel = require('../models/pakan.model')(sequelize, DataTypes)
+const db = require('../models');
 
 class _pakan{
     // get data pakan
     getPakan = async (req) => {
         try{
-            const list = await PakanModel.findAll({where : req.query});
+            const list = await db.Pakan.findAll({where : req.query});
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -54,7 +52,7 @@ class _pakan{
                 }
             }
 
-            const add = await PakanModel.create({
+            const add = await db.Pakan.create({
                 nama_pakan: value.nama_pakan, 
                 jenis_pakan: value.jenis_pakan,
                 komposisi: value.komposisi,
@@ -107,7 +105,7 @@ class _pakan{
                     error: errorDetails,
                 }
             }
-            const update = await PakanModel.update({
+            const update = await db.Pakan.update({
                 nama_pakan: value.nama_pakan,
                 jenis_pakan: value.deskripsi,
                 komposisi: value.komposisi,
@@ -161,7 +159,7 @@ class _pakan{
             }
 
             // Query data
-            const del = await PakanModel.destroy({
+            const del = await db.Pakan.destroy({
                 where: {
                     id_pakan: value.id_pakan
                 }

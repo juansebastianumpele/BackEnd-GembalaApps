@@ -22,5 +22,12 @@ module.exports = (Sequelize, DataTypes) => {
         tableName: "d_varietas",
     });
 
+    Varietas.associate = function (models) {
+        Varietas.hasMany(models.Ternak, {
+            foreignKey: 'id_varietas',
+            as: 'ternak'
+        });
+    }
+
     return Varietas;
 }

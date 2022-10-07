@@ -1,16 +1,14 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const VarietasModel = require('../models/varietas.model')(sequelize, DataTypes)
+const db = require('../models');
 
 class _varietas{
     // Get data varietas
     getVarietas = async (req) => {
         try{
             // Query data
-            const list = await VarietasModel.findAll({ where : req.query });
+            const list = await db.Varietas.findAll({ where : req.query });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -51,11 +49,7 @@ class _varietas{
             }
 
             // Query data
-            // const add = await this.db.query('INSERT INTO d_varietas (nama_varietas) VALUES (?)', 
-            // [
-            //     value.nama_varietas
-            // ]);
-            const add = await VarietasModel.create({
+            const add = await db.Varietas.create({
                 varietas: value.varietas
             });
             if(add == null){
@@ -102,12 +96,7 @@ class _varietas{
             }
 
             // Query data
-            // const update = await this.db.query('UPDATE d_varietas SET nama_varietas = ? WHERE id_varietas = ?', 
-            // [
-            //     value.nama_varietas, 
-            //     value.id_varietas
-            // ]);
-            const update = await VarietasModel.update({
+            const update = await db.Varietas.update({
                 varietas: value.varietas
             }, {
                 where: {
@@ -156,11 +145,7 @@ class _varietas{
             }
 
             // Query data
-            // const del = await this.db.query('DELETE FROM d_varietas WHERE id_varietas = ?', 
-            // [
-            //     value.id_varietas
-            // ]);
-            const del = await VarietasModel.destroy({
+            const del = await db.Varietas.destroy({
                 where: {
                     id_varietas: value.id_varietas
                 }

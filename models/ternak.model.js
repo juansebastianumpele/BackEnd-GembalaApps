@@ -1,9 +1,9 @@
 module.exports = (Sequelize, DataTypes) => {
-    const Varietas = require('./varietas.model')(Sequelize, DataTypes);
-    const Penyakit = require('./penyakit.model')(Sequelize, DataTypes);
-    const Pakan = require('./pakan.model')(Sequelize, DataTypes);
-    const Fase = require('./fase.model')(Sequelize, DataTypes);
-    const Kandang = require('./kandang.model')(Sequelize, DataTypes);
+    // const Varietas = require('./varietas.model')(Sequelize, DataTypes);
+    // const Penyakit = require('./penyakit.model')(Sequelize, DataTypes);
+    // const Pakan = require('./pakan.model')(Sequelize, DataTypes);
+    // const Fase = require('./fase.model')(Sequelize, DataTypes);
+    // const Kandang = require('./kandang.model')(Sequelize, DataTypes);
 
     const Ternak = Sequelize.define("Ternak", {
         id_ternak:{
@@ -99,35 +99,36 @@ module.exports = (Sequelize, DataTypes) => {
     }, {
         tableName: "s_ternak",
     });
-
-    Ternak.belongsTo(Varietas, {
-        foreignKey: 'id_varietas',
-        as: 'varietas'
-    });
-    Ternak.belongsTo(Kandang, {
-        foreignKey: 'id_kandang',
-        as: 'kandang'
-    });
-    Ternak.belongsTo(Pakan, {
-        foreignKey: 'id_pakan',
-        as: 'pakan'
-    });
-    Ternak.belongsTo(Fase, {
-        foreignKey: 'id_fp',
-        as: 'fase'
-    });
-    Ternak.belongsTo(Penyakit, {
-        foreignKey: 'id_penyakit',
-        as: 'penyakit'
-    });
-    Ternak.belongsTo(Ternak, {
-        foreignKey: 'id_induk',
-        as: 'induk'
-    });
-    Ternak.belongsTo(Ternak, {
-        foreignKey: 'id_pejantan',
-        as: 'pejantan'
-    });
-
+    
+    Ternak.associate = function (models) {
+      Ternak.belongsTo(models.Varietas, {
+          foreignKey: 'id_varietas',
+          as: 'varietas'
+      });
+      Ternak.belongsTo(models.Kandang, {
+          foreignKey: 'id_kandang',
+          as: 'kandang'
+      });
+      Ternak.belongsTo(models.Pakan, {
+          foreignKey: 'id_pakan',
+          as: 'pakan'
+      });
+      Ternak.belongsTo(models.Fase, {
+          foreignKey: 'id_fp',
+          as: 'fase'
+      });
+      Ternak.belongsTo(models.Penyakit, {
+          foreignKey: 'id_penyakit',
+          as: 'penyakit'
+      });
+      Ternak.belongsTo(models.Ternak, {
+          foreignKey: 'id_induk',
+          as: 'induk'
+      });
+      Ternak.belongsTo(models.Ternak, {
+          foreignKey: 'id_pejantan',
+          as: 'pejantan'
+      });
+    };
     return Ternak;
 }

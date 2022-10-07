@@ -1,16 +1,13 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const FaseModel = require('../models/fase.model')(sequelize, DataTypes)
-
+const db = require('../models');
 class _fase{
     // Get Fase
     getFase = async (req) => {
         try{            
             // Query Data
-            const list = await FaseModel.findAll({ where : req.query });
+            const list = await db.Fase.findAll({ where : req.query });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -49,7 +46,7 @@ class _fase{
                 }
             }
 
-            const add = await FaseModel.create({
+            const add = await db.Fase.create({
                 fase: value.fase
             });
             if(add == null){
@@ -94,7 +91,7 @@ class _fase{
                 }
             }
 
-            const update = await FaseModel.update({
+            const update = await db.Fase.update({
                 fase: value.fase
             }, {
                 where: {
@@ -141,7 +138,7 @@ class _fase{
                 }
             }
 
-            const del = await FaseModel.destroy({
+            const del = await db.Fase.destroy({
                 where: {
                     id_fp: value.id_fp
                 }

@@ -1,27 +1,23 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const RiwayatKesehatanModel = require('../models/riwayat_kesehatan.model')(sequelize, DataTypes);
-const TernakModel = require('../models/ternak.model')(sequelize, DataTypes);
-const PenyakitModel = require('../models/penyakit.model')(sequelize, DataTypes);
+const db = require('../models');
 
 class _riwayatKesehatan{
     // Get data RiwayatKesehatan
     getRiwayatKesehatan = async (req) => {
         try{
             // Query data
-            const list = await RiwayatKesehatanModel.findAll({ 
+            const list = await db.RiwayatKesehatan.findAll({ 
                 attributes : ['id_riwayat_kesehatan', 'tanggal_sakit', 'tanggal_sembuh', 'createdAt', 'updatedAt'],
                 include: [
                     {
-                        model: TernakModel,
+                        model: db.Ternak,
                         as: 'ternak',
                         attributes: ['id_ternak', 'rf_id']
                     },
                     {
-                        model: PenyakitModel,
+                        model: db.Penyakit,
                         as: 'penyakit',
                         attributes: ['id_penyakit', 'nama_penyakit']
                     }
@@ -71,7 +67,7 @@ class _riwayatKesehatan{
             }
 
             // Query data
-            const add = await RiwayatKesehatanModel.create({
+            const add = await db.RiwayatKesehatan.create({
                 id_ternak: value.id_ternak,
                 id_penyakit: value.id_penyakit,
                 tanggal_sakit: value.tanggal_sakit,
@@ -125,7 +121,7 @@ class _riwayatKesehatan{
             }
 
             // Query data
-            const update = await RiwayatKesehatanModel.update({
+            const update = await db.RiwayatKesehatan.update({
                 id_ternak: value.id_ternak,
                 id_penyakit: value.id_penyakit,
                 tanggal_sakit: value.tanggal_sakit,
@@ -177,7 +173,7 @@ class _riwayatKesehatan{
             }
 
             // Query data
-            const del = await RiwayatKesehatanModel.destroy({
+            const del = await db.RiwayatKesehatan.destroy({
                 where: {
                     id_riwayat_kesehatan: value.id_riwayat_kesehatan
                 }
