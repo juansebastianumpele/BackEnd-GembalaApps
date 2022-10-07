@@ -14,15 +14,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      deskripsi:{
+      gejala:{
         type: Sequelize.STRING,
         allowNull: false
       },
-      ciri:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      pengobatan:{
+      penanganan:{
         type: Sequelize.STRING,
         allowNull: false
       },

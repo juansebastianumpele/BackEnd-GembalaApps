@@ -8,6 +8,7 @@ const VarietasController = require("../controllers/varietas.controller");
 const KawinController = require("../controllers/kawin.controller");
 const TimbanganController = require("../controllers/timbangan.controller");
 const TernakController = require("../controllers/ternak.controller");
+const RiwayatKesehatanController = require("../controllers/riwayat_kesehatan.controller");
 const blokKandangController = require("../controllers/blokkandang.controller");
 
 // Define url API in here
@@ -22,6 +23,7 @@ const _routes = [
     ['/kawin', KawinController],
     ['/timbangan', TimbanganController],
     ['/ternak', TernakController],
+    ['/riwayat-kesehatan', RiwayatKesehatanController],
     // ['/blok-kandang', blokKandangController],
 ];
 
