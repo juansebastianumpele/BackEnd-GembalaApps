@@ -6,6 +6,7 @@
 - npm i
 - buat database baru dengan nama new_gembala_app
 - npx sequelize db:migrate
+- npx sequelize db:seed:all
 - npm run dev
 
 ##

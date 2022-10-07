@@ -36,7 +36,7 @@ module.exports = {
         berat: "22.15",
         suhu: "39",
         status_kesehatan: "Sehat",
-        id_penyakit: "32",
+        id_penyakit: null,
         tanggal_lahir: "2022-01-01 00:00:00",
         tanggal_masuk: "2022-11-01 00:00:00",
         tanggal_keluar: null,
