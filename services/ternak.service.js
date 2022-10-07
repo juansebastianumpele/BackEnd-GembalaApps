@@ -1,44 +1,36 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const TernakModel = require('../models/ternak.model')(sequelize, DataTypes)
-const VarietasModel = require('../models/varietas.model')(sequelize, DataTypes)
-const KandangModel = require('../models/kandang.model')(sequelize, DataTypes)
-const PakanModel = require('../models/pakan.model')(sequelize, DataTypes)
-const FaseModel = require('../models/fase.model')(sequelize, DataTypes)
-const PenyakitModel = require('../models/penyakit.model')(sequelize, DataTypes)
-
+const db = require('../models');
 class _ternak{
     // Get Data Ternak
     getTernak = async (req) => {
         try{
-            const list = await TernakModel.findAll({
+            const list = await db.Ternak.findAll({
                 attributes : ['id_ternak', 'rf_id', 'foto', 'jenis_kelamin', 'id_induk', 'id_pejantan', 'berat', 'suhu', 'status_kesehatan', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt'],
                 include: [
                     {
-                        model: VarietasModel,
+                        model: db.Varietas,
                         as: 'varietas',
                         attributes: ['id_varietas', 'varietas']
                     },
                     {
-                        model: KandangModel,
+                        model: db.Kandang,
                         as: 'kandang',
                         attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang']
                     },
                     {
-                        model: PenyakitModel,
+                        model: db.Penyakit,
                         as: 'penyakit',
                         attributes: ['id_penyakit', 'nama_penyakit']
                     },
                     {
-                        model: FaseModel,
+                        model: db.Fase,
                         as: 'fase',
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: PakanModel,
+                        model: db.Pakan,
                         as: 'pakan',
                         attributes: ['id_pakan', 'nama_pakan']
                     }
@@ -101,7 +93,7 @@ class _ternak{
             }
 
             // Query Data
-            const add = await TernakModel.create(value);
+            const add = await db.Ternak.create(value);
             if(add === null){
                 return{
                     code: 400,
@@ -160,7 +152,7 @@ class _ternak{
                 }
             }
 
-            const update = await TernakModel.update(value, {
+            const update = await db.Ternak.update(value, {
                 where: {
                     id_ternak: value.id_ternak
                 }
@@ -208,7 +200,7 @@ class _ternak{
             }
 
             // Query Data
-            const del = await TernakModel.destroy({
+            const del = await db.Ternak.destroy({
                 where: {
                     id_ternak: value.id_ternak
                 }

@@ -1,30 +1,25 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const KandangModel = require('../models/kandang.model')(sequelize, DataTypes)
+const db = require('../models');
+const { Sequelize } = require('sequelize');
 class _kandang{
     // Get Kandang
     getKandang = async (req) => {
         try{
             // Query data
-            // let query = `
-            // SELECT 
-            // d_kandang.id_kandang, 
-            // d_kandang.nama_kandang, 
-            // d_blok_kandang.blok
-            // FROM d_kandang 
-            // LEFT JOIN d_blok_kandang 
-            // ON d_kandang.id_blok = d_blok_kandang.id_blok`;
-            // for (let i = 0; i < Object.keys(req.query).length; i++) {
-            //     query += (i == 0) ? ` WHERE d_kandang.` : ` AND d_kandang.`;
-            //     query += Object.keys(req.query)[i] == 'id_kandang'
-            //     ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
-            //     : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
-            // }
-            // const list = await this.db.query(query);
-            const list = await KandangModel.findAll({where : req.query});
+            const list = await db.Kandang.findAll({
+                attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'createdAt', 'updatedAt'],
+                include: [
+                    {
+                        model: db.Ternak,
+                        as: 'ternak',
+                        attributes: [
+                            'id_ternak'
+                        ],
+                    },
+                ],
+            });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -65,13 +60,7 @@ class _kandang{
                 }
             }
 
-            // Query data
-            // const add = await this.db.query(`INSERT INTO d_kandang (nama_kandang, id_blok) VALUES (?, ?)`, 
-            // [
-            //     value.nama_kandang, 
-            //     value.id_blok
-            // ]);
-            const add = await KandangModel.create({
+            const add = await db.Kandang.create({
                 kode_kandang: value.kode_kandang,
                 jenis_kandang: value.jenis_kandang
             });
@@ -127,7 +116,7 @@ class _kandang{
             //     value.id_blok, 
             //     value.id_kandang, 
             // ]);
-            const update = await KandangModel.update({
+            const update = await db.Kandang.update({
                 kode_kandang: value.kode_kandang,
                 jenis_kandang: value.jenis_kandang
             }, {
@@ -175,7 +164,7 @@ class _kandang{
                     error: errorDetails
                 }
             }
-            const del = await KandangModel.destroy({
+            const del = await db.Kandang.destroy({
                 where: {
                     id_kandang: value.id_kandang
                 }

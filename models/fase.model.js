@@ -22,5 +22,11 @@ module.exports = (Sequelize, DataTypes) => {
         tableName: "d_fase_pemeliharaan",
     });
 
+    Fase.associate = function (models) {
+        Fase.hasMany(models.Ternak, {
+            foreignKey: 'id_fp',
+            as: 'ternak'
+        });
+    };
     return Fase;
 }

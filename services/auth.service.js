@@ -1,9 +1,7 @@
 const joi = require('joi');
 const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const AuthModel = require('../models/auth.model')(sequelize, DataTypes)
+const db = require('../models');
 class _auth{
     login = async (data) => {
         // Validate data
@@ -22,7 +20,7 @@ class _auth{
 
         // Check if user exist
         // const checkUsername = await this.db.query('SELECT * FROM auth_users WHERE username = ?', [value.username]);
-        const checkUsername = await AuthModel.findOne({where : {username: value.username}});
+        const checkUsername = await db.AuthUser.findOne({where : {username: value.username}});
         if (checkUsername == null) {
             return {
                 code: 404,
@@ -81,7 +79,7 @@ class _auth{
             }
         }
         // Check if user exist
-        const checkUser = await AuthModel.findOne({where : {username: value.username}});
+        const checkUser = await db.AuthUser.findOne({where : {username: value.username}});
         if (checkUser !== null) {
             return {
                 code: 400,
@@ -93,7 +91,7 @@ class _auth{
         value.password = await hashPassword(value.password);
         
         // Insert data
-        const register = await AuthModel.create({
+        const register = await db.AuthUser.create({
             nama_lengkap: value.nama_lengkap,
             username: value.username,
             email: value.email,
@@ -119,7 +117,7 @@ class _auth{
     }
 
     logout = async (req, res) => {
-        const update = await AuthModel.update({lastAccess: new Date()}, {where: {id_users: req.dataAuth.id_users}});
+        const update = await db.AuthUser.update({lastAccess: new Date()}, {where: {id_users: req.dataAuth.id_users}});
         console.log('update = ' + update);
         if (update <= 0) {
             return {
@@ -154,7 +152,7 @@ class _auth{
 
         // Check if user exist
         // const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
-        const checkUser = await AuthModel.findOne({where : {id_users: req.dataAuth.id_users}});
+        const checkUser = await db.AuthUser.findOne({where : {id_users: req.dataAuth.id_users}});
         if (checkUser == null) {
             return {
                 code: 404,
@@ -173,7 +171,7 @@ class _auth{
 
         // Delete data
         // const deletedAccount = await this.db.query('DELETE FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
-        const deletedAccount = await AuthModel.destroy({where: {id_users: req.dataAuth.id_users}});
+        const deletedAccount = await db.AuthUser.destroy({where: {id_users: req.dataAuth.id_users}});
         if (deletedAccount <= 0) {
             return {
                 code: 500,
@@ -211,7 +209,7 @@ class _auth{
         }
 
         // Update data
-        const updatedAccount = await AuthModel.update({
+        const updatedAccount = await db.AuthUser.update({
             nama_lengkap: value.nama_lengkap,
             username: value.username,
             email: value.email,
@@ -253,7 +251,7 @@ class _auth{
 
         // Check if user exist
         // const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
-        const checkUser = await AuthModel.findOne({where : {id_users: req.dataAuth.id_users}});
+        const checkUser = await db.AuthUser.findOne({where : {id_users: req.dataAuth.id_users}});
         if (checkUser == null) {
             return {
                 code: 404,
@@ -274,7 +272,7 @@ class _auth{
         const newPassword = await hashPassword(value.new_password);
 
         // Update data
-        const updatedPassword = await AuthModel.update({password: newPassword}, {where: {id_users: req.dataAuth.id_users}});
+        const updatedPassword = await db.AuthUser.update({password: newPassword}, {where: {id_users: req.dataAuth.id_users}});
         if (updatedPassword <= 0) {
             return {
                 code: 500,

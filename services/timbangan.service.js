@@ -1,21 +1,18 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const TernakModel = require('../models/ternak.model')(sequelize, DataTypes)
-const TimbanganModel = require('../models/timbangan.model')(sequelize, DataTypes)
+const db = require('../models');
 
 class _timbangan{
     // get Data Timbangan
     getDataTimbangan = async (req) => {
         try{
             // Query data
-            const list = await TimbanganModel.findAll({
+            const list = await db.Timbangan.findAll({
                 attributes : ['id_timbangan', 'berat', 'suhu', 'tanggal_timbang', 'createdAt', 'updatedAt'],
                 include: [
                     {
-                        model: TernakModel,
+                        model: db.Ternak,
                         as: 'ternak',
                         attributes: ['id_ternak', 'rf_id']
                     }
@@ -64,7 +61,7 @@ class _timbangan{
             }
 
             // Query data ternak
-            const ternak = await TernakModel.findOne({
+            const ternak = await db.Ternak.findOne({
                 where: {
                     rf_id: value.rf_id
                 }
@@ -77,7 +74,7 @@ class _timbangan{
             }
 
             // Query data
-            const add = await TimbanganModel.create({
+            const add = await db.Timbangan.create({
                 id_ternak: ternak.id_ternak,
                 rf_id : value.rf_id,
                 berat: value.berat,
@@ -129,7 +126,7 @@ class _timbangan{
             }
 
             // Query data
-            const update = await TimbanganModel.update({
+            const update = await db.Timbangan.update({
                 berat: value.berat,
                 suhu: value.suhu,
             }, {
@@ -179,7 +176,7 @@ class _timbangan{
             }
 
             // Query data
-            const del = await TimbanganModel.destroy({
+            const del = await db.Timbangan.destroy({
                 where: {
                     id_timbangan: value.id_timbangan
                 }

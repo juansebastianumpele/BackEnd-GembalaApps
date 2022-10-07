@@ -10,15 +10,11 @@ module.exports = (Sequelize, DataTypes) => {
           type: DataTypes.STRING,
           allowNull: false
         },
-        deskripsi:{
+        gejala:{
           type: DataTypes.STRING,
           allowNull: false
         },
-        ciri:{
-          type: DataTypes.STRING,
-          allowNull: false
-        },
-        pengobatan:{
+        penanganan:{
           type: DataTypes.STRING,
           allowNull: false
         },
@@ -33,6 +29,13 @@ module.exports = (Sequelize, DataTypes) => {
     }, {
         tableName: "d_penyakit",
     });
+
+    Penyakit.associate = function (models) {
+        Penyakit.hasMany(models.Ternak, {
+            foreignKey: 'id_penyakit',
+            as: 'ternak'
+        });
+    }
 
     return Penyakit;
 }

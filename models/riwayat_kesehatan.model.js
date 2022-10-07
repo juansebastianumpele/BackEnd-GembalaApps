@@ -37,15 +37,16 @@ module.exports = (Sequelize, DataTypes) => {
         tableName: "d_riwayat_kesehatan",
     });
 
-    RiwayatKesehatan.belongsTo(Penyakit, {
-      foreignKey: 'id_penyakit',
-      as: 'penyakit'
-    });
-
-    RiwayatKesehatan.belongsTo(Ternak, {
-      foreignKey: 'id_ternak',
-      as: 'ternak'
-    });
+    RiwayatKesehatan.associate = function (models) {
+        RiwayatKesehatan.belongsTo(models.Penyakit, {
+            foreignKey: 'id_penyakit',
+            as: 'penyakit'
+        });
+        RiwayatKesehatan.belongsTo(models.Ternak, {
+            foreignKey: 'id_ternak',
+            as: 'ternak'
+        });
+    }
 
     return RiwayatKesehatan;
 }

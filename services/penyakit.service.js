@@ -1,16 +1,14 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
-const PenyakitModel = require('../models/penyakit.model')(sequelize, DataTypes)
+const db = require('../models');
 
 class _penyakit{
     // Get Data Penyakit
     getPenyakit = async (req) => {
         try{
             // Query data
-            const list = await PenyakitModel.findAll({ where : req.query });
+            const list = await db.Penyakit.findAll({ where : req.query });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -39,9 +37,8 @@ class _penyakit{
             // Validate data
             const schema = joi.object({
                 nama_penyakit: joi.string().required(),
-                deskripsi: joi.string().required(),
-                ciri: joi.string().required(),
-                pengobatan: joi.string().required(),
+                gejala: joi.string().required(),
+                penanganan: joi.string().required(),
             });
 
             const { error, value } = schema.validate(req.body);
@@ -54,11 +51,10 @@ class _penyakit{
             }
 
             // Query data
-            const add = await PenyakitModel.create({
+            const add = await db.Penyakit.create({
                 nama_penyakit: value.nama_penyakit,
-                deskripsi: value.deskripsi,
-                ciri: value.ciri,
-                pengobatan: value.pengobatan,
+                gejala: value.gejala,
+                penanganan: value.penanganan,
             });
             if(add == null){
                 return{
@@ -91,9 +87,8 @@ class _penyakit{
             const schema = joi.object({
                 id_penyakit: joi.number().required(),
                 nama_penyakit: joi.string().required(),
-                deskripsi: joi.string().required(),
-                ciri: joi.string().required(),
-                pengobatan: joi.string().required()
+                gejala: joi.string().required(),
+                penanganan: joi.string().required()
             });
 
             const { error, value } = schema.validate(req.body);
@@ -106,11 +101,11 @@ class _penyakit{
             }
 
             // Query data
-            const update = await PenyakitModel.update({
+            const update = await db.Penyakit.update({
                 nama_penyakit: value.nama_penyakit,
                 deskripsi: value.deskripsi,
-                ciri: value.ciri,
-                pengobatan: value.pengobatan,
+                gejala: value.gejala,
+                penanganan: value.penanganan,
             }, {
                 where: {
                     id_penyakit: value.id_penyakit
@@ -158,7 +153,7 @@ class _penyakit{
             }
 
             // Query data
-            const del = await PenyakitModel.destroy({
+            const del = await db.Penyakit.destroy({
                 where: {
                     id_penyakit: value.id_penyakit
                 }
