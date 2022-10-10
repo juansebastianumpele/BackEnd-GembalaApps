@@ -1,29 +1,25 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
+const db = require('../models');
+const { Sequelize } = require('sequelize');
 class _kandang{
-    constructor(db){
-        this.db = db;
-    }
     // Get Kandang
     getKandang = async (req) => {
         try{
             // Query data
-            let query = `
-            SELECT 
-            d_kandang.id_kandang, 
-            d_kandang.nama_kandang, 
-            d_blok_kandang.blok
-            FROM d_kandang 
-            LEFT JOIN d_blok_kandang 
-            ON d_kandang.id_blok = d_blok_kandang.id_blok`;
-            for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += (i == 0) ? ` WHERE d_kandang.` : ` AND d_kandang.`;
-                query += Object.keys(req.query)[i] == 'id_kandang'
-                ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
-                : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
-            }
-            const list = await this.db.query(query);
+            const list = await db.Kandang.findAll({
+                attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'createdAt', 'updatedAt'],
+                include: [
+                    {
+                        model: db.Ternak,
+                        as: 'ternak',
+                        attributes: [
+                            'id_ternak'
+                        ],
+                    },
+                ],
+            });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -51,8 +47,8 @@ class _kandang{
         try {
             // Validate data
             const schema = joi.object({
-                nama_kandang: joi.string().required(),
-                id_blok: joi.number().required(),
+                kode_kandang: joi.string().required(),
+                jenis_kandang: joi.string().required(),
             });
 
             const {error, value} = schema.validate(req.body);
@@ -64,13 +60,11 @@ class _kandang{
                 }
             }
 
-            // Query data
-            const add = await this.db.query(`INSERT INTO d_kandang (nama_kandang, id_blok) VALUES (?, ?)`, 
-            [
-                value.nama_kandang, 
-                value.id_blok
-            ]);
-            if(add.affectedRows <= 0){
+            const add = await db.Kandang.create({
+                kode_kandang: value.kode_kandang,
+                jenis_kandang: value.jenis_kandang
+            });
+            if(add == null){
                 return{
                     code: 400,
                     error: `Failed to create kandang`
@@ -80,10 +74,10 @@ class _kandang{
             return {
                 code : 200,
                 data: {
-                    id_kandang: add.insertId,
-                    nama_kandang: value.nama_kandang,
-                    id_blok: value.id_blok,
-                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    id_kandang: add.id_kandang,
+                    kode_kandang: add.kode_kandang,
+                    jenis_kandang: add.jenis_kandang,
+                    createdAt: date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -102,8 +96,8 @@ class _kandang{
             // Validate data
             const schema = joi.object({
                 id_kandang: joi.number().required(),
-                nama_kandang: joi.string().required(),
-                id_blok: joi.number().required()
+                kode_kandang: joi.string().required(),
+                jenis_kandang: joi.string().required(),
             });
 
             const {error, value} = schema.validate(req.body);
@@ -116,13 +110,21 @@ class _kandang{
             }
 
             // Query data
-            const update = await this.db.query('UPDATE d_kandang SET nama_kandang = ?, id_blok = ? WHERE id_kandang = ?', 
-            [
-                value.nama_kandang, 
-                value.id_blok, 
-                value.id_kandang, 
-            ]);
-            if(update.affectedRows <= 0){
+            // const update = await this.db.query('UPDATE d_kandang SET nama_kandang = ?, id_blok = ? WHERE id_kandang = ?', 
+            // [
+            //     value.nama_kandang, 
+            //     value.id_blok, 
+            //     value.id_kandang, 
+            // ]);
+            const update = await db.Kandang.update({
+                kode_kandang: value.kode_kandang,
+                jenis_kandang: value.jenis_kandang
+            }, {
+                where: {
+                    id_kandang: value.id_kandang
+                }
+            });
+            if(update <= 0){
                 return{
                     code: 400,
                     error: `Failed to update kandang`
@@ -133,8 +135,6 @@ class _kandang{
                 code : 200,
                 data: {
                     id_kandang: value.id_kandang,
-                    nama_kandang: value.nama_kandang,
-                    id_blok: value.id_blok,
                     updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
@@ -164,13 +164,12 @@ class _kandang{
                     error: errorDetails
                 }
             }
-
-            // Query data
-            const del = await this.db.query('DELETE FROM d_kandang WHERE id_kandang = ?', 
-            [
-                value.id_kandang
-            ]);
-            if(del.affectedRows <= 0){
+            const del = await db.Kandang.destroy({
+                where: {
+                    id_kandang: value.id_kandang
+                }
+            });
+            if(del <= 0){
                 return{
                     code: 400,
                     error: `Failed to delete kandang`
@@ -195,5 +194,4 @@ class _kandang{
     }
 }
 
-const kandangService = (db) => new _kandang(db);
-module.exports = kandangService;
+module.exports = new _kandang();

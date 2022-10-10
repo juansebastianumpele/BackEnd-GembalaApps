@@ -1,22 +1,13 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
+const db = require('../models');
 class _fase{
-    constructor(db){
-        this.db = db;
-    }
     // Get Fase
     getFase = async (req) => {
         try{            
             // Query Data
-            let query = 'SELECT * FROM d_fase_pemeliharaan';
-            for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += (i == 0) ? ` WHERE ` : ` AND `;
-                query += Object.keys(req.query)[i] == 'id_fase_pemeliharaan'
-                ? `${Object.keys(req.query)[i]} = ${Object.values(req.query)[i]}`
-                : `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`;
-            }
-            const list = await this.db.query(query);
+            const list = await db.Fase.findAll({ where : req.query });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -55,8 +46,10 @@ class _fase{
                 }
             }
 
-            const add = await this.db.query('INSERT INTO d_fase_pemeliharaan (fase) VALUES (?)', [value.fase]);
-            if(add.affectedRows <= 0){
+            const add = await db.Fase.create({
+                fase: value.fase
+            });
+            if(add == null){
                 return{
                     code: 400,
                     error: `Failed to create fase`
@@ -66,8 +59,7 @@ class _fase{
             return {
                 code : 200,
                 data: {
-                    id_fase_pemeliharaan: add.insertId,
-                    fase: value.fase,
+                    id_fase_pemeliharaan: add.id_fp,
                     createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 },
             };
@@ -99,8 +91,14 @@ class _fase{
                 }
             }
 
-            const update = await this.db.query('UPDATE d_fase_pemeliharaan SET fase = ? WHERE id_fp = ?', [value.fase, value.id_fp]);
-            if(update.affectedRows <= 0){
+            const update = await db.Fase.update({
+                fase: value.fase
+            }, {
+                where: {
+                    id_fp: value.id_fp
+                }
+            });
+            if(update <= 0){
                 return{
                     code: 400,
                     error: `Failed to update fase`
@@ -111,7 +109,6 @@ class _fase{
                 code: 200,
                 data: {
                     id_fp: value.id_fp,
-                    fase: value.fase,
                     updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 },
             };
@@ -141,8 +138,12 @@ class _fase{
                 }
             }
 
-            const del = await this.db.query('DELETE FROM d_fase_pemeliharaan WHERE id_fp = ?', [value.id_fp]);
-            if(del.affectedRows <= 0){
+            const del = await db.Fase.destroy({
+                where: {
+                    id_fp: value.id_fp
+                }
+            });
+            if(del <= 0){
                 return{
                     code: 400,
                     error: `Failed to delete fase`
@@ -167,5 +168,4 @@ class _fase{
     }
 }
 
-const faseService = (db) => new _fase(db);
-module.exports = faseService;
+module.exports = new _fase();

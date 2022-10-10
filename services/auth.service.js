@@ -1,11 +1,10 @@
 const joi = require('joi');
 const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
-
+const db = require('../models');
+const config = require('../config/jwt.config.json');
+const jwt = require('jsonwebtoken');
 class _auth{
-    constructor(db){
-        this.db = db;
-    }
     login = async (data) => {
         // Validate data
         const schema = joi.object({
@@ -22,8 +21,9 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUsername = await this.db.query('SELECT * FROM auth_users WHERE username = ?', [value.username]);
-        if (checkUsername.length <= 0) {
+        // const checkUsername = await this.db.query('SELECT * FROM auth_users WHERE username = ?', [value.username]);
+        const checkUsername = await db.AuthUser.findOne({where : {username: value.username}});
+        if (checkUsername == null) {
             return {
                 code: 404,
                 error: 'Sorry, user not found'
@@ -31,7 +31,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(value.password, checkUsername[0].password);
+        const isMatch = await comparePassword(value.password, checkUsername.password);
         if (!isMatch) {
             return {
                 code: 400,
@@ -41,9 +41,9 @@ class _auth{
 
         // Generate token
         const token = generateToken({ 
-            id: checkUsername[0].id_users, 
+            id: checkUsername.id_users, 
             username: value.username, 
-            role: checkUsername[0].role
+            role: checkUsername.role
         });
         if (!token) {
             return {
@@ -80,10 +80,9 @@ class _auth{
                 error: errorDetails
             }
         }
-
         // Check if user exist
-        const checkUser = await this.db.query('SELECT * FROM auth_users WHERE username = ?', [value.username]);
-        if (checkUser.length > 0) {
+        const checkUser = await db.AuthUser.findOne({where : {username: value.username}});
+        if (checkUser !== null) {
             return {
                 code: 400,
                 error: 'Sorry, username already exist'
@@ -94,26 +93,15 @@ class _auth{
         value.password = await hashPassword(value.password);
         
         // Insert data
-        const register = await this.db.query(`
-        INSERT INTO auth_users (nama_lengkap, username, email, no_hp, alamat, password) 
-        VALUES (?, ?, ?, ?, ?, ?)`,
-        [
-            value.nama_lengkap, 
-            value.username, 
-            value.email, 
-            value.no_hp, 
-            value.alamat, 
-            value.password
-        ]);
+        const register = await db.AuthUser.create({
+            nama_lengkap: value.nama_lengkap,
+            username: value.username,
+            email: value.email,
+            no_hp: value.no_hp,
+            alamat: value.alamat,
+            password: value.password
+        });
         if (register.affectedRows <= 0) {
-            return {
-                code: 500,
-                error: 'Sorry, something went wrong'
-            }
-        }
-
-        const registerDetail = await this.db.query(`SELECT * FROM auth_users WHERE id_users = ?`, [register.insertId]);
-        if (registerDetail.length <= 0) {
             return {
                 code: 500,
                 error: 'Sorry, something went wrong'
@@ -123,17 +111,17 @@ class _auth{
         return {
             code: 200,
             data : {
-                id_users: registerDetail[0].id_users,
-                username: registerDetail[0].username,
-                registeredAt: date.format(registerDetail[0].createdAt, 'YYYY-MM-DD HH:mm:ss')
+                id_users: register.id_users,
+                username: register.username,
+                registeredAt: date.format(register.createdAt, 'YYYY-MM-DD HH:mm:ss')
             },
         }
     }
 
     logout = async (req, res) => {
-        // res.clearCookie('token');
-        const update = await this.db.query(`UPDATE auth_users SET userLastAccess = ? WHERE id_users = ?`, [new Date(), req.dataAuth.id_users]);
-        if (update.affectedRows <= 0) {
+        const update = await db.AuthUser.update({lastAccess: new Date()}, {where: {id_users: req.dataAuth.id_users}});
+        console.log('update = ' + update);
+        if (update <= 0) {
             return {
                 code: 500,
                 error: 'Sorry, something went wrong'
@@ -165,8 +153,9 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
-        if (checkUser.length <= 0) {
+        // const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
+        const checkUser = await db.AuthUser.findOne({where : {id_users: req.dataAuth.id_users}});
+        if (checkUser == null) {
             return {
                 code: 404,
                 error: 'Sorry, user not found'
@@ -174,7 +163,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(value.password, checkUser[0].password);
+        const isMatch = await comparePassword(value.password, checkUser.password);
         if (!isMatch) {
             return {
                 code: 404,
@@ -183,11 +172,12 @@ class _auth{
         }
 
         // Delete data
-        const deletedAccount = await this.db.query('DELETE FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
-        if (deletedAccount.affectedRows <= 0) {
+        // const deletedAccount = await this.db.query('DELETE FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
+        const deletedAccount = await db.AuthUser.destroy({where: {id_users: req.dataAuth.id_users}});
+        if (deletedAccount <= 0) {
             return {
                 code: 500,
-                error: `Sorry, delete account failed, Error: ${deletedAccount.error}`
+                error: `Sorry, delete account failed`
             }
         }
 
@@ -221,26 +211,17 @@ class _auth{
         }
 
         // Update data
-        const updatedAccount = await this.db.query(
-            `UPDATE auth_users 
-            SET nama_lengkap = ?,
-            username = ?,
-            email = ?,
-            no_hp = ?,
-            alamat = ?  
-            WHERE id_users = ?`,
-            [
-                value.nama_lengkap,
-                value.username,
-                value.email,
-                value.no_hp,
-                value.alamat,
-                req.dataAuth.id_users
-            ]);
-        if (updatedAccount.affectedRows <= 0) {
+        const updatedAccount = await db.AuthUser.update({
+            nama_lengkap: value.nama_lengkap,
+            username: value.username,
+            email: value.email,
+            no_hp: value.no_hp,
+            alamat: value.alamat
+        }, {where: {id_users: req.dataAuth.id_users}});
+        if (updatedAccount <= 0) {
             return {
                 code: 500,
-                error: `Sorry, update account failed, Error: ${updatedAccount.error}`
+                error: `Sorry, update account failed`
             }
         }
 
@@ -271,8 +252,9 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
-        if (checkUser.length <= 0) {
+        // const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
+        const checkUser = await db.AuthUser.findOne({where : {id_users: req.dataAuth.id_users}});
+        if (checkUser == null) {
             return {
                 code: 404,
                 error: 'Sorry, user not found'
@@ -280,7 +262,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(value.password, checkUser[0].password);
+        const isMatch = await comparePassword(value.password, checkUser.password);
         if (!isMatch) {
             return {
                 code: 400,
@@ -292,11 +274,11 @@ class _auth{
         const newPassword = await hashPassword(value.new_password);
 
         // Update data
-        const updatedPassword = await this.db.query('UPDATE auth_users SET password = ? WHERE id_users = ?', [newPassword, req.dataAuth.id_users]);
-        if (updatedPassword.affectedRows <= 0) {
+        const updatedPassword = await db.AuthUser.update({password: newPassword}, {where: {id_users: req.dataAuth.id_users}});
+        if (updatedPassword <= 0) {
             return {
                 code: 500,
-                error: `Sorry, update password failed, Error: ${updatedPassword.error}`
+                error: `Sorry, update password failed`
             }
         }
 
@@ -304,15 +286,58 @@ class _auth{
             code : 200,
             data : {
                 id_users: req.dataAuth.id_users,
-                username: checkUser[0].username,
+                username: checkUser.username,
                 updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
             }
         }
     }  
+
+    // Verify token
+    verify = async (req) => {
+        try{
+            const schema = joi.object({
+                token: joi.string().required()
+            });
+            const {error, value} = schema.validate(req.body);
+            if (error) {
+                const errorDetails = error.details.map(detail => detail.message).join(', ');
+                return {
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+
+            const decoded = jwt.verify(value.token, config.secret)
+
+            const user = await db.AuthUser.findOne({where : {username: decoded.username}});
+            if (user == null) {
+              res.status(401).send({ code: 401, error: 'Not authorized' })
+            }
+            return {
+                code: 200,
+                data: {
+                    id: user.id_users,
+                    user: user.username,
+                    name: user.nama_lengkap,
+                    level: user.role,
+                    foto: user.foto,
+                    email: user.email,
+                    noHp: user.no_hp,
+                    alamat: user.alamat,
+                    time: new Date(),
+                    v: 'p',
+                    iat: decoded.iat,
+                    exp: decoded.exp
+                }
+            };
+        }catch (error){
+            console.error('getUsers user module Error: ', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
 }
 
-const authService = (db) => {
-    return new _auth(db);
-}
-
-module.exports = authService;
+module.exports = new _auth();

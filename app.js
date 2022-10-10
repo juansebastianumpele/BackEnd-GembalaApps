@@ -3,7 +3,6 @@ const cors = require('cors');
 const route = require('./routes/route');
 const app = express();
 const cookieParser = require('cookie-parser');
-const db = require('./utils/database');
 require('dotenv').config();
 
 const port = process.env.APP_PORT || 51009;
@@ -30,7 +29,7 @@ app.use((req, res, next) => {
 });
 
 // Routing
-route(app, db);
+route(app);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`);
