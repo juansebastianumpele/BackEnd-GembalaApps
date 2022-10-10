@@ -45,7 +45,7 @@ class _rfid{
             }
             return {
                 code: 200,
-                data: add,
+                data: checkTernak,
             };
 
         } catch (error) {
