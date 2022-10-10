@@ -3,6 +3,7 @@ const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
 const { Sequelize } = require('sequelize');
+const { sequelize } = require('../models');
 class _kandang{
     // Get Kandang
     getKandang = async (req) => {
@@ -15,11 +16,21 @@ class _kandang{
                         model: db.Ternak,
                         as: 'ternak',
                         attributes: [
-                            'id_ternak'
+                            'id_ternak',
+                            'rf_id',
+                            'berat'
                         ],
                     },
                 ],
             });
+            for (let i = 0; i < list.length; i++) {
+                list[i].dataValues.populasi = list[i].dataValues.ternak.length;
+                const berat_total = list[i].dataValues.ternak.reduce((a, b) => a + b.berat, 0);
+                const berat_rata = berat_total / list[i].dataValues.ternak.length;
+                list[i].dataValues.berat_rata = (!berat_rata) ? 0 : berat_rata;
+                list[i].dataValues.berat_total = berat_total;
+                list[i].dataValues.kebutuhan_pakan = berat_total * 0.05;
+            }
             if(list.length <= 0){
                 return{
                     code: 404,
