@@ -16,6 +16,14 @@ KawinController.get('/', authentication, async (req, res, next) => {
 } );
 
 /**
+ * Get Data Indukan
+ */
+KawinController.get('/indukan', authentication, async (req, res, next) => {
+    const detail = await s$kawin.getDataIndukan(req);
+    response.sendResponse(res, detail);
+} );
+
+/**
  * Create new data kawin
  * @param {number} id_ternak
  * @param {string} tanggal_kawin

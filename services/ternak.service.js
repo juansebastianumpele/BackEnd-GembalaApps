@@ -54,6 +54,10 @@ class _ternak{
                 where : req.query
             });
 
+            for(let i = 0; i < list.length; i++){
+                list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * 0.05).toFixed(2);
+            }
+
             if(list.length <= 0){
                 return{
                     code: 404,
