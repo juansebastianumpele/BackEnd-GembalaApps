@@ -2,6 +2,8 @@ const joi = require('joi');
 const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
 const db = require('../models');
+const config = require('../config/jwt.config.json');
+const jwt = require('jsonwebtoken');
 class _auth{
     login = async (data) => {
         // Validate data
@@ -289,6 +291,53 @@ class _auth{
             }
         }
     }  
+
+    // Verify token
+    verify = async (req) => {
+        try{
+            const schema = joi.object({
+                token: joi.string().required()
+            });
+            const {error, value} = schema.validate(req.body);
+            if (error) {
+                const errorDetails = error.details.map(detail => detail.message).join(', ');
+                return {
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+
+            const decoded = jwt.verify(value.token, config.secret)
+
+            const user = await db.AuthUser.findOne({where : {username: decoded.username}});
+            if (user == null) {
+              res.status(401).send({ code: 401, error: 'Not authorized' })
+            }
+            return {
+                code: 200,
+                data: {
+                    id: user.id_users,
+                    user: user.username,
+                    name: user.nama_lengkap,
+                    level: user.role,
+                    foto: user.foto,
+                    email: user.email,
+                    noHp: user.no_hp,
+                    alamat: user.alamat,
+                    time: new Date(),
+                    v: 'p',
+                    iat: decoded.iat,
+                    exp: decoded.exp
+                }
+            };
+        }catch (error){
+            console.error('getUsers user module Error: ', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
 }
 
 module.exports = new _auth();

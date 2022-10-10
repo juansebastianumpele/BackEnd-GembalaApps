@@ -2,12 +2,28 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
+const { sequelize } = require('../models');
 class _ternak{
     // Get Data Ternak
     getTernak = async (req) => {
         try{
             const list = await db.Ternak.findAll({
-                attributes : ['id_ternak', 'rf_id', 'foto', 'jenis_kelamin', 'id_induk', 'id_pejantan', 'berat', 'suhu', 'status_kesehatan', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt'],
+                attributes : ['id_ternak', 
+                'rf_id', 
+                'foto', 
+                'jenis_kelamin', 
+                'id_induk', 
+                'id_pejantan', 
+                'berat', 
+                'suhu', 
+                'status_kesehatan', 
+                'tanggal_lahir',
+                [db.sequelize.fn('datediff', sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'usia'],
+                'tanggal_masuk', 
+                'tanggal_keluar', 
+                'status_keluar', 
+                'createdAt', 
+                'updatedAt'],
                 include: [
                     {
                         model: db.Varietas,

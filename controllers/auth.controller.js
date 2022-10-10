@@ -78,4 +78,13 @@ AuthController.put('/update-password', authentication, async (req, res, next) =>
     response.sendResponse(res, updatePassword);
 });
 
+/**
+ * Verify
+ * @param {string} token
+ */
+AuthController.post('/verify', async (req, res, next) => {
+    const verify = await s$auth.verify(req);
+    response.sendResponse(res, verify);
+});
+
 module.exports = AuthController;
