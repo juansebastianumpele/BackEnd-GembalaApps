@@ -3,6 +3,7 @@ const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
 const { sequelize } = require('../models');
+const { log_error } = require('../utils/logging');
 class _ternak{
     // Get Data Ternak
     getTernak = async (req) => {
@@ -73,7 +74,7 @@ class _ternak{
                 }
             };
         }catch (error){
-            console.error('getTernak ternak service Error: ', error);
+            log_error('getTernak Service', error);
             return {
                 code: 500,
                 error
@@ -131,7 +132,7 @@ class _ternak{
             };
         }
         catch (error) {
-            console.error('createTernak ternak service Error: ', error);
+            log_error('createTernak Service', error);
             return {
                 code: 500,
                 error
@@ -194,7 +195,7 @@ class _ternak{
             };
         }
         catch (error) {
-            console.error('updateTernak ternak service Error: ', error);
+            log_error('updateTernak Service', error);
             return {
                 code: 500,
                 error
@@ -241,7 +242,7 @@ class _ternak{
             };
         }
         catch (error) {
-            console.error('deleteTernak ternak service Error: ', error);
+            log_error('deleteTernak Service', error);
             return {
                 code: 500,
                 error

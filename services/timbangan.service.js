@@ -2,6 +2,7 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
+const {log_error} = require('../utils/logging');
 
 class _timbangan{
     // get Data Timbangan
@@ -33,7 +34,7 @@ class _timbangan{
                 }
             };
         }catch (error){
-            console.error('getTimbangan timbangan service Error: ', error);
+            log_error('getDataTimbangan Service', error);
             return {
                 code: 500,
                 error
@@ -98,7 +99,7 @@ class _timbangan{
             };
         }
         catch (error) {
-            console.error('createDataTimbangan timbangan service Error: ', error);
+            log_error('createDataTimbangan Service', error);
             return {
                 code: 500,
                 error
@@ -150,7 +151,7 @@ class _timbangan{
             };
         }
         catch (error) {
-            console.error('updateDataTimbangan timbangan service Error: ', error);
+            log_error('updateDataTimbangan Service', error);
             return {
                 code: 500,
                 error
@@ -197,7 +198,7 @@ class _timbangan{
             };
         }
         catch (error) {
-            console.error('deleteDataTimbangan timbangan service Error: ', error);
+            log_error('deleteDataTimbangan Service', error);
             return {
                 code: 500,
                 error

@@ -2,8 +2,7 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
-const { Sequelize } = require('sequelize');
-const { sequelize } = require('../models');
+const {log_error} = require('../utils/logging');
 class _kandang{
     // Get Kandang
     getKandang = async (req) => {
@@ -45,7 +44,7 @@ class _kandang{
                 },
             };
         }catch (error){
-            console.error('GetKandang Kandang Service Error: ', error);
+            log_error('getKandang Service', error);
             return {
                 code : 500,
                 error
@@ -93,7 +92,7 @@ class _kandang{
             };
         }
         catch (error) {
-            console.error('createKandang kandang service Error: ', error);
+            log_error('createKandang Service', error);
             return {
                 code : 500,
                 error
@@ -121,12 +120,6 @@ class _kandang{
             }
 
             // Query data
-            // const update = await this.db.query('UPDATE d_kandang SET nama_kandang = ?, id_blok = ? WHERE id_kandang = ?', 
-            // [
-            //     value.nama_kandang, 
-            //     value.id_blok, 
-            //     value.id_kandang, 
-            // ]);
             const update = await db.Kandang.update({
                 kode_kandang: value.kode_kandang,
                 jenis_kandang: value.jenis_kandang
@@ -151,7 +144,7 @@ class _kandang{
             };
         }
         catch (error) {
-            console.error('updateKandang kandang service Error: ', error);
+            log_error('updateKandang Service', error);
             return {
                 code : 500,
                 error
@@ -196,7 +189,7 @@ class _kandang{
             };
         }
         catch (error) {
-            console.error('deleteKandang kandang service Error: ', error);
+            log_error('deleteKandang Service', error);
             return {
                 code : 500,
                 error

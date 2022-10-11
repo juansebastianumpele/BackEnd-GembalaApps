@@ -2,6 +2,7 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
+const {log_error} = require('../utils/logging');
 class _fase{
     // Get Fase
     getFase = async (req) => {
@@ -22,7 +23,7 @@ class _fase{
                 },
             };
         }catch (error){
-            console.error('listFase fase Service Error: ', error);
+            log_error('getFase Service', error);
             return {
                 code : 500,
                 error
@@ -65,7 +66,7 @@ class _fase{
             };
         }
         catch (error) {
-            console.error('createFase fase service Error: ', error);
+            log_error('createFase Service', error);
             return {
                 code: 500,
                 error
@@ -114,7 +115,7 @@ class _fase{
             };
         }
         catch (error) {
-            console.error('updateFase fase service Error: ', error);
+            log_error('updateFase Service', error);
             return {
                 code: 500,
                 error
@@ -159,7 +160,7 @@ class _fase{
             };
         }
         catch (error) {
-            console.error('deleteFase fase service Error: ', error);
+            log_error('deleteFase Service', error);
             return {
                 code: 500,
                 error

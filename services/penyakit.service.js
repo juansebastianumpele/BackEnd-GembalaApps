@@ -2,6 +2,7 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
+const {log_error} = require('../utils/logging');
 
 class _penyakit{
     // Get Data Penyakit
@@ -23,7 +24,7 @@ class _penyakit{
                 },
             };
         }catch (error){
-            console.error('getPenyakit penyakit service Error: ', error);
+            log_error('getPenyakit Service', error);
             return {
                 code: 500,
                 error
@@ -72,7 +73,7 @@ class _penyakit{
             };
         }
         catch (error) {
-            console.error('createPenyakit penyakit service Error: ', error);
+            log_error('createPenyakit Service', error);
             return {
                 code: 500,
                 error
@@ -127,7 +128,7 @@ class _penyakit{
             };
         }
         catch (error) {
-            console.error('updatePenyakit penyakit service Error: ', error);
+            log_error('updatePenyakit Service', error);
             return {
                 code: 500,
                 error
@@ -174,7 +175,7 @@ class _penyakit{
             };
         }
         catch (error) {
-            console.error('deletePenyakit penyakit service Error: ', error);
+            log_error('deletePenyakit Service', error);
             return {
                 code: 500,
                 error

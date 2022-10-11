@@ -2,6 +2,7 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
+const {log_error} = require('../utils/logging');
 
 class _pakan{
     // get data pakan
@@ -23,7 +24,7 @@ class _pakan{
                 },
             };
         }catch (error){
-            console.error('getPakan Pakan Service Error: ', error);
+            log_error('getPakan Service', error);
             return {
                 code : 500,
                 error
@@ -76,7 +77,7 @@ class _pakan{
             };
         }
         catch (error) {
-            console.error('createPakan pakan service Error: ', error);
+            log_error('createPakan Service', error);
             return {
                 code: 500,
                 error
@@ -133,7 +134,7 @@ class _pakan{
             };
         }
         catch (error) {
-            console.error('updatePakan pakan service Error: ', error);
+            log_error('updatePakan Service', error);
             return {
                 code: 500,
                 error
@@ -180,7 +181,7 @@ class _pakan{
             };
         }
         catch (error) {
-            console.error('deletePakan pakan service Error: ', error);
+            log_error('deletePakan Service', error);
             return {
                 code: 500,
                 error

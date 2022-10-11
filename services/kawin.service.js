@@ -3,6 +3,7 @@ const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
 const { Op } = require('sequelize');
+const {log_error} = require('../utils/logging');
 
 class _kawin{
     // List Ternak by id
@@ -40,7 +41,7 @@ class _kawin{
                 },
             };
         }catch (error){
-            console.error('listKawinByIdUsers kawin service Error: ', error);
+            log_error('getKawin Service', error);
             return {
                 code: 500,
                 error
@@ -118,7 +119,7 @@ class _kawin{
                 },
             };
         }catch(error){
-            console.error('getDataIndukan kawin service Error: ', error);
+            log_error('getDataIndukan Service', error);
             return {
                 code: 500,
                 error
@@ -167,7 +168,7 @@ class _kawin{
             };
         }
         catch (error) {
-            console.error('createTernak ternak service Error: ', error);
+            log_error('createDataKawin Service', error);
             return {
                 code: 500,
                 error
@@ -221,7 +222,7 @@ class _kawin{
             };
         }
         catch (error) {
-            console.error('updateKawin kawin service Error: ', error);
+            log_error('updateDataKawin Service', error);
             return {
                 code: 500,
                 error
@@ -268,7 +269,7 @@ class _kawin{
             };
         }
         catch (error) {
-            console.error('deleteKawin kawin service Error: ', error);
+            log_error('deleteDataKawin Service', error);
             return {
                 code: 500,
                 error

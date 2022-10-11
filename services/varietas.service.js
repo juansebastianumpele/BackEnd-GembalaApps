@@ -2,6 +2,7 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
+const {log_error} = require('../utils/logging');
 
 class _varietas{
     // Get data varietas
@@ -23,7 +24,7 @@ class _varietas{
                 }
             };
         }catch (error){
-            console.error('getVarietas Varietas service Error: ', error);
+            log_error('getVarietas Service', error);
             return {
                 code: 500,
                 error
@@ -69,7 +70,7 @@ class _varietas{
             };
         }
         catch (error) {
-            console.error('createVarietas varietas service Error: ', error);
+            log_error('createVarietas Service', error);
             return {
                 code: 500,
                 error
@@ -119,7 +120,7 @@ class _varietas{
             };
         }
         catch (error) {
-            console.error('updateVarietas varietas service Error: ', error);
+            log_error('updateVarietas Service', error);
             return {
                 code: 500,
                 error
@@ -166,7 +167,7 @@ class _varietas{
             };
         }
         catch (error) {
-            console.error('deleteVarietas varietas service Error: ', error);
+            log_error('deleteVarietas Service', error);
             return {
                 code: 500,
                 error

@@ -2,6 +2,7 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
+const {log_error} = require('../utils/logging');
 
 class _riwayatKesehatan{
     // Get data RiwayatKesehatan
@@ -38,7 +39,7 @@ class _riwayatKesehatan{
                 }
             };
         }catch (error){
-            console.error('getRiwayatKesehatan RiwayatKesehatan service Error: ', error);
+            log_error('getRiwayatKesehatan Service', error);
             return {
                 code: 500,
                 error
@@ -91,7 +92,7 @@ class _riwayatKesehatan{
             };
         }
         catch (error) {
-            console.error('createRiwayatKesehatan RiwayatKesehatan service Error: ', error);
+            log_error('createRiwayatKesehatan Service', error);
             return {
                 code: 500,
                 error
@@ -147,7 +148,7 @@ class _riwayatKesehatan{
             };
         }
         catch (error) {
-            console.error('updateRiwayatKesehatan RiwayatKesehatan service Error: ', error);
+            log_error('updateRiwayatKesehatan Service', error);
             return {
                 code: 500,
                 error
@@ -194,7 +195,7 @@ class _riwayatKesehatan{
             };
         }
         catch (error) {
-            console.error('deleteRiwayatKesehatan RiwayatKesehatan service Error: ', error);
+            log_error('deleteRiwayatKesehatan Service', error);
             return {
                 code: 500,
                 error

@@ -21,7 +21,6 @@ class _auth{
         }
 
         // Check if user exist
-        // const checkUsername = await this.db.query('SELECT * FROM auth_users WHERE username = ?', [value.username]);
         const checkUsername = await db.AuthUser.findOne({where : {username: value.username}});
         if (checkUsername == null) {
             return {
@@ -153,7 +152,6 @@ class _auth{
         }
 
         // Check if user exist
-        // const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         const checkUser = await db.AuthUser.findOne({where : {id_users: req.dataAuth.id_users}});
         if (checkUser == null) {
             return {
@@ -172,7 +170,6 @@ class _auth{
         }
 
         // Delete data
-        // const deletedAccount = await this.db.query('DELETE FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         const deletedAccount = await db.AuthUser.destroy({where: {id_users: req.dataAuth.id_users}});
         if (deletedAccount <= 0) {
             return {
@@ -252,7 +249,6 @@ class _auth{
         }
 
         // Check if user exist
-        // const checkUser = await this.db.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
         const checkUser = await db.AuthUser.findOne({where : {id_users: req.dataAuth.id_users}});
         if (checkUser == null) {
             return {
