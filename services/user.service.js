@@ -1,23 +1,14 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-
+const db = require('../models');
+const {log_error} = require('../utils/logging');
 class _user{
-    constructor(db){
-        this.db = db;
-    }
     // Get Data users
     getUsers = async (req) => {
         try{
             // Query Data
-            let query = 'SELECT id_users, foto, nama_lengkap, username, email, no_hp, alamat, role, userLastAccess, createdAt, updatedAt FROM auth_users';
-            for (let i = 0; i < Object.entries(req.query).length; i++) {
-                query += (i === 0) ? ' WHERE ' : ' AND ';
-                query += Object.keys(req.query)[i] == 'username' || Object.keys(req.query)[i] == 'nama_lengkap' 
-                ? `${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'` 
-                : `${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`;
-            }
-            const list = await this.db.query(query);
+            const list = await db.User.findAll({ where : req.query });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -32,7 +23,7 @@ class _user{
                 }
             };
         }catch (error){
-            console.error('getUsers user module Error: ', error);
+            log_error('getUsers Service', error);
             return {
                 code: 500,
                 error

@@ -8,13 +8,31 @@ class _fase{
     getFase = async (req) => {
         try{            
             // Query Data
-            const list = await db.Fase.findAll({ where : req.query });
+            const list = await db.Fase.findAll({
+                include: [
+                    {
+                        model: db.Ternak,
+                        as: 'ternak',
+                        attributes: ['id_ternak', 'rf_id','berat']
+                    }
+                ]
+            });
+
+            for(let i=0; i<list.length; i++){
+                list[i].dataValues.populasi = list[i].dataValues.ternak.length;
+                const berat_total = list[i].dataValues.ternak.reduce((a, b) => a + b.berat, 0);
+                const berat_rata = berat_total / list[i].dataValues.ternak.length;
+                list[i].dataValues.berat_rata = (!berat_rata) ? 0 : berat_rata;
+                list[i].dataValues.berat_total = berat_total;
+            }
+
             if(list.length <= 0){
                 return{
                     code: 404,
                     error: 'Data fase not found'
                 }
             }
+            
             return {
                 code : 200,
                 data: {
