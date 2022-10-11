@@ -15,7 +15,8 @@ class _fase{
                         as: 'ternak',
                         attributes: ['id_ternak', 'rf_id','berat']
                     }
-                ]
+                ],
+                where: req.query
             });
 
             for(let i=0; i<list.length; i++){
