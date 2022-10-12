@@ -11,21 +11,19 @@ class _kawin{
         try{
             // Query data
             const list = await db.Kawin.findAll({
-                attributes : ['id_kawin', 'tanggal_kawin', 'createdAt', 'updatedAt'],
-                include: [
-                    {
-                        model: db.Ternak,
-                        as: 'ternak',
-                        attributes: ['id_ternak', 'rf_id', 'foto', 'jenis_kelamin', 'id_induk', 'id_pejantan', 'berat', 'suhu', 'status_kesehatan', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt']
-                    },
-                    {
-                        model: db.Ternak,
-                        as: 'pemacek',
-                        attributes: ['id_ternak', 'rf_id', 'foto', 'jenis_kelamin', 'id_induk', 'id_pejantan', 'berat', 'suhu', 'status_kesehatan', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt']
-                    }
-                ],
+                attributes : ['id_kawin', 'tanggal_kawin', 'id_ternak', 'id_pemacek', 'createdAt', 'updatedAt'],
                 where : req.query
             });
+
+            for(let i = 0; i < list.length; i++){
+                const cempe = await db.Ternak.findOne({
+                    where : {
+                        id_induk : list[i].dataValues.id_ternak,
+                        id_pejantan : list[i].dataValues.id_pemacek
+                    }
+                });
+                list[i].dataValues.id_cempe = !cempe ? null : cempe.dataValues.id_ternak;
+            }
             if(list.length <= 0){
                 return{
                     code: 404,

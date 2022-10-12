@@ -7,7 +7,8 @@ module.exports = {
       password: DB_PASSWORD,
       database: DB_NAME,
       host: DB_HOSTNAME,
-      dialect: DB_DIALECT
+      dialect: DB_DIALECT,
+      logging: false
     },
     test: {
       username: "root",
@@ -15,13 +16,15 @@ module.exports = {
       database: "sembadafarm_db",
       host: "localhost",
       port: 3306,
-      dialect: "mariadb"
+      dialect: "mariadb",
+      logging: false
     },
     production: {
       username: "root",
       password: null,
       database: "database_production",
       host: "127.0.0.1",
-      dialect: "mysql"
+      dialect: "mysql",
+      logging: false
     }
   }

@@ -85,15 +85,6 @@ module.exports = {
         defaultValue: 0,
         allowNull: false
       },
-      status_kesehatan:{
-        type: Sequelize.ENUM,
-        values: [
-          'Sehat',
-          'Sakit'
-        ], 
-        defaultValue: 'Sehat',
-        allowNull: false
-      },
       id_penyakit:{
         type: Sequelize.INTEGER,
         allowNull: true,

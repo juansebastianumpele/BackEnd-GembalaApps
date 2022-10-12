@@ -29,6 +29,7 @@ class _kandang{
                 list[i].dataValues.berat_rata = (!berat_rata) ? 0 : berat_rata;
                 list[i].dataValues.berat_total = berat_total;
                 list[i].dataValues.kebutuhan_pakan = berat_total * 0.05;
+                delete list[i].dataValues.ternak;
             }
             if(list.length <= 0){
                 return{

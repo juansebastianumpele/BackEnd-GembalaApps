@@ -17,7 +17,6 @@ class _ternak{
                 'id_pejantan', 
                 'berat', 
                 'suhu', 
-                'status_kesehatan', 
                 'tanggal_lahir',
                 [db.sequelize.fn('datediff', sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'usia'],
                 'tanggal_masuk', 
@@ -56,6 +55,7 @@ class _ternak{
             });
 
             for(let i = 0; i < list.length; i++){
+                list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit ? 'sakit' : 'sehat';
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * 0.05).toFixed(2);
             }
 
@@ -122,6 +122,21 @@ class _ternak{
                 }
             }
 
+            // Check if ternak is sick, if yes, add to riwayat_kesehatan_ternak
+            if(value.id_penyakit){
+                const addRiwayat = await db.RiwayatKesehatan.create({
+                    id_ternak: add.id_ternak,
+                    id_penyakit: value.id_penyakit,
+                    tanggal_sakit: new Date(),
+                });
+                if(addRiwayat === null){
+                    return{
+                        code: 400,
+                        error: `Failed to create new Riwayat Kesehatan`
+                    }
+                }
+            }
+
             return {
                 code: 200,
                 data: {
@@ -182,6 +197,24 @@ class _ternak{
                 return{
                     code: 400,
                     error: `Failed to update Ternak`
+                }
+            }
+
+            // Check if ternak isnt sick, update from riwayat_kesehatan_ternak
+            if(value.id_penyakit === null){
+                const updateRiwayat = await db.RiwayatKesehatan.update({
+                    tanggal_selesai: new Date(),
+                }, {
+                    where: {
+                        id_ternak: value.id_ternak,
+                        tanggal_selesai: null
+                    }
+                });
+                if(updateRiwayat <= 0){
+                    return{
+                        code: 400,
+                        error: `Failed to update Riwayat Kesehatan`
+                    }
                 }
             }
 

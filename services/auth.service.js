@@ -4,6 +4,7 @@ const date = require('date-and-time');
 const db = require('../models');
 const config = require('../config/jwt.config.json');
 const jwt = require('jsonwebtoken');
+const {log_error} = require('../utils/logging');
 class _auth{
     login = async (data) => {
         // Validate data
@@ -14,6 +15,7 @@ class _auth{
         const {error, value} = schema.validate(data);
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(',');
+            log_error('login Service', errorDetails);
             return {
                 code: 400,
                 error: errorDetails
@@ -74,6 +76,7 @@ class _auth{
         const {error, value} = schema.validate(data);
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(', ');
+            log_error('register Service', errorDetails);
             return {
                 code: 400,
                 error: errorDetails
@@ -119,7 +122,6 @@ class _auth{
 
     logout = async (req, res) => {
         const update = await db.AuthUser.update({lastAccess: new Date()}, {where: {id_users: req.dataAuth.id_users}});
-        console.log('update = ' + update);
         if (update <= 0) {
             return {
                 code: 500,
@@ -145,6 +147,7 @@ class _auth{
         const {error, value} = schema.validate(req.body);
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(', ');
+            log_error('deleteAccount Service', errorDetails);
             return {
                 code: 400,
                 error: errorDetails
@@ -201,6 +204,7 @@ class _auth{
         const {error, value} = schema.validate(req.body);
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(', ');
+            log_error('updateAccount Service', errorDetails);
             return {
                 code: 400,
                 error: errorDetails
@@ -242,6 +246,7 @@ class _auth{
         const {error, value} = schema.validate(req.body);
         if (error) {
             const errorDetails = error.details.map(detail => detail.message).join(', ');
+            log_error('updatePassword Service', errorDetails);
             return {
                 code: 400,
                 error: errorDetails
@@ -297,6 +302,7 @@ class _auth{
             const {error, value} = schema.validate(req.body);
             if (error) {
                 const errorDetails = error.details.map(detail => detail.message).join(', ');
+                log_error('verify Service', errorDetails);
                 return {
                     code: 400,
                     error: errorDetails
@@ -307,7 +313,10 @@ class _auth{
 
             const user = await db.AuthUser.findOne({where : {username: decoded.username}});
             if (user == null) {
-              res.status(401).send({ code: 401, error: 'Not authorized' })
+                return {
+                    code: 404,
+                    error: 'Sorry, user not found'
+                }
             }
             return {
                 code: 200,
@@ -327,7 +336,7 @@ class _auth{
                 }
             };
         }catch (error){
-            console.error('getUsers user module Error: ', error);
+            log_error('verify Service', error);
             return {
                 code: 500,
                 error

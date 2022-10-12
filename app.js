@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const route = require('./routes/route');
 const app = express();
-const cookieParser = require('cookie-parser');
+const {log_info} = require('./utils/logging');
+// const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const port = process.env.APP_PORT || 51009;
@@ -32,6 +33,6 @@ app.use((req, res, next) => {
 route(app);
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}!`);
+    log_info('app',`Server running on port ${port}`);
     }
 );
