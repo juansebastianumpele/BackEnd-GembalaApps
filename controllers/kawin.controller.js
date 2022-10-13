@@ -28,6 +28,7 @@ KawinController.get('/indukan', authentication, async (req, res, next) => {
  * @param {number} id_ternak
  * @param {string} tanggal_kawin
  * @param {number} id_pemacek
+ * @param {number} id_fp
  */
 
 KawinController.post('/', authentication, async (req, res, next) => {

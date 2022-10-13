@@ -139,7 +139,8 @@ class _kawin {
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 id_pemacek: joi.number().required(),
-                tanggal_kawin: joi.date().required()
+                tanggal_kawin: joi.date().required(),
+                id_fp: joi.number(),
             });
 
             const { error, value } = schema.validate(req.body);
@@ -155,7 +156,8 @@ class _kawin {
             const add = await db.Kawin.create({
                 id_ternak: value.id_ternak,
                 id_pemacek: value.id_pemacek,
-                tanggal_kawin: value.tanggal_kawin
+                tanggal_kawin: value.tanggal_kawin,
+                id_fp: value.id_fp
             });
             if (add == null) {
                 return {
@@ -189,7 +191,8 @@ class _kawin {
                 id_kawin: joi.number().required(),
                 id_ternak: joi.number().required(),
                 id_pemacek: joi.number().required(),
-                tanggal_kawin: joi.date().required()
+                tanggal_kawin: joi.date().required(),
+                id_fp: joi.number(),
             });
 
             const { error, value } = schema.validate(req.body);
@@ -205,7 +208,8 @@ class _kawin {
             const update = await db.Kawin.update({
                 id_ternak: value.id_ternak,
                 id_pemacek: value.id_pemacek,
-                tanggal_kawin: value.tanggal_kawin
+                tanggal_kawin: value.tanggal_kawin,
+                id_fp: value.id_fp
             }, {
                 where: {
                     id_kawin: value.id_kawin
