@@ -2,7 +2,7 @@ const { Router } = require('express');
 const s$penyakit = require('../services/penyakit.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-const {employeeAuth} = require('../middlewares/authorization');
+// const {employeeAuth} = require('../middlewares/authorization');
 
 const PenyakitController = Router();
 
@@ -21,7 +21,7 @@ PenyakitController.get('/', authentication, async (req, res, next) => {
  * @param {string} ciri_penyakit
  * @param {string} pengobatan
  */
-PenyakitController.post('/', authentication, employeeAuth, async (req, res, next) => {
+PenyakitController.post('/', authentication, async (req, res, next) => {
     const add = await s$penyakit.createPenyakit(req);
     response.sendResponse(res, add);
 });
@@ -34,7 +34,7 @@ PenyakitController.post('/', authentication, employeeAuth, async (req, res, next
  * @param {string} ciri_penyakit
  * @param {string} pengobatan
 */
-PenyakitController.put('/', authentication, employeeAuth, async (req, res, next) => {
+PenyakitController.put('/', authentication, async (req, res, next) => {
     const edit = await s$penyakit.updatePenyakit(req);
     response.sendResponse(res, edit);
 });
@@ -43,7 +43,7 @@ PenyakitController.put('/', authentication, employeeAuth, async (req, res, next)
  * Delete Penyakit
  * @param {number} id_penyakit
 */
-PenyakitController.delete('/', authentication, employeeAuth, async (req, res, next) => {
+PenyakitController.delete('/', authentication, async (req, res, next) => {
     const del = await s$penyakit.deletePenyakit(req);
     response.sendResponse(res, del);
 });

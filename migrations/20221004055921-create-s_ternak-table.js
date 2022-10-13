@@ -62,18 +62,10 @@ module.exports = {
       id_induk:{
         type: Sequelize.INTEGER,
         allowNull: true,
-        // references: {
-        //   model: 'd_ternak',
-        //   key: 'id_ternak'
-        // }
       },
       id_pejantan:{
         type: Sequelize.INTEGER,
         allowNull: true,
-        // references: {
-        //   model: 'd_ternak',
-        //   key: 'id_ternak'
-        // }
       },
       berat:{
         type: Sequelize.INTEGER,
@@ -83,6 +75,15 @@ module.exports = {
       suhu:{
         type: Sequelize.INTEGER,
         defaultValue: 0,
+        allowNull: false
+      },
+      status_kesehatan:{
+        type: Sequelize.ENUM,
+        values: [
+          'Sakit',
+          'Sehat'
+        ],
+        defaultValue: 'Sehat',
         allowNull: false
       },
       id_penyakit:{

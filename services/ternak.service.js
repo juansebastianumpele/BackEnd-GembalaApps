@@ -17,8 +17,9 @@ class _ternak{
                 'id_pejantan', 
                 'berat', 
                 'suhu', 
+                'status_kesehatan',
                 'tanggal_lahir',
-                [db.sequelize.fn('datediff', sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'usia'],
+                [db.sequelize.fn('datediff', sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -55,7 +56,6 @@ class _ternak{
             });
 
             for(let i = 0; i < list.length; i++){
-                list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit ? 'sakit' : 'sehat';
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * 0.05).toFixed(2);
             }
 

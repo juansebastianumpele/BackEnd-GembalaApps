@@ -2,7 +2,7 @@ const { Router } = require('express');
 const s$fase = require('../services/fase.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-const {adminAuth, employeeAuth} = require('../middlewares/authorization');
+// const {adminAuth, employeeAuth} = require('../middlewares/authorization');
 
 const FaseController = Router();
 
@@ -20,7 +20,7 @@ FaseController.get('/', authentication, async (req, res, next) => {
  * @param {string} fase
  */
 
-FaseController.post('/', authentication, employeeAuth, async (req, res, next) => {
+FaseController.post('/', authentication, async (req, res, next) => {
     const add = await s$fase.createFase(req);
     response.sendResponse(res, add);
 });
@@ -31,7 +31,7 @@ FaseController.post('/', authentication, employeeAuth, async (req, res, next) =>
  * @param {string} fase
 */
 
-FaseController.put('/', authentication, employeeAuth, async (req, res, next) => {
+FaseController.put('/', authentication, async (req, res, next) => {
     const edit = await s$fase.updateFase(req);
     response.sendResponse(res, edit);
 });
@@ -41,7 +41,7 @@ FaseController.put('/', authentication, employeeAuth, async (req, res, next) => 
  * @param {number} id_fp
 */
 
-FaseController.delete('/', authentication, employeeAuth, async (req, res, next) => {
+FaseController.delete('/', authentication, async (req, res, next) => {
     const del = await s$fase.deleteFase(req);
     response.sendResponse(res, del);
 });

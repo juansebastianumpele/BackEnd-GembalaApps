@@ -39,8 +39,9 @@ module.exports = {
         allowNull: false
       },
       role:{
-        type: Sequelize.STRING,
-        defaultValue: 'employee',
+        type: Sequelize.ENUM,
+        values: ['super admin', 'manager', 'admin'],
+        defaultValue: 'manager',
         allowNull: false
       },
       lastAccess:{
