@@ -1,3 +1,4 @@
+const {log_error} = require('./logging');
 class _response {
     sendResponse(res, data) {
         try{
@@ -46,8 +47,7 @@ class _response {
 
             return true
         }catch (error){
-            console.error('sendResponse response helper Error: ', error);
-
+            log_error('Response Utils', error)
             res.status(500).send({
                 status: false,
                 error

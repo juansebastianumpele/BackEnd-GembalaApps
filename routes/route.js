@@ -10,6 +10,7 @@ const TimbanganController = require("../controllers/timbangan.controller");
 const TernakController = require("../controllers/ternak.controller");
 const RiwayatKesehatanController = require("../controllers/riwayat_kesehatan.controller");
 const RfidController = require("../controllers/rfid.controller");
+const DashboardController = require("../controllers/dashboard.controller");
 
 // Define url API in here
 const _routes = [
@@ -24,7 +25,8 @@ const _routes = [
     ['/timbangan', TimbanganController],
     ['/ternak', TernakController],
     ['/riwayat-kesehatan', RiwayatKesehatanController],
-    ['/rfid', RfidController]
+    ['/rfid', RfidController],
+    ['/dashboard', DashboardController],
 ];
 
 const routes = (app) => {
