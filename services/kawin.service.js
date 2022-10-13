@@ -3,42 +3,49 @@ const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
 const { Op } = require('sequelize');
-const {log_error} = require('../utils/logging');
+const { log_error } = require('../utils/logging');
 
-class _kawin{
+class _kawin {
     // List Ternak by id
     getKawin = async (req) => {
-        try{
+        try {
             // Query data
             const list = await db.Kawin.findAll({
-                attributes : ['id_kawin', 'tanggal_kawin', 'id_ternak', 'id_pemacek', 'createdAt', 'updatedAt'],
-                where : req.query
+                attributes: ['id_kawin', 'tanggal_kawin', 'id_ternak', 'id_pemacek', 'createdAt', 'updatedAt'],
+                where: req.query,
+                include: [
+                    { 
+                        model: db.Fase, 
+                        as: 'fase', 
+                        attributes: ['id_fp', 'fase'] 
+                    },
+                ],
             });
 
-            for(let i = 0; i < list.length; i++){
+            for (let i = 0; i < list.length; i++) {
                 const cempe = await db.Ternak.findAll({
-                    where : {
-                        id_induk : list[i].dataValues.id_ternak,
-                        id_pejantan : list[i].dataValues.id_pemacek
+                    where: {
+                        id_induk: list[i].dataValues.id_ternak,
+                        id_pejantan: list[i].dataValues.id_pemacek
                     }
                 });
                 list[i].dataValues.id_cempe = cempe.map((cempe) => cempe.id_ternak);
             }
-            if(list.length <= 0){
-                return{
+            if (list.length <= 0) {
+                return {
                     code: 404,
                     error: 'Data kawin not found'
                 }
             }
 
             return {
-                code : 200,
+                code: 200,
                 data: {
                     total: list.length,
                     list
                 },
             };
-        }catch (error){
+        } catch (error) {
             log_error('getKawin Service', error);
             return {
                 code: 500,
@@ -49,25 +56,25 @@ class _kawin{
 
     // Get data Indukan
     getDataIndukan = async (req) => {
-        try{
+        try {
             // Query Data
             const list = await db.Ternak.findAll({
-                attributes : ['id_ternak', 
-                'rf_id', 
-                'foto', 
-                'jenis_kelamin', 
-                'id_induk', 
-                'id_pejantan', 
-                'berat', 
-                'suhu', 
-                'status_kesehatan', 
-                'tanggal_lahir',
-                [db.sequelize.fn('datediff', db.sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'usia'],
-                'tanggal_masuk', 
-                'tanggal_keluar', 
-                'status_keluar', 
-                'createdAt', 
-                'updatedAt'],
+                attributes: ['id_ternak',
+                    'rf_id',
+                    'foto',
+                    'jenis_kelamin',
+                    'id_induk',
+                    'id_pejantan',
+                    'berat',
+                    'suhu',
+                    'status_kesehatan',
+                    'tanggal_lahir',
+                    [db.sequelize.fn('datediff', db.sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'usia'],
+                    'tanggal_masuk',
+                    'tanggal_keluar',
+                    'status_keluar',
+                    'createdAt',
+                    'updatedAt'],
                 include: [
                     {
                         model: db.Varietas,
@@ -95,35 +102,35 @@ class _kawin{
                         attributes: ['id_pakan', 'nama_pakan']
                     }
                 ],
-                where : {
-                    jenis_kelamin : 'betina',
-                    id_fp : {
+                where: {
+                    jenis_kelamin: 'betina',
+                    id_fp: {
                         [Op.not]: 1
                     }
                 }
             });
-            if(list.length <= 0){
-                return{
+            if (list.length <= 0) {
+                return {
                     code: 404,
                     error: 'Data indukan not found'
                 }
             }
 
             return {
-                code : 200,
+                code: 200,
                 data: {
                     total: list.length,
                     list
                 },
             };
-        }catch(error){
+        } catch (error) {
             log_error('getDataIndukan Service', error);
             return {
                 code: 500,
                 error
             }
         }
-    }    
+    }
 
     // Create new Kawin
     createDataKawin = async (req) => {
@@ -150,8 +157,8 @@ class _kawin{
                 id_pemacek: value.id_pemacek,
                 tanggal_kawin: value.tanggal_kawin
             });
-            if(add == null){
-                return{
+            if (add == null) {
+                return {
                     code: 400,
                     error: 'Failed to create new kawin'
                 }
@@ -204,8 +211,8 @@ class _kawin{
                     id_kawin: value.id_kawin
                 }
             });
-            if(update <= 0){
-                return{
+            if (update <= 0) {
+                return {
                     code: 400,
                     error: 'Failed to update data kawin'
                 }
@@ -251,13 +258,13 @@ class _kawin{
                     id_kawin: value.id_kawin
                 }
             });
-            if(del <= 0){
-                return{
+            if (del <= 0) {
+                return {
                     code: 400,
                     error: 'Failed to delete data kawin'
                 }
             }
-            
+
             return {
                 code: 200,
                 data: {

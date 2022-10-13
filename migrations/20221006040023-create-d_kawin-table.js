@@ -30,6 +30,14 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
+      id_fp:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'd_fase_pemeliharaan',
+          key: 'id_fp'
+        }
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
