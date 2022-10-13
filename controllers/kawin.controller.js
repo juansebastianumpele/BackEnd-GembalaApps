@@ -2,7 +2,7 @@ const { Router } = require('express');
 const s$kawin = require('../services/kawin.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-const { employeeAuth } = require('../middlewares/authorization');
+// const { employeeAuth } = require('../middlewares/authorization');
 
 const KawinController = Router();
 
@@ -30,7 +30,7 @@ KawinController.get('/indukan', authentication, async (req, res, next) => {
  * @param {number} id_pemacek
  */
 
-KawinController.post('/', authentication, employeeAuth, async (req, res, next) => {
+KawinController.post('/', authentication, async (req, res, next) => {
     const add = await s$kawin.createDataKawin(req);
     response.sendResponse(res, add);
 });
@@ -43,7 +43,7 @@ KawinController.post('/', authentication, employeeAuth, async (req, res, next) =
  * @param {number} id_pemacek
 */
 
-KawinController.put('/', authentication, employeeAuth, async (req, res, next) => {
+KawinController.put('/', authentication, async (req, res, next) => {
     const edit = await s$kawin.updateDataKawin(req);
     response.sendResponse(res, edit);
 });
@@ -53,7 +53,7 @@ KawinController.put('/', authentication, employeeAuth, async (req, res, next) =>
  * @param {number} id_kawin
 */
 
-KawinController.delete('/', authentication, employeeAuth, async (req, res, next) => {
+KawinController.delete('/', authentication, async (req, res, next) => {
     const del = await s$kawin.deleteDataKawin(req);
     response.sendResponse(res, del);
 });

@@ -46,7 +46,7 @@ class _rfid{
                 'suhu', 
                 'status_kesehatan', 
                 'tanggal_lahir',
-                [db.sequelize.fn('datediff', db.sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'usia'],
+                [db.sequelize.fn('datediff', db.sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 

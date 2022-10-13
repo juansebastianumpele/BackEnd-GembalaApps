@@ -2,7 +2,7 @@ const { Router } = require('express');
 const s$dashboard = require('../services/dashboard.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-const {adminAuth, employeeAuth} = require('../middlewares/authorization');
+// const {adminAuth, employeeAuth} = require('../middlewares/authorization');
 
 const PopulasiController = Router();
 

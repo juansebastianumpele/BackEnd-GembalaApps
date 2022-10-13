@@ -2,7 +2,7 @@ const { Router } = require('express');
 const s$riwayatKesehatan = require('../services/riwayat_kesehatan.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-const {employeeAuth} = require('../middlewares/authorization');
+// const {employeeAuth} = require('../middlewares/authorization');
 
 const RiwayatKesehatanController = Router();
 
@@ -21,7 +21,7 @@ RiwayatKesehatanController.get('/', authentication, async (req, res, next) => {
  * @param {date} tanggal_sakit
  * @param {date} tanggal_sembuh
  */
-RiwayatKesehatanController.post('/', authentication, employeeAuth, async (req, res, next) => {
+RiwayatKesehatanController.post('/', authentication, async (req, res, next) => {
     const add = await s$riwayatKesehatan.createRiwayatKesehatan(req);
     response.sendResponse(res, add);
 });
@@ -34,7 +34,7 @@ RiwayatKesehatanController.post('/', authentication, employeeAuth, async (req, r
  * @param {date} tanggal_sakit
  * @param {date} tanggal_sembuh
 */
-RiwayatKesehatanController.put('/', authentication, employeeAuth, async (req, res, next) => {
+RiwayatKesehatanController.put('/', authentication, async (req, res, next) => {
     const edit = await s$riwayatKesehatan.updateRiwayatKesehatan(req);
     response.sendResponse(res, edit);
 });
@@ -43,7 +43,7 @@ RiwayatKesehatanController.put('/', authentication, employeeAuth, async (req, re
  * Delete Riwayat Kesehatan
  * @param {number} id_riwayat_kesehatan
 */
-RiwayatKesehatanController.delete('/', authentication, employeeAuth, async (req, res, next) => {
+RiwayatKesehatanController.delete('/', authentication, async (req, res, next) => {
     const del = await s$riwayatKesehatan.deleteRiwayatKesehatan(req);
     response.sendResponse(res, del);
 });
