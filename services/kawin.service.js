@@ -16,13 +16,13 @@ class _kawin{
             });
 
             for(let i = 0; i < list.length; i++){
-                const cempe = await db.Ternak.findOne({
+                const cempe = await db.Ternak.findAll({
                     where : {
                         id_induk : list[i].dataValues.id_ternak,
                         id_pejantan : list[i].dataValues.id_pemacek
                     }
                 });
-                list[i].dataValues.id_cempe = !cempe ? null : cempe.dataValues.id_ternak;
+                list[i].dataValues.id_cempe = !cempe ? null : cempe.map((cempe) => cempe.id_ternak);
             }
             if(list.length <= 0){
                 return{
