@@ -97,7 +97,6 @@ class _ternak{
                 tanggal_masuk: joi.date().allow(null),
                 id_induk: joi.number().allow(null),
                 id_pejantan: joi.number().allow(null),
-                status_kesehatan: joi.string().allow(null),
                 id_penyakit: joi.number().allow(null),
                 id_pakan: joi.number().allow(null),
                 id_fp: joi.number().allow(null),
@@ -110,6 +109,22 @@ class _ternak{
                 return{
                     code: 400,
                     error: errorDetails
+                }
+            }
+
+            // Check status kesehatan
+            value.status_kesehatan = value.id_penyakit ? 'Sakit' : 'Sehat';
+
+            // Check if Ternak already exist
+            const ternak = await db.Ternak.findOne({
+                where: {
+                    rf_id: value.rf_id
+                }
+            });
+            if(ternak){
+                return{
+                    code: 400,
+                    error: 'Ternak already exist'
                 }
             }
 
@@ -187,6 +202,9 @@ class _ternak{
                     error: errorDetails
                 }
             }
+
+            // Check status kesehatan
+            value.status_kesehatan = value.id_penyakit ? 'Sakit' : 'Sehat';
 
             const update = await db.Ternak.update(value, {
                 where: {

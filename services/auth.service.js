@@ -99,6 +99,7 @@ class _auth{
             nama_lengkap: value.nama_lengkap,
             username: value.username,
             email: value.email,
+            role: 'manager',
             no_hp: value.no_hp,
             alamat: value.alamat,
             password: value.password

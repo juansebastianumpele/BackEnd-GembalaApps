@@ -32,7 +32,7 @@ module.exports = {
       },
       tanggal_sembuh:{
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: true
       },
       createdAt: {
         type: Sequelize.DATE,

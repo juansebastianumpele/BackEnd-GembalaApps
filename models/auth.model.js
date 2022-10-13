@@ -36,7 +36,6 @@ module.exports = (Sequelize, DataTypes) => {
           },
           role:{
             type: DataTypes.STRING,
-            defaultValue: 'user',
             allowNull: false
           },
           lastAccess:{
