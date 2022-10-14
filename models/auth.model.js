@@ -38,6 +38,10 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
           },
+          status:{
+            type: DataTypes.STRING,
+            allowNull: false
+          },
           lastAccess:{
             type: DataTypes.DATE,
             allowNull: true

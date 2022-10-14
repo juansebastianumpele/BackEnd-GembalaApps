@@ -44,6 +44,12 @@ module.exports = {
         defaultValue: 'manager',
         allowNull: false
       },
+      status:{
+        type: Sequelize.ENUM,
+        values: ['active', 'inactive'],
+        defaultValue: 'inactive',
+        allowNull: false
+      },
       lastAccess:{
         type: Sequelize.DATE,
         allowNull: true

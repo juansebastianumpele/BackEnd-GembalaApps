@@ -10,6 +10,7 @@ module.exports = {
       email: 'admin@email.com',
       no_hp: '081315372263',
       role: 'super admin',
+      status: 'active',
       alamat: 'Jl. Asem Kranji Blok K-7 Universitas Gadjah Mada Sekip, Bulaksumur, Sendowo, Sinduadi, Kec. Mlati, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55284',
       password: await hashPassword('12345678')
     },{
@@ -18,6 +19,7 @@ module.exports = {
       email: 'manager1@email.com',
       no_hp: '081315372231',
       role: 'manager',
+      status: 'inactive',
       alamat: 'Jl. Asem Kranji Blok K-7 Universitas Gadjah Mada Sekip, Bulaksumur, Sendowo, Sinduadi, Kec. Mlati, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55284',
       password: await hashPassword('12345678')
     },{
@@ -26,6 +28,7 @@ module.exports = {
       email: 'manager2@email.com',
       no_hp: '081315372232',
       role: 'manager',
+      status: 'inactive',
       alamat: 'Jl. Asem Kranji Blok K-7 Universitas Gadjah Mada Sekip, Bulaksumur, Sendowo, Sinduadi, Kec. Mlati, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55284',
       password: await hashPassword('12345678')
     },{
@@ -34,6 +37,7 @@ module.exports = {
       email: 'admin1@email.com',
       no_hp: '081315372251',
       role: 'admin',
+      status: 'inactive',
       alamat: 'Jl. Asem Kranji Blok K-7 Universitas Gadjah Mada Sekip, Bulaksumur, Sendowo, Sinduadi, Kec. Mlati, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55284',
       password: await hashPassword('12345678')
     },{
@@ -42,6 +46,7 @@ module.exports = {
       email: 'admin2@email.com',
       no_hp: '081315372252',
       role: 'admin',
+      status: 'inactive',
       alamat: 'Jl. Asem Kranji Blok K-7 Universitas Gadjah Mada Sekip, Bulaksumur, Sendowo, Sinduadi, Kec. Mlati, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55284',
       password: await hashPassword('12345678')
     },{
@@ -50,6 +55,7 @@ module.exports = {
       email: 'admin3@email.com',
       no_hp: '081315372253',
       role: 'admin',
+      status: 'inactive',
       alamat: 'Jl. Asem Kranji Blok K-7 Universitas Gadjah Mada Sekip, Bulaksumur, Sendowo, Sinduadi, Kec. Mlati, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55284',
       password: await hashPassword('12345678')
     },{
@@ -58,6 +64,7 @@ module.exports = {
       email: 'admin4@email.com',
       no_hp: '081315372254',
       role: 'admin',
+      status: 'inactive',
       alamat: 'Jl. Asem Kranji Blok K-7 Universitas Gadjah Mada Sekip, Bulaksumur, Sendowo, Sinduadi, Kec. Mlati, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55284',
       password: await hashPassword('12345678')
     }], {});

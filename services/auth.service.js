@@ -31,6 +31,14 @@ class _auth{
             }
         }
 
+        // Check status user
+        if (checkUsername.status == 'inactive') {
+            return {
+                code: 401,
+                error: 'Unverified user'
+            }
+        }
+
         // Compare password
         const isMatch = await comparePassword(value.password, checkUsername.password);
         if (!isMatch) {
@@ -100,6 +108,7 @@ class _auth{
             username: value.username,
             email: value.email,
             role: 'manager',
+            status: 'inactive',
             no_hp: value.no_hp,
             alamat: value.alamat,
             password: value.password
@@ -322,22 +331,83 @@ class _auth{
             return {
                 code: 200,
                 data: {
-                    id: user.id_users,
-                    user: user.username,
-                    name: user.nama_lengkap,
-                    level: user.role,
+                    id_users: user.id_users,
+                    username: user.username,
+                    nama_lengkap: user.nama_lengkap,
+                    role: user.role,
                     foto: user.foto,
                     email: user.email,
-                    noHp: user.no_hp,
+                    no_hp: user.no_hp,
                     alamat: user.alamat,
                     time: new Date(),
-                    v: 'p',
                     iat: decoded.iat,
                     exp: decoded.exp
                 }
             };
         }catch (error){
             log_error('verify Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
+    // email verification
+    emailVerification = async (req) => {
+        try{
+            const schema = joi.object({
+                email: joi.string().required()
+            });
+            const {error, value} = schema.validate(req.body);
+            if (error) {
+                const errorDetails = error.details.map(detail => detail.message).join(', ');
+                log_error('emailVerification Service', errorDetails);
+                return {
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+
+            const user = await db.AuthUser.findOne({where : {email: value.email}});
+            if (user == null) {
+                return {
+                    code: 404,
+                    error: 'Sorry, user not found'
+                }
+            }
+
+            const token = jwt.sign({username: user.username}, config.secret, {expiresIn: '1h'});
+            const link = `${config.url}/auth/verify?token=${token}`;
+
+            const mailOptions = {
+                from: config.email,
+                to: value.email,
+                subject: 'Email Verification',
+                html: `<h1>Hi ${user.username}</h1>
+                        <p>Click this link to verify your email</p>
+                        <a href="${link}">${link}</a>`
+            };
+            
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    log_error('emailVerification Service', error);
+                    return {
+                        code: 500,
+                        error
+                    }
+                }
+            }
+            );
+
+            return {
+                code: 200,
+                data: {
+                    message: 'Email has been sent'
+                }
+            };
+        }catch (error){
+            log_error('emailVerification Service', error);
             return {
                 code: 500,
                 error
