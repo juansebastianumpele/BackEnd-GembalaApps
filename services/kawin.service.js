@@ -56,6 +56,7 @@ class _kawin {
 
     // Get data Indukan
     getDataIndukan = async (req) => {
+        console.log(req.query);
         try {
             // Query Data
             const list = await db.Ternak.findAll({
@@ -106,8 +107,9 @@ class _kawin {
                     jenis_kelamin: 'betina',
                     id_fp: {
                         [Op.not]: 1
-                    }
-                }
+                    },
+                    ...req.query
+                },
             });
             if (list.length <= 0) {
                 return {
