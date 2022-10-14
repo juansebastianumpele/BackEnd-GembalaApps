@@ -16,10 +16,18 @@ KawinController.get('/', authentication, async (req, res, next) => {
 } );
 
 /**
- * Get Data Indukan
+ * Get data indukan
  */
 KawinController.get('/indukan', authentication, async (req, res, next) => {
     const detail = await s$kawin.getDataIndukan(req);
+    response.sendResponse(res, detail);
+} );
+
+/**
+ * Get data pejantan
+ */
+ KawinController.get('/pejantan', authentication, async (req, res, next) => {
+    const detail = await s$kawin.getDataPejantan(req);
     response.sendResponse(res, detail);
 } );
 

@@ -132,6 +132,87 @@ class _kawin {
         }
     }
 
+    // Get data penjantan kecuali Sire (Bapak)
+    getDataPejantan = async (req) => {
+        try {
+            // Query Data
+            const list = await db.Ternak.findAll({
+                attributes : ['id_ternak', 
+                'rf_id', 
+                'foto', 
+                'jenis_kelamin', 
+                'id_induk', 
+                'id_pejantan', 
+                'berat', 
+                'suhu', 
+                'status_kesehatan', 
+                'tanggal_lahir',
+                [db.sequelize.fn('datediff', db.sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'umur'],
+                'tanggal_masuk', 
+                'tanggal_keluar', 
+                'status_keluar', 
+                'createdAt', 
+                'updatedAt'],
+                include: [
+                    {
+                        model: db.Varietas,
+                        as: 'varietas',
+                        attributes: ['id_varietas', 'varietas']
+                    },
+                    {
+                        model: db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang']
+                    },
+                    {
+                        model: db.Penyakit,
+                        as: 'penyakit',
+                        attributes: ['id_penyakit', 'nama_penyakit']
+                    },
+                    {
+                        model: db.Fase,
+                        as: 'fase',
+                        attributes: ['id_fp', 'fase']
+                    },
+                    {
+                        model: db.Pakan,
+                        as: 'pakan',
+                        attributes: ['id_pakan', 'nama_pakan']
+                    }
+                ],
+                where: {
+                    jenis_kelamin: 'jantan',
+                    id_fp: {
+                        [Op.not]: 1
+                    },
+                    id_ternak: {
+                        [Op.not]: req.query.kecuali
+                    },
+                }
+            });
+            if (list.length <= 0) {
+                return {
+                    code: 404,
+                    error: 'Data pejantan not found'
+                }
+            }
+
+            return {
+                code: 200,
+                data: {
+                    total: list.length,
+                    list,
+                },
+            };
+        } catch (error) {
+            log_error('getDataPejantan Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
     // Create new Kawin
     createDataKawin = async (req) => {
         try {
