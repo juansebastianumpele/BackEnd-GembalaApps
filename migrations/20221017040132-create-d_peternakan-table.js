@@ -3,63 +3,53 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_pakan', { 
-      id_pakan:{
+    await queryInterface.createTable('d_peternakan', {
+      id_peternakan:{
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
       },
-      id_peternakan:{
+      nama_peternakan:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      alamat:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      longtiude:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      latitude:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      id_users:{
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'd_peternakan',
-          key: 'id_peternakan'
+          model: 'auth_users',
+          key: 'id_users'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      nama_pakan:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      jenis_pakan:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      komposisi:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      stok:{
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-        allowNull: false
-      },
-      satuan:{
-        type: Sequelize.ENUM,
-        values: [
-          'Kg',
-          'Pcs'
-        ],
-        defaultValue: 'Kg',
-        allowNull: false
-      },
-      createdAt: {
+      createdAt:{
         type: Sequelize.DATE,
-        allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        allowNull: false
       },
-      updatedAt: {
+      updatedAt:{
         type: Sequelize.DATE,
-        allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-      },
+        allowNull: false
+      }
     });
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_pakan');
+    await queryInterface.dropTable('d_peternakan');
   }
 };

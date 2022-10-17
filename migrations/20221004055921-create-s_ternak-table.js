@@ -14,6 +14,16 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      id_peternakan:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'd_peternakan',
+          key: 'id_peternakan'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
       foto:{
         type: Sequelize.STRING,
         allowNull: true

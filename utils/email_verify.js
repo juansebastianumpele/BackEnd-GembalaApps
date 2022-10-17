@@ -30,7 +30,7 @@ const emailVerify = async (email, message) => {
       
     var mailOptions = {
         from: config.auth.email,
-        to: 'ppabimanyu@gmail.com',
+        to: email,
         subject: 'Email Verification',
         html: message
     };
