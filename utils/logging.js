@@ -16,4 +16,4 @@ const log_warning = (tag, info) => {
     console.log(chalk.yellow(`[${tag}] ${info}.`))
 }
 
-module.exports = {log_error, log_info}
+module.exports = {log_error, log_info, log_success, log_warning}

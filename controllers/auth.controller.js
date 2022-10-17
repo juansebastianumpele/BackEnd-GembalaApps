@@ -38,7 +38,7 @@ AuthController.post('/register', async (req, res, next) => {
  * Logout
  */
 
-AuthController.post('/logout', authentication, async (req, res, next) => {
+AuthController.post('/logout', async (req, res, next) => {
     const logout = await s$auth.logout(req, res);
     response.sendResponse(res, logout);
 });
@@ -48,7 +48,7 @@ AuthController.post('/logout', authentication, async (req, res, next) => {
  * @param {string} password
  */
 
-AuthController.delete('/delete-account', authentication, async (req, res, next) => {
+AuthController.delete('/delete-account',  async (req, res, next) => {
     const deleteAccount = await s$auth.deleteAccount(req);
     response.sendResponse(res, deleteAccount);
 });
@@ -62,7 +62,7 @@ AuthController.delete('/delete-account', authentication, async (req, res, next) 
  * @param {string} alamat
  */
 
-AuthController.put('/update-account', authentication, async (req, res, next) => {
+AuthController.put('/update-account',  async (req, res, next) => {
     const updateAccount = await s$auth.updateAccount(req);
     response.sendResponse(res, updateAccount);
 });
@@ -73,7 +73,7 @@ AuthController.put('/update-account', authentication, async (req, res, next) => 
  * @param {string} new_password
  */
 
-AuthController.put('/update-password', authentication, async (req, res, next) => {
+AuthController.put('/update-password',  async (req, res, next) => {
     const updatePassword = await s$auth.updatePassword(req);
     response.sendResponse(res, updatePassword);
 });
@@ -85,6 +85,24 @@ AuthController.put('/update-password', authentication, async (req, res, next) =>
 AuthController.post('/verify', async (req, res, next) => {
     const verify = await s$auth.verify(req);
     response.sendResponse(res, verify);
+});
+
+// /**
+//  * Forgot Password
+//  * @param {string} email
+//  */
+// AuthController.post('/forgot-password', async (req, res, next) => {
+//     const forgotPassword = await s$auth.forgotPassword(req);
+//     response.sendResponse(res, forgotPassword);
+// });
+
+/**
+ * Activate Account
+ */
+AuthController.get('/verify-account',  async (req, res, next) => {
+    const activateAccount = await s$auth.verifyAccount(req.query.token);
+    // response.sendResponse(res, activateAccount);
+    res.redirect('https://gembala.netlify.app')
 });
 
 module.exports = AuthController;

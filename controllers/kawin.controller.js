@@ -10,7 +10,7 @@ const KawinController = Router();
  * Get Data Kawin
 */
 
-KawinController.get('/', authentication, async (req, res, next) => {
+KawinController.get('/',  async (req, res, next) => {
     const detail = await s$kawin.getKawin(req);
     response.sendResponse(res, detail);
 } );
@@ -18,7 +18,7 @@ KawinController.get('/', authentication, async (req, res, next) => {
 /**
  * Get data indukan
  */
-KawinController.get('/indukan', authentication, async (req, res, next) => {
+KawinController.get('/indukan',  async (req, res, next) => {
     const detail = await s$kawin.getDataIndukan(req);
     response.sendResponse(res, detail);
 } );
@@ -39,7 +39,7 @@ KawinController.get('/indukan', authentication, async (req, res, next) => {
  * @param {number} id_fp
  */
 
-KawinController.post('/', authentication, async (req, res, next) => {
+KawinController.post('/',  async (req, res, next) => {
     const add = await s$kawin.createDataKawin(req);
     response.sendResponse(res, add);
 });
@@ -52,7 +52,7 @@ KawinController.post('/', authentication, async (req, res, next) => {
  * @param {number} id_pemacek
 */
 
-KawinController.put('/', authentication, async (req, res, next) => {
+KawinController.put('/',  async (req, res, next) => {
     const edit = await s$kawin.updateDataKawin(req);
     response.sendResponse(res, edit);
 });
@@ -62,7 +62,7 @@ KawinController.put('/', authentication, async (req, res, next) => {
  * @param {number} id_kawin
 */
 
-KawinController.delete('/', authentication, async (req, res, next) => {
+KawinController.delete('/',  async (req, res, next) => {
     const del = await s$kawin.deleteDataKawin(req);
     response.sendResponse(res, del);
 });

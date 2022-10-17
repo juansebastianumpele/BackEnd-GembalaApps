@@ -9,7 +9,7 @@ const PakanController = Router();
 /**
  * Get Data Pakan
 */
-PakanController.get('/', authentication, async (req, res, next) => {
+PakanController.get('/',  async (req, res, next) => {
     const detail = await s$pakan.getPakan(req);
     response.sendResponse(res, detail);
 } );
@@ -21,7 +21,7 @@ PakanController.get('/', authentication, async (req, res, next) => {
  * @param {string} komposisi
  * @param {number} jumlah
  */
-PakanController.post('/', authentication, async (req, res, next) => {
+PakanController.post('/',  async (req, res, next) => {
     const add = await s$pakan.createPakan(req);
     response.sendResponse(res, add);
 });
@@ -34,7 +34,7 @@ PakanController.post('/', authentication, async (req, res, next) => {
  * @param {string} komposisi
  * @param {number} jumlah
 */
-PakanController.put('/', authentication, async (req, res, next) => {
+PakanController.put('/',  async (req, res, next) => {
     const edit = await s$pakan.updatePakan(req);
     response.sendResponse(res, edit);
 });
@@ -43,7 +43,7 @@ PakanController.put('/', authentication, async (req, res, next) => {
  * Delete Pakan
  * @param {number} id_pakan
 */
-PakanController.delete('/', authentication, async (req, res, next) => {
+PakanController.delete('/',  async (req, res, next) => {
     const del = await s$pakan.deletePakan(req);
     response.sendResponse(res, del);
 });

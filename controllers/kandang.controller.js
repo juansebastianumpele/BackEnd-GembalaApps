@@ -10,7 +10,7 @@ const KandangController = Router();
  * Get List Kandang (use query)
 */
 
-KandangController.get('/', authentication, async (req, res, next) => {
+KandangController.get('/',  async (req, res, next) => {
     const detail = await s$kandang.getKandang(req);
     response.sendResponse(res, detail);
 } );
@@ -21,7 +21,7 @@ KandangController.get('/', authentication, async (req, res, next) => {
  * @param {string} jenis_kandang
  */
 
-KandangController.post('/', authentication, async (req, res, next) => {
+KandangController.post('/',  async (req, res, next) => {
     const add = await s$kandang.createKandang(req);
     response.sendResponse(res, add);
 });
@@ -33,7 +33,7 @@ KandangController.post('/', authentication, async (req, res, next) => {
  * @param {string} jenis_kandang
 */
 
-KandangController.put('/', authentication, async (req, res, next) => {
+KandangController.put('/',  async (req, res, next) => {
     const edit = await s$kandang.updateKandang(req);
     response.sendResponse(res, edit);
 });
@@ -43,7 +43,7 @@ KandangController.put('/', authentication, async (req, res, next) => {
  * @param {number} id_kandang
 */
 
-KandangController.delete('/', authentication, async (req, res, next) => {
+KandangController.delete('/',  async (req, res, next) => {
     const del = await s$kandang.deleteKandang(req);
     response.sendResponse(res, del);
 });

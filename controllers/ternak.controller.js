@@ -10,7 +10,7 @@ const TernakController = Router();
 /**
  * Get List Ternak
 */
-TernakController.get('/', authentication, async (req, res, next) => {
+TernakController.get('/',  async (req, res, next) => {
     const detail = await s$ternak.getTernak(req);
     response.sendResponse(res, detail);
 });
@@ -34,7 +34,7 @@ TernakController.get('/', authentication, async (req, res, next) => {
  * @param {string} tanggal_keluar
  * @param {number} status_keluar
  */
-TernakController.post('/', authentication, async (req, res, next) => {
+TernakController.post('/',  async (req, res, next) => {
     const add = await s$ternak.createTernak(req);
     response.sendResponse(res, add);
 });
@@ -59,7 +59,7 @@ TernakController.post('/', authentication, async (req, res, next) => {
  * @param {string} tanggal_keluar
  * @param {number} status_keluar
  */
-TernakController.put('/', authentication, async (req, res, next) => {
+TernakController.put('/',  async (req, res, next) => {
     const edit = await s$ternak.updateTernak(req);
     response.sendResponse(res, edit);
 });
@@ -68,7 +68,7 @@ TernakController.put('/', authentication, async (req, res, next) => {
  * Delete data ternak
  * @param {number} id_ternak
 */
-TernakController.delete('/', authentication, async (req, res, next) => {
+TernakController.delete('/',  async (req, res, next) => {
     const del = await s$ternak.deleteTernak(req);
     response.sendResponse(res, del);
 });

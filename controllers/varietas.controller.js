@@ -9,7 +9,7 @@ const VarietasController = Router();
 /**
  * Get Data Varietas
 */
-VarietasController.get('/', authentication, async (req, res, next) => {
+VarietasController.get('/',  async (req, res, next) => {
     const detail = await s$varietas.getVarietas(req);
     response.sendResponse(res, detail);
 } );
@@ -18,7 +18,7 @@ VarietasController.get('/', authentication, async (req, res, next) => {
  * Create Varietas
  * @param {string} varietas
  */
-VarietasController.post('/', authentication, async (req, res, next) => {
+VarietasController.post('/',  async (req, res, next) => {
     const add = await s$varietas.createVarietas(req);
     response.sendResponse(res, add);
 });
@@ -28,7 +28,7 @@ VarietasController.post('/', authentication, async (req, res, next) => {
  * @param {string} id_varietas
  * @param {string} varietas
 */
-VarietasController.put('/', authentication, async (req, res, next) => {
+VarietasController.put('/',  async (req, res, next) => {
     const edit = await s$varietas.updateVarietas(req);
     response.sendResponse(res, edit);
 });
@@ -37,7 +37,7 @@ VarietasController.put('/', authentication, async (req, res, next) => {
  * Delete Varietas
  * @param {number} id_varietas
 */
-VarietasController.delete('/', authentication, async (req, res, next) => {
+VarietasController.delete('/',  async (req, res, next) => {
     const del = await s$varietas.deleteVarietas(req);
     response.sendResponse(res, del);
 });

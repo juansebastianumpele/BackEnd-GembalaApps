@@ -11,7 +11,7 @@ const userController = (db) => {
     /**
      * List User
      */
-    UserController.get('/', authentication, async (req, res, next) => {
+    UserController.get('/',  async (req, res, next) => {
         const list = await s$user.getUsers(req);
         response.sendResponse(res, list);
     });
@@ -19,7 +19,7 @@ const userController = (db) => {
     /**
      * Req to Employee
      */
-    UserController.post('/req', authentication, async (req, res, next) => {
+    UserController.post('/req',  async (req, res, next) => {
         const reqToEmployee = await s$user.reqToEmployee(req);
         response.sendResponse(res, reqToEmployee);
     });

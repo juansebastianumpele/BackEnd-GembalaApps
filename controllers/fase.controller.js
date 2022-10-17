@@ -10,7 +10,7 @@ const FaseController = Router();
  * Get List Fase
 */
 
-FaseController.get('/', authentication, async (req, res, next) => {
+FaseController.get('/', async (req, res, next) => {
     const detail = await s$fase.getFase(req);
     response.sendResponse(res, detail);
 } );
@@ -20,7 +20,7 @@ FaseController.get('/', authentication, async (req, res, next) => {
  * @param {string} fase
  */
 
-FaseController.post('/', authentication, async (req, res, next) => {
+FaseController.post('/', async (req, res, next) => {
     const add = await s$fase.createFase(req);
     response.sendResponse(res, add);
 });
@@ -31,7 +31,7 @@ FaseController.post('/', authentication, async (req, res, next) => {
  * @param {string} fase
 */
 
-FaseController.put('/', authentication, async (req, res, next) => {
+FaseController.put('/', async (req, res, next) => {
     const edit = await s$fase.updateFase(req);
     response.sendResponse(res, edit);
 });
@@ -41,7 +41,7 @@ FaseController.put('/', authentication, async (req, res, next) => {
  * @param {number} id_fp
 */
 
-FaseController.delete('/', authentication, async (req, res, next) => {
+FaseController.delete('/', async (req, res, next) => {
     const del = await s$fase.deleteFase(req);
     response.sendResponse(res, del);
 });

@@ -9,7 +9,7 @@ const TimbanganController = Router();
 /**
  * Get data timbangan
 */
-TimbanganController.get('/', authentication, async (req, res, next) => {
+TimbanganController.get('/',  async (req, res, next) => {
     const detail = await s$timbangan.getDataTimbangan(req);
     response.sendResponse(res, detail);
 } );
@@ -22,7 +22,7 @@ TimbanganController.get('/', authentication, async (req, res, next) => {
  * @param {number} suhu_berkala
  * @param {string} tanggal
  */
-TimbanganController.post('/', authentication, async (req, res, next) => {
+TimbanganController.post('/',  async (req, res, next) => {
     const add = await s$timbangan.createDataTimbangan(req);
     response.sendResponse(res, add);
 });
@@ -36,7 +36,7 @@ TimbanganController.post('/', authentication, async (req, res, next) => {
  * @param {number} suhu_berkala
  * @param {string} tanggal
 */
-TimbanganController.put('/', authentication, async (req, res, next) => {
+TimbanganController.put('/',  async (req, res, next) => {
     const edit = await s$timbangan.updateDataTimbangan(req);
     response.sendResponse(res, edit);
 });
@@ -45,7 +45,7 @@ TimbanganController.put('/', authentication, async (req, res, next) => {
  * Delete data timbangan
  * @param {number} id_timbangan
 */
-TimbanganController.delete('/', authentication, async (req, res, next) => {
+TimbanganController.delete('/',  async (req, res, next) => {
     const del = await s$timbangan.deleteDataTimbangan(req);
     response.sendResponse(res, del);
 });
