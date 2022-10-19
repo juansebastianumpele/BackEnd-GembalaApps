@@ -15,16 +15,6 @@ const userController = (db) => {
         const list = await s$user.getUsers(req);
         response.sendResponse(res, list);
     });
-
-    /**
-     * Req to Employee
-     */
-    UserController.post('/req',  async (req, res, next) => {
-        const reqToEmployee = await s$user.reqToEmployee(req);
-        response.sendResponse(res, reqToEmployee);
-    });
-
-    return UserController;
 }
 
 module.exports = userController;

@@ -11,6 +11,7 @@ const TernakController = require("../controllers/ternak.controller");
 const RiwayatKesehatanController = require("../controllers/riwayat_kesehatan.controller");
 const RfidController = require("../controllers/rfid.controller");
 const DashboardController = require("../controllers/dashboard.controller");
+const PeternakanController = require("../controllers/peternakan.controller");
 const Authentication = require("../middlewares/authentication");
 
 // Define url API in here
@@ -28,13 +29,10 @@ const _routes = [
     ['/riwayat-kesehatan', RiwayatKesehatanController],
     ['/rfid', RfidController],
     ['/dashboard', DashboardController],
+    ['/peternakan', PeternakanController]
 ];
 
 const routes = (app) => {
-    
-    // Middleware
-    app.use(Authentication);
-
     // Routing
     _routes.forEach((route) => {
         const [url, controller] = route;

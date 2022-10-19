@@ -3,8 +3,8 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_kandang', { 
-      id_kandang:{
+    await queryInterface.createTable('d_bahan_pakan', { 
+      id_bahan_pakan:{
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -20,33 +20,42 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      kode_kandang:{
+      nama_bahan_pakan:{
         type: Sequelize.STRING,
         allowNull: false
       },
-      jenis_kandang:{
+      jenis_bahan_pakan:{
         type: Sequelize.STRING,
         allowNull: false
       },
-      status: {
+      stok:{
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false
+      },
+      satuan:{
         type: Sequelize.ENUM,
-        values: ['koloni', 'usg1', 'usg2', 'bunting'],
+        values: [
+          'Kg',
+          'Pcs'
+        ],
+        defaultValue: 'Kg',
         allowNull: false
       },
       createdAt: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-      }
+      },
     });
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_kandang');
+    await queryInterface.dropTable('d_bahan_pakan');
   }
 };

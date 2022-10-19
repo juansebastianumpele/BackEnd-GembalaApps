@@ -3,35 +3,22 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_kandang', { 
-      id_kandang:{
-        type: Sequelize.INTEGER,
+    await queryInterface.createTable('d_otp', {
+      otp:{
+        type: Sequelize.STRING,
         primaryKey: true,
-        autoIncrement: true,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
-      id_peternakan:{
+      id_users:{
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'd_peternakan',
-          key: 'id_peternakan'
+          model: 'auth_users',
+          key: 'id_users'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
-      },
-      kode_kandang:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      jenis_kandang:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      status: {
-        type: Sequelize.ENUM,
-        values: ['koloni', 'usg1', 'usg2', 'bunting'],
-        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -47,6 +34,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_kandang');
+    await queryInterface.dropTable('d_otp');
   }
 };

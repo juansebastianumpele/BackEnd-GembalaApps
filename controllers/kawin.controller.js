@@ -2,7 +2,7 @@ const { Router } = require('express');
 const s$kawin = require('../services/kawin.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-// const { employeeAuth } = require('../middlewares/authorization');
+const { adminMiddleware } = require('../middlewares/authorization');
 
 const KawinController = Router();
 
@@ -10,7 +10,7 @@ const KawinController = Router();
  * Get Data Kawin
 */
 
-KawinController.get('/',  async (req, res, next) => {
+KawinController.get('/', authentication, adminMiddleware, async (req, res, next) => {
     const detail = await s$kawin.getKawin(req);
     response.sendResponse(res, detail);
 } );
@@ -18,7 +18,7 @@ KawinController.get('/',  async (req, res, next) => {
 /**
  * Get data indukan
  */
-KawinController.get('/indukan',  async (req, res, next) => {
+KawinController.get('/indukan', authentication, adminMiddleware, async (req, res, next) => {
     const detail = await s$kawin.getDataIndukan(req);
     response.sendResponse(res, detail);
 } );
@@ -26,7 +26,7 @@ KawinController.get('/indukan',  async (req, res, next) => {
 /**
  * Get data pejantan
  */
- KawinController.get('/pejantan', authentication, async (req, res, next) => {
+ KawinController.get('/pejantan', authentication, adminMiddleware, async (req, res, next) => {
     const detail = await s$kawin.getDataPejantan(req);
     response.sendResponse(res, detail);
 } );
@@ -39,7 +39,7 @@ KawinController.get('/indukan',  async (req, res, next) => {
  * @param {number} id_fp
  */
 
-KawinController.post('/',  async (req, res, next) => {
+KawinController.post('/', authentication, adminMiddleware, async (req, res, next) => {
     const add = await s$kawin.createDataKawin(req);
     response.sendResponse(res, add);
 });
@@ -52,7 +52,7 @@ KawinController.post('/',  async (req, res, next) => {
  * @param {number} id_pemacek
 */
 
-KawinController.put('/',  async (req, res, next) => {
+KawinController.put('/', authentication, adminMiddleware, async (req, res, next) => {
     const edit = await s$kawin.updateDataKawin(req);
     response.sendResponse(res, edit);
 });
@@ -62,7 +62,7 @@ KawinController.put('/',  async (req, res, next) => {
  * @param {number} id_kawin
 */
 
-KawinController.delete('/',  async (req, res, next) => {
+KawinController.delete('/', authentication, adminMiddleware, async (req, res, next) => {
     const del = await s$kawin.deleteDataKawin(req);
     response.sendResponse(res, del);
 });

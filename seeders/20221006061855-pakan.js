@@ -4,18 +4,20 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('d_pakan', [{
+      id_peternakan: 1,
       nama_pakan: 'Pakan 1',
-      jenis_pakan: 'Pakan 1',
-      komposisi: 'Pakan 1',
-      stok: 100,
-      satuan: 'Kg',
+      interval_pakan: 10,
+      satuan: 'Tong',
+      komposisi: 'Komposisi 1',
+      nutrien: 'Nutrien 1',
     },
     {
+      id_peternakan: 2,
       nama_pakan: 'Pakan 2',
-      jenis_pakan: 'Pakan 2',
-      komposisi: 'Pakan 2',
-      stok: 100,
-      satuan: 'Kg',
+      interval_pakan: 10,
+      satuan: 'Tong',
+      komposisi: 'Komposisi 2',
+      nutrien: 'Nutrien 2',
     }
   ], {});
   },

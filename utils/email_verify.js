@@ -19,6 +19,22 @@ const verifyNewAccount = async (dataAuth) => {
     return emailVerify(dataAuth.email, message);
 }
 
+const verifyEmailForgotPassword = async (dataAuth) => {
+    const token = jwt.sign(
+        {
+            id_users: dataAuth.id_users,
+            username: dataAuth.username,
+            message: 'reset'
+        }, config.jwt.secret, {expiresIn: '1h'});
+
+    const link = `${config.url}/api/auth/verify-account?token=${token}`;
+    message = `<h1>Hi ${dataAuth.nama_lengkap}</h1>
+                <p>Click this link to verify your email</p>
+                <a href="${link}">${link}</a>`
+    
+    return emailVerify(dataAuth.email, message);
+}
+
 const emailVerify = async (email, message) => {
     var transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -45,4 +61,4 @@ const emailVerify = async (email, message) => {
     );
 }
 
-module.exports = {emailVerify, verifyNewAccount};
+module.exports = {emailVerify, verifyNewAccount, verifyEmailForgotPassword};

@@ -1,17 +1,10 @@
 const config = require('../config/app.config')
 const jwt = require('jsonwebtoken')
-const { sequelize } = require('../models');
-const { DataTypes } = require('sequelize');
 const { log_error, log_info } = require('../utils/logging');
-const AuthModel = require('../models/auth.model')(sequelize, DataTypes)
+const db = require('../models');
+const response = require('../utils/response');
 
 const authentication = async (req, res, next) => {
-    // Check url path is not need authentication
-    log_info('autMiddleware', req.path)
-    if(req.path == '/api/auth/login' || req.path == '/api/auth/register' || req.path == '/api/rfid' || req.path == '/api/auth/verify-account'){
-      next()
-      return
-    }
 
     // Check token in header
     let token
@@ -25,40 +18,39 @@ const authentication = async (req, res, next) => {
         const decoded = jwt.verify(token, config.jwt.secret)
 
         // Set user from decoded token
-        const user = await AuthModel.findOne({where : {username: decoded.username}});
+        const user = await db.AuthUser.findOne({where : {username: decoded.username}});
+        console.log(user);
         if (user == null) {
-          res.status(401).send({ code: 401, error: 'Not authorized' })
+          response.sendResponse(res, {code: 401, error: 'Invalid token'})
           return
         }
 
-        // Set user to request
-        req.dataAuth = {
-          id_users: user.id_users,
-          username: user.username,
-          role: user.role,
-          status: user.status,
-          nama_lengkap: user.nama_lengkap,
-        }
-        
         // Check status user
-        if(user.status == 'inactive' && req.path != '/api/auth/verify-account'){
+        if(user.status == 'inactive'){
             res.status(401).send({ code: 401, error: 'Not authorized, User Unverifed' })
             return
         }
 
+        // Set user to request
+        req.dataAuth = {
+          id_users: decoded.id_users,
+          username: decoded.username,
+          role: decoded.role,
+          status: decoded.status,
+          id_peternakan: decoded.id_peternakan
+        }
+        
         next()
+        return
       } catch (error) {
         log_error('Authentication Middleware', error)
-        res.status(401).send({ code: 401, error })
+        response.sendResponse(res, {code: 401, error})
         return
       }
     }
   
     if (!token) {
-      res.status(401).send({
-        code: 401,
-        error: 'Not authenticated, no token'
-      })
+      response.sendResponse(res, {code: 401, error: 'Not authorized, no token'})
       return
     }
 }

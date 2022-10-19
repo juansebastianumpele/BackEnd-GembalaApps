@@ -4,9 +4,8 @@ const date = require('date-and-time');
 const db = require('../models');
 const config = require('../config/app.config.json');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 const {log_error, log_success} = require('../utils/logging');
-const {verifyNewAccount} = require('../utils/email_verify');
+const {verifyNewAccount, verifyEmailForgotPassword} = require('../utils/email_verify');
 class _auth{
     login = async (data) => {
         // Validate data
@@ -51,12 +50,18 @@ class _auth{
             }
         }
 
+        // Get data peteranakan
+        const peternakan = await db.Peternakan.findOne({
+            attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'id_users', 'createdAt', 'updatedAt'],
+            where : {id_users: checkUsername.id_users}});
+
         // Generate token
         const token = generateToken({ 
-            id: checkUsername.id_users, 
+            id_users: checkUsername.id_users, 
             username: value.username, 
             role: checkUsername.role,
-            status: checkUsername.status
+            status: checkUsername.status,
+            id_peternakan: peternakan ? peternakan.id_peternakan : null
         });
         if (!token) {
             return {
@@ -375,19 +380,21 @@ class _auth{
     verifyAccount = async (token) => {
         try{
             const decoded = jwt.verify(token, config.jwt.secret)
-
-            if(decoded.message != 'verification'){
+            
+            if(decoded.message == 'verification'){
+                const activateAccount = await db.AuthUser.update({status: 'active'}, {where: {username: decoded.username}});
+                if (activateAccount <= 0) {
+                    return {
+                        code: 500,
+                        error: `Sorry, activate account failed`
+                    }
+                }
+            }else if(decoded.message == 'reset'){
+                
+            }else{
                 return {
                     code: 400,
-                    error: 'Invalid Token URL'
-                }
-            }
-            
-            const activateAccount = await db.AuthUser.update({status: 'active'}, {where: {username: decoded.username}});
-            if (activateAccount <= 0) {
-                return {
-                    code: 500,
-                    error: `Sorry, activate account failed`
+                    error: 'Sorry, token invalid'
                 }
             }
             
@@ -405,6 +412,103 @@ class _auth{
             }
         }
     }
+
+    forgotPassword = async (data) => {
+        try{
+            // Validate data
+            const schema = joi.object({
+                email: joi.string().email().required(),
+            });
+            const {error, value} = schema.validate(data);
+            if (error) {
+                const errorDetails = error.details.map(detail => detail.message).join(', ');
+                log_error('forgotPassword Service', errorDetails);
+                return {
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+            // Check if user exist
+            const checkUser = await db.AuthUser.findOne({where : {email: value.email}});
+            if (checkUser == null) {
+                return {
+                    code: 400,
+                    error: 'Sorry, user not found'
+                }
+            }
+
+            const verify = verifyEmailForgotPassword(checkUser);
+            if (verify.error) {
+                return {
+                    code: 500,
+                    error: 'Sorry, something went wrong'
+                }
+            }
+
+            return {
+                code: 200,
+                data: {
+                    message: 'Email has been sent'
+                }
+            };
+        }catch (error){
+            log_error('emailVerification Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
+    verifyForgotPassword = (req) => {
+        try{
+            const schema = joi.object({
+                token: joi.string().required()
+            });
+            const {error, value} = schema.validate(req.body);
+            if (error) {
+                const errorDetails = error.details.map(detail => detail.message).join(', ');
+                log_error('verifyForgotPassword Service', errorDetails);
+                return {
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+
+            const decoded = jwt.verify(value.token, config.jwt.secret)
+
+            const user = db.AuthUser.findOne({where : {username: decoded.username}});
+            if (user == null) {
+                return {
+                    code: 404,
+                    error: 'Sorry, user not found'
+                }
+            }
+            return {
+                code: 200,
+                data: {
+                    id_users: user.id_users,
+                    username: user.username,
+                    nama_lengkap: user.nama_lengkap,
+                    role: user.role,
+                    foto: user.foto,
+                    email: user.email,
+                    no_hp: user.no_hp,
+                    alamat: user.alamat,
+                    time: new Date(),
+                    iat: decoded.iat,
+                    exp: decoded.exp
+                }
+            };
+        }catch (error){
+            log_error('verifyForgotPassword Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
     
 }
 

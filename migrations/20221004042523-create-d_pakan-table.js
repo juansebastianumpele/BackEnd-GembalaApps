@@ -24,26 +24,24 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      jenis_pakan:{
-        type: Sequelize.STRING,
+      interval_pakan:{
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      satuan:{
+        type: Sequelize.ENUM,
+        values: [
+          'Tong',
+          'Ball'
+        ],
         allowNull: false
       },
       komposisi:{
         type: Sequelize.STRING,
         allowNull: false
       },
-      stok:{
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-        allowNull: false
-      },
-      satuan:{
-        type: Sequelize.ENUM,
-        values: [
-          'Kg',
-          'Pcs'
-        ],
-        defaultValue: 'Kg',
+      nutrien:{
+        type: Sequelize.STRING,
         allowNull: false
       },
       createdAt: {

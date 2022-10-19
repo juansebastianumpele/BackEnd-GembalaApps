@@ -8,7 +8,12 @@ class _pakan{
     // get data pakan
     getPakan = async (req) => {
         try{
-            const list = await db.Pakan.findAll({where : req.query});
+            // Add id_peternakan to params
+            req.query.id_peternakan = req.dataAuth.id_peternakan
+            // Query data
+            const list = await db.Pakan.findAll({
+                where : req.query
+            });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -54,6 +59,7 @@ class _pakan{
             }
 
             const add = await db.Pakan.create({
+                id_peternakan: req.dataAuth.id_peternakan,
                 nama_pakan: value.nama_pakan, 
                 jenis_pakan: value.jenis_pakan,
                 komposisi: value.komposisi,

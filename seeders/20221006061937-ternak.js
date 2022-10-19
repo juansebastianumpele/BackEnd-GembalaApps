@@ -6,6 +6,7 @@ module.exports = {
     await queryInterface.bulkInsert('s_ternak', [
       {
         rf_id: "00e2001a83191322050669e0c1ff",
+        id_peternakan: 1,
         foto: null,
         jenis_kelamin: "Betina",
         id_varietas: "1",
@@ -25,6 +26,7 @@ module.exports = {
     },
     {
         rf_id: "00e2001a83191322780669e0c1ff",
+        id_peternakan: 1,
         foto: null,
         jenis_kelamin: "Betina",
         id_varietas: "1",
@@ -44,6 +46,7 @@ module.exports = {
     },
     {
         rf_id: "00e2001a83541322780669e0c1ff",
+        id_peternakan: 1,
         foto: null,
         jenis_kelamin: "Betina",
         id_varietas: "1",
@@ -63,6 +66,7 @@ module.exports = {
     },
     {
       rf_id: "00e2001a83541532780669e0c1ff",
+      id_peternakan: 1,
       foto: null,
       jenis_kelamin: "Jantan",
       id_varietas: "1",

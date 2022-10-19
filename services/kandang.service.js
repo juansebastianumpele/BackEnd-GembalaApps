@@ -2,14 +2,16 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const db = require('../models');
-const {log_error} = require('../utils/logging');
+const {log_error, log_info} = require('../utils/logging');
 class _kandang{
     // Get Kandang
     getKandang = async (req) => {
         try{
+            // Add id_peternakan to params
+            req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await db.Kandang.findAll({
-                attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'createdAt', 'updatedAt'],
+                attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'createdAt', 'updatedAt', 'status'],
                 include: [
                     {
                         model: db.Ternak,
@@ -21,7 +23,14 @@ class _kandang{
                         ],
                     },
                 ],
+                where : req.query
             });
+            if(list.length <= 0){
+                return{
+                    code: 404,
+                    error: 'Data kandang not found'
+                }
+            }
             for (let i = 0; i < list.length; i++) {
                 list[i].dataValues.populasi = list[i].dataValues.ternak.length;
                 const berat_total = list[i].dataValues.ternak.reduce((a, b) => a + b.berat, 0);
@@ -30,12 +39,6 @@ class _kandang{
                 list[i].dataValues.berat_total = berat_total;
                 list[i].dataValues.kebutuhan_pakan = berat_total * 0.05;
                 delete list[i].dataValues.ternak;
-            }
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data kandang not found'
-                }
             }
             return {
                 code : 200,
@@ -72,8 +75,10 @@ class _kandang{
             }
 
             const add = await db.Kandang.create({
+                id_peternakan: req.dataAuth.id_peternakan,
                 kode_kandang: value.kode_kandang,
-                jenis_kandang: value.jenis_kandang
+                jenis_kandang: value.jenis_kandang,
+                status: 'koloni'
             });
             if(add == null){
                 return{
@@ -109,6 +114,7 @@ class _kandang{
                 id_kandang: joi.number().required(),
                 kode_kandang: joi.string().required(),
                 jenis_kandang: joi.string().required(),
+                status: joi.string().required(),
             });
 
             const {error, value} = schema.validate(req.body);
@@ -123,10 +129,12 @@ class _kandang{
             // Query data
             const update = await db.Kandang.update({
                 kode_kandang: value.kode_kandang,
-                jenis_kandang: value.jenis_kandang
+                jenis_kandang: value.jenis_kandang,
+                status: value.status
             }, {
                 where: {
-                    id_kandang: value.id_kandang
+                    id_kandang: value.id_kandang,
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){
@@ -171,7 +179,8 @@ class _kandang{
             }
             const del = await db.Kandang.destroy({
                 where: {
-                    id_kandang: value.id_kandang
+                    id_kandang: value.id_kandang,
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
             if(del <= 0){

@@ -20,15 +20,18 @@ module.exports = {
       },
       username:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       email:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       no_hp:{
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       alamat:{
         type: Sequelize.STRING,
@@ -40,8 +43,8 @@ module.exports = {
       },
       role:{
         type: Sequelize.ENUM,
-        values: ['super admin', 'manager', 'admin'],
-        defaultValue: 'manager',
+        values: ['superadmin', 'admin'],
+        defaultValue: 'admin',
         allowNull: false
       },
       status:{

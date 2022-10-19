@@ -2,7 +2,7 @@ const { Router } = require('express');
 const s$ternak = require('../services/ternak.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-// const {employeeAuth} = require('../middlewares/authorization');
+const { adminMiddleware } = require('../middlewares/authorization');
 
 // Router
 const TernakController = Router();
@@ -10,7 +10,7 @@ const TernakController = Router();
 /**
  * Get List Ternak
 */
-TernakController.get('/',  async (req, res, next) => {
+TernakController.get('/', authentication, adminMiddleware, async (req, res, next) => {
     const detail = await s$ternak.getTernak(req);
     response.sendResponse(res, detail);
 });
@@ -34,7 +34,7 @@ TernakController.get('/',  async (req, res, next) => {
  * @param {string} tanggal_keluar
  * @param {number} status_keluar
  */
-TernakController.post('/',  async (req, res, next) => {
+TernakController.post('/', authentication, adminMiddleware, async (req, res, next) => {
     const add = await s$ternak.createTernak(req);
     response.sendResponse(res, add);
 });
@@ -59,7 +59,7 @@ TernakController.post('/',  async (req, res, next) => {
  * @param {string} tanggal_keluar
  * @param {number} status_keluar
  */
-TernakController.put('/',  async (req, res, next) => {
+TernakController.put('/', authentication, adminMiddleware, async (req, res, next) => {
     const edit = await s$ternak.updateTernak(req);
     response.sendResponse(res, edit);
 });
@@ -68,7 +68,7 @@ TernakController.put('/',  async (req, res, next) => {
  * Delete data ternak
  * @param {number} id_ternak
 */
-TernakController.delete('/',  async (req, res, next) => {
+TernakController.delete('/', authentication, adminMiddleware, async (req, res, next) => {
     const del = await s$ternak.deleteTernak(req);
     response.sendResponse(res, del);
 });

@@ -18,14 +18,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      longtiude:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      latitude:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
       id_users:{
         type: Sequelize.INTEGER,
         allowNull: false,

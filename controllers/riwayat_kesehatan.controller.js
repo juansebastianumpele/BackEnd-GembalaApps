@@ -2,14 +2,14 @@ const { Router } = require('express');
 const s$riwayatKesehatan = require('../services/riwayat_kesehatan.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-// const {employeeAuth} = require('../middlewares/authorization');
+const { adminMiddleware } = require('../middlewares/authorization');
 
 const RiwayatKesehatanController = Router();
 
 /**
  * Get Data Riwayat Kesehatan
 */
-RiwayatKesehatanController.get('/',  async (req, res, next) => {
+RiwayatKesehatanController.get('/', authentication, adminMiddleware, async (req, res, next) => {
     const detail = await s$riwayatKesehatan.getRiwayatKesehatan(req);
     response.sendResponse(res, detail);
 } );
@@ -21,7 +21,7 @@ RiwayatKesehatanController.get('/',  async (req, res, next) => {
  * @param {date} tanggal_sakit
  * @param {date} tanggal_sembuh
  */
-RiwayatKesehatanController.post('/',  async (req, res, next) => {
+RiwayatKesehatanController.post('/', authentication, adminMiddleware, async (req, res, next) => {
     const add = await s$riwayatKesehatan.createRiwayatKesehatan(req);
     response.sendResponse(res, add);
 });
@@ -34,7 +34,7 @@ RiwayatKesehatanController.post('/',  async (req, res, next) => {
  * @param {date} tanggal_sakit
  * @param {date} tanggal_sembuh
 */
-RiwayatKesehatanController.put('/',  async (req, res, next) => {
+RiwayatKesehatanController.put('/', authentication, adminMiddleware, async (req, res, next) => {
     const edit = await s$riwayatKesehatan.updateRiwayatKesehatan(req);
     response.sendResponse(res, edit);
 });
@@ -43,7 +43,7 @@ RiwayatKesehatanController.put('/',  async (req, res, next) => {
  * Delete Riwayat Kesehatan
  * @param {number} id_riwayat_kesehatan
 */
-RiwayatKesehatanController.delete('/',  async (req, res, next) => {
+RiwayatKesehatanController.delete('/', authentication, adminMiddleware, async (req, res, next) => {
     const del = await s$riwayatKesehatan.deleteRiwayatKesehatan(req);
     response.sendResponse(res, del);
 });

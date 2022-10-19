@@ -2,14 +2,14 @@ const { Router } = require('express');
 const s$timbangan = require('../services/timbangan.service');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
-// const {employeeAuth} = require('../middlewares/authorization');
+const { adminMiddleware } = require('../middlewares/authorization');
 
 const TimbanganController = Router();
 
 /**
  * Get data timbangan
 */
-TimbanganController.get('/',  async (req, res, next) => {
+TimbanganController.get('/', authentication, adminMiddleware, async (req, res, next) => {
     const detail = await s$timbangan.getDataTimbangan(req);
     response.sendResponse(res, detail);
 } );
@@ -36,7 +36,7 @@ TimbanganController.post('/',  async (req, res, next) => {
  * @param {number} suhu_berkala
  * @param {string} tanggal
 */
-TimbanganController.put('/',  async (req, res, next) => {
+TimbanganController.put('/', authentication, adminMiddleware, async (req, res, next) => {
     const edit = await s$timbangan.updateDataTimbangan(req);
     response.sendResponse(res, edit);
 });
@@ -45,7 +45,7 @@ TimbanganController.put('/',  async (req, res, next) => {
  * Delete data timbangan
  * @param {number} id_timbangan
 */
-TimbanganController.delete('/',  async (req, res, next) => {
+TimbanganController.delete('/', authentication, adminMiddleware, async (req, res, next) => {
     const del = await s$timbangan.deleteDataTimbangan(req);
     response.sendResponse(res, del);
 });
