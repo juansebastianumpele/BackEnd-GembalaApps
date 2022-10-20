@@ -15,3 +15,15 @@
 # DOC API POSTMAN
 
 https://documenter.getpostman.com/view/16756766/2s83eyrcXr
+
+# TODO
+
+## Migration
+
+- [ ] Auth Note: waiting fixing desain
+- [x] Kandang
+
+## Model
+
+- [x] Auth
+- [x] Kandang

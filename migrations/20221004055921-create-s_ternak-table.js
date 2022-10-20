@@ -14,17 +14,17 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      id_peternakan:{
+      id_user:{
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'd_peternakan',
-          key: 'id_peternakan'
+          model: 'auth_users',
+          key: 'id_user'
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
-      foto:{
+      image:{
         type: Sequelize.STRING,
         allowNull: true
       },
@@ -37,12 +37,12 @@ module.exports = {
         defaultValue: 'Betina',
         allowNull: false
       },
-      id_varietas:{
+      id_bangsa:{
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'd_varietas',
-          key: 'id_varietas'
+          model: 'd_bangsa',
+          key: 'id_bangsa'
         }
       },
       id_kandang:{
@@ -53,14 +53,6 @@ module.exports = {
           key: 'id_kandang'
         }
       },
-      id_pakan:{
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'd_pakan',
-          key: 'id_pakan'
-        }
-      },
       id_fp:{
         type: Sequelize.INTEGER,
         allowNull: true,
@@ -69,40 +61,13 @@ module.exports = {
           key: 'id_fp'
         }
       },
-      id_induk:{
+      id_dam:{
         type: Sequelize.INTEGER,
         allowNull: true,
       },
-      id_pejantan:{
+      id_sire:{
         type: Sequelize.INTEGER,
         allowNull: true,
-      },
-      berat:{
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-        allowNull: false
-      },
-      suhu:{
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-        allowNull: false
-      },
-      status_kesehatan:{
-        type: Sequelize.ENUM,
-        values: [
-          'Sakit',
-          'Sehat'
-        ],
-        defaultValue: 'Sehat',
-        allowNull: false
-      },
-      id_penyakit:{
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'd_penyakit',
-          key: 'id_penyakit'
-        }
       },
       tanggal_lahir:{
         type: Sequelize.DATE,
@@ -139,7 +104,7 @@ module.exports = {
       }
     }).then(() => {
       queryInterface.addConstraint('s_ternak', {
-        fields: ['id_induk'],
+        fields: ['id_dam'],
         type: 'foreign key',
         name: 'fk_s_ternak_id_induk',
         references: {
@@ -150,7 +115,7 @@ module.exports = {
         onUpdate: 'cascade'
       }).then(() => {
         queryInterface.addConstraint('s_ternak', {
-          fields: ['id_pejantan'],
+          fields: ['id_sire'],
           type: 'foreign key',
           name: 'fk_s_ternak_id_pejantan',
           references: {

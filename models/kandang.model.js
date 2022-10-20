@@ -1,28 +1,34 @@
 module.exports = (Sequelize, DataTypes) => {
-    // const Ternak = require('./ternak.model')(Sequelize, DataTypes);
-
     const Kandang = Sequelize.define("Kandang", {
-        id_kandang: {
+        id_kandang:{
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
             allowNull: false
         },
-        kode_kandang: {
+        id_user:{
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        kode_kandang:{
             type: DataTypes.STRING,
             allowNull: false
         },
-        jenis_kandang: {
-            type: DataTypes.STRING,
+        id_jenis_pakan:{
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        kebutuhan_pakan:{
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         createdAt: {
-            allowNull: false,
-            type: DataTypes.DATE
+            type: DataTypes.DATE,
+            allowNull: false
         },
         updatedAt: {
-            allowNull: false,
-            type: DataTypes.DATE
+            type: DataTypes.DATE,
+            allowNull: false
         }
     }, {
         tableName: "d_kandang",
@@ -32,6 +38,10 @@ module.exports = (Sequelize, DataTypes) => {
         Kandang.hasMany(models.Ternak, {
             foreignKey: 'id_kandang',
             as: 'ternak'
+        });
+        Kandang.belongsTo(models.JenisPakan, {
+            foreignKey: 'id_jenis_pakan',
+            as: 'jenispakan'
         });
     };
 

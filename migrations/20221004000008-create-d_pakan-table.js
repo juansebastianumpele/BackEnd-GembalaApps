@@ -3,46 +3,54 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_pakan', { 
-      id_pakan:{
+    await queryInterface.createTable('d_pakan', {
+      id_pakan: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
       },
-      id_peternakan:{
+      id_user:{
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'd_peternakan',
-          key: 'id_peternakan'
+          model: 'auth_users',
+          key: 'id_user'
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
-      nama_pakan:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      interval_pakan:{
+      id_jenis_pakan:{
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        references: {
+          model: 'd_jenis_pakan',
+          key: 'id_jenis_pakan'
+        }
       },
-      satuan:{
+      status: {
         type: Sequelize.ENUM,
         values: [
-          'Tong',
-          'Ball'
+          'Tersedia',
+          'Tidak Tersedia',
+          'Belum Siap'
         ],
+        defaultValue: 'Tidak Tersedia',
         allowNull: false
       },
-      komposisi:{
-        type: Sequelize.STRING,
-        allowNull: false
+      tanggal_pembuatan:{
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
-      nutrien:{
-        type: Sequelize.STRING,
-        allowNull: false
+      tanggal_konsumsi:{
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      jumlah_pakan:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
       },
       createdAt: {
         type: Sequelize.DATE,

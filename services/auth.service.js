@@ -4,14 +4,15 @@ const date = require('date-and-time');
 const db = require('../models');
 const config = require('../config/app.config.json');
 const jwt = require('jsonwebtoken');
-const {log_error, log_success} = require('../utils/logging');
+const {log_error, log_success, log_info} = require('../utils/logging');
 const {verifyNewAccount, verifyEmailForgotPassword} = require('../utils/email_verify');
+const randomstring = require("randomstring");
 class _auth{
     login = async (data) => {
         // Validate data
         const schema = joi.object({
-            username: joi.string().required(),
-            password: joi.string().required()
+            email: joi.string().email().required(),
+            kata_sandi: joi.string().required()
         });
         const {error, value} = schema.validate(data);
         if (error) {
@@ -24,7 +25,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUsername = await db.AuthUser.findOne({where : {username: value.username}});
+        const checkUsername = await db.AuthUser.findOne({where : {email: value.email}});
         if (checkUsername == null) {
             return {
                 code: 404,
@@ -42,7 +43,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(value.password, checkUsername.password);
+        const isMatch = await comparePassword(value.kata_sandi, checkUsername.kata_sandi);
         if (!isMatch) {
             return {
                 code: 400,
@@ -50,18 +51,13 @@ class _auth{
             }
         }
 
-        // Get data peteranakan
-        const peternakan = await db.Peternakan.findOne({
-            attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'id_users', 'createdAt', 'updatedAt'],
-            where : {id_users: checkUsername.id_users}});
-
         // Generate token
         const token = generateToken({ 
-            id_users: checkUsername.id_users, 
+            id_user: checkUsername.id_user, 
             username: value.username, 
             role: checkUsername.role,
             status: checkUsername.status,
-            id_peternakan: peternakan ? peternakan.id_peternakan : null
+            nama_peternakan: checkUsername.nama_peternakan
         });
         if (!token) {
             return {
@@ -83,13 +79,12 @@ class _auth{
         try{
             // Validate data
             const schema = joi.object({
-                nama_lengkap: joi.string().required(),
-                username: joi.string().alphanum().min(4).max(30).required(),
+                nama_pengguna: joi.string().alphanum().min(4).max(30).required(),
                 email: joi.string().email().required(),
-                no_hp: joi.string().required(),
+                nomor_telepon: joi.string().required(),
                 alamat: joi.string().required(),
-                password: joi.string().min(8).required(),
-                repeat_password: joi.ref('password')
+                kata_sandi: joi.string().min(8).required(),
+                ulangi_kata_sandi: joi.ref('kata_sandi')
             });
             const {error, value} = schema.validate(data);
             if (error) {
@@ -101,27 +96,26 @@ class _auth{
                 }
             }
             // Check if user exist
-            const checkUser = await db.AuthUser.findOne({where : {username: value.username}});
+            const checkUser = await db.AuthUser.findOne({where : {nama_pengguna: value.nama_pengguna}});
             if (checkUser !== null) {
                 return {
                     code: 400,
-                    error: 'Sorry, username already exist'
+                    error: 'Sorry, nama_pengguna already exist'
                 }
             }
 
             // Hash password
-            value.password = await hashPassword(value.password);
+            value.kata_sandi = await hashPassword(value.kata_sandi);
             
             // Insert data
             const register = await db.AuthUser.create({
-                nama_lengkap: value.nama_lengkap,
-                username: value.username,
+                nama_pengguna: value.nama_pengguna,
                 email: value.email,
-                role: 'manager',
+                role: 'admin',
                 status: 'inactive',
-                no_hp: value.no_hp,
+                nomor_telepon: value.nomor_telepon,
                 alamat: value.alamat,
-                password: value.password
+                kata_sandi: value.kata_sandi
             });
             if (register.affectedRows <= 0) {
                 return {
@@ -154,7 +148,7 @@ class _auth{
     }
 
     logout = async (req, res) => {
-        const update = await db.AuthUser.update({lastAccess: new Date()}, {where: {id_users: req.dataAuth.id_users}});
+        const update = await db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
         if (update <= 0) {
             return {
                 code: 500,
@@ -164,8 +158,8 @@ class _auth{
         return {
             code: 200,
             data: {
-                id_users: req.dataAuth.id_users,
-                username: req.dataAuth.username,
+                id_user: req.dataAuth.id_user,
+                nama_pengguna: req.dataAuth.nama_pengguna,
                 logoutAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
             }
         }
@@ -175,7 +169,7 @@ class _auth{
 
         // Validate data
         const schema = joi.object({
-            password: joi.string().required()
+            kata_sandi: joi.string().required()
         });
         const {error, value} = schema.validate(req.body);
         if (error) {
@@ -188,7 +182,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await db.AuthUser.findOne({where : {id_users: req.dataAuth.id_users}});
+        const checkUser = await db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
         if (checkUser == null) {
             return {
                 code: 404,
@@ -197,7 +191,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(value.password, checkUser.password);
+        const isMatch = await comparePassword(value.kata_sandi, checkUser.kata_sandi);
         if (!isMatch) {
             return {
                 code: 404,
@@ -206,7 +200,7 @@ class _auth{
         }
 
         // Delete data
-        const deletedAccount = await db.AuthUser.destroy({where: {id_users: req.dataAuth.id_users}});
+        const deletedAccount = await db.AuthUser.destroy({where: {id_user: req.dataAuth.id_user}});
         if (deletedAccount <= 0) {
             return {
                 code: 500,
@@ -217,8 +211,8 @@ class _auth{
         return {
             code: 200,
             data: {
-                id_users: req.dataAuth.id_users,
-                username: req.dataAuth.username,
+                id_user: req.dataAuth.id_user,
+                nama_pengguna: req.dataAuth.nama_pengguna,
                 deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
             }
         }
@@ -228,11 +222,11 @@ class _auth{
 
         // Validate data
         const schema = joi.object({
-            nama_lengkap: joi.string().required(),
-            username: joi.string().required(),
+            nama_pengguna: joi.string().required(),
             email: joi.string().required(),
-            no_hp: joi.string().required(),
-            alamat: joi.string().required()
+            nomor_telepon: joi.string().required(),
+            alamat: joi.string().required(),
+            nama_peternakan: joi.string().required(),
         });
         const {error, value} = schema.validate(req.body);
         if (error) {
@@ -246,12 +240,12 @@ class _auth{
 
         // Update data
         const updatedAccount = await db.AuthUser.update({
-            nama_lengkap: value.nama_lengkap,
-            username: value.username,
+            nama_pengguna: value.nama_pengguna,
             email: value.email,
-            no_hp: value.no_hp,
-            alamat: value.alamat
-        }, {where: {id_users: req.dataAuth.id_users}});
+            nomor_telepon: value.nomor_telepon,
+            alamat: value.alamat,
+            nama_peternakan: value.nama_peternakan,
+        }, {where: {id_user: req.dataAuth.id_user}});
         if (updatedAccount <= 0) {
             return {
                 code: 500,
@@ -262,8 +256,8 @@ class _auth{
         return {
             code : 200,
             data : {
-                id_users: req.dataAuth.id_users,
-                username: value.username,
+                id_user: req.dataAuth.id_user,
+                nama_pengguna: value.nama_pengguna,
                 updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
             }
         }
@@ -273,8 +267,9 @@ class _auth{
 
         // Validate Data
         const schema = joi.object({
-            password: joi.string().required(),
-            new_password: joi.string().required()
+            kata_sandi: joi.string().required(),
+            kata_sandi_baru: joi.string().required(),
+            ulangi_kata_sandi_baru: joi.ref('kata_sandi_baru')
         });
         const {error, value} = schema.validate(req.body);
         if (error) {
@@ -287,7 +282,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await db.AuthUser.findOne({where : {id_users: req.dataAuth.id_users}});
+        const checkUser = await db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
         if (checkUser == null) {
             return {
                 code: 404,
@@ -296,7 +291,7 @@ class _auth{
         }
 
         // Compare password
-        const isMatch = await comparePassword(value.password, checkUser.password);
+        const isMatch = await comparePassword(value.kata_sandi, checkUser.kata_sandi);
         if (!isMatch) {
             return {
                 code: 400,
@@ -305,10 +300,10 @@ class _auth{
         }
 
         // Hash password
-        const newPassword = await hashPassword(value.new_password);
+        const newPassword = await hashPassword(value.kata_sandi_baru);
 
         // Update data
-        const updatedPassword = await db.AuthUser.update({password: newPassword}, {where: {id_users: req.dataAuth.id_users}});
+        const updatedPassword = await db.AuthUser.update({kata_sandi: newPassword}, {where: {id_user: req.dataAuth.id_user}});
         if (updatedPassword <= 0) {
             return {
                 code: 500,
@@ -319,8 +314,8 @@ class _auth{
         return {
             code : 200,
             data : {
-                id_users: req.dataAuth.id_users,
-                username: checkUser.username,
+                id_user: req.dataAuth.id_user,
+                nama_pengguna: checkUser.nama_pengguna,
                 updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
             }
         }
@@ -329,22 +324,7 @@ class _auth{
     // Verify token
     verify = async (req) => {
         try{
-            const schema = joi.object({
-                token: joi.string().required()
-            });
-            const {error, value} = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map(detail => detail.message).join(', ');
-                log_error('verify Service', errorDetails);
-                return {
-                    code: 400,
-                    error: errorDetails
-                }
-            }
-
-            const decoded = jwt.verify(value.token, config.jwt.secret)
-
-            const user = await db.AuthUser.findOne({where : {username: decoded.username}});
+            const user = await db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
             if (user == null) {
                 return {
                     code: 404,
@@ -354,14 +334,14 @@ class _auth{
             return {
                 code: 200,
                 data: {
-                    id_users: user.id_users,
-                    username: user.username,
-                    nama_lengkap: user.nama_lengkap,
+                    id_user: user.id_user,
+                    nama_pengguna: user.nama_pengguna,
                     role: user.role,
-                    foto: user.foto,
+                    image: user.image,
                     email: user.email,
-                    no_hp: user.no_hp,
+                    nomor_telepon: user.nomor_telepon,
                     alamat: user.alamat,
+                    nama_peternakan: user.nama_peternakan,
                     time: new Date(),
                     iat: decoded.iat,
                     exp: decoded.exp
@@ -382,15 +362,13 @@ class _auth{
             const decoded = jwt.verify(token, config.jwt.secret)
             
             if(decoded.message == 'verification'){
-                const activateAccount = await db.AuthUser.update({status: 'active'}, {where: {username: decoded.username}});
+                const activateAccount = await db.AuthUser.update({status: 'active'}, {where: {nama_pengguna: decoded.nama_pengguna}});
                 if (activateAccount <= 0) {
                     return {
                         code: 500,
                         error: `Sorry, activate account failed`
                     }
                 }
-            }else if(decoded.message == 'reset'){
-                
             }else{
                 return {
                     code: 400,
@@ -413,13 +391,13 @@ class _auth{
         }
     }
 
-    forgotPassword = async (data) => {
+    forgotPassword = async (req) => {
         try{
             // Validate data
             const schema = joi.object({
                 email: joi.string().email().required(),
             });
-            const {error, value} = schema.validate(data);
+            const {error, value} = schema.validate(req.body);
             if (error) {
                 const errorDetails = error.details.map(detail => detail.message).join(', ');
                 log_error('forgotPassword Service', errorDetails);
@@ -437,7 +415,18 @@ class _auth{
                 }
             }
 
-            const verify = verifyEmailForgotPassword(checkUser);
+            // updatedTempPassword
+            const tempPassword = randomstring.generate(8);
+            const tempPasswordHash = await hashPassword(tempPassword);
+            const updatedTempPassword = await db.AuthUser.update({kata_sandi: tempPasswordHash}, {where: {id_user: checkUser.id_user}});
+            if (updatedTempPassword <= 0) {
+                return{
+                    code: 500,
+                    error: 'Sorry, update temp password failed'
+                }
+            }
+
+            const verify = verifyEmailForgotPassword(checkUser, tempPassword);
             if (verify.error) {
                 return {
                     code: 500,
@@ -460,54 +449,54 @@ class _auth{
         }
     }
 
-    verifyForgotPassword = (req) => {
-        try{
-            const schema = joi.object({
-                token: joi.string().required()
-            });
-            const {error, value} = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map(detail => detail.message).join(', ');
-                log_error('verifyForgotPassword Service', errorDetails);
-                return {
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+    // verifyForgotPassword = (req) => {
+    //     try{
+    //         const schema = joi.object({
+    //             token: joi.string().required()
+    //         });
+    //         const {error, value} = schema.validate(req.body);
+    //         if (error) {
+    //             const errorDetails = error.details.map(detail => detail.message).join(', ');
+    //             log_error('verifyForgotPassword Service', errorDetails);
+    //             return {
+    //                 code: 400,
+    //                 error: errorDetails
+    //             }
+    //         }
 
-            const decoded = jwt.verify(value.token, config.jwt.secret)
+    //         const decoded = jwt.verify(value.token, config.jwt.secret)
 
-            const user = db.AuthUser.findOne({where : {username: decoded.username}});
-            if (user == null) {
-                return {
-                    code: 404,
-                    error: 'Sorry, user not found'
-                }
-            }
-            return {
-                code: 200,
-                data: {
-                    id_users: user.id_users,
-                    username: user.username,
-                    nama_lengkap: user.nama_lengkap,
-                    role: user.role,
-                    foto: user.foto,
-                    email: user.email,
-                    no_hp: user.no_hp,
-                    alamat: user.alamat,
-                    time: new Date(),
-                    iat: decoded.iat,
-                    exp: decoded.exp
-                }
-            };
-        }catch (error){
-            log_error('verifyForgotPassword Service', error);
-            return {
-                code: 500,
-                error
-            }
-        }
-    }
+    //         const user = db.AuthUser.findOne({where : {username: decoded.username}});
+    //         if (user == null) {
+    //             return {
+    //                 code: 404,
+    //                 error: 'Sorry, user not found'
+    //             }
+    //         }
+    //         return {
+    //             code: 200,
+    //             data: {
+    //                 id_users: user.id_users,
+    //                 username: user.username,
+    //                 nama_lengkap: user.nama_lengkap,
+    //                 role: user.role,
+    //                 foto: user.foto,
+    //                 email: user.email,
+    //                 no_hp: user.no_hp,
+    //                 alamat: user.alamat,
+    //                 time: new Date(),
+    //                 iat: decoded.iat,
+    //                 exp: decoded.exp
+    //             }
+    //         };
+    //     }catch (error){
+    //         log_error('verifyForgotPassword Service', error);
+    //         return {
+    //             code: 500,
+    //             error
+    //         }
+    //     }
+    // }
 
     
 }

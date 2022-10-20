@@ -6,31 +6,23 @@ const { log_info, log_error, log_success } = require('./logging');
 const verifyNewAccount = async (dataAuth) => {
     const token = jwt.sign(
         {
-            id_users: dataAuth.id_users,
-            username: dataAuth.username,
+            id_user: dataAuth.id_user,
+            nama_pengguna: dataAuth.nama_pengguna,
             message: 'verification'
         }, config.jwt.secret, {expiresIn: '1h'});
 
     const link = `${config.url}/api/auth/verify-account?token=${token}`;
-    message = `<h1>Hi ${dataAuth.nama_lengkap}</h1>
+    message = `<h1>Hi ${dataAuth.nama_pengguna}</h1>
                 <p>Click this link to verify your email</p>
                 <a href="${link}">${link}</a>`
     
     return emailVerify(dataAuth.email, message);
 }
 
-const verifyEmailForgotPassword = async (dataAuth) => {
-    const token = jwt.sign(
-        {
-            id_users: dataAuth.id_users,
-            username: dataAuth.username,
-            message: 'reset'
-        }, config.jwt.secret, {expiresIn: '1h'});
-
-    const link = `${config.url}/api/auth/verify-account?token=${token}`;
-    message = `<h1>Hi ${dataAuth.nama_lengkap}</h1>
-                <p>Click this link to verify your email</p>
-                <a href="${link}">${link}</a>`
+const verifyEmailForgotPassword = async (dataAuth, newPass) => {
+    message = `<h1>Hi ${dataAuth.nama_pengguna}</h1>
+                <p>Your new password is : <strong>${newPass}<strong></p>
+                <p>Please change your password after login</p>`
     
     return emailVerify(dataAuth.email, message);
 }

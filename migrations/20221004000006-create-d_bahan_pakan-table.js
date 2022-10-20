@@ -3,30 +3,30 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_detail_bahan_pakan', { 
-      id_detail_bahan_pakan:{
+    await queryInterface.createTable('d_bahan_pakan', { 
+      id_bahan_pakan:{
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
       },
-      id_bahan_pakan:{
+      id_user:{
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'd_bahan_pakan',
-          key: 'id_bahan_pakan'
-        }
-      },
-      id_peternakan:{
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'd_peternakan',
-          key: 'id_peternakan'
+          model: 'auth_users',
+          key: 'id_user'
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      },
+      id_jenis_bahan_pakan:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'd_jenis_bahan_pakan',
+          key: 'id_jenis_bahan_pakan'
+        }
       },
       tanggal: {
         type: Sequelize.DATE,
@@ -39,11 +39,6 @@ module.exports = {
           'Masuk',
           'Keluar'
         ],
-        allowNull: false
-      },
-      stok:{
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
         allowNull: false
       },
       createdAt: {
@@ -60,6 +55,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_detail_bahan_pakan');
+    await queryInterface.dropTable('d_bahan_pakan');
   }
 };

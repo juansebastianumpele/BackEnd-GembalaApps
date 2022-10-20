@@ -1,9 +1,13 @@
 module.exports = (Sequelize, DataTypes) => {
-    const Pakan = Sequelize.define("Pakan", {
-        id_pakan: {
+    const JenisPakan = Sequelize.define("JenisPakan", {
+        id_jenis_pakan: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
+            allowNull: false
+        },
+        id_user:{
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         nama_pakan: {
@@ -33,14 +37,22 @@ module.exports = (Sequelize, DataTypes) => {
             allowNull: false
         }
     }, {
-        tableName: "d_pakan",
+        tableName: "d_jenis_pakan",
     });
 
-    Pakan.associate = function (models) {
-        Pakan.hasMany(models.Ternak, {
-            foreignKey: 'id_pakan',
+    JenisPakan.associate = function (models) {
+        JenisPakan.hasMany(models.Ternak, {
+            foreignKey: 'id_jenis_pakan',
             as: 'ternak'
         });
+        JenisPakan.hasMany(models.Kandang, {
+            foreignKey: 'id_jenis_pakan',
+            as: 'kandang'
+        });
+        JenisPakan.belongsTo(models.AuthUser, {
+            foreignKey: 'id_user',
+            as: 'user'
+        });
     }
-    return Pakan;
+    return JenisPakan;
 }

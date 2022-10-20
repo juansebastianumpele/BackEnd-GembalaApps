@@ -16,7 +16,9 @@ module.exports = {
         references: {
           model: 's_ternak',
           key: 'id_ternak'
-        }
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       id_penyakit:{
         type: Sequelize.INTEGER,

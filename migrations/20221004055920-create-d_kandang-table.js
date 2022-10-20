@@ -3,59 +3,53 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_bahan_pakan', { 
-      id_bahan_pakan:{
+    await queryInterface.createTable('d_kandang', { 
+      id_kandang:{
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
       },
-      id_peternakan:{
+      id_user:{
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'd_peternakan',
-          key: 'id_peternakan'
+          model: 'auth_users',
+          key: 'id_user'
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
-      nama_bahan_pakan:{
+      kode_kandang:{
         type: Sequelize.STRING,
         allowNull: false
       },
-      jenis_bahan_pakan:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      stok:{
+      id_jenis_pakan:{
         type: Sequelize.INTEGER,
-        defaultValue: 0,
-        allowNull: false
+        allowNull: false,
+        references: {
+          model: 'd_jenis_pakan',
+          key: 'id_jenis_pakan'
+        }
       },
-      satuan:{
-        type: Sequelize.ENUM,
-        values: [
-          'Kg',
-          'Pcs'
-        ],
-        defaultValue: 'Kg',
+      kebutuhan_pakan:{
+        type: Sequelize.INTEGER,
         allowNull: false
       },
       createdAt: {
-        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
-        type: Sequelize.DATE,
         allowNull: false,
+        type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-      },
+      }
     });
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_bahan_pakan');
+    await queryInterface.dropTable('d_kandang');
   }
 };

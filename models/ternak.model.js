@@ -1,10 +1,4 @@
 module.exports = (Sequelize, DataTypes) => {
-    // const Varietas = require('./varietas.model')(Sequelize, DataTypes);
-    // const Penyakit = require('./penyakit.model')(Sequelize, DataTypes);
-    // const Pakan = require('./pakan.model')(Sequelize, DataTypes);
-    // const Fase = require('./fase.model')(Sequelize, DataTypes);
-    // const Kandang = require('./kandang.model')(Sequelize, DataTypes);
-
     const Ternak = Sequelize.define("Ternak", {
         id_ternak:{
             type: DataTypes.INTEGER,
@@ -16,7 +10,11 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
           },
-          foto:{
+          id_user:{
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
+          image:{
             type: DataTypes.STRING,
             allowNull: true
           },
@@ -24,7 +22,7 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true
           },
-          id_varietas:{
+          id_bangsa:{
             type: DataTypes.INTEGER,
             allowNull: true,
           },
@@ -32,49 +30,21 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true,
           },
-          id_pakan:{
-            type: DataTypes.INTEGER,
-            allowNull: true,
-          },
           id_fp:{
             type: DataTypes.INTEGER,
             allowNull: true,
           },
-          id_induk:{
+          id_dam:{
             type: DataTypes.INTEGER,
             allowNull: true,
-            // references: {
-            //   model: 'd_ternak',
-            //   key: 'id_ternak'
-            // }
           },
-          id_pejantan:{
+          id_sire:{
             type: DataTypes.INTEGER,
             allowNull: true,
-            // references: {
-            //   model: 'd_ternak',
-            //   key: 'id_ternak'
-            // }
-          },
-          berat:{
-            type: DataTypes.INTEGER,
-            allowNull: true
-          },
-          suhu:{
-            type: DataTypes.INTEGER,
-            allowNull: true
-          },
-          status_kesehatan:{
-            type: DataTypes.STRING,
-            allowNull: true
           },
           tanggal_lahir:{
             type: DataTypes.DATE,
             allowNull: true
-          },
-          id_penyakit:{
-            type: DataTypes.INTEGER,
-            allowNull: true,
           },
           tanggal_masuk:{
             type: DataTypes.DATE,
@@ -101,25 +71,17 @@ module.exports = (Sequelize, DataTypes) => {
     });
     
     Ternak.associate = function (models) {
-      Ternak.belongsTo(models.Varietas, {
-          foreignKey: 'id_varietas',
-          as: 'varietas'
+      Ternak.belongsTo(models.Bangsa, {
+          foreignKey: 'id_bangsa',
+          as: 'bangsa'
       });
       Ternak.belongsTo(models.Kandang, {
           foreignKey: 'id_kandang',
           as: 'kandang'
       });
-      Ternak.belongsTo(models.Pakan, {
-          foreignKey: 'id_pakan',
-          as: 'pakan'
-      });
       Ternak.belongsTo(models.Fase, {
           foreignKey: 'id_fp',
           as: 'fase'
-      });
-      Ternak.belongsTo(models.Penyakit, {
-          foreignKey: 'id_penyakit',
-          as: 'penyakit'
       });
       Ternak.belongsTo(models.Ternak, {
           foreignKey: 'id_induk',

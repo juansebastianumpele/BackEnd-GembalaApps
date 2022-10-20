@@ -87,14 +87,14 @@ AuthController.post('/verify', authentication, async (req, res, next) => {
     response.sendResponse(res, verify);
 });
 
-// /**
-//  * Forgot Password
-//  * @param {string} email
-//  */
-// AuthController.post('/forgot-password', async (req, res, next) => {
-//     const forgotPassword = await s$auth.forgotPassword(req);
-//     response.sendResponse(res, forgotPassword);
-// });
+/**
+ * Forgot Password
+ * @param {string} email
+ */
+AuthController.post('/forgot-password', async (req, res, next) => {
+    const forgotPassword = await s$auth.forgotPassword(req);
+    response.sendResponse(res, forgotPassword);
+});
 
 /**
  * Activate Account

@@ -9,7 +9,8 @@
     "set": "npm install && npm run migrate",
     "setdev": "npm install && npm run migrate && npm run dev",
     "migrate": "npx sequelize db:migrate && npx sequelize db:seed:all",
-    "drop": "npx sequelize db:migrate:undo:all"
+    "drop": "npx sequelize db:migrate:undo:all",
+    "resetdb": "npm run drop && npm run migrate"
   },
   "author": "Sembada Farm",
   "license": "ISC",
@@ -26,6 +27,7 @@
     "mariadb": "^3.0.1",
     "nodemailer": "^6.8.0",
     "nodemon": "^2.0.20",
+    "randomstring": "^1.2.2",
     "sequelize": "^6.23.2"
   },
   "devDependencies": {

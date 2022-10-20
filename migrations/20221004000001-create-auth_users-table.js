@@ -4,21 +4,17 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('auth_users', {
-      id_users:{
+      id_user:{
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
       },
-      foto:{
+      image:{
         type: Sequelize.STRING,
         allowNull: true
       },
-      nama_lengkap:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      username:{
+      nama_pengguna:{
         type: Sequelize.STRING,
         allowNull: false,
         unique: true
@@ -28,7 +24,7 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      no_hp:{
+      nomor_telepon:{
         type: Sequelize.STRING,
         allowNull: false,
         unique: true
@@ -37,7 +33,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      password:{
+      kata_sandi:{
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -52,6 +48,10 @@ module.exports = {
         values: ['active', 'inactive'],
         defaultValue: 'inactive',
         allowNull: false
+      },
+      nama_peternakan:{
+        type: Sequelize.STRING,
+        allowNull: true
       },
       lastAccess:{
         type: Sequelize.DATE,

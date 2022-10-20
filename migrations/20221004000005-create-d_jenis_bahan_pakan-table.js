@@ -3,45 +3,43 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_peternakan', {
-      id_peternakan:{
+    await queryInterface.createTable('d_bahan_pakan', { 
+      id_jenis_bahan_pakan:{
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
       },
-      nama_peternakan:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      alamat:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      id_users:{
+      id_user:{
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'auth_users',
-          key: 'id_users'
+          key: 'id_user'
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
       },
-      createdAt:{
+      jenis_bahan_pakan:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      stok:{
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      createdAt: {
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        allowNull: false
       },
-      updatedAt:{
+      updatedAt: {
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-        allowNull: false
-      }
+      },
     });
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_peternakan');
+    await queryInterface.dropTable('d_bahan_pakan');
   }
 };

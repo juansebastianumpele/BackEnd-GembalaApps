@@ -3,50 +3,61 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_kandang', { 
-      id_kandang:{
+    await queryInterface.createTable('d_jenis_pakan', { 
+      id_jenis_pakan:{
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
       },
-      id_peternakan:{
+      id_user:{
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'd_peternakan',
-          key: 'id_peternakan'
+          model: 'auth_users',
+          key: 'id_user'
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
-      kode_kandang:{
+      nama_jenis_pakan:{
         type: Sequelize.STRING,
         allowNull: false
       },
-      jenis_kandang:{
-        type: Sequelize.STRING,
+      interval_pakan:{
+        type: Sequelize.INTEGER,
         allowNull: false
       },
-      status: {
+      satuan:{
         type: Sequelize.ENUM,
-        values: ['koloni', 'usg1', 'usg2', 'bunting'],
+        values: [
+          'Tong',
+          'Ball'
+        ],
+        allowNull: false
+      },
+      komposisi:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      nutrien:{
+        type: Sequelize.STRING,
         allowNull: false
       },
       createdAt: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-      }
+      },
     });
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_kandang');
+    await queryInterface.dropTable('d_jenis_pakan');
   }
 };
