@@ -14,12 +14,21 @@ const authentication = async (req, res, next) => {
         // Set token from Bearer token in header
         token = req.headers.authorization.split(' ')[1]
 
+        // Check token
+        // global.blacklistedToken.filter((tokenBlacklisted) => {
+        //     if(tokenBlacklisted == token){
+        //         response.sendResponse(res, {code: 401, error: 'Unauthorized'})
+        //         return
+        //     }
+        // })
+
+        console.log(global.blacklistedToken);
+
         // Verify token
         const decoded = jwt.verify(token, config.jwt.secret)
 
         // Set user from decoded token
         const user = await db.AuthUser.findOne({where : {id_user: decoded.id_user}});
-        console.log(user);
         if (user == null) {
           response.sendResponse(res, {code: 401, error: 'Invalid token'})
           return

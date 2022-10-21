@@ -26,7 +26,9 @@ module.exports = {
         references: {
           model: 'd_jenis_pakan',
           key: 'id_jenis_pakan'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       status: {
         type: Sequelize.ENUM,

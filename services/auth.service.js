@@ -149,6 +149,8 @@ class _auth{
     }
 
     logout = async (req, res) => {
+        // const token = req.headers.authorization.split(' ')[1]
+        // global.blacklistedToken.push(token);
         const update = await db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
         if (update <= 0) {
             return {

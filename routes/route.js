@@ -1,4 +1,4 @@
-const userController = require("../controllers/user.controller");
+const UserController = require("../controllers/user.controller");
 const AuthController = require("../controllers/auth.controller");
 const KandangController = require("../controllers/kandang.controller");
 const PakanController = require("../controllers/pakan.controller");
@@ -11,12 +11,11 @@ const TernakController = require("../controllers/ternak.controller");
 const RiwayatKesehatanController = require("../controllers/riwayat_kesehatan.controller");
 const RfidController = require("../controllers/rfid.controller");
 const DashboardController = require("../controllers/dashboard.controller");
-const Authentication = require("../middlewares/authentication");
 
 // Define url API in here
 const _routes = [
     ['/auth', AuthController],
-    // ['/users', userController],
+    ['/users', UserController],
     ['/kandang', KandangController],
     ['/pakan', PakanController],
     ['/fase', FaseController],

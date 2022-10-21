@@ -43,7 +43,9 @@ module.exports = {
         references: {
           model: 'd_bangsa',
           key: 'id_bangsa'
-        }
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
       },
       id_kandang:{
         type: Sequelize.INTEGER,
@@ -51,7 +53,9 @@ module.exports = {
         references: {
           model: 'd_kandang',
           key: 'id_kandang'
-        }
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
       },
       id_fp:{
         type: Sequelize.INTEGER,
@@ -59,7 +63,9 @@ module.exports = {
         references: {
           model: 'd_fase_pemeliharaan',
           key: 'id_fp'
-        }
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
       },
       id_dam:{
         type: Sequelize.INTEGER,

@@ -26,7 +26,9 @@ module.exports = {
         references: {
           model: 'd_jenis_bahan_pakan',
           key: 'id_jenis_bahan_pakan'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       tanggal: {
         type: Sequelize.DATE,

@@ -42,17 +42,14 @@ class _response {
                     error : data.error ? data.error : null,
                 })
             }
-               
-
-
-            return true
+            return
         }catch (error){
             log_error('Response Utils', error)
             res.status(500).send({
                 status: false,
                 error
             })
-            return false
+            return
         }
     }
 
@@ -70,6 +67,8 @@ class _response {
             status: false,
             error: err.message
         });
+
+        return false
     }
 }
 

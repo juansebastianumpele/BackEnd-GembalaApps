@@ -16,7 +16,9 @@ module.exports = {
         references: {
           model: 's_ternak',
           key: 'id_ternak'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       rf_id:{
         type: Sequelize.STRING,

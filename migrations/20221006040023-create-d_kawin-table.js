@@ -16,7 +16,9 @@ module.exports = {
         references: {
           model: 's_ternak',
           key: 'id_ternak'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       id_pemacek:{
         type: Sequelize.INTEGER,
@@ -24,7 +26,9 @@ module.exports = {
         references: {
           model: 's_ternak',
           key: 'id_ternak'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       tanggal_kawin:{
         type: Sequelize.DATE,
@@ -32,11 +36,13 @@ module.exports = {
       },
       id_kandang:{
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'd_kandang',
           key: 'id_kandang'
-        }
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
       createdAt: {
         type: Sequelize.DATE,

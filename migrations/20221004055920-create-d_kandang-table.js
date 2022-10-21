@@ -30,11 +30,13 @@ module.exports = {
       },
       id_jenis_pakan:{
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'd_jenis_pakan',
           key: 'id_jenis_pakan'
-        }
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
       },
       kebutuhan_pakan:{
         type: Sequelize.INTEGER,

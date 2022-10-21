@@ -17,6 +17,8 @@ module.exports = {
           model: 'auth_users',
           key: 'id_user'
         },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       jenis_bahan_pakan:{
         type: Sequelize.STRING,

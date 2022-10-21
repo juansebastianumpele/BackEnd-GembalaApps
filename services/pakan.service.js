@@ -38,12 +38,11 @@ class _pakan{
     }
 
     // Create new Pakan
-    createPakan = async (req) => {
+    createJenisBahanPakan = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                nama_pakan: joi.string().required(),
-                jenis_pakan: joi.string().required(),
+                nama_bahan_pakan: joi.string().required(),
                 komposisi: joi.string().required(),
                 stok: joi.number().required(),
                 satuan: joi.string().required(),

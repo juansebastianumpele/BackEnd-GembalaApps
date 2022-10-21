@@ -32,6 +32,9 @@ app.use((req, res, next) => {
 // Routing
 route(app);
 
+// Auth Token blacklisted
+// global.blacklistedToken = [];
+
 app.listen(port, () => {
     log_info('app',`Server running on port ${port}`);
     }
