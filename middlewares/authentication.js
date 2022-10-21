@@ -36,7 +36,9 @@ const authentication = async (req, res, next) => {
           id_user: decoded.id_user,
           nama_pengguna: decoded.nama_pengguna,
           role: decoded.role,
-          status: decoded.status
+          status: decoded.status,
+          iat: decoded.iat,
+          exp: decoded.exp
         }
         
         next()

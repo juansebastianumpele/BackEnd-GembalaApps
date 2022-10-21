@@ -8,19 +8,18 @@ class _ternak{
     // Get Data Ternak
     getTernak = async (req) => {
         try{
-            // Add id_peternakan to params
-            req.query.id_peternakan = req.dataAuth.id_peternakan
+            // Add id_user to params
+            req.query.id_user = req.dataAuth.id_user
             // Query data
             const list = await db.Ternak.findAll({
                 attributes : ['id_ternak', 
                 'rf_id', 
-                'foto', 
+                'image', 
                 'jenis_kelamin', 
-                'id_induk', 
-                'id_pejantan', 
+                'id_dam', 
+                'id_sire', 
                 'berat', 
                 'suhu', 
-                'status_kesehatan',
                 'tanggal_lahir',
                 [db.sequelize.fn('datediff', sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
@@ -30,35 +29,33 @@ class _ternak{
                 'updatedAt'],
                 include: [
                     {
-                        model: db.Varietas,
-                        as: 'varietas',
-                        attributes: ['id_varietas', 'varietas']
+                        model: db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa']
                     },
                     {
                         model: db.Kandang,
                         as: 'kandang',
-                        attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang']
+                        attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan']
                     },
                     {
-                        model: db.Penyakit,
-                        as: 'penyakit',
-                        attributes: ['id_penyakit', 'nama_penyakit']
+                        model: db.RiwayatKesehatan,
+                        as: 'riwayat_kesehatan',
+                        attributes: ['id_riwayat_kesehatan', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
                     },
                     {
                         model: db.Fase,
                         as: 'fase',
                         attributes: ['id_fp', 'fase']
                     },
-                    {
-                        model: db.Pakan,
-                        as: 'pakan',
-                        attributes: ['id_pakan', 'nama_pakan']
-                    }
                 ],
                 where : req.query
             });
 
             for(let i = 0; i < list.length; i++){
+                list[i].dataValues.penyakit = list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null)
+                list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit ? 'Sakit' : "Sehat";
+                list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * 0.05).toFixed(2);
             }
 

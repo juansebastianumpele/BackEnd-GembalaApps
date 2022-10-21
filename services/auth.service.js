@@ -54,10 +54,9 @@ class _auth{
         // Generate token
         const token = generateToken({ 
             id_user: checkUsername.id_user, 
-            username: value.username, 
+            nama_pengguna: value.nama_pengguna, 
             role: checkUsername.role,
             status: checkUsername.status,
-            nama_peternakan: checkUsername.nama_peternakan
         });
         if (!token) {
             return {
@@ -345,8 +344,8 @@ class _auth{
                     alamat: user.alamat,
                     nama_peternakan: user.nama_peternakan,
                     time: new Date(),
-                    iat: decoded.iat,
-                    exp: decoded.exp
+                    iat: req.dataAuth.iat,
+                    exp: req.dataAuth.exp
                 }
             };
         }catch (error){

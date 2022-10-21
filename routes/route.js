@@ -4,7 +4,7 @@ const KandangController = require("../controllers/kandang.controller");
 const PakanController = require("../controllers/pakan.controller");
 const FaseController = require("../controllers/fase.controller");
 const PenyakitController = require("../controllers/penyakit.controller");
-const VarietasController = require("../controllers/bangsa.controller");
+const BangsaController = require("../controllers/bangsa.controller");
 const KawinController = require("../controllers/kawin.controller");
 const TimbanganController = require("../controllers/timbangan.controller");
 const TernakController = require("../controllers/ternak.controller");
@@ -21,7 +21,7 @@ const _routes = [
     ['/pakan', PakanController],
     ['/fase', FaseController],
     ['/penyakit', PenyakitController],
-    ['/varietas', VarietasController],
+    ['/bangsa', BangsaController],
     ['/kawin', KawinController],
     ['/timbangan', TimbanganController],
     ['/ternak', TernakController],

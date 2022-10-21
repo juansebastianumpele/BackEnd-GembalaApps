@@ -92,12 +92,20 @@ module.exports = (Sequelize, DataTypes) => {
           as: 'fase'
       });
       Ternak.belongsTo(models.Ternak, {
-          foreignKey: 'id_induk',
-          as: 'induk'
+          foreignKey: 'id_dam',
+          as: 'dam'
       });
       Ternak.belongsTo(models.Ternak, {
-          foreignKey: 'id_pejantan',
-          as: 'pejantan'
+          foreignKey: 'id_sire',
+          as: 'sire'
+      });
+      Ternak.hasMany(models.Timbangan, {
+          foreignKey: 'id_ternak',
+          as: 'timbangan'
+      });
+      Ternak.hasMany(models.RiwayatKesehatan, {
+          foreignKey: 'id_ternak',
+          as: 'riwayat_kesehatan'
       });
     };
     return Ternak;
