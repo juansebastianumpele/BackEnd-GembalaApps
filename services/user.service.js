@@ -32,34 +32,6 @@ class _user{
             }
         }
     }
-
-    getProfile = async (req) => {
-        try{
-            // Query Data
-            const list = await db.AuthUser.findOne({ 
-                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'alamat', 'nama_peternakan', 'role', 'status',  'createdAt', 'updatedAt'],
-                where : {
-                    id_user: req.dataAuth.id_user
-                }
-             });
-            if(list == null){
-                return{
-                    code: 404,
-                    error: 'Data users not found'
-                }
-            }
-            return {
-                code: 200,
-                data: list
-            };
-        }catch (error){
-            log_error('getProfile Service', error);
-            return {
-                code: 500,
-                error
-            }
-        }
-    }
 }
 
 module.exports = new _user();

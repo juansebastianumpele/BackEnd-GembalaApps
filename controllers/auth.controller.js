@@ -44,6 +44,14 @@ AuthController.post('/logout', authentication, async (req, res, next) => {
 });
 
 /**
+ * Get Profile
+ */
+ AuthController.get('/profile', authentication, async (req, res, next) => {
+    const detail = await s$auth.getProfile(req);
+    response.sendResponse(res, detail);
+});
+
+/**
  * Delete Account
  * @param {string} password
  */
