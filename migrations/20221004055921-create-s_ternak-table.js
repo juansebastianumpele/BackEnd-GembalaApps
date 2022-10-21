@@ -69,6 +69,14 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      berat: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
+      suhu: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       tanggal_lahir:{
         type: Sequelize.DATE,
         allowNull: true

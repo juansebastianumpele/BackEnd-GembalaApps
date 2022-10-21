@@ -6,18 +6,18 @@ const {log_error} = require('../utils/logging');
 
 class _pakan{
     // get data pakan
-    getPakan = async (req) => {
+    getJenisBahanPakan = async (req) => {
         try{
-            // Add id_peternakan to params
-            req.query.id_peternakan = req.dataAuth.id_peternakan
+            // Add id_user to params
+            req.query.id_user = req.dataAuth.id_user
             // Query data
-            const list = await db.Pakan.findAll({
+            const list = await db.JenisBahanPakan.findAll({
                 where : req.query
             });
             if(list.length <= 0){
                 return{
                     code: 404,
-                    error: 'Data pakan not found'
+                    error: 'Data jenis bahan pakan not found'
                 }
             }
     
@@ -29,7 +29,7 @@ class _pakan{
                 },
             };
         }catch (error){
-            log_error('getPakan Service', error);
+            log_error('getJenisBahanPakan Service', error);
             return {
                 code : 500,
                 error

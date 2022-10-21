@@ -2,7 +2,7 @@ const joi = require('joi');
 const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
 const db = require('../models');
-const config = require('../config/app.config.json');
+const config = require('../config/app.config');
 const jwt = require('jsonwebtoken');
 const {log_error, log_success, log_info} = require('../utils/logging');
 const {verifyNewAccount, verifyEmailForgotPassword} = require('../utils/email_verify');
@@ -83,6 +83,7 @@ class _auth{
                 email: joi.string().email().required(),
                 nomor_telepon: joi.string().required(),
                 alamat: joi.string().required(),
+                nama_peternakan: joi.string().required(),
                 kata_sandi: joi.string().min(8).required(),
                 ulangi_kata_sandi: joi.ref('kata_sandi')
             });
@@ -113,6 +114,7 @@ class _auth{
                 email: value.email,
                 role: 'admin',
                 status: 'inactive',
+                nama_peternakan: value.nama_peternakan,
                 nomor_telepon: value.nomor_telepon,
                 alamat: value.alamat,
                 kata_sandi: value.kata_sandi

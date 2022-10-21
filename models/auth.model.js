@@ -1,6 +1,6 @@
 module.exports = (Sequelize, DataTypes) => {
     const AuthUser = Sequelize.define("AuthUser", {
-        id_users:{
+        id_user:{
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
@@ -10,7 +10,7 @@ module.exports = (Sequelize, DataTypes) => {
           type: DataTypes.STRING,
           allowNull: true
         },
-        username:{
+        nama_pengguna:{
           type: DataTypes.STRING,
           allowNull: false
         },
@@ -19,7 +19,7 @@ module.exports = (Sequelize, DataTypes) => {
           allowNull: false,
           unique: true
         },
-        phone:{
+        nomor_telepon:{
           type: DataTypes.STRING,
           allowNull: false
         },
@@ -27,7 +27,7 @@ module.exports = (Sequelize, DataTypes) => {
           type: DataTypes.STRING,
           allowNull: false
         },
-        password:{
+        kata_sandi:{
           type: DataTypes.STRING,
           allowNull: false
         },

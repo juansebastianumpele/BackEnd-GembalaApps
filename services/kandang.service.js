@@ -8,10 +8,10 @@ class _kandang{
     getKandang = async (req) => {
         try{
             // Add id_peternakan to params
-            req.query.id_peternakan = req.dataAuth.id_peternakan
+            req.query.id_user = req.dataAuth.id_user
             // Query data
             const list = await db.Kandang.findAll({
-                attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'createdAt', 'updatedAt', 'status'],
+                attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'kebutuhan_pakan', 'createdAt', 'updatedAt'],
                 include: [
                     {
                         model: db.Ternak,
@@ -22,6 +22,14 @@ class _kandang{
                             'berat'
                         ],
                     },
+                    {
+                        model: db.JenisPakan,
+                        as: 'jenispakan',
+                        attributes: [
+                            'id_jenis_pakan',
+                            'nama_jenis_pakan'
+                        ]
+                    }
                 ],
                 where : req.query
             });
@@ -37,7 +45,7 @@ class _kandang{
                 const berat_rata = berat_total / list[i].dataValues.ternak.length;
                 list[i].dataValues.berat_rata = (!berat_rata) ? 0 : berat_rata;
                 list[i].dataValues.berat_total = berat_total;
-                list[i].dataValues.kebutuhan_pakan = berat_total * 0.05;
+                list[i].dataValues.kebutuhan_pakan = berat_total * (list[i].dataValues.kebutuhan_pakan/100);
                 delete list[i].dataValues.ternak;
             }
             return {
@@ -63,6 +71,8 @@ class _kandang{
             const schema = joi.object({
                 kode_kandang: joi.string().required(),
                 jenis_kandang: joi.string().required(),
+                id_jenis_pakan: joi.number().required(),
+                kebutuhan_pakan: joi.number().required()
             });
 
             const {error, value} = schema.validate(req.body);
@@ -75,10 +85,11 @@ class _kandang{
             }
 
             const add = await db.Kandang.create({
-                id_peternakan: req.dataAuth.id_peternakan,
+                id_user: req.dataAuth.id_user,
                 kode_kandang: value.kode_kandang,
                 jenis_kandang: value.jenis_kandang,
-                status: 'koloni'
+                id_jenis_pakan: value.id_jenis_pakan,
+                kebutuhan_pakan: value.kebutuhan_pakan
             });
             if(add == null){
                 return{
@@ -114,7 +125,8 @@ class _kandang{
                 id_kandang: joi.number().required(),
                 kode_kandang: joi.string().required(),
                 jenis_kandang: joi.string().required(),
-                status: joi.string().required(),
+                id_jenis_pakan: joi.number().required(),
+                kebutuhan_pakan: joi.number().required()
             });
 
             const {error, value} = schema.validate(req.body);
@@ -130,11 +142,12 @@ class _kandang{
             const update = await db.Kandang.update({
                 kode_kandang: value.kode_kandang,
                 jenis_kandang: value.jenis_kandang,
-                status: value.status
+                id_jenis_pakan: value.id_jenis_pakan,
+                kebutuhan_pakan: value.kebutuhan_pakan
             }, {
                 where: {
                     id_kandang: value.id_kandang,
-                    id_peternakan: req.dataAuth.id_peternakan
+                    id_user: req.dataAuth.id_user
                 }
             });
             if(update <= 0){
@@ -180,7 +193,7 @@ class _kandang{
             const del = await db.Kandang.destroy({
                 where: {
                     id_kandang: value.id_kandang,
-                    id_peternakan: req.dataAuth.id_peternakan
+                    id_user: req.dataAuth.id_user
                 }
             });
             if(del <= 0){

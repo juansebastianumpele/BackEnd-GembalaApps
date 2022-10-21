@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
-const config = require('../config/app.config.json');
+const config = require('../config/app.config');
 const jwt = require('jsonwebtoken');
-const { log_info, log_error, log_success } = require('./logging');
+const {log_error, log_success } = require('./logging');
 
 const verifyNewAccount = async (dataAuth) => {
     const token = jwt.sign(
@@ -12,22 +12,32 @@ const verifyNewAccount = async (dataAuth) => {
         }, config.jwt.secret, {expiresIn: '1h'});
 
     const link = `${config.url}/api/auth/verify-account?token=${token}`;
-    message = `<h1>Hi ${dataAuth.nama_pengguna}</h1>
-                <p>Click this link to verify your email</p>
-                <a href="${link}">${link}</a>`
+    message = `<h1>VERIFY ACCOUNT GEMBALA</h1>
+                <h2>Hi ${dataAuth.nama_pengguna}</h2>
+                <p>We just need to verify your email address before you can access <strong>GembalaApp</strong>.<br>
+                Verify your email address :</p>
+                <a href="${link}">${link}</a>
+                <br>
+                <br>
+                <h4>Thanks! – SembadaFarm team</h4>
+                `
     
-    return emailVerify(dataAuth.email, message);
+    return emailVerify(dataAuth.email, 'Verify Account', message);
 }
 
 const verifyEmailForgotPassword = async (dataAuth, newPass) => {
-    message = `<h1>Hi ${dataAuth.nama_pengguna}</h1>
-                <p>Your new password is : <strong>${newPass}<strong></p>
-                <p>Please change your password after login</p>`
+    message = `<h1>FORGOT PASSWORD GEMBALA</h1>
+                <h2>Hi ${dataAuth.nama_pengguna}</h2>
+                <p>Your new password is : <strong>${newPass}<strong><br>
+                Please change your password after login</p>
+                <br>
+                <br>
+                <h4>Thanks! – SembadaFarm team</h4>`
     
-    return emailVerify(dataAuth.email, message);
+    return emailVerify(dataAuth.email, 'Forgot Password', message);
 }
 
-const emailVerify = async (email, message) => {
+const emailVerify = async (email, subject, message) => {
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -39,7 +49,7 @@ const emailVerify = async (email, message) => {
     var mailOptions = {
         from: config.auth.email,
         to: email,
-        subject: 'Email Verification',
+        subject: subject,
         html: message
     };
 

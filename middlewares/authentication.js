@@ -18,7 +18,7 @@ const authentication = async (req, res, next) => {
         const decoded = jwt.verify(token, config.jwt.secret)
 
         // Set user from decoded token
-        const user = await db.AuthUser.findOne({where : {username: decoded.username}});
+        const user = await db.AuthUser.findOne({where : {id_user: decoded.id_user}});
         console.log(user);
         if (user == null) {
           response.sendResponse(res, {code: 401, error: 'Invalid token'})
@@ -33,11 +33,10 @@ const authentication = async (req, res, next) => {
 
         // Set user to request
         req.dataAuth = {
-          id_users: decoded.id_users,
-          username: decoded.username,
+          id_user: decoded.id_user,
+          nama_pengguna: decoded.nama_pengguna,
           role: decoded.role,
-          status: decoded.status,
-          id_peternakan: decoded.id_peternakan
+          status: decoded.status
         }
         
         next()

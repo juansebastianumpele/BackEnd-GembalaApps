@@ -4,16 +4,16 @@ const date = require('date-and-time');
 const db = require('../models');
 const {log_error} = require('../utils/logging');
 
-class _varietas{
+class _bangsa{
     // Get data varietas
-    getVarietas = async (req) => {
+    getBangsa = async (req) => {
         try{
             // Query data
-            const list = await db.Varietas.findAll({ where : req.query });
+            const list = await db.Bangsa.findAll({ where : req.query });
             if(list.length <= 0){
                 return{
                     code: 404,
-                    error: 'Data varietas not found'
+                    error: 'Data bangsa not found'
                 }
             }
             return {
@@ -32,12 +32,12 @@ class _varietas{
         }
     }
 
-    // Create new Varietas
-    createVarietas = async (req) => {
+    // Create new Bangsa
+    createBangsa = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                varietas: joi.string().required()
+                bangsa: joi.string().required()
             });
 
             const { error, value } = schema.validate(req.body);
@@ -50,8 +50,8 @@ class _varietas{
             }
 
             // Query data
-            const add = await db.Varietas.create({
-                varietas: value.varietas
+            const add = await db.Bangsa.create({
+                bangsa: value.bangsa
             });
             if(add == null){
                 return{
@@ -63,8 +63,8 @@ class _varietas{
             return {
                 code: 200,
                 data: {
-                    id_varietas: add.id_varietas,
-                    nama_varietas: add.varietas,
+                    id_bangsa: add.id_bangsa,
+                    bangsa: add.bangsa,
                     createdAt: date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
                 }
             };
@@ -78,13 +78,13 @@ class _varietas{
         }
     }
 
-    // Update varietas
-    updateVarietas = async (req) => {
+    // Update Bangsa
+    updateBangsa = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_varietas: joi.number().required(),
-                varietas: joi.string().required()
+                id_bangsa: joi.number().required(),
+                bangsa: joi.string().required()
             });
 
             const { error, value } = schema.validate(req.body);
@@ -97,30 +97,30 @@ class _varietas{
             }
 
             // Query data
-            const update = await db.Varietas.update({
-                varietas: value.varietas
+            const update = await db.Bangsa.update({
+                bangsa: value.bangsa
             }, {
                 where: {
-                    id_varietas: value.id_varietas
+                    id_bangsa: value.id_bangsa
                 }
             });
             if(update <= 0){
                 return{
                     code: 400,
-                    error: `Failed to update varietas`
+                    error: `Failed to update bangsa`
                 }
             }
 
             return {
                 code: 200,
                 data: {
-                    id_varietas: value.id_varietas,
+                    is_bangsa: value.is_bangsa,
                     updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
         catch (error) {
-            log_error('updateVarietas Service', error);
+            log_error('updateBangsa Service', error);
             return {
                 code: 500,
                 error
@@ -128,12 +128,12 @@ class _varietas{
         }
     }
 
-    // Delete varietas
-    deleteVarietas = async (req) => {
+    // Delete Bangsa
+    deleteBangsa = async (req) => {
         try {
             // Validate data
             const schema = joi.object({
-                id_varietas: joi.number().required(),
+                id_bangsa: joi.number().required(),
             });
 
             const { error, value } = schema.validate(req.body);
@@ -146,28 +146,28 @@ class _varietas{
             }
 
             // Query data
-            const del = await db.Varietas.destroy({
+            const del = await db.Bangsa.destroy({
                 where: {
-                    id_varietas: value.id_varietas
+                    id_bangsa: value.id_bangsa
                 }
             });
             if(del <= 0){
                 return{
                     code: 400,
-                    error: `Failed to delete varietas`
+                    error: `Failed to delete bangsa`
                 }
             }
             
             return {
                 code: 200,
                 data: {
-                    id_varietas: value.id_varietas,
+                    id_bangsa: value.id_bangsa,
                     deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
         catch (error) {
-            log_error('deleteVarietas Service', error);
+            log_error('deleteBangsa Service', error);
             return {
                 code: 500,
                 error
@@ -176,4 +176,4 @@ class _varietas{
     }
 }
 
-module.exports = new _varietas();
+module.exports = new _bangsa();

@@ -4,14 +4,13 @@ const KandangController = require("../controllers/kandang.controller");
 const PakanController = require("../controllers/pakan.controller");
 const FaseController = require("../controllers/fase.controller");
 const PenyakitController = require("../controllers/penyakit.controller");
-const VarietasController = require("../controllers/varietas.controller");
+const VarietasController = require("../controllers/bangsa.controller");
 const KawinController = require("../controllers/kawin.controller");
 const TimbanganController = require("../controllers/timbangan.controller");
 const TernakController = require("../controllers/ternak.controller");
 const RiwayatKesehatanController = require("../controllers/riwayat_kesehatan.controller");
 const RfidController = require("../controllers/rfid.controller");
 const DashboardController = require("../controllers/dashboard.controller");
-const PeternakanController = require("../controllers/peternakan.controller");
 const Authentication = require("../middlewares/authentication");
 
 // Define url API in here
@@ -29,7 +28,6 @@ const _routes = [
     ['/riwayat-kesehatan', RiwayatKesehatanController],
     ['/rfid', RfidController],
     ['/dashboard', DashboardController],
-    ['/peternakan', PeternakanController]
 ];
 
 const routes = (app) => {

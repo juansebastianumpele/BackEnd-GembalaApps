@@ -24,6 +24,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      jenis_kandang:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       id_jenis_pakan:{
         type: Sequelize.INTEGER,
         allowNull: false,

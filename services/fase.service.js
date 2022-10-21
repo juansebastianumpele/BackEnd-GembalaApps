@@ -13,7 +13,7 @@ class _fase{
                     {
                         model: db.Ternak,
                         as: 'ternak',
-                        attributes: ['id_ternak', 'rf_id','berat']
+                        attributes: ['id_ternak', 'rf_id','berat'],
                     }
                 ],
                 where: req.query
