@@ -1,15 +1,17 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const {log_error} = require('../utils/logging');
 
 class _penyakit{
+    constructor(db){
+        this.db = db;
+    }
     // Get Data Penyakit
     getPenyakit = async (req) => {
         try{
             // Query data
-            const list = await db.Penyakit.findAll({ where : req.query });
+            const list = await this.db.Penyakit.findAll({ where : req.query });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -52,7 +54,7 @@ class _penyakit{
             }
 
             // Query data
-            const add = await db.Penyakit.create({
+            const add = await this.db.Penyakit.create({
                 nama_penyakit: value.nama_penyakit,
                 gejala: value.gejala,
                 penanganan: value.penanganan,
@@ -102,7 +104,7 @@ class _penyakit{
             }
 
             // Query data
-            const update = await db.Penyakit.update({
+            const update = await this.db.Penyakit.update({
                 nama_penyakit: value.nama_penyakit,
                 deskripsi: value.deskripsi,
                 gejala: value.gejala,
@@ -154,7 +156,7 @@ class _penyakit{
             }
 
             // Query data
-            const del = await db.Penyakit.destroy({
+            const del = await this.db.Penyakit.destroy({
                 where: {
                     id_penyakit: value.id_penyakit
                 }
@@ -184,4 +186,4 @@ class _penyakit{
     }
 }
 
-module.exports = new _penyakit();
+module.exports = (db) => new _penyakit(db);

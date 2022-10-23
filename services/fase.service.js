@@ -1,17 +1,19 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const {log_error} = require('../utils/logging');
 class _fase{
+    constructor(db){
+        this.db = db;
+    }
     // Get Fase
     getFase = async (req) => {
         try{            
             // Query Data
-            const list = await db.Fase.findAll({
+            const list = await this.db.Fase.findAll({
                 include: [
                     {
-                        model: db.Ternak,
+                        model: this.db.Ternak,
                         as: 'ternak',
                         attributes: ['id_ternak', 'rf_id','berat'],
                     }
@@ -66,7 +68,7 @@ class _fase{
                 }
             }
 
-            const add = await db.Fase.create({
+            const add = await this.db.Fase.create({
                 fase: value.fase
             });
             if(add == null){
@@ -111,7 +113,7 @@ class _fase{
                 }
             }
 
-            const update = await db.Fase.update({
+            const update = await this.db.Fase.update({
                 fase: value.fase
             }, {
                 where: {
@@ -158,7 +160,7 @@ class _fase{
                 }
             }
 
-            const del = await db.Fase.destroy({
+            const del = await this.db.Fase.destroy({
                 where: {
                     id_fp: value.id_fp
                 }
@@ -188,4 +190,4 @@ class _fase{
     }
 }
 
-module.exports = new _fase();
+module.exports = (db) => new _fase(db);

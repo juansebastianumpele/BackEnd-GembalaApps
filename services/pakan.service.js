@@ -1,17 +1,19 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const {log_error} = require('../utils/logging');
 
 class _pakan{
+    constructor(db){
+        this.db = db;
+    }
     // get data pakan
     getJenisBahanPakan = async (req) => {
         try{
             // Add id_user to params
             req.query.id_user = req.dataAuth.id_user
             // Query data
-            const list = await db.JenisBahanPakan.findAll({
+            const list = await this.db.JenisBahanPakan.findAll({
                 where : req.query
             });
             if(list.length <= 0){
@@ -57,7 +59,7 @@ class _pakan{
                 }
             }
 
-            const add = await db.Pakan.create({
+            const add = await this.db.Pakan.create({
                 id_peternakan: req.dataAuth.id_peternakan,
                 nama_pakan: value.nama_pakan, 
                 jenis_pakan: value.jenis_pakan,
@@ -111,7 +113,7 @@ class _pakan{
                     error: errorDetails,
                 }
             }
-            const update = await db.Pakan.update({
+            const update = await this.db.Pakan.update({
                 nama_pakan: value.nama_pakan,
                 jenis_pakan: value.deskripsi,
                 komposisi: value.komposisi,
@@ -165,7 +167,7 @@ class _pakan{
             }
 
             // Query data
-            const del = await db.Pakan.destroy({
+            const del = await this.db.Pakan.destroy({
                 where: {
                     id_pakan: value.id_pakan
                 }
@@ -195,4 +197,4 @@ class _pakan{
     }
 }
 
-module.exports = new _pakan();
+module.exports = (db) => new _pakan(db);

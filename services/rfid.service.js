@@ -1,9 +1,12 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const db = require('../models');
 const {log_error, log_info} = require('../utils/logging')
 
 class _rfid{
+    constructor(db){
+        this.db = db;
+    }
+    // Get data rfid
     rfid = async (req) => {
         try {
             // Validate data
@@ -20,7 +23,7 @@ class _rfid{
                 }
             }
 
-            const [ternak, created] = await db.Ternak.findOrCreate({
+            const [ternak, created] = await this.db.Ternak.findOrCreate({
                 where: {
                     rf_id: value.rf_id,
                 },
@@ -35,7 +38,7 @@ class _rfid{
                 log_info('RFID Service', 'Ternak sudah ada');
             }
 
-            const getTernak = await db.Ternak.findOne({
+            const getTernak = await this.db.Ternak.findOne({
                 attributes : ['id_ternak', 
                 'rf_id', 
                 'foto', 
@@ -46,7 +49,7 @@ class _rfid{
                 'suhu', 
                 'status_kesehatan', 
                 'tanggal_lahir',
-                [db.sequelize.fn('datediff', db.sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'umur'],
+                [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -54,27 +57,27 @@ class _rfid{
                 'updatedAt'],
                 include: [
                     {
-                        model: db.Varietas,
+                        model: this.db.Varietas,
                         as: 'varietas',
                         attributes: ['id_varietas', 'varietas']
                     },
                     {
-                        model: db.Kandang,
+                        model: this.db.Kandang,
                         as: 'kandang',
                         attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang']
                     },
                     {
-                        model: db.Penyakit,
+                        model: this.db.Penyakit,
                         as: 'penyakit',
                         attributes: ['id_penyakit', 'nama_penyakit']
                     },
                     {
-                        model: db.Fase,
+                        model: this.db.Fase,
                         as: 'fase',
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: db.Pakan,
+                        model: this.db.Pakan,
                         as: 'pakan',
                         attributes: ['id_pakan', 'nama_pakan']
                     }
@@ -107,4 +110,4 @@ class _rfid{
     }
 }
 
-module.exports = new _rfid();
+module.exports = (db) => new _rfid(db);

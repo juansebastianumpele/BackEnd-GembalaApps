@@ -1,15 +1,17 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const {log_error} = require('../utils/logging');
 
 class _bangsa{
+    constructor(db){
+        this.db = db;
+    }
     // Get data varietas
     getBangsa = async (req) => {
         try{
             // Query data
-            const list = await db.Bangsa.findAll({ where : req.query });
+            const list = await this.db.Bangsa.findAll({ where : req.query });
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -50,7 +52,7 @@ class _bangsa{
             }
 
             // Query data
-            const add = await db.Bangsa.create({
+            const add = await this.db.Bangsa.create({
                 bangsa: value.bangsa
             });
             if(add == null){
@@ -97,7 +99,7 @@ class _bangsa{
             }
 
             // Query data
-            const update = await db.Bangsa.update({
+            const update = await this.db.Bangsa.update({
                 bangsa: value.bangsa
             }, {
                 where: {
@@ -146,7 +148,7 @@ class _bangsa{
             }
 
             // Query data
-            const del = await db.Bangsa.destroy({
+            const del = await this.db.Bangsa.destroy({
                 where: {
                     id_bangsa: value.id_bangsa
                 }
@@ -176,4 +178,4 @@ class _bangsa{
     }
 }
 
-module.exports = new _bangsa();
+module.exports = (db) => new _bangsa(db);

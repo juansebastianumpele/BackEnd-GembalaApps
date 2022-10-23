@@ -1,39 +1,39 @@
-const UserController = require("../controllers/user.controller");
-const AuthController = require("../controllers/auth.controller");
-const KandangController = require("../controllers/kandang.controller");
-const PakanController = require("../controllers/pakan.controller");
-const FaseController = require("../controllers/fase.controller");
-const PenyakitController = require("../controllers/penyakit.controller");
-const BangsaController = require("../controllers/bangsa.controller");
-const KawinController = require("../controllers/kawin.controller");
-const TimbanganController = require("../controllers/timbangan.controller");
-const TernakController = require("../controllers/ternak.controller");
-const RiwayatKesehatanController = require("../controllers/riwayat_kesehatan.controller");
-const RfidController = require("../controllers/rfid.controller");
-const DashboardController = require("../controllers/dashboard.controller");
+const userController = require("../controllers/user.controller");
+const authController = require("../controllers/auth.controller");
+const kandangController = require("../controllers/kandang.controller");
+const pakanController = require("../controllers/pakan.controller");
+const faseController = require("../controllers/fase.controller");
+const penyakitController = require("../controllers/penyakit.controller");
+const bangsaController = require("../controllers/bangsa.controller");
+const kawinController = require("../controllers/kawin.controller");
+const timbanganController = require("../controllers/timbangan.controller");
+const ternakController = require("../controllers/ternak.controller");
+const riwayatKesehatanController = require("../controllers/riwayat_kesehatan.controller");
+const rfidController = require("../controllers/rfid.controller");
+const dashboardController = require("../controllers/dashboard.controller");
 
 // Define url API in here
 const _routes = [
-    ['/auth', AuthController],
-    ['/users', UserController],
-    ['/kandang', KandangController],
-    ['/pakan', PakanController],
-    ['/fase', FaseController],
-    ['/penyakit', PenyakitController],
-    ['/bangsa', BangsaController],
-    ['/kawin', KawinController],
-    ['/timbangan', TimbanganController],
-    ['/ternak', TernakController],
-    ['/riwayat-kesehatan', RiwayatKesehatanController],
-    ['/rfid', RfidController],
-    ['/dashboard', DashboardController],
+    ['/auth', authController],
+    ['/users', userController],
+    ['/kandang', kandangController],
+    ['/pakan', pakanController],
+    ['/fase', faseController],
+    ['/penyakit', penyakitController],
+    ['/bangsa', bangsaController],
+    ['/kawin', kawinController],
+    ['/timbangan', timbanganController],
+    ['/ternak', ternakController],
+    ['/riwayat-kesehatan', riwayatKesehatanController],
+    ['/rfid', rfidController],
+    ['/dashboard', dashboardController],
 ];
 
-const routes = (app) => {
+const routes = (app, db) => {
     // Routing
     _routes.forEach((route) => {
         const [url, controller] = route;
-        app.use(`/api${url}`, controller);
+        app.use(`/api${url}`, controller(db));
     })
 }
 

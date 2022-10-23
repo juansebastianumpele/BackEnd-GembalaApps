@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const route = require('./routes/route');
 const app = express();
+const db = require('./models');
 const {log_info} = require('./utils/logging');
 // const cookieParser = require('cookie-parser');
 require('dotenv').config();
@@ -25,12 +26,11 @@ app.use((req, res, next) => {
         res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
         return res.status(200).json({});
     }
-
     next();
 });
 
 // Routing
-route(app);
+route(app, db);
 
 // Auth Token blacklisted
 // global.blacklistedToken = [];

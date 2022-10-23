@@ -1,17 +1,19 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const { sequelize } = require('../models');
 const { log_error } = require('../utils/logging');
 class _ternak{
+    constructor(db){
+        this.db = db;
+    }
     // Get Data Ternak
     getTernak = async (req) => {
         try{
             // Add id_user to params
             req.query.id_user = req.dataAuth.id_user
             // Query data
-            const list = await db.Ternak.findAll({
+            const list = await this.db.Ternak.findAll({
                 attributes : ['id_ternak', 
                 'rf_id', 
                 'image', 
@@ -21,7 +23,7 @@ class _ternak{
                 'berat', 
                 'suhu', 
                 'tanggal_lahir',
-                [db.sequelize.fn('datediff', sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'umur'],
+                [this.db.sequelize.fn('datediff', sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -29,22 +31,22 @@ class _ternak{
                 'updatedAt'],
                 include: [
                     {
-                        model: db.Bangsa,
+                        model: this.db.Bangsa,
                         as: 'bangsa',
                         attributes: ['id_bangsa', 'bangsa']
                     },
                     {
-                        model: db.Kandang,
+                        model: this.db.Kandang,
                         as: 'kandang',
                         attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan']
                     },
                     {
-                        model: db.RiwayatKesehatan,
+                        model: this.db.RiwayatKesehatan,
                         as: 'riwayat_kesehatan',
                         attributes: ['id_riwayat_kesehatan', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
                     },
                     {
-                        model: db.Fase,
+                        model: this.db.Fase,
                         as: 'fase',
                         attributes: ['id_fp', 'fase']
                     },
@@ -116,7 +118,7 @@ class _ternak{
             value.status_kesehatan = value.id_penyakit ? 'Sakit' : 'Sehat';
 
             // Check if Ternak already exist
-            const ternak = await db.Ternak.findOne({
+            const ternak = await this.db.Ternak.findOne({
                 where: {
                     rf_id: value.rf_id
                 }
@@ -131,7 +133,7 @@ class _ternak{
             // Query Data
             // Add id_peternakan to params
             value.id_peternakan = req.dataAuth.id_peternakan
-            const add = await db.Ternak.create(value);
+            const add = await this.db.Ternak.create(value);
             if(add === null){
                 return{
                     code: 400,
@@ -141,7 +143,7 @@ class _ternak{
 
             // Check if ternak is sick, if yes, add to riwayat_kesehatan_ternak
             if(value.id_penyakit){
-                const addRiwayat = await db.RiwayatKesehatan.create({
+                const addRiwayat = await this.db.RiwayatKesehatan.create({
                     id_ternak: add.id_ternak,
                     id_penyakit: value.id_penyakit,
                     tanggal_sakit: new Date(),
@@ -208,7 +210,7 @@ class _ternak{
             // Check status kesehatan
             value.status_kesehatan = value.id_penyakit ? 'Sakit' : 'Sehat';
 
-            const update = await db.Ternak.update(value, {
+            const update = await this.db.Ternak.update(value, {
                 where: {
                     id_ternak: value.id_ternak,
                     id_peternakan: req.dataAuth.id_peternakan
@@ -223,7 +225,7 @@ class _ternak{
 
             // Check if ternak isnt sick, update from riwayat_kesehatan_ternak
             if(value.id_penyakit === null){
-                const updateRiwayat = await db.RiwayatKesehatan.update({
+                const updateRiwayat = await this.db.RiwayatKesehatan.update({
                     tanggal_selesai: new Date(),
                 }, {
                     where: {
@@ -275,7 +277,7 @@ class _ternak{
             }
 
             // Query Data
-            const del = await db.Ternak.destroy({
+            const del = await this.db.Ternak.destroy({
                 where: {
                     id_ternak: value.id_ternak,
                     id_peternakan: req.dataAuth.id_peternakan
@@ -306,4 +308,4 @@ class _ternak{
     }
 }
 
-module.exports = new _ternak();
+module.exports = (db) => new _ternak(db);

@@ -1,15 +1,16 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const {log_error} = require('../utils/logging');
 
 class _dashboard{
-
+    constructor(db){
+        this.db = db;
+    }
     // Get Data Populasi
     getPopulasi = async (req) => {
         try{
-            const list = await db.Populasi.findAll({
+            const list = await this.db.Populasi.findAll({
                 attributes : ['id_populasi', 'tanggal', 'populasi'],
                 where : req.query
             });
@@ -39,8 +40,8 @@ class _dashboard{
             setInterval(async () => {
                 const now = new Date();
                 const tanggal = date.format(now, 'YYYY-MM-DD');
-                const populasi = await db.Ternak.count({});
-                const add = await db.Populasi.create({
+                const populasi = await this.db.Ternak.count({});
+                const add = await this.db.Populasi.create({
                     tanggal: tanggal,
                     populasi: populasi
                 });
@@ -57,12 +58,12 @@ class _dashboard{
     // Get Data Status Kesehatan
     getStatusKesehatan = async (req) => {
         try{
-            const sehat = await db.Ternak.count({
+            const sehat = await this.db.Ternak.count({
                 where: {
                     status_kesehatan: 'Sehat'
                 }
             });
-            const sakit = await db.Ternak.count({
+            const sakit = await this.db.Ternak.count({
                 where: {
                     status_kesehatan: 'Sakit'
                 }
@@ -89,4 +90,4 @@ class _dashboard{
     }
 }
 
-module.exports = new _dashboard();
+module.exports = (db) => new _dashboard(db);

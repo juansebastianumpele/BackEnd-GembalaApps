@@ -1,20 +1,22 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const {log_error, log_info} = require('../utils/logging');
 class _kandang{
+    constructor(db){
+        this.db = db;
+    }
     // Get Kandang
     getKandang = async (req) => {
         try{
             // Add id_peternakan to params
             req.query.id_user = req.dataAuth.id_user
             // Query data
-            const list = await db.Kandang.findAll({
+            const list = await this.db.Kandang.findAll({
                 attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'kebutuhan_pakan', 'createdAt', 'updatedAt'],
                 include: [
                     {
-                        model: db.Ternak,
+                        model: this.db.Ternak,
                         as: 'ternak',
                         attributes: [
                             'id_ternak',
@@ -23,7 +25,7 @@ class _kandang{
                         ],
                     },
                     {
-                        model: db.JenisPakan,
+                        model: this.db.JenisPakan,
                         as: 'jenispakan',
                         attributes: [
                             'id_jenis_pakan',
@@ -84,7 +86,7 @@ class _kandang{
                 }
             }
 
-            const add = await db.Kandang.create({
+            const add = await this.db.Kandang.create({
                 id_user: req.dataAuth.id_user,
                 kode_kandang: value.kode_kandang,
                 jenis_kandang: value.jenis_kandang,
@@ -139,7 +141,7 @@ class _kandang{
             }
 
             // Query data
-            const update = await db.Kandang.update({
+            const update = await this.db.Kandang.update({
                 kode_kandang: value.kode_kandang,
                 jenis_kandang: value.jenis_kandang,
                 id_jenis_pakan: value.id_jenis_pakan,
@@ -190,7 +192,7 @@ class _kandang{
                     error: errorDetails
                 }
             }
-            const del = await db.Kandang.destroy({
+            const del = await this.db.Kandang.destroy({
                 where: {
                     id_kandang: value.id_kandang,
                     id_user: req.dataAuth.id_user
@@ -221,4 +223,4 @@ class _kandang{
     }
 }
 
-module.exports = new _kandang();
+module.exports = (db) => new _kandang(db);

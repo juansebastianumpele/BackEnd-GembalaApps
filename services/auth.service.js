@@ -1,13 +1,16 @@
 const joi = require('joi');
 const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
-const db = require('../models');
+// const db = require('../models');
 const config = require('../config/app.config');
 const jwt = require('jsonwebtoken');
 const {log_error, log_success, log_info} = require('../utils/logging');
 const {verifyNewAccount, verifyEmailForgotPassword} = require('../utils/email_verify');
 const randomstring = require("randomstring");
 class _auth{
+    constructor(db){
+        this.db = db;
+    }
     login = async (data) => {
         // Validate data
         const schema = joi.object({
@@ -25,7 +28,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUsername = await db.AuthUser.findOne({where : {email: value.email}});
+        const checkUsername = await this.db.AuthUser.findOne({where : {email: value.email}});
         if (checkUsername == null) {
             return {
                 code: 404,
@@ -96,7 +99,7 @@ class _auth{
                 }
             }
             // Check if user exist
-            const checkUser = await db.AuthUser.findOne({where : {nama_pengguna: value.nama_pengguna}});
+            const checkUser = await this.db.AuthUser.findOne({where : {nama_pengguna: value.nama_pengguna}});
             if (checkUser !== null) {
                 return {
                     code: 400,
@@ -108,7 +111,7 @@ class _auth{
             value.kata_sandi = await hashPassword(value.kata_sandi);
             
             // Insert data
-            const register = await db.AuthUser.create({
+            const register = await this.db.AuthUser.create({
                 nama_pengguna: value.nama_pengguna,
                 email: value.email,
                 role: 'admin',
@@ -151,7 +154,7 @@ class _auth{
     logout = async (req, res) => {
         // const token = req.headers.authorization.split(' ')[1]
         // global.blacklistedToken.push(token);
-        const update = await db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
+        const update = await this.db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
         if (update <= 0) {
             return {
                 code: 500,
@@ -171,7 +174,7 @@ class _auth{
     getProfile = async (req) => {
         try{
             // Query Data
-            const list = await db.AuthUser.findOne({ 
+            const list = await this.db.AuthUser.findOne({ 
                 attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'alamat', 'nama_peternakan', 'role', 'status',  'createdAt', 'updatedAt'],
                 where : {
                     id_user: req.dataAuth.id_user
@@ -213,7 +216,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+        const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
         if (checkUser == null) {
             return {
                 code: 404,
@@ -231,7 +234,7 @@ class _auth{
         }
 
         // Delete data
-        const deletedAccount = await db.AuthUser.destroy({where: {id_user: req.dataAuth.id_user}});
+        const deletedAccount = await this.db.AuthUser.destroy({where: {id_user: req.dataAuth.id_user}});
         if (deletedAccount <= 0) {
             return {
                 code: 500,
@@ -270,7 +273,7 @@ class _auth{
         }
 
         // Update data
-        const updatedAccount = await db.AuthUser.update({
+        const updatedAccount = await this.db.AuthUser.update({
             nama_pengguna: value.nama_pengguna,
             email: value.email,
             nomor_telepon: value.nomor_telepon,
@@ -313,7 +316,7 @@ class _auth{
         }
 
         // Check if user exist
-        const checkUser = await db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+        const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
         if (checkUser == null) {
             return {
                 code: 404,
@@ -334,7 +337,7 @@ class _auth{
         const newPassword = await hashPassword(value.kata_sandi_baru);
 
         // Update data
-        const updatedPassword = await db.AuthUser.update({kata_sandi: newPassword}, {where: {id_user: req.dataAuth.id_user}});
+        const updatedPassword = await this.db.AuthUser.update({kata_sandi: newPassword}, {where: {id_user: req.dataAuth.id_user}});
         if (updatedPassword <= 0) {
             return {
                 code: 500,
@@ -355,7 +358,7 @@ class _auth{
     // Verify token
     verify = async (req) => {
         try{
-            const user = await db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+            const user = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
             if (user == null) {
                 return {
                     code: 404,
@@ -393,7 +396,7 @@ class _auth{
             const decoded = jwt.verify(token, config.jwt.secret)
             
             if(decoded.message == 'verification'){
-                const activateAccount = await db.AuthUser.update({status: 'active'}, {where: {nama_pengguna: decoded.nama_pengguna}});
+                const activateAccount = await this.db.AuthUser.update({status: 'active'}, {where: {nama_pengguna: decoded.nama_pengguna}});
                 if (activateAccount <= 0) {
                     return {
                         code: 500,
@@ -438,7 +441,7 @@ class _auth{
                 }
             }
             // Check if user exist
-            const checkUser = await db.AuthUser.findOne({where : {email: value.email}});
+            const checkUser = await this.db.AuthUser.findOne({where : {email: value.email}});
             if (checkUser == null) {
                 return {
                     code: 400,
@@ -449,7 +452,7 @@ class _auth{
             // updatedTempPassword
             const tempPassword = randomstring.generate(8);
             const tempPasswordHash = await hashPassword(tempPassword);
-            const updatedTempPassword = await db.AuthUser.update({kata_sandi: tempPasswordHash}, {where: {id_user: checkUser.id_user}});
+            const updatedTempPassword = await this.db.AuthUser.update({kata_sandi: tempPasswordHash}, {where: {id_user: checkUser.id_user}});
             if (updatedTempPassword <= 0) {
                 return{
                     code: 500,
@@ -497,7 +500,7 @@ class _auth{
 
     //         const decoded = jwt.verify(value.token, config.jwt.secret)
 
-    //         const user = db.AuthUser.findOne({where : {username: decoded.username}});
+    //         const user = this.db.AuthUser.findOne({where : {username: decoded.username}});
     //         if (user == null) {
     //             return {
     //                 code: 404,
@@ -528,8 +531,7 @@ class _auth{
     //         }
     //     }
     // }
-
     
 }
 
-module.exports = new _auth();
+module.exports = (db) => new _auth(db);

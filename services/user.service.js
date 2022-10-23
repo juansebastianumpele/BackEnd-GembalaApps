@@ -1,14 +1,14 @@
 // Helper databse yang dibuat
-const joi = require('joi');
-const date = require('date-and-time');
-const db = require('../models');
 const {log_error} = require('../utils/logging');
 class _user{
+    constructor(db){
+        this.db = db;
+    }
     // Get Data users
     getUsers = async (req) => {
         try{
             // Query Data
-            const list = await db.AuthUser.findAll({ 
+            const list = await this.db.AuthUser.findAll({ 
                 attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'alamat', 'nama_peternakan', 'role', 'status',  'createdAt', 'updatedAt'],
                 where : req.query });
             if(list.length <= 0){
@@ -34,4 +34,4 @@ class _user{
     }
 }
 
-module.exports = new _user();
+module.exports = (db) => new _user(db);

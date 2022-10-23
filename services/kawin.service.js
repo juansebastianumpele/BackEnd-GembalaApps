@@ -1,21 +1,23 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const { Op } = require('sequelize');
 const { log_error } = require('../utils/logging');
 
 class _kawin {
+    constructor(db) {
+        this.db = db;
+    }
     // List Ternak by id
     getKawin = async (req) => {
         try {
             // Query data
-            const list = await db.Kawin.findAll({
+            const list = await this.db.Kawin.findAll({
                 attributes: ['id_kawin', 'tanggal_kawin', 'id_ternak', 'id_pemacek', 'createdAt', 'updatedAt'],
                 where: req.query,
                 include: [
                     { 
-                        model: db.Fase, 
+                        model: this.db.Fase, 
                         as: 'fase', 
                         attributes: ['id_fp', 'fase'] 
                     },
@@ -23,7 +25,7 @@ class _kawin {
             });
 
             for (let i = 0; i < list.length; i++) {
-                const cempe = await db.Ternak.findAll({
+                const cempe = await this.db.Ternak.findAll({
                     where: {
                         id_induk: list[i].dataValues.id_ternak,
                         id_pejantan: list[i].dataValues.id_pemacek
@@ -59,7 +61,7 @@ class _kawin {
         console.log(req.query);
         try {
             // Query Data
-            const list = await db.Ternak.findAll({
+            const list = await this.db.Ternak.findAll({
                 attributes : ['id_ternak', 
                 'rf_id', 
                 'foto', 
@@ -70,7 +72,7 @@ class _kawin {
                 'suhu', 
                 'status_kesehatan', 
                 'tanggal_lahir',
-                [db.sequelize.fn('datediff', db.sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'umur'],
+                [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -78,27 +80,27 @@ class _kawin {
                 'updatedAt'],
                 include: [
                     {
-                        model: db.Varietas,
+                        model: this.db.Varietas,
                         as: 'varietas',
                         attributes: ['id_varietas', 'varietas']
                     },
                     {
-                        model: db.Kandang,
+                        model: this.db.Kandang,
                         as: 'kandang',
                         attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang']
                     },
                     {
-                        model: db.Penyakit,
+                        model: this.db.Penyakit,
                         as: 'penyakit',
                         attributes: ['id_penyakit', 'nama_penyakit']
                     },
                     {
-                        model: db.Fase,
+                        model: this.db.Fase,
                         as: 'fase',
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: db.Pakan,
+                        model: this.db.Pakan,
                         as: 'pakan',
                         attributes: ['id_pakan', 'nama_pakan']
                     }
@@ -138,7 +140,7 @@ class _kawin {
     getDataPejantan = async (req) => {
         try {
             // Query Data
-            const list = await db.Ternak.findAll({
+            const list = await this.db.Ternak.findAll({
                 attributes : ['id_ternak', 
                 'rf_id', 
                 'foto', 
@@ -149,7 +151,7 @@ class _kawin {
                 'suhu', 
                 'status_kesehatan', 
                 'tanggal_lahir',
-                [db.sequelize.fn('datediff', db.sequelize.fn('NOW'), db.sequelize.col('tanggal_lahir')), 'umur'],
+                [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -157,27 +159,27 @@ class _kawin {
                 'updatedAt'],
                 include: [
                     {
-                        model: db.Varietas,
+                        model: this.db.Varietas,
                         as: 'varietas',
                         attributes: ['id_varietas', 'varietas']
                     },
                     {
-                        model: db.Kandang,
+                        model: this.db.Kandang,
                         as: 'kandang',
                         attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang']
                     },
                     {
-                        model: db.Penyakit,
+                        model: this.db.Penyakit,
                         as: 'penyakit',
                         attributes: ['id_penyakit', 'nama_penyakit']
                     },
                     {
-                        model: db.Fase,
+                        model: this.db.Fase,
                         as: 'fase',
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: db.Pakan,
+                        model: this.db.Pakan,
                         as: 'pakan',
                         attributes: ['id_pakan', 'nama_pakan']
                     }
@@ -236,7 +238,7 @@ class _kawin {
             }
 
             // Query data
-            const add = await db.Kawin.create({
+            const add = await this.db.Kawin.create({
                 id_ternak: value.id_ternak,
                 id_pemacek: value.id_pemacek,
                 tanggal_kawin: value.tanggal_kawin,
@@ -288,7 +290,7 @@ class _kawin {
             }
 
             // Query data
-            const update = await db.Kawin.update({
+            const update = await this.db.Kawin.update({
                 id_ternak: value.id_ternak,
                 id_pemacek: value.id_pemacek,
                 tanggal_kawin: value.tanggal_kawin,
@@ -340,7 +342,7 @@ class _kawin {
             }
 
             // Query data
-            const del = await db.Kawin.destroy({
+            const del = await this.db.Kawin.destroy({
                 where: {
                     id_kawin: value.id_kawin
                 }
@@ -370,4 +372,4 @@ class _kawin {
     }
 }
 
-module.exports = new _kawin();
+module.exports = (db) => new _kawin(db);

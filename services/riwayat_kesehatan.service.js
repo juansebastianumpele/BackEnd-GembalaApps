@@ -1,24 +1,26 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const {log_error} = require('../utils/logging');
 
 class _riwayatKesehatan{
+    constructor(db){
+        this.db = db;
+    }
     // Get data RiwayatKesehatan
     getRiwayatKesehatan = async (req) => {
         try{
             // Query data
-            const list = await db.RiwayatKesehatan.findAll({ 
+            const list = await this.db.RiwayatKesehatan.findAll({ 
                 attributes : ['id_riwayat_kesehatan', 'tanggal_sakit', 'tanggal_sembuh', 'createdAt', 'updatedAt'],
                 include: [
                     {
-                        model: db.Ternak,
+                        model: this.db.Ternak,
                         as: 'ternak',
                         attributes: ['id_ternak', 'rf_id']
                     },
                     {
-                        model: db.Penyakit,
+                        model: this.db.Penyakit,
                         as: 'penyakit',
                         attributes: ['id_penyakit', 'nama_penyakit']
                     }
@@ -68,7 +70,7 @@ class _riwayatKesehatan{
             }
 
             // Query data
-            const add = await db.RiwayatKesehatan.create({
+            const add = await this.db.RiwayatKesehatan.create({
                 id_ternak: value.id_ternak,
                 id_penyakit: value.id_penyakit,
                 tanggal_sakit: value.tanggal_sakit,
@@ -122,7 +124,7 @@ class _riwayatKesehatan{
             }
 
             // Query data
-            const update = await db.RiwayatKesehatan.update({
+            const update = await this.db.RiwayatKesehatan.update({
                 id_ternak: value.id_ternak,
                 id_penyakit: value.id_penyakit,
                 tanggal_sakit: value.tanggal_sakit,
@@ -174,7 +176,7 @@ class _riwayatKesehatan{
             }
 
             // Query data
-            const del = await db.RiwayatKesehatan.destroy({
+            const del = await this.db.RiwayatKesehatan.destroy({
                 where: {
                     id_riwayat_kesehatan: value.id_riwayat_kesehatan
                 }
@@ -204,4 +206,4 @@ class _riwayatKesehatan{
     }
 }
 
-module.exports = new _riwayatKesehatan();
+module.exports = (db) => new _riwayatKesehatan(db);

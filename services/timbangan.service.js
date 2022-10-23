@@ -1,19 +1,21 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const db = require('../models');
 const {log_error} = require('../utils/logging');
 
 class _timbangan{
+    constructor(db){
+        this.db = db;
+    }
     // get Data Timbangan
     getDataTimbangan = async (req) => {
         try{
             // Query data
-            const list = await db.Timbangan.findAll({
+            const list = await this.db.Timbangan.findAll({
                 attributes : ['id_timbangan', 'berat', 'suhu', 'tanggal_timbang', 'createdAt', 'updatedAt'],
                 include: [
                     {
-                        model: db.Ternak,
+                        model: this.db.Ternak,
                         as: 'ternak',
                         attributes: ['id_ternak', 'rf_id']
                     }
@@ -62,7 +64,7 @@ class _timbangan{
             }
 
             // Query data ternak
-            const ternak = await db.Ternak.findOne({
+            const ternak = await this.db.Ternak.findOne({
                 where: {
                     rf_id: value.rf_id
                 }
@@ -75,7 +77,7 @@ class _timbangan{
             }
 
             // Query data
-            const add = await db.Timbangan.create({
+            const add = await this.db.Timbangan.create({
                 id_ternak: ternak.id_ternak,
                 rf_id : value.rf_id,
                 berat: value.berat,
@@ -127,7 +129,7 @@ class _timbangan{
             }
 
             // Query data
-            const update = await db.Timbangan.update({
+            const update = await this.db.Timbangan.update({
                 berat: value.berat,
                 suhu: value.suhu,
             }, {
@@ -177,7 +179,7 @@ class _timbangan{
             }
 
             // Query data
-            const del = await db.Timbangan.destroy({
+            const del = await this.db.Timbangan.destroy({
                 where: {
                     id_timbangan: value.id_timbangan
                 }
@@ -207,4 +209,4 @@ class _timbangan{
     }
 }
 
-module.exports = new _timbangan();
+module.exports = (db) => new _timbangan(db);
