@@ -30,16 +30,6 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      status: {
-        type: Sequelize.ENUM,
-        values: [
-          'Tersedia',
-          'Tidak Tersedia',
-          'Belum Siap'
-        ],
-        defaultValue: 'Tidak Tersedia',
-        allowNull: false
-      },
       tanggal_pembuatan:{
         type: Sequelize.DATE,
         allowNull: false,

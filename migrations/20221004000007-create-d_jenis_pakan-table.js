@@ -20,7 +20,7 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
-      nama_jenis_pakan:{
+      jenis_pakan:{
         type: Sequelize.STRING,
         allowNull: false
       },

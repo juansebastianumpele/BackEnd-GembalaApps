@@ -26,7 +26,8 @@ module.exports = {
       },
       stok:{
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0
       },
       createdAt: {
         type: Sequelize.DATE,
