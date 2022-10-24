@@ -244,10 +244,10 @@ class _pakan{
 
             for(let i = 0; i < list.length; i++){
                 if(list[i].dataValues.tanggal_konsumsi != null){
-                    list[i].dataValues.status = list[i].dataValues.tanggal_konsumsi < new Date() ? 'siap' : 'belum siap';
+                    list[i].dataValues.status = list[i].dataValues.tanggal_konsumsi < new Date() ? 'Siap' : 'Belum Siap';
                     console.log(list[i].dataValues.tanggal_konsumsi <= new Date());  
                 }else{
-                    list[i].dataValues.status = 'kosong';
+                    list[i].dataValues.status = 'Kosong';
                 }
             }
 
