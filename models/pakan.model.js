@@ -1,6 +1,6 @@
 module.exports = (Sequelize, DataTypes) => {
-    const JenisPakan = Sequelize.define("JenisPakan", {
-        id_jenis_pakan: {
+    const Pakan = Sequelize.define("Pakan", {
+        id_pakan: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
@@ -10,25 +10,21 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        jenis_pakan: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        interval_pakan: {
+        id:{
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        satuan: {
-            type: DataTypes.STRING,
+        id_jenis_pakan:{
+            type: DataTypes.INTEGER,
             allowNull: false
         },
-        komposisi: {
-            type: DataTypes.STRING,
-            allowNull: false
+        tanggal_pembuatan:{
+            type: DataTypes.DATE,
+            allowNull: true
         },
-        nutrien: {
-            type: DataTypes.STRING,
-            allowNull: false
+        tanggal_konsumsi:{
+            type: DataTypes.DATE,
+            allowNull: true
         },
         createdAt: {
             type: DataTypes.DATE,
@@ -39,19 +35,23 @@ module.exports = (Sequelize, DataTypes) => {
             allowNull: true,
         },
     }, {
-        tableName: "d_jenis_pakan",
+        tableName: "d_pakan",
     });
 
-    JenisPakan.associate = function (models) {
-        JenisPakan.hasMany(models.Pakan, {
-            foreignKey: 'id_jenis_pakan',
-            as: 'pakan'
-        });
-        JenisPakan.belongsTo(models.AuthUser, {
+    Pakan.associate = function (models) {
+        Pakan.belongsTo(models.AuthUser, {
             foreignKey: 'id_user',
             as: 'user'
         });
+        Pakan.belongsTo(models.JenisPakan, {
+            foreignKey: 'id_jenis_pakan',
+            as: 'jenis_pakan'
+        });
+        Pakan.belongsTo(models.Kandang, {
+            foreignKey: 'id',
+            as: 'kandang'
+        });
     };
 
-    return JenisPakan;
+    return Pakan;
 }

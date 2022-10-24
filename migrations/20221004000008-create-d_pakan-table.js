@@ -20,6 +20,10 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
+      id:{
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       id_jenis_pakan:{
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -32,17 +36,11 @@ module.exports = {
       },
       tanggal_pembuatan:{
         type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        allowNull: true
       },
       tanggal_konsumsi:{
         type: Sequelize.DATE,
         allowNull: true
-      },
-      jumlah_pakan:{
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 0
       },
       createdAt: {
         type: Sequelize.DATE,

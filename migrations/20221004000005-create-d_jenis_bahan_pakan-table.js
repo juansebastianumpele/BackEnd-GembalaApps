@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_bahan_pakan', { 
+    await queryInterface.createTable('d_jenis_bahan_pakan', { 
       id_jenis_bahan_pakan:{
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -21,6 +21,10 @@ module.exports = {
         onUpdate: 'CASCADE'
       },
       jenis_bahan_pakan:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      satuan:{
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -43,6 +47,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_bahan_pakan');
+    await queryInterface.dropTable('d_jenis_bahan_pakan');
   }
 };

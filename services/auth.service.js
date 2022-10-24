@@ -57,7 +57,7 @@ class _auth{
         // Generate token
         const token = generateToken({ 
             id_user: checkUsername.id_user, 
-            nama_pengguna: value.nama_pengguna, 
+            nama_pengguna: checkUsername.nama_pengguna, 
             role: checkUsername.role,
             status: checkUsername.status,
         });

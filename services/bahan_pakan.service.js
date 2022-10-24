@@ -57,7 +57,7 @@ class _bahanPakan{
                 }
             }
 
-            const add = await this.db.Pakan.create({
+            const add = await this.db.JenisBahanPakan.create({
                 id_user: req.dataAuth.id_user,
                 jenis_bahan_pakan: value.jenis_bahan_pakan,
                 satuan: value.satuan,
@@ -92,7 +92,7 @@ class _bahanPakan{
         try {
             // Validate data
             const schema = joi.object({
-                id_jenis_bahan_pakan: joi.string().required(),
+                id_jenis_bahan_pakan: joi.number().required(),
                 jenis_bahan_pakan: joi.string().required(),
                 satuan: joi.string().required(),
             });
@@ -147,7 +147,7 @@ class _bahanPakan{
         try {
             // Validate data
             const schema = joi.object({
-                id_jenis_bahan_pakan: joi.string().required()
+                id_jenis_bahan_pakan: joi.number().required()
             });
         
             const { error, value } = schema.validate(req.body);
@@ -228,7 +228,7 @@ class _bahanPakan{
         try {
             // Validate data
             const schema = joi.object({
-                id_jenis_bahan_pakan: joi.string().required(),
+                id_jenis_bahan_pakan: joi.number().required(),
                 tanggal: joi.date().allow(null),
                 jumlah: joi.number().required(),
                 keterangan: joi.string().required(),
@@ -294,4 +294,4 @@ class _bahanPakan{
     }
 }
 
-module.exports = (db) => new _pakan(db);
+module.exports = (db) => new _bahanPakan(db);

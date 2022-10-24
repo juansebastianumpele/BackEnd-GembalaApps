@@ -206,7 +206,7 @@ class _pakan{
             req.query.id_user = req.dataAuth.id_user
             // Query data
             const list = await this.db.Pakan.findAll({
-                attributes: ['id_pakan', 'id', 'tanggal_pembuatan', 'tanggal_konsumsi', 'jumlah_pakan', 'createdAt', 'updatedAt'],
+                attributes: ['id_pakan', 'id', 'tanggal_pembuatan', 'tanggal_konsumsi', 'createdAt', 'updatedAt'],
                 include: [{
                     model: this.db.JenisPakan,
                     as: 'jenis_pakan',
@@ -218,6 +218,15 @@ class _pakan{
                 return{
                     code: 404,
                     error: 'Data pakan not found'
+                }
+            }
+
+            for(let i = 0; i < list.length; i++){
+                if(list[i].dataValues.tanggal_konsumsi != null){
+                    list[i].dataValues.status = list[i].dataValues.tanggal_konsumsi < new Date() ? 'siap' : 'belum siap';
+                    console.log(list[i].dataValues.tanggal_konsumsi < new Date());  
+                }else{
+                    list[i].dataValues.status = 'kosong';
                 }
             }
 
@@ -256,7 +265,7 @@ class _pakan{
             }
 
             // check id jenis_pakan
-            const jenis_pakan = await this.db.JenisPakan.findOne({
+            const jenis_pakan = await this.db.Pakan.findOne({
                 where: {
                     id: value.id,
                     id_user: req.dataAuth.id_user
@@ -321,7 +330,7 @@ class _pakan{
             }
 
             // check id jenis_pakan
-            const jenis_pakan = await this.db.JenisPakan.findOne({
+            const jenis_pakan = await this.db.Pakan.findOne({
                 where: {
                     id: value.id,
                     id_user: req.dataAuth.id_user
@@ -426,7 +435,6 @@ class _pakan{
                 id_pakan: joi.number().required(),
                 tanggal_pembuatan: joi.date().allow(null),
                 tanggal_konsumsi: joi.date().allow(null),
-                jumlah_pakan: joi.number().required(),
             });
 
             const { error, value } = schema.validate(req.body);
@@ -468,9 +476,8 @@ class _pakan{
 
             // Query data
             const update = await this.db.Pakan.update({
-                tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
-                tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
-                jumlah_pakan: value.jumlah_pakan,
+                tanggal_pembuatan: value.tanggal_pembuatan != null ? value.tanggal_pembuatan : new Date(),
+                tanggal_konsumsi: value.tanggal_konsumsi != null ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
             }, {
                 where: {
                     id_pakan: value.id_pakan,
@@ -487,10 +494,9 @@ class _pakan{
             return {
                 code: 200,
                 data: {
-                    id_pakan: value.id_pakan,
+                    id_pakan: update.id_pakan,
                     tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
                     tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
-                    jumlah_pakan: value.jumlah_pakan,
                     updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
@@ -512,7 +518,6 @@ class _pakan{
                 id_pakan: joi.number().required(),
                 tanggal_pembuatan: joi.date().allow(null),
                 tanggal_konsumsi: joi.date().allow(null),
-                jumlah_pakan: joi.number().required(),
             });
 
             const { error, value } = schema.validate(req.body);
@@ -556,7 +561,6 @@ class _pakan{
             const update = await this.db.Pakan.update({
                 tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
                 tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
-                jumlah_pakan: value.jumlah_pakan,
             }, {
                 where: {
                     id_pakan: value.id_pakan,
@@ -576,7 +580,6 @@ class _pakan{
                     id_pakan: value.id_pakan,
                     tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
                     tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
-                    jumlah_pakan: value.jumlah_pakan,
                     updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
@@ -611,7 +614,6 @@ class _pakan{
             const update = await this.db.Pakan.update({
                 tanggal_pembuatan: null,
                 tanggal_konsumsi: null,
-                jumlah_pakan: 0,
             }, {
                 where: {
                     id_pakan: value.id_pakan,
@@ -631,7 +633,6 @@ class _pakan{
                     id_pakan: value.id_pakan,
                     tanggal_pembuatan: null,
                     tanggal_konsumsi: null,
-                    jumlah_pakan: 0,
                     updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };

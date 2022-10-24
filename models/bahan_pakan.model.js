@@ -1,6 +1,6 @@
 module.exports = (Sequelize, DataTypes) => {
-    const JenisPakan = Sequelize.define("JenisPakan", {
-        id_jenis_pakan: {
+    const BahanPakan = Sequelize.define("BahanPakan", {
+        id_bahan_pakan: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
@@ -10,24 +10,20 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        jenis_pakan: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        interval_pakan: {
+        id_jenis_bahan_pakan:{
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        satuan: {
-            type: DataTypes.STRING,
+        tanggal:{
+            type: DataTypes.DATE,
             allowNull: false
         },
-        komposisi: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        nutrien: {
-            type: DataTypes.STRING,
+        keterangan:{
+            type: DataTypes.ENUM,
+            values: [
+                'Masuk',
+                'Keluar'
+            ],
             allowNull: false
         },
         createdAt: {
@@ -39,19 +35,19 @@ module.exports = (Sequelize, DataTypes) => {
             allowNull: true,
         },
     }, {
-        tableName: "d_jenis_pakan",
+        tableName: "d_bahan_pakan",
     });
 
-    JenisPakan.associate = function (models) {
-        JenisPakan.hasMany(models.Pakan, {
-            foreignKey: 'id_jenis_pakan',
-            as: 'pakan'
+    BahanPakan.associate = function (models) {
+        BahanPakan.belongsTo(models.JenisBahanPakan, {
+            foreignKey: 'id_jenis_bahan_pakan',
+            as: 'jenis_bahan_pakan'
         });
-        JenisPakan.belongsTo(models.AuthUser, {
+        BahanPakan.belongsTo(models.AuthUser, {
             foreignKey: 'id_user',
             as: 'user'
         });
     };
 
-    return JenisPakan;
+    return BahanPakan;
 }

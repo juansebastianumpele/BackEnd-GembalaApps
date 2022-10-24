@@ -5,7 +5,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('d_jenis_pakan', [{
       id_user: 2,
-      nama_jenis_pakan: 'Pakan 1',
+      jenis_pakan: 'Pakan 1',
       interval_pakan: 10,
       satuan: 'Tong',
       komposisi: 'Komposisi 1',
@@ -13,7 +13,7 @@ module.exports = {
     },
     {
       id_user: 3,
-      nama_jenis_pakan: 'Pakan 2',
+      jenis_pakan: 'Pakan 2',
       interval_pakan: 10,
       satuan: 'Tong',
       komposisi: 'Komposisi 2',

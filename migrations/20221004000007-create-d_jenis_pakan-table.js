@@ -31,8 +31,10 @@ module.exports = {
       satuan:{
         type: Sequelize.ENUM,
         values: [
-          'Tong',
-          'Ball'
+          'tong',
+          'ball',
+          'pcs',
+          'kg'
         ],
         allowNull: false
       },

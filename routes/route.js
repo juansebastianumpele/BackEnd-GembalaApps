@@ -2,6 +2,7 @@ const userController = require("../controllers/user.controller");
 const authController = require("../controllers/auth.controller");
 const kandangController = require("../controllers/kandang.controller");
 const pakanController = require("../controllers/pakan.controller");
+const bahanPakanController = require("../controllers/bahan_pakan.controller");
 const faseController = require("../controllers/fase.controller");
 const penyakitController = require("../controllers/penyakit.controller");
 const bangsaController = require("../controllers/bangsa.controller");
@@ -18,6 +19,7 @@ const _routes = [
     ['/users', userController],
     ['/kandang', kandangController],
     ['/pakan', pakanController],
+    ['/bahan-pakan', bahanPakanController],
     ['/fase', faseController],
     ['/penyakit', penyakitController],
     ['/bangsa', bangsaController],
