@@ -85,7 +85,7 @@ module.exports = {
       },
       status_kesehatan:{
         type: Sequelize.ENUM,
-        values: ['sehat', 'sakit'],
+        values: ['Sehat', 'Sakit'],
         allowNull: false
       },
       id_kandang:{

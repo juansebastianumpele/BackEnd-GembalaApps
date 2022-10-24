@@ -20,19 +20,19 @@ module.exports = {
         fase: "adaptasi 5"
       },
       {
-        fase: "waiting list perkawinan"
+        fase: "Waiting List Perkawinan"
       },
       {
         fase: "perkawinan"
       },
       {
-        fase: "kebuntingan"
+        fase: "Kebuntingan"
       },
       {
-        fase: "kelahiran"
+        fase: "Kelahiran"
       },
       {
-        fase: "lepas sapih"
+        fase: "Lepas Sapih"
       }
     ], {});
   },
