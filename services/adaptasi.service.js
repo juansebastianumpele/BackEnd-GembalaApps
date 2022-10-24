@@ -13,28 +13,27 @@ class _adaptasi{
             const schema = joi.object({
                 id_ternak: joi.number().required()
             });
-            console.log(req.body);
             const {error, value} = schema.validate(req.body);
-            console.log(error);
             if(error){
                 return {
                     code: 400,
                     error: error.details[0].message
                 }
             }
+
             // Query Data
             const list = await this.db.Adaptasi.findAll({
-                attributes: ['id_adaptasi', 'id_ternak', 'id_treatment', 'createdAt', 'updatedAt'],
+                attributes: ['id_ternak', "status", "tanggal_treatment"],
                 include: [
                     {
                         model: this.db.Treatment,
                         as: 'treatment',
-                        attributes: ['id_treatment', 'treatment', 'day', 'createdAt', 'updatedAt']
+                        attributes: ['id_treatment', 'treatment', 'day']
                     }
                 ],
                 where : {
                     id_ternak: value.id_ternak
-                }
+                },
             });
             if(list.length <= 0){
                 return{
@@ -43,10 +42,12 @@ class _adaptasi{
                 }
             }
 
-            for(let i = 0; i < list.length; i++){
-                list[i].dataValues.day = list[i].dataValues.treatment.day;
-                list[i].dataValues.treatment = list[i].dataValues.treatment.treatment;
-            }
+            // for(let i = 0; i < list.length; i++){
+            //     list[i].dataValues.day = i + 1;
+            //     if(list[i].dataValues.treatment.day == i + 1){
+            //         list[i].dataValues.treatments.
+            //     }
+            // }
 
             return {
                 code: 200,

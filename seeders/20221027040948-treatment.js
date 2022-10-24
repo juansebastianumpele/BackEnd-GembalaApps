@@ -10,8 +10,25 @@ module.exports = {
       },
       {
         treatment: "Vaksin 2",
-        day: 2, 
-      }], {});
+        day: 1, 
+      },
+      {
+        treatment: "Vaksin 3",
+        day: 2,
+      },
+      {
+        treatment: "Vaksin 4",
+        day: 2,
+      },
+      {
+        treatment: "Vaksin 5",
+        day: 3,
+      },
+      {
+        treatment: "Vaksin 6",
+        day: 3,
+      },
+    ], {});
   },
 
   async down (queryInterface, Sequelize) {

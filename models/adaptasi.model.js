@@ -14,6 +14,15 @@ module.exports = (Sequelize, DataTypes) => {
           type: DataTypes.INTEGER,
           allowNull: false
         },
+        status: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false
+        },
+        tanggal_treatment: {
+          type: DataTypes.DATE,
+          allowNull: true
+        },
         createdAt:{
           type: DataTypes.DATE,
           allowNull: false
