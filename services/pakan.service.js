@@ -22,6 +22,27 @@ class _pakan{
                     error: 'Data jenis pakan not found'
                 }
             }
+
+            // Get data Pakan
+            const data = await this.db.Pakan.findAll({
+                where : {
+                    id_user : req.dataAuth.id_user
+                }
+            });
+            console.log(data);
+            console.log(data.length);
+            if(data.length <= 0){
+                return{
+                    code: 404,
+                    error: 'Data pakan not found'
+                }
+            }
+
+            for(let i=0; i < list.length; i ++){
+                list[i].dataValues.stok_siap = data.filter(item => item.tanggal_pembuatan != null && item.tanggal_konsumsi <= new Date()).length;
+                list[i].dataValues.stok_belum_siap = data.filter(item => item.tanggal_pembuatan != null && item.tanggal_konsumsi > new Date()).length;
+                list[i].dataValues.stok_belum_dibuat = data.filter(item => item.tanggal_pembuatan == null).length;
+            }
     
             return {
                 code : 200,
@@ -224,7 +245,7 @@ class _pakan{
             for(let i = 0; i < list.length; i++){
                 if(list[i].dataValues.tanggal_konsumsi != null){
                     list[i].dataValues.status = list[i].dataValues.tanggal_konsumsi < new Date() ? 'siap' : 'belum siap';
-                    console.log(list[i].dataValues.tanggal_konsumsi < new Date());  
+                    console.log(list[i].dataValues.tanggal_konsumsi <= new Date());  
                 }else{
                     list[i].dataValues.status = 'kosong';
                 }
