@@ -29,7 +29,7 @@ class _kandang{
                         as: 'jenispakan',
                         attributes: [
                             'id_jenis_pakan',
-                            'nama_jenis_pakan'
+                            'jenis_pakan'
                         ]
                     }
                 ],
