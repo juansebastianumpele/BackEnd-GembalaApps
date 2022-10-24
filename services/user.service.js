@@ -1,5 +1,8 @@
 // Helper databse yang dibuat
 const {log_error} = require('../utils/logging');
+const joi = require('joi');
+const {generateToken} = require('../utils/auth');
+const config = require('../config/app.config')
 class _user{
     constructor(db){
         this.db = db;
@@ -26,6 +29,45 @@ class _user{
             };
         }catch (error){
             log_error('getUsers Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
+    // Generate new toke for superadmin and bod 
+    generateNewToken = async (req) => {
+        try{
+            const schema = joi.object({
+                id_user: joi.number().required()
+            });
+            const {error, value} = schema.validate(req.body);
+            if(error){
+                return {
+                    code: 400,
+                    error: error.details[0].message
+                }
+            }
+            
+            const token = generateToken({ 
+                id_user: req.dataAuth.id_user, 
+                nama_pengguna: req.dataAuth.nama_pengguna, 
+                role: req.dataAuth.role,
+                status: req.dataAuth.status,
+                id_peternakan: req.dataAuth.id_peternakan
+            });
+
+            return {
+                code: 200,
+                data: {
+                    token,
+                    expiresAt: date.format(date.addSeconds(new Date(), config.jwt.expiresIn), 'YYYY-MM-DD HH:mm:ss')
+                }
+            }
+        }
+        catch (error){
+            log_error('generateNewToken Service', error);
             return {
                 code: 500,
                 error

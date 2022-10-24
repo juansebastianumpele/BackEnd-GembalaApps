@@ -2,18 +2,26 @@ const db = require('../models');
 const { log_info } = require('../utils/logging');
 const response = require('../utils/response');
 
+const bodMiddleware = async (req, res, next) => {
+    if(req.dataAuth.role == 'bod'){
+        next()
+    }else{
+        response.sendResponse(res, {code: 401, error: 'Not authorized, You are not BOD'})
+    }
+    return
+}
+
 const superAdminMiddleware = async (req, res, next) => {
-    if(req.dataAuth.role == 'superadmin'){
+    if(req.dataAuth.role == 'superadmin' || req.dataAuth.role == 'bod'){
         next();
     }else{
-        response.sendResponse(res, {code: 401, error: 'Not authorized, you are not superadmin'})
+        response.sendResponse(res, {code: 401, error: 'Not authorized, you are not superadmin or BOD'})
     }
     return
 };
 
 const adminMiddleware = async (req, res, next) => {
-    if(req.dataAuth.role == 'admin' || req.dataAuth.role == 'superadmin'){
-        log_info('adminMiddleware', 'Role: ' + req.dataAuth.role);
+    if(req.dataAuth.role == 'admin' || req.dataAuth.role == 'superadmin' || req.dataAuth.role == 'bod'){
         next();
     }else if(req.dataAuth.role == 'user'){
         response.sendResponse(res, {code: 401, error: 'Not authorized, you are not admin. Please contact your superadmin'})
@@ -25,6 +33,7 @@ const adminMiddleware = async (req, res, next) => {
 
 
 module.exports = {
-  superAdminMiddleware,
-  adminMiddleware
+    bodMiddleware,
+    superAdminMiddleware,
+    adminMiddleware
 }

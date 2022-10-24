@@ -72,7 +72,7 @@ class _auth{
             code : 200,
             data: {
                 token,
-                expiresAt: date.format(date.addSeconds(new Date(), 3600), 'YYYY-MM-DD HH:mm:ss')
+                expiresAt: date.format(date.addSeconds(new Date(), config.jwt.expiresIn), 'YYYY-MM-DD HH:mm:ss')
             },
         }
     }

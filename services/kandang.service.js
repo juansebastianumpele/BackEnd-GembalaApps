@@ -13,7 +13,7 @@ class _kandang{
             req.query.id_user = req.dataAuth.id_user
             // Query data
             const list = await this.db.Kandang.findAll({
-                attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'kebutuhan_pakan', 'createdAt', 'updatedAt'],
+                attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'persentase_kebutuhan_pakan', 'createdAt', 'updatedAt'],
                 include: [
                     {
                         model: this.db.Ternak,
@@ -47,7 +47,7 @@ class _kandang{
                 const berat_rata = berat_total / list[i].dataValues.ternak.length;
                 list[i].dataValues.berat_rata = (!berat_rata) ? 0 : berat_rata;
                 list[i].dataValues.berat_total = berat_total;
-                list[i].dataValues.kebutuhan_pakan = berat_total * (list[i].dataValues.kebutuhan_pakan/100);
+                list[i].dataValues.kebutuhan_pakan = berat_total * (list[i].dataValues.persentase_kebutuhan_pakan/100);
                 delete list[i].dataValues.ternak;
             }
             return {

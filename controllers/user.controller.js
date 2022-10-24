@@ -16,6 +16,15 @@ const userController = (db) => {
         response.sendResponse(res, list);
     });
 
+    /**
+     * Generate new token for superadmin and bod
+     * @param {string} id_user
+     */
+    UserController.post('/generate-token', authentication, superAdminMiddleware, async (req, res, next) => {
+        const result = await s$user.generateNewToken(req);
+        response.sendResponse(res, result);
+    });
+
     return UserController;
 }
 

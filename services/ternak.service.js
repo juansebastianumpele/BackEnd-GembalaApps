@@ -55,10 +55,11 @@ class _ternak{
             });
 
             for(let i = 0; i < list.length; i++){
-                list[i].dataValues.penyakit = list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null)
-                list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit ? 'Sakit' : "Sehat";
+                list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
+                list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * 0.05).toFixed(2);
+                delete list[i].dataValues.riwayat_kesehatan;
             }
 
             if(list.length <= 0){
@@ -90,17 +91,17 @@ class _ternak{
             // Validate Data
             const schema = joi.object({
                 rf_id: joi.string().required(),
-                foto: joi.string().allow(null),
+                image: joi.string().allow(null),
                 jenis_kelamin: joi.string().allow(null),
-                id_varietas: joi.number().allow(null),
+                id_bangsa: joi.number().allow(null),
                 berat: joi.number().allow(null),
                 suhu: joi.number().allow(null),
                 tanggal_lahir: joi.date().allow(null),
                 tanggal_masuk: joi.date().allow(null),
-                id_induk: joi.number().allow(null),
-                id_pejantan: joi.number().allow(null),
-                id_penyakit: joi.number().allow(null),
-                id_pakan: joi.number().allow(null),
+                tanggal_keluar: joi.date().allow(null),
+                status_keluar: joi.string().allow(null),
+                id_dam: joi.number().allow(null),
+                id_sire: joi.number().allow(null),
                 id_fp: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
@@ -114,9 +115,6 @@ class _ternak{
                 }
             }
 
-            // Check status kesehatan
-            value.status_kesehatan = value.id_penyakit ? 'Sakit' : 'Sehat';
-
             // Check if Ternak already exist
             const ternak = await this.db.Ternak.findOne({
                 where: {
@@ -126,33 +124,18 @@ class _ternak{
             if(ternak){
                 return{
                     code: 400,
-                    error: 'Ternak already exist'
+                    error: 'RFID Ternak already exist'
                 }
             }
 
             // Query Data
-            // Add id_peternakan to params
-            value.id_peternakan = req.dataAuth.id_peternakan
+            // Add id_user to params
+            value.id_user = req.dataAuth.id_user
             const add = await this.db.Ternak.create(value);
             if(add === null){
                 return{
                     code: 400,
                     error: `Failed to create new Ternak`
-                }
-            }
-
-            // Check if ternak is sick, if yes, add to riwayat_kesehatan_ternak
-            if(value.id_penyakit){
-                const addRiwayat = await this.db.RiwayatKesehatan.create({
-                    id_ternak: add.id_ternak,
-                    id_penyakit: value.id_penyakit,
-                    tanggal_sakit: new Date(),
-                });
-                if(addRiwayat === null){
-                    return{
-                        code: 400,
-                        error: `Failed to create new Riwayat Kesehatan`
-                    }
                 }
             }
 
@@ -180,22 +163,19 @@ class _ternak{
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 rf_id: joi.string().required(),
-                foto: joi.string().allow(null),
+                image: joi.string().allow(null),
                 jenis_kelamin: joi.string().allow(null),
-                id_varietas: joi.number().allow(null),
+                id_bangsa: joi.number().allow(null),
                 berat: joi.number().allow(null),
                 suhu: joi.number().allow(null),
                 tanggal_lahir: joi.date().allow(null),
                 tanggal_masuk: joi.date().allow(null),
-                id_induk: joi.number().allow(null),
-                id_pejantan: joi.number().allow(null),
-                status_kesehatan: joi.string().allow(null),
-                id_penyakit: joi.number().allow(null),
-                id_pakan: joi.number().allow(null),
-                id_fp: joi.number().allow(null),
-                id_kandang: joi.number().allow(null),
                 tanggal_keluar: joi.date().allow(null),
-                status_keluar: joi.number().allow(null)
+                status_keluar: joi.string().allow(null),
+                id_dam: joi.number().allow(null),
+                id_sire: joi.number().allow(null),
+                id_fp: joi.number().allow(null),
+                id_kandang: joi.number().allow(null)
             });
 
             const {error, value} = schema.validate(req.body);
@@ -207,37 +187,31 @@ class _ternak{
                 }
             }
 
-            // Check status kesehatan
-            value.status_kesehatan = value.id_penyakit ? 'Sakit' : 'Sehat';
-
-            const update = await this.db.Ternak.update(value, {
+            const update = await this.db.Ternak.update({
+                rf_id: value.rf_id,
+                image: value.image,
+                jenis_kelamin: value.jenis_kelamin,
+                id_bangsa: value.id_bangsa,
+                berat: value.berat,
+                suhu: value.suhu,
+                tanggal_lahir: value.tanggal_lahir,
+                tanggal_masuk: value.tanggal_masuk,
+                tanggal_keluar: value.tanggal_keluar,
+                status_keluar: value.status_keluar,
+                id_dam: value.id_dam,
+                id_sire: value.id_sire,
+                id_fp: value.id_fp,
+                id_kandang: value.id_kandang
+            }, {
                 where: {
                     id_ternak: value.id_ternak,
-                    id_peternakan: req.dataAuth.id_peternakan
+                    id_user: req.dataAuth.id_user
                 }
             });
             if(update <= 0){
                 return{
                     code: 400,
                     error: `Failed to update Ternak`
-                }
-            }
-
-            // Check if ternak isnt sick, update from riwayat_kesehatan_ternak
-            if(value.id_penyakit === null){
-                const updateRiwayat = await this.db.RiwayatKesehatan.update({
-                    tanggal_selesai: new Date(),
-                }, {
-                    where: {
-                        id_ternak: value.id_ternak,
-                        tanggal_selesai: null
-                    }
-                });
-                if(updateRiwayat <= 0){
-                    return{
-                        code: 400,
-                        error: `Failed to update Riwayat Kesehatan`
-                    }
                 }
             }
 
@@ -280,7 +254,7 @@ class _ternak{
             const del = await this.db.Ternak.destroy({
                 where: {
                     id_ternak: value.id_ternak,
-                    id_peternakan: req.dataAuth.id_peternakan
+                    id_user: req.dataAuth.id_user
                 }
             });
             if(del <= 0){

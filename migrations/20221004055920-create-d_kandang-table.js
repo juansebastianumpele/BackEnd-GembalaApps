@@ -38,7 +38,7 @@ module.exports = {
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE'
       },
-      kebutuhan_pakan:{
+      persentase_kebutuhan_pakan:{
         type: Sequelize.INTEGER,
         allowNull: false
       },

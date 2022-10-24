@@ -22,7 +22,7 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        kebutuhan_pakan:{
+        persentase_kebutuhan_pakan:{
             type: DataTypes.INTEGER,
             allowNull: false
         },
