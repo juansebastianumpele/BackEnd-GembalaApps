@@ -12,8 +12,9 @@ class _rfid{
             // Validate data
             const schema = joi.object({
                 rf_id: joi.string().required(),
+                id_peternakan: joi.number().required(),
+                jenis_ternak_baru: joi.string().required(),
             });
-
             const { error, value } = schema.validate(req.body);
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message).join(', ');
@@ -23,31 +24,74 @@ class _rfid{
                 }
             }
 
-            const [ternak, created] = await this.db.Ternak.findOrCreate({
+            // Get data status ternak cempe
+            const status = await this.db.Status.findOne({
                 where: {
-                    rf_id: value.rf_id,
-                },
-                defaults: {
-                    rf_id: value.rf_id,
-                },
+                    status_ternak: "cempe"
+                }
             });
 
-            if(created){
-                log_info('RFID Service', 'Ternak baru ditambahkan')
-            }else{
-                log_info('RFID Service', 'Ternak sudah ada');
+            // Check Ternak
+            const checkTernak = await this.db.Ternak.findAll({
+                attributes: ['id_ternak'],
+                where: {
+                    rf_id: value.rf_id,
+                    id_user: value.id_peternakan
+                }
+            })
+            if(checkTernak.length > 0){
+                return{
+                    code: 400,
+                    error: 'Ternak Already Exist'
+                }
             }
 
-            const getTernak = await this.db.Ternak.findOne({
+            // Add New Ternak
+            const addTernak = await this.db.Ternak.create({
+                rf_id: value.rf_id,
+                id_user: value.id_peternakan,
+                id_status_ternak: value.jenis_ternak_baru == "kelahiran" ? (status ? status.id_status_ternak : null) : null
+            })
+
+            return{
+                code: 200,
+                data: addTernak
+            }
+
+
+        } catch (error) {
+            log_error('RFID Service', error)
+            return {
+                code: 500,
+                error,
+            };
+        }
+    }
+
+    // RFID Get data ternak
+    rfidGetTernak = async (req) =>{
+        try{
+            const schema = joi.object({
+                rf_id: joi.string().required(),
+            });
+            const { error, value } = schema.validate(req.body);
+            if (error) {
+                const errorDetails = error.details.map((detail) => detail.message).join(', ');
+                return {
+                    code: 400,
+                    error: errorDetails,
+                }
+            }
+
+            const getTernak = await this.db.Ternak.findAll({
                 attributes : ['id_ternak', 
                 'rf_id', 
-                'foto', 
+                'image', 
                 'jenis_kelamin', 
-                'id_induk', 
-                'id_pejantan', 
+                'id_dam', 
+                'id_sire', 
                 'berat', 
                 'suhu', 
-                'status_kesehatan', 
                 'tanggal_lahir',
                 [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
@@ -57,19 +101,19 @@ class _rfid{
                 'updatedAt'],
                 include: [
                     {
-                        model: this.db.Varietas,
-                        as: 'varietas',
-                        attributes: ['id_varietas', 'varietas']
+                        model: this.db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa']
                     },
                     {
                         model: this.db.Kandang,
                         as: 'kandang',
-                        attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang']
+                        attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan']
                     },
                     {
-                        model: this.db.Penyakit,
-                        as: 'penyakit',
-                        attributes: ['id_penyakit', 'nama_penyakit']
+                        model: this.db.RiwayatKesehatan,
+                        as: 'riwayat_kesehatan',
+                        attributes: ['id_riwayat_kesehatan', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
                     },
                     {
                         model: this.db.Fase,
@@ -77,9 +121,9 @@ class _rfid{
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: this.db.Pakan,
-                        as: 'pakan',
-                        attributes: ['id_pakan', 'nama_pakan']
+                        model: this.db.Status,
+                        as: 'status',
+                        attributes: ['id_status_ternak', 'status_ternak']
                     }
                 ],
                 where : {
@@ -89,19 +133,21 @@ class _rfid{
 
             if(getTernak == null){
                 return {
-                    code: 500,
-                    error: 'Internal Server Error'
+                    code: 404,
+                    error: 'Data Ternak not found'
                 }
             }
 
             return {
                 code: 200,
-                data: getTernak,
+                data: {
+                    total: getTernak.length,
+                    getTernak
+                }
             };
 
-
-        } catch (error) {
-            log_error('RFID Service', error)
+        }catch(error){
+            log_error('RFIDGetDataTernak Service', error)
             return {
                 code: 500,
                 error,

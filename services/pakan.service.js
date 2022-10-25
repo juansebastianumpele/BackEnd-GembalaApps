@@ -11,7 +11,7 @@ class _pakan{
     getJenisPakan = async (req) => {
         try{
             // Add id_user to params
-            req.query.id_user = req.dataAuth.id_user
+            req.query.id_user = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.JenisPakan.findAll({
                 where : req.query
@@ -26,7 +26,7 @@ class _pakan{
             // Get data Pakan
             const data = await this.db.Pakan.findAll({
                 where : {
-                    id_user : req.dataAuth.id_user
+                    id_user : req.dataAuth.id_peternakan
                 }
             });
             console.log(data);
@@ -82,7 +82,7 @@ class _pakan{
             }
 
             const add = await this.db.JenisPakan.create({
-                id_user: req.dataAuth.id_user,
+                id_user: req.dataAuth.id_peternakan,
                 jenis_pakan: value.jenis_pakan,
                 interval_pakan: value.interval_pakan,
                 satuan: value.satuan,
@@ -145,7 +145,7 @@ class _pakan{
             }, {
                 where: {
                     id_jenis_pakan: value.id_jenis_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(update[0] == 0){
@@ -193,7 +193,7 @@ class _pakan{
             const del = await this.db.JenisPakan.destroy({
                 where: {
                     id_jenis_pakan: value.id_jenis_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(del == 0){
@@ -224,7 +224,7 @@ class _pakan{
     getPakan = async (req) => {
         try{
             // Add id_user to params
-            req.query.id_user = req.dataAuth.id_user
+            req.query.id_user = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.Pakan.findAll({
                 attributes: ['id_pakan', 'id', 'tanggal_pembuatan', 'tanggal_konsumsi', 'createdAt', 'updatedAt'],
@@ -289,7 +289,7 @@ class _pakan{
             const jenis_pakan = await this.db.Pakan.findOne({
                 where: {
                     id: value.id,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(jenis_pakan != null){
@@ -301,7 +301,7 @@ class _pakan{
 
             // add data pakan
             const add = await this.db.Pakan.create({
-                id_user: req.dataAuth.id_user,
+                id_user: req.dataAuth.id_peternakan,
                 id_jenis_pakan: value.id_jenis_pakan,
                 id: value.id,
             });
@@ -354,7 +354,7 @@ class _pakan{
             const jenis_pakan = await this.db.Pakan.findOne({
                 where: {
                     id: value.id,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(jenis_pakan != null){
@@ -371,7 +371,7 @@ class _pakan{
             }, {
                 where: {
                     id_pakan: value.id_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){
@@ -421,7 +421,7 @@ class _pakan{
             const del = await this.db.Pakan.destroy({
                 where: {
                     id_pakan: value.id_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(del <= 0){
@@ -471,7 +471,7 @@ class _pakan{
             const pakan = await this.db.Pakan.findOne({
                 where: {
                     id_pakan: value.id_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(pakan == null){
@@ -485,7 +485,7 @@ class _pakan{
             const jenisPakan = await this.db.JenisPakan.findOne({
                 where: {
                     id_jenis_pakan: pakan.id_jenis_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(jenisPakan == null){
@@ -502,7 +502,7 @@ class _pakan{
             }, {
                 where: {
                     id_pakan: value.id_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){
@@ -554,7 +554,7 @@ class _pakan{
             const pakan = await this.db.Pakan.findOne({
                 where: {
                     id_pakan: value.id_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(pakan == null){
@@ -568,7 +568,7 @@ class _pakan{
             const jenisPakan = await this.db.JenisPakan.findOne({
                 where: {
                     id_jenis_pakan: pakan.id_jenis_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(jenisPakan == null){
@@ -585,7 +585,7 @@ class _pakan{
             }, {
                 where: {
                     id_pakan: value.id_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){
@@ -638,7 +638,7 @@ class _pakan{
             }, {
                 where: {
                     id_pakan: value.id_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){

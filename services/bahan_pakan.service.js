@@ -264,7 +264,7 @@ class _bahanPakan{
             }, {
                 where: {
                     id_jenis_bahan_pakan: value.id_jenis_bahan_pakan,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
 

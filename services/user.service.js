@@ -55,7 +55,7 @@ class _user{
                 nama_pengguna: req.dataAuth.nama_pengguna, 
                 role: req.dataAuth.role,
                 status: req.dataAuth.status,
-                id_peternakan: req.dataAuth.id_peternakan
+                id_peternakan: value.id_user
             });
 
             return {

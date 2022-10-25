@@ -1,12 +1,12 @@
 module.exports = (Sequelize, DataTypes) => {
-    const Fase = Sequelize.define("Fase", {
-        id_fp:{
+    const Status = Sequelize.define("Status", {
+        id_status_ternak:{
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
           allowNull: false
         },
-        fase:{
+        status_ternak:{
           type: DataTypes.STRING,
           allowNull: false
         },
@@ -19,14 +19,14 @@ module.exports = (Sequelize, DataTypes) => {
           allowNull: false
         }  
     }, {
-        tableName: "d_fase",
+        tableName: "d_status_ternak",
     });
 
-    Fase.associate = function (models) {
-        Fase.hasMany(models.Ternak, {
-            foreignKey: 'id_fp',
+    Status.associate = function (models) {
+        Status.hasMany(models.Ternak, {
+            foreignKey: 'id_status_ternak',
             as: 'ternak'
         });
     };
-    return Fase;
+    return Status;
 }

@@ -10,16 +10,17 @@ class _lkPemasukan{
     getTernakMasuk = async (req) => {
         try{
             // Query Data
-            const ternak = await this.db.Ternak.findAll({
+            const list = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'rf_id', 'image', 'jenis_kelamin', 'id_bangsa', 'id_kandang', 'id_fp', 'id_dam', 'id_sire', 'berat', 'suhu', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt'],
                 where: {
-                    id_user: req.user.id_user,
+                    id_user: req.dataAuth.id_peternakan,
                     id_fp: null
                 },
                 order: [
                     ['createdAt', 'DESC']
                 ]
-            });
-            if(ternak.length <= 0){
+            }); 
+            if(list.length <= 0){
                 return{
                     code: 404,
                     error: 'Data ternak masuk not found'
@@ -89,7 +90,7 @@ class _lkPemasukan{
             },{
                 where: {
                     id_ternak: value.id_ternak,
-                    id_user: req.dataAuth.id_user,
+                    id_user: req.dataAuth.id_peternakan,
                 }
             });
             if(update[0] <= 0){
@@ -112,7 +113,7 @@ class _lkPemasukan{
                 cek_kondisi_fisik_lain: value.cek_kondisi_fisik_lain,
                 cek_bcs: value.cek_bcs,
                 id_kandang: value.id_kandang,
-                id_user: req.dataAuth.id_user,
+                id_user: req.dataAuth.id_peternakan,
             });
             if(!lkPemasukan){
                 return{
@@ -143,7 +144,7 @@ class _lkPemasukan{
     getLKPemasukan = async (req) => {
         try{
             // Add id_user to params
-            req.query.id_user = req.dataAuth.id_user;
+            req.query.id_user = req.dataAuth.id_peternakan;
             // Query Data
             const lkPemasukan = await this.db.LKPemasukan.findAll({
                 where: req.query,

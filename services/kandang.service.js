@@ -10,7 +10,7 @@ class _kandang{
     getKandang = async (req) => {
         try{
             // Add id_peternakan to params
-            req.query.id_user = req.dataAuth.id_user
+            req.query.id_user = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.Kandang.findAll({
                 attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'persentase_kebutuhan_pakan', 'createdAt', 'updatedAt'],
@@ -74,7 +74,7 @@ class _kandang{
                 kode_kandang: joi.string().required(),
                 jenis_kandang: joi.string().required(),
                 id_jenis_pakan: joi.number().required(),
-                kebutuhan_pakan: joi.number().required()
+                persentase_kebutuhan_pakan: joi.number().required()
             });
 
             const {error, value} = schema.validate(req.body);
@@ -87,11 +87,11 @@ class _kandang{
             }
 
             const add = await this.db.Kandang.create({
-                id_user: req.dataAuth.id_user,
+                id_user: req.dataAuth.id_peternakan,
                 kode_kandang: value.kode_kandang,
                 jenis_kandang: value.jenis_kandang,
                 id_jenis_pakan: value.id_jenis_pakan,
-                kebutuhan_pakan: value.kebutuhan_pakan
+                persentase_kebutuhan_pakan: value.persentase_kebutuhan_pakan
             });
             if(add == null){
                 return{
@@ -128,7 +128,7 @@ class _kandang{
                 kode_kandang: joi.string().required(),
                 jenis_kandang: joi.string().required(),
                 id_jenis_pakan: joi.number().required(),
-                kebutuhan_pakan: joi.number().required()
+                persentase_kebutuhan_pakan: joi.number().required()
             });
 
             const {error, value} = schema.validate(req.body);
@@ -145,11 +145,11 @@ class _kandang{
                 kode_kandang: value.kode_kandang,
                 jenis_kandang: value.jenis_kandang,
                 id_jenis_pakan: value.id_jenis_pakan,
-                kebutuhan_pakan: value.kebutuhan_pakan
+                persentase_kebutuhan_pakan: value.persentase_kebutuhan_pakan
             }, {
                 where: {
                     id_kandang: value.id_kandang,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){
@@ -195,7 +195,7 @@ class _kandang{
             const del = await this.db.Kandang.destroy({
                 where: {
                     id_kandang: value.id_kandang,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(del <= 0){

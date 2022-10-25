@@ -34,8 +34,7 @@ module.exports = {
           'Jantan',
           'Betina'
         ],
-        defaultValue: 'Betina',
-        allowNull: false
+        allowNull: true
       },
       id_bangsa:{
         type: Sequelize.INTEGER,
@@ -57,11 +56,21 @@ module.exports = {
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE'
       },
+      id_status_ternak:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'd_status_ternak',
+          key: 'id_status_ternak'
+        },
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE"
+      },
       id_fp:{
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'd_fase_pemeliharaan',
+          model: 'd_fase',
           key: 'id_fp'
         },
         onDelete: 'SET NULL',

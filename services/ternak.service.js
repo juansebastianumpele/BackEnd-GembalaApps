@@ -1,7 +1,6 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const { sequelize } = require('../models');
 const { log_error } = require('../utils/logging');
 class _ternak{
     constructor(db){
@@ -11,7 +10,7 @@ class _ternak{
     getTernak = async (req) => {
         try{
             // Add id_user to params
-            req.query.id_user = req.dataAuth.id_user
+            req.query.id_user = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.Ternak.findAll({
                 attributes : ['id_ternak', 
@@ -23,7 +22,7 @@ class _ternak{
                 'berat', 
                 'suhu', 
                 'tanggal_lahir',
-                [this.db.sequelize.fn('datediff', sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
+                [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -50,6 +49,11 @@ class _ternak{
                         as: 'fase',
                         attributes: ['id_fp', 'fase']
                     },
+                    {
+                        model: this.db.Status,
+                        as: 'status',
+                        attributes: ['id_status_ternak', 'status_ternak']
+                    }
                 ],
                 where : req.query
             });
@@ -103,6 +107,7 @@ class _ternak{
                 id_dam: joi.number().allow(null),
                 id_sire: joi.number().allow(null),
                 id_fp: joi.number().allow(null),
+                id_status_ternak: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
 
@@ -130,7 +135,7 @@ class _ternak{
 
             // Query Data
             // Add id_user to params
-            value.id_user = req.dataAuth.id_user
+            value.id_user = req.dataAuth.id_peternakan
             const add = await this.db.Ternak.create(value);
             if(add === null){
                 return{
@@ -175,6 +180,7 @@ class _ternak{
                 id_dam: joi.number().allow(null),
                 id_sire: joi.number().allow(null),
                 id_fp: joi.number().allow(null),
+                id_status_ternak: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
 
@@ -201,11 +207,12 @@ class _ternak{
                 id_dam: value.id_dam,
                 id_sire: value.id_sire,
                 id_fp: value.id_fp,
+                id_status_ternak: value.id_status_ternak,
                 id_kandang: value.id_kandang
             }, {
                 where: {
                     id_ternak: value.id_ternak,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){
@@ -254,7 +261,7 @@ class _ternak{
             const del = await this.db.Ternak.destroy({
                 where: {
                     id_ternak: value.id_ternak,
-                    id_user: req.dataAuth.id_user
+                    id_user: req.dataAuth.id_peternakan
                 }
             });
             if(del <= 0){

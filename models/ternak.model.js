@@ -30,6 +30,10 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true,
           },
+          id_status_ternak:{
+            type: DataTypes.INTEGER,
+            allowNull: true,
+          },
           id_fp:{
             type: DataTypes.INTEGER,
             allowNull: true,
@@ -90,6 +94,10 @@ module.exports = (Sequelize, DataTypes) => {
       Ternak.belongsTo(models.Fase, {
           foreignKey: 'id_fp',
           as: 'fase'
+      });
+      Ternak.belongsTo(models.Status, {
+          foreignKey: 'id_status_ternak',
+          as: 'status'
       });
       Ternak.belongsTo(models.Ternak, {
           foreignKey: 'id_dam',
