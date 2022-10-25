@@ -9,13 +9,13 @@ class _lkPemasukan{
     // Get Data Ternak Masuk
     getTernakMasuk = async (req) => {
         try{
+            // Add id_user to query
+            req.query.id_user = req.dataAuth.id_peternakan;
+            req.query.id_fp = null;
             // Query Data
             const list = await this.db.Ternak.findAll({
                 attributes: ['id_ternak', 'rf_id', 'image', 'jenis_kelamin', 'id_bangsa', 'id_kandang', 'id_fp', 'id_dam', 'id_sire', 'berat', 'suhu', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt'],
-                where: {
-                    id_user: req.dataAuth.id_peternakan,
-                    id_fp: null
-                },
+                where: req.query,
                 order: [
                     ['createdAt', 'DESC']
                 ]

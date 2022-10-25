@@ -41,8 +41,11 @@ class _rfid{
             })
             if(checkTernak.length > 0){
                 return{
-                    code: 400,
-                    error: 'Ternak Already Exist'
+                    code: 200,
+                    data: {
+                        message: "Ternak Already Exist",
+                        id_ternak: checkTernak[0].id_ternak
+                    }
                 }
             }
 
@@ -55,7 +58,10 @@ class _rfid{
 
             return{
                 code: 200,
-                data: addTernak
+                data: {
+                    message: "Ternak Added",
+                    id_ternak: addTernak.id_ternak
+                }
             }
 
 
