@@ -12,10 +12,12 @@ class _pakan{
         try{
             // Add id_user to params
             req.query.id_user = req.dataAuth.id_peternakan
+
             // Query data
             const list = await this.db.JenisPakan.findAll({
                 where : req.query
             });
+            console.log(list.length)
             if(list.length <= 0){
                 return{
                     code: 404,
@@ -29,19 +31,11 @@ class _pakan{
                     id_user : req.dataAuth.id_peternakan
                 }
             });
-            console.log(data);
-            console.log(data.length);
-            if(data.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data pakan not found'
-                }
-            }
 
             for(let i=0; i < list.length; i ++){
-                list[i].dataValues.stok_siap = data.filter(item => item.tanggal_pembuatan != null && item.tanggal_konsumsi <= new Date()).length;
-                list[i].dataValues.stok_belum_siap = data.filter(item => item.tanggal_pembuatan != null && item.tanggal_konsumsi > new Date()).length;
-                list[i].dataValues.stok_belum_dibuat = data.filter(item => item.tanggal_pembuatan == null).length;
+                list[i].dataValues.stok_siap = data.length > 0 ? data.filter((item) => item.dataValues.id_jenis_pakan == list[i].dataValues.id_jenis_pakan && item.dataValues.tanggal_pembuatan != null && item.dataValues.tanggal_konsumsi <= new Date()).length : 0;
+                list[i].dataValues.stok_belum_siap = data.length > 0 ? data.filter((item) => item.dataValues.id_jenis_pakan == list[i].dataValues.id_jenis_pakan && item.dataValues.tanggal_pembuatan != null && item.dataValues.tanggal_konsumsi > new Date()).length : 0;
+                list[i].dataValues.stok_belum_dibuat = data.length > 0 ? data.filter((item) => item.dataValues.id_jenis_pakan == list[i].dataValues.id_jenis_pakan && item.dataValues.tanggal_pembuatan == null).length : 0;
             }
     
             return {
@@ -289,7 +283,8 @@ class _pakan{
             const jenis_pakan = await this.db.Pakan.findOne({
                 where: {
                     id: value.id,
-                    id_user: req.dataAuth.id_peternakan
+                    id_user: req.dataAuth.id_peternakan,
+                    id_jenis_pakan: value.id_jenis_pakan,
                 }
             });
             if(jenis_pakan != null){

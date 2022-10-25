@@ -88,6 +88,7 @@ class _dashboard{
             return err;
         }
     }
+
 }
 
 module.exports = (db) => new _dashboard(db);
