@@ -35,6 +35,10 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
+      jumlah: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       keterangan:{
         type: Sequelize.ENUM,
         values: [

@@ -18,6 +18,10 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: false
         },
+        jumlah:{
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
         keterangan:{
             type: DataTypes.ENUM,
             values: [

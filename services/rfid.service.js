@@ -53,7 +53,7 @@ class _rfid{
             const addTernak = await this.db.Ternak.create({
                 rf_id: value.rf_id,
                 id_user: value.id_peternakan,
-                id_status_ternak: value.jenis_ternak_baru == "kelahiran" ? (status ? status.id_status_ternak : null) : null
+                id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (status ? status.id_status_ternak : null) : null
             })
 
             return{
