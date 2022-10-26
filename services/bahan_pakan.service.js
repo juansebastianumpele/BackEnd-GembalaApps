@@ -260,7 +260,7 @@ class _bahanPakan{
 
             // update stok bahan pakan
             const update = await this.db.JenisBahanPakan.update({
-                stok: value.keterangan == 'masuk' ? this.db.sequelize.literal(`stok + ${value.jumlah}`) : this.db.sequelize.literal(`stok - ${value.jumlah}`),
+                stok: value.keterangan.toLowerCase() == 'masuk' ? this.db.sequelize.literal(`stok + ${value.jumlah}`) : this.db.sequelize.literal(`stok - ${value.jumlah}`),
             }, {
                 where: {
                     id_jenis_bahan_pakan: value.id_jenis_bahan_pakan,

@@ -41,8 +41,11 @@ class _rfid{
             })
             if(checkTernak.length > 0){
                 return{
-                    code: 400,
-                    error: 'Ternak Already Exist'
+                    code: 200,
+                    data: {
+                        message: "Ternak Already Exist",
+                        id_ternak: checkTernak[0].id_ternak
+                    }
                 }
             }
 
@@ -50,12 +53,15 @@ class _rfid{
             const addTernak = await this.db.Ternak.create({
                 rf_id: value.rf_id,
                 id_user: value.id_peternakan,
-                id_status_ternak: value.jenis_ternak_baru == "kelahiran" ? (status ? status.id_status_ternak : null) : null
+                id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (status ? status.id_status_ternak : null) : null
             })
 
             return{
                 code: 200,
-                data: addTernak
+                data: {
+                    message: "Ternak Added",
+                    id_ternak: addTernak.id_ternak
+                }
             }
 
 
