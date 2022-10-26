@@ -5,19 +5,19 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('d_jenis_pakan', [{
       id_user: 2,
-      jenis_pakan: 'Pakan 1',
-      interval_pakan: 10,
+      jenis_pakan: 'Complete Feed',
+      interval_pakan: 14,
       satuan: 'Tong',
-      komposisi: 'Komposisi 1',
-      nutrien: 'Nutrien 1',
+      komposisi: 'Bongkol Jagung 15%, Premix 0,1%, Jagung 60%',
+      nutrien: 'BK 87%; PK 21%; LK 24%',
     },
     {
       id_user: 3,
-      jenis_pakan: 'Pakan 2',
-      interval_pakan: 10,
+      jenis_pakan: 'Complete Feed',
+      interval_pakan: 14,
       satuan: 'Tong',
-      komposisi: 'Komposisi 2',
-      nutrien: 'Nutrien 2',
+      komposisi: 'Bongkol Jagung 15%, Premix 0,1%, Jagung 60%',
+      nutrien: 'BK 87%; PK 21%; LK 24%',
     }
   ], {});
   },
