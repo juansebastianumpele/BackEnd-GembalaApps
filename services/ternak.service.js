@@ -9,8 +9,8 @@ class _ternak{
     // Get Data Ternak
     getTernak = async (req) => {
         try{
-            // Add id_user to params
-            req.query.id_user = req.dataAuth.id_peternakan
+            // Add id_peternakan to params
+            req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.Ternak.findAll({
                 attributes : ['id_ternak', 
@@ -135,7 +135,7 @@ class _ternak{
 
             // Query Data
             // Add id_user to params
-            value.id_user = req.dataAuth.id_peternakan
+            value.id_peternakan = req.dataAuth.id_peternakan
             const add = await this.db.Ternak.create(value);
             if(add === null){
                 return{
@@ -212,7 +212,7 @@ class _ternak{
             }, {
                 where: {
                     id_ternak: value.id_ternak,
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){
@@ -261,7 +261,7 @@ class _ternak{
             const del = await this.db.Ternak.destroy({
                 where: {
                     id_ternak: value.id_ternak,
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
             if(del <= 0){

@@ -58,7 +58,6 @@ class _kawin {
 
     // Get data Indukan
     getDataIndukan = async (req) => {
-        console.log(req.query);
         try {
             // Query Data
             const list = await this.db.Ternak.findAll({

@@ -26,12 +26,8 @@ module.exports = {
       },
       nomor_telepon:{
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true
-      },
-      alamat:{
-        type: Sequelize.STRING,
-        allowNull: false
       },
       kata_sandi:{
         type: Sequelize.STRING,
@@ -49,9 +45,15 @@ module.exports = {
         defaultValue: 'inactive',
         allowNull: false
       },
-      nama_peternakan:{
-        type: Sequelize.STRING,
-        allowNull: true
+      id_peternakan:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'd_peternakan',
+          key: 'id_peternakan'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       lastAccess:{
         type: Sequelize.DATE,

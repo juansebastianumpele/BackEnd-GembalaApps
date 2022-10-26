@@ -3,19 +3,19 @@ const { log_info } = require('../utils/logging');
 const response = require('../utils/response');
 
 const bodMiddleware = async (req, res, next) => {
-    if(req.dataAuth.role == 'bod'){
+    if(req.dataAuth.role == 'bod' || req.dataAuth.role == 'superadmin'){
         next()
     }else{
-        response.sendResponse(res, {code: 401, error: 'Not authorized, You are not BOD'})
+        response.sendResponse(res, {code: 401, error: 'Not authorized, You are not BOD or Superadmin'})
     }
     return
 }
 
 const superAdminMiddleware = async (req, res, next) => {
-    if(req.dataAuth.role == 'superadmin' || req.dataAuth.role == 'bod'){
+    if(req.dataAuth.role == 'superadmin'){
         next();
     }else{
-        response.sendResponse(res, {code: 401, error: 'Not authorized, you are not superadmin or BOD'})
+        response.sendResponse(res, {code: 401, error: 'Not authorized, you are not superadmin'})
     }
     return
 };

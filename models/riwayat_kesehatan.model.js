@@ -9,6 +9,10 @@ module.exports = (Sequelize, DataTypes) => {
             autoIncrement: true,
             allowNull: false
           },
+          id_peterakan:{
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
           id_ternak:{
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -45,6 +49,10 @@ module.exports = (Sequelize, DataTypes) => {
         RiwayatKesehatan.belongsTo(models.Ternak, {
             foreignKey: 'id_ternak',
             as: 'ternak'
+        });
+        RiwayatKesehatan.belongsTo(models.Peternakan, {
+            foreignKey: 'id_peternakan',
+            as: 'peternakan'
         });
     }
 

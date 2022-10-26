@@ -5,7 +5,7 @@ const date = require('date-and-time');
 const config = require('../config/app.config');
 const jwt = require('jsonwebtoken');
 const {log_error, log_success, log_info} = require('../utils/logging');
-const {verifyNewAccount, verifyEmailForgotPassword} = require('../utils/email_verify');
+const {verifyNewAccount, verifyEmailForgotPassword, bodEmailRegister} = require('../utils/email_verify');
 const randomstring = require("randomstring");
 class _auth{
     constructor(db){
@@ -60,6 +60,7 @@ class _auth{
             nama_pengguna: checkUsername.nama_pengguna, 
             role: checkUsername.role,
             status: checkUsername.status,
+            id_peternakan: checkUsername.id_peternakan
         });
         if (!token) {
             return {
@@ -99,11 +100,40 @@ class _auth{
                 }
             }
             // Check if user exist
-            const checkUser = await this.db.AuthUser.findOne({where : {nama_pengguna: value.nama_pengguna}});
-            if (checkUser !== null) {
+            const checkUsername = await this.db.AuthUser.findOne({
+                where : {
+                    nama_pengguna: value.nama_pengguna
+                }
+            });
+            if (checkUsername !== null) {
                 return {
                     code: 400,
-                    error: 'Sorry, nama_pengguna already exist'
+                    error: 'Sorry, nama pengguna already exist'
+                }
+            }
+
+            // check if email exist
+            const checkEmail = await this.db.AuthUser.findOne({
+                where : {
+                    email: value.email
+                }
+            });
+            if (checkEmail !== null) {
+                return {
+                    code: 400,
+                    error: 'Sorry, email already exist'
+                }
+            }
+
+            // add peternakan
+            const addPeternakan = await this.db.Peternakan.create({
+                nama_peternakan: value.nama_peternakan,
+                alamat: value.alamat
+            });
+            if(addPeternakan == null){
+                return {
+                    code: 500,
+                    error: 'Sorry, something went wrong'
                 }
             }
 
@@ -116,9 +146,8 @@ class _auth{
                 email: value.email,
                 role: 'admin',
                 status: 'inactive',
-                nama_peternakan: value.nama_peternakan,
+                id_peternakan: addPeternakan.id_peternakan,
                 nomor_telepon: value.nomor_telepon,
-                alamat: value.alamat,
                 kata_sandi: value.kata_sandi
             });
             if (register.affectedRows <= 0) {
@@ -128,13 +157,7 @@ class _auth{
                 }
             }
 
-            const verify = verifyNewAccount(register);
-            if (verify.error) {
-                return {
-                    code: 500,
-                    error: 'Sorry, something went wrong'
-                }
-            }
+            verifyNewAccount(register);
 
             return {
                 code: 200,
@@ -152,8 +175,6 @@ class _auth{
     }
 
     logout = async (req, res) => {
-        // const token = req.headers.authorization.split(' ')[1]
-        // global.blacklistedToken.push(token);
         const update = await this.db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
         if (update <= 0) {
             return {
@@ -175,7 +196,13 @@ class _auth{
         try{
             // Query Data
             const list = await this.db.AuthUser.findOne({ 
-                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'alamat', 'nama_peternakan', 'role', 'status',  'createdAt', 'updatedAt'],
+                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status',  'createdAt', 'updatedAt'],
+                include: [
+                    {
+                        model: this.db.Peternakan,
+                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'createdAt', 'updatedAt']
+                    }
+                ],
                 where : {
                     id_user: req.dataAuth.id_user
                 }
@@ -257,7 +284,6 @@ class _auth{
         // Validate data
         const schema = joi.object({
             nama_pengguna: joi.string().required(),
-            email: joi.string().required(),
             nomor_telepon: joi.string().required(),
             alamat: joi.string().required(),
             nama_peternakan: joi.string().required(),
@@ -275,15 +301,32 @@ class _auth{
         // Update data
         const updatedAccount = await this.db.AuthUser.update({
             nama_pengguna: value.nama_pengguna,
-            email: value.email,
             nomor_telepon: value.nomor_telepon,
-            alamat: value.alamat,
-            nama_peternakan: value.nama_peternakan,
-        }, {where: {id_user: req.dataAuth.id_user}});
+        }, {
+            where: {
+                id_user: req.dataAuth.id_user
+            }
+        });
         if (updatedAccount <= 0) {
             return {
                 code: 500,
                 error: `Sorry, update account failed`
+            }
+        }
+        
+        // Update peternakan
+        const updatedPeternakan = await this.db.Peternakan.update({
+            nama_peternakan: value.nama_peternakan,
+            alamat: value.alamat,
+        }, {
+            where: {
+                id_peternakan: req.dataAuth.id_peternakan
+            }
+        });
+        if (updatedPeternakan <= 0) {
+            return {
+                code: 500,
+                error: `Sorry, update peternakan failed`
             }
         }
 
@@ -358,28 +401,28 @@ class _auth{
     // Verify token
     verify = async (req) => {
         try{
-            const user = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+            const user = await this.db.AuthUser.findOne({
+                include: [{
+                    model: this.db.Peternakan,
+                    as: 'peternakan'
+                }],
+                where : {
+                    id_user: req.dataAuth.id_user
+                }
+            });
             if (user == null) {
                 return {
                     code: 404,
                     error: 'Sorry, user not found'
                 }
             }
+
+            user.dataValues.iat = req.dataAuth.iat;
+            user.dataValues.exp = req.dataAuth.exp;
+            user.dataValues.time = new Date()
             return {
                 code: 200,
-                data: {
-                    id_user: user.id_user,
-                    nama_pengguna: user.nama_pengguna,
-                    role: user.role,
-                    image: user.image,
-                    email: user.email,
-                    nomor_telepon: user.nomor_telepon,
-                    alamat: user.alamat,
-                    nama_peternakan: user.nama_peternakan,
-                    time: new Date(),
-                    iat: req.dataAuth.iat,
-                    exp: req.dataAuth.exp
-                }
+                data: user
             };
         }catch (error){
             log_error('verify Service', error);
@@ -396,7 +439,7 @@ class _auth{
             const decoded = jwt.verify(token, config.jwt.secret)
             
             if(decoded.message == 'verification'){
-                const activateAccount = await this.db.AuthUser.update({status: 'active'}, {where: {nama_pengguna: decoded.nama_pengguna}});
+                const activateAccount = await this.db.AuthUser.update({status: 'active'}, {where: {id_user: decoded.id_user}});
                 if (activateAccount <= 0) {
                     return {
                         code: 500,
@@ -460,15 +503,9 @@ class _auth{
                 }
             }
 
-            const verify = verifyEmailForgotPassword(checkUser, tempPassword);
-            if (verify.error) {
-                return {
-                    code: 500,
-                    error: 'Sorry, something went wrong'
-                }
-            }
+            verifyEmailForgotPassword(checkUser, tempPassword);
 
-            return {
+            return {   
                 code: 200,
                 data: {
                     message: 'Email has been sent'
@@ -482,6 +519,84 @@ class _auth{
             }
         }
     }
+
+    // Register bod
+    registerBod = async (req) => {
+        try{
+            // Validate data
+            const schema = joi.object({
+                email: joi.string().email().required(),
+            });
+            const {error, value} = schema.validate(req.body);
+            if (error) {
+                const errorDetails = error.details.map(detail => detail.message).join(', ');
+                log_error('registerBod Service', errorDetails);
+                return {
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+
+            // Check if user exist
+            const checkUser = await this.db.AuthUser.findOne({where : {email: value.email}});
+            if (checkUser != null) {
+                return {
+                    code: 400,
+                    error: 'Sorry, user already exist'
+                }
+            }
+
+            // Generate random nama_pengguna
+            let isUnique = false;
+            while(!isUnique){
+                const randomUsername = randomstring.generate(10);
+                const checkUsername = await this.db.AuthUser.findOne({where : {nama_pengguna: randomUsername}});
+                if (checkUsername == null) {
+                    isUnique = true;
+                    value.nama_pengguna = randomUsername;
+                }
+            }
+
+            // Generate Random password
+            const randomPassword = randomstring.generate(8);
+            const kata_sandi = await hashPassword(randomPassword);
+
+            // Create user
+            const user = await this.db.AuthUser.create({
+                nama_pengguna: value.nama_pengguna,
+                email: value.email,
+                status: 'active',
+                role: 'bod',
+                id_peternakan: req.dataAuth.id_peternakan,
+                kata_sandi
+            });
+            if (user == null) {
+                return{
+                    code: 500,
+                    error: 'Sorry, create user failed'
+                }
+            }
+
+            bodEmailRegister(value.email, randomPassword);
+
+            return {
+                code: 200,
+                data: {
+                    message: 'Email has been sent',
+                    id_user: user.id_user,
+                    email: user.email,
+                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
+            };
+        }catch (error){
+            log_error('registerBod Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+        
 
     // verifyForgotPassword = (req) => {
     //     try{

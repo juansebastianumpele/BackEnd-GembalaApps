@@ -14,8 +14,6 @@ const authentication = async (req, res, next) => {
         // Set token from Bearer token in header
         token = req.headers.authorization.split(' ')[1]
 
-        console.log(global.blacklistedToken);
-
         // Verify token
         const decoded = jwt.verify(token, config.jwt.secret)
 
@@ -38,10 +36,12 @@ const authentication = async (req, res, next) => {
           nama_pengguna: decoded.nama_pengguna,
           role: decoded.role,
           status: decoded.status,
-          id_peternakan: decoded.role == 'superadmin' || decoded.role == 'bod' ? decoded.id_peternakan : decoded.id_user,
+          id_peternakan: decoded.id_peternakan,
           iat: decoded.iat,
           exp: decoded.exp
         }
+
+        console.log(req.dataAuth)
         
         next()
         return

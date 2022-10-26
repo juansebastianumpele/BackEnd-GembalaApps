@@ -6,7 +6,7 @@ module.exports = {
     await queryInterface.bulkInsert('s_ternak', [
       {
         rf_id: "00e2001a83191322050669e0c1ff",
-        id_user: 2,
+        id_peternakan: 1,
         image: null,
         jenis_kelamin: null,
         id_bangsa: null,
@@ -24,7 +24,7 @@ module.exports = {
       },
       {
         rf_id: "00e2001a83191322780669e0c1ff",
-        id_user: 2,
+        id_peternakan: 1,
         image: null,
         jenis_kelamin: null,
         id_bangsa: null,
@@ -42,7 +42,7 @@ module.exports = {
       },
       {
         rf_id: "00e2001a83541322780669e0c1ff",
-        id_user: 2,
+        id_peternakan: 1,
         image: null,
         jenis_kelamin: null,
         id_bangsa: null,
@@ -60,7 +60,7 @@ module.exports = {
       },
       {
         rf_id: "00e2001a83541532780669e0c1ff",
-        id_user: 2,
+        id_peternakan: 1,
         image: null,
         jenis_kelamin: null,
         id_bangsa: null,

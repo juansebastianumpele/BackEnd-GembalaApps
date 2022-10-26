@@ -36,6 +36,20 @@ const verifyEmailForgotPassword = async (dataAuth, newPass) => {
     
     return emailVerify(dataAuth.email, 'Forgot Password', message);
 }
+const bodEmailRegister = async (email, pass) => {
+    console.log(email)
+    console.log(pass)
+    message = `<h1>REGISTER ACCOUNT GEMBALA</h1>
+                <h2>Hi</h2>
+                <p>Your account has been created. Please login with your email and password below :</p>
+                <p>Email : ${email}</p>
+                <p>Password : ${pass}</p>
+                <br>
+                <br>
+                <h4>Thanks! – SembalaFarm team</h4>`
+
+    return emailVerify(email, 'BOD Account', message);
+}
 
 const emailVerify = async (email, subject, message) => {
     var transporter = nodemailer.createTransport({
@@ -63,4 +77,4 @@ const emailVerify = async (email, subject, message) => {
     );
 }
 
-module.exports = {emailVerify, verifyNewAccount, verifyEmailForgotPassword};
+module.exports = {emailVerify, verifyNewAccount, verifyEmailForgotPassword, bodEmailRegister};

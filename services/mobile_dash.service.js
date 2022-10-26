@@ -12,7 +12,7 @@ class _mobileDash{
             const ternak = await this.db.Ternak.findAll({
                 attributes: ['id_ternak'],
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     status_keluar: null
                 }
             });
@@ -21,7 +21,7 @@ class _mobileDash{
             // Get total kandang
             const totalKandang = await this.db.Kandang.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
 
@@ -71,7 +71,7 @@ class _mobileDash{
             const totalTernak = await this.db.Ternak.count({
                 attributes: ['id_ternak'],
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     status_keluar: null
                 }
             });
@@ -110,7 +110,7 @@ class _mobileDash{
             // Get total ternak jantan
             const totalTernakJantan = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     jenis_kelamin: 'jantan',
                     status_keluar: null
                 }
@@ -119,7 +119,7 @@ class _mobileDash{
             // Get total ternak indukan
             const totalTernakIndukan = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: id_indukan,
                     status_keluar: null
                 }
@@ -128,7 +128,7 @@ class _mobileDash{
             // Get total ternak betina
             const totalTernakBetina = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     jenis_kelamin: 'betina',
                     status_keluar: null
                 }
@@ -137,7 +137,7 @@ class _mobileDash{
             // Get total ternak cempe jantan
             const totalTernakCempeJantan = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: id_cempe,
                     jenis_kelamin: 'jantan',
                     status_keluar: null
@@ -147,7 +147,7 @@ class _mobileDash{
             // Get total ternak cempe betina
             const totalTernakCempeBetina = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: id_cempe,
                     jenis_kelamin: 'betina',
                     status_keluar: null

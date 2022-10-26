@@ -11,7 +11,7 @@ class _bahanPakan{
     getJenisBahanPakan = async (req) => {
         try{
             // Add id_user to params
-            req.query.id_user = req.dataAuth.id_peternakan
+            req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.JenisBahanPakan.findAll({
                 where : req.query
@@ -58,7 +58,7 @@ class _bahanPakan{
             }
 
             const add = await this.db.JenisBahanPakan.create({
-                id_user: req.dataAuth.id_peternakan,
+                id_peternakan: req.dataAuth.id_peternakan,
                 jenis_bahan_pakan: value.jenis_bahan_pakan,
                 satuan: value.satuan,
             });
@@ -113,7 +113,7 @@ class _bahanPakan{
             }, {
                 where: {
                     id_jenis_bahan_pakan: value.id_jenis_bahan_pakan,
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
 
@@ -163,7 +163,7 @@ class _bahanPakan{
             const del = await this.db.JenisBahanPakan.destroy({
                 where: {
                     id_jenis_bahan_pakan: value.id_jenis_bahan_pakan,
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
 
@@ -195,7 +195,7 @@ class _bahanPakan{
     getBahanPakan = async (req) => {
         try{
             // Add id_user to params
-            req.query.id_user = req.dataAuth.id_peternakan
+            req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.BahanPakan.findAll({
                 where : req.query
@@ -245,7 +245,7 @@ class _bahanPakan{
 
             // create mutasi bahan pakan
             const add = await this.db.BahanPakan.create({
-                id_user: req.dataAuth.id_peternakan,
+                id_peternakan: req.dataAuth.id_peternakan,
                 id_jenis_bahan_pakan: value.id_jenis_bahan_pakan,
                 tanggal: value.tanggal == '' || value.tanggal == null ? new Date() : value.tanggal,
                 jumlah: value.jumlah == '' || value.jumlah == null ? 0 : value.jumlah,
@@ -264,7 +264,7 @@ class _bahanPakan{
             }, {
                 where: {
                     id_jenis_bahan_pakan: value.id_jenis_bahan_pakan,
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
 

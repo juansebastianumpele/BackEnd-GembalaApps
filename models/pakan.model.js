@@ -6,7 +6,7 @@ module.exports = (Sequelize, DataTypes) => {
             autoIncrement: true,
             allowNull: false
         },
-        id_user:{
+        id_peternakan:{
             type: DataTypes.INTEGER,
             allowNull: false
         },
@@ -39,9 +39,9 @@ module.exports = (Sequelize, DataTypes) => {
     });
 
     Pakan.associate = function (models) {
-        Pakan.belongsTo(models.AuthUser, {
-            foreignKey: 'id_user',
-            as: 'user'
+        Pakan.belongsTo(models.Peternakan, {
+            foreignKey: 'id_peternakan',
+            as: 'peternakan'
         });
         Pakan.belongsTo(models.JenisPakan, {
             foreignKey: 'id_jenis_pakan',

@@ -10,15 +10,15 @@ module.exports = {
         autoIncrement: true,
         allowNull: false
       },
-      id_user:{
+      id_peternakan:{
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'auth_users',
-          key: 'id_user'
+          model: 'd_peternakan',
+          key: 'id_peternakan'
         },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       jenis_pakan:{
         type: Sequelize.STRING,

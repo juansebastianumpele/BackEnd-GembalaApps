@@ -21,11 +21,7 @@ module.exports = (Sequelize, DataTypes) => {
         },
         nomor_telepon:{
           type: DataTypes.STRING,
-          allowNull: false
-        },
-        alamat:{
-          type: DataTypes.STRING,
-          allowNull: false
+          allowNull: true
         },
         kata_sandi:{
           type: DataTypes.STRING,
@@ -39,8 +35,8 @@ module.exports = (Sequelize, DataTypes) => {
           type: DataTypes.STRING,
           allowNull: false
         },
-        nama_peternakan:{
-          type: DataTypes.STRING,
+        id_peternakan:{
+          type: DataTypes.INTEGER,
           allowNull: true
         },
         lastAccess:{
@@ -60,17 +56,9 @@ module.exports = (Sequelize, DataTypes) => {
     });
 
     AuthUser.associate = function (models) {
-        AuthUser.hasMany(models.Ternak, {
-            foreignKey: 'id_user',
-            as: 'ternak'
-        });
-        AuthUser.hasMany(models.Kandang, {
-            foreignKey: 'id_user',
-            as: 'kandang'
-        });
-        AuthUser.hasMany(models.JenisPakan, {
-            foreignKey: 'id_user',
-            as: 'jenispakan'
+        AuthUser.belongsTo(models.Peternakan, {
+            foreignKey: 'id_peternakan',
+            as: 'peternakan'
         });
     }
 

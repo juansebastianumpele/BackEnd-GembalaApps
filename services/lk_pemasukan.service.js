@@ -10,7 +10,7 @@ class _lkPemasukan{
     getTernakMasuk = async (req) => {
         try{
             // Add id_user to query
-            req.query.id_user = req.dataAuth.id_peternakan;
+            req.query.id_peternakan = req.dataAuth.id_peternakan;
             req.query.id_fp = null;
             // Query Data
             const list = await this.db.Ternak.findAll({
@@ -74,7 +74,7 @@ class _lkPemasukan{
             const ternak = await this.db.LKPemasukan.findOne({
                 where: {
                     id_ternak: value.id_ternak,
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
             if(ternak){
@@ -107,7 +107,7 @@ class _lkPemasukan{
             },{
                 where: {
                     id_ternak: value.id_ternak,
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                 }
             });
             if(update[0] <= 0){
@@ -132,7 +132,7 @@ class _lkPemasukan{
                 id_status_ternak: value.id_status_ternak,
                 status_kesehatan: value.status_kesehatan,
                 id_kandang: value.id_kandang,
-                id_user: req.dataAuth.id_peternakan,
+                id_peternakan: req.dataAuth.id_peternakan,
             });
             if(!lkPemasukan){
                 return{
@@ -163,7 +163,7 @@ class _lkPemasukan{
     getLKPemasukan = async (req) => {
         try{
             // Add id_user to params
-            req.query.id_user = req.dataAuth.id_peternakan;
+            req.query.id_peternakan = req.dataAuth.id_peternakan;
             // Query Data
             const lkPemasukan = await this.db.LKPemasukan.findAll({
                 where: req.query,
@@ -197,8 +197,8 @@ class _lkPemasukan{
     // Get LK Pemasukan by this Month
     getLKPemasukanThisMonth = async (req) => {
         try{
-            // Add id_user to params
-            req.query.id_user = req.dataAuth.id_peternakan;
+            // Add id_peternakan to params
+            req.query.id_peternakan = req.dataAuth.id_peternakan;
             // Query Data
             const lkPemasukan = await this.db.LKPemasukan.findAll({
                 where: req.query,

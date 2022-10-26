@@ -63,7 +63,7 @@ class _dashboard{
             const totalTernak = await this.db.Ternak.count({
                 attributes: ['id_ternak'],
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     status_keluar: null
                 }
             });
@@ -93,7 +93,7 @@ class _dashboard{
             // Get total ternak pejantan
             const totalTernakPejantan = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: id_pejantan,
                     status_keluar: null
                 }
@@ -102,7 +102,7 @@ class _dashboard{
             // Get total ternak jantan
             const totalTernakJantan = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     jenis_kelamin: 'jantan',
                     status_keluar: null
                 }
@@ -111,7 +111,7 @@ class _dashboard{
             // Get total ternak indukan
             const totalTernakIndukan = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: id_indukan,
                     status_keluar: null
                 }
@@ -120,7 +120,7 @@ class _dashboard{
             // Get total ternak betina
             const totalTernakBetina = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     jenis_kelamin: 'betina',
                     status_keluar: null
                 }
@@ -129,7 +129,7 @@ class _dashboard{
             // Get total ternak cempe jantan
             const totalTernakCempeJantan = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: id_cempe,
                     jenis_kelamin: 'jantan',
                     status_keluar: null
@@ -139,7 +139,7 @@ class _dashboard{
             // Get total ternak cempe betina
             const totalTernakCempeBetina = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: id_cempe,
                     jenis_kelamin: 'betina',
                     status_keluar: null
@@ -172,7 +172,7 @@ class _dashboard{
         try{
             const totalKandang = await this.db.Kandang.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
 
@@ -196,7 +196,7 @@ class _dashboard{
         try{
             const totalTernak = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     status_keluar: null
                 }
             });
@@ -233,7 +233,7 @@ class _dashboard{
             for(let i = 0; i < fase.length; i++){
                 const totalTernak = await this.db.Ternak.count({
                     where: {
-                        id_user: req.dataAuth.id_peternakan,
+                        id_peternakan: req.dataAuth.id_peternakan,
                         id_fp: fase[i].dataValues.id_fp,
                         status_keluar: null
                     }
@@ -275,7 +275,7 @@ class _dashboard{
             // Get data kandang
             const kandang = await this.db.Kandang.findAll({
                 where: {
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
             if(kandang.length <= 0){
@@ -289,7 +289,7 @@ class _dashboard{
             const ternak = await this.db.Ternak.findAll({
                 attributes: ['id_kandang'],
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     status_keluar: null
                 }
             });
@@ -356,7 +356,7 @@ class _dashboard{
             const ternakCempe = await this.db.Ternak.findAll({
                 attributes: ['id_ternak'],
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: statusTernak.dataValues.id_status_ternak,
                     status_keluar: null
                 }
@@ -416,7 +416,7 @@ class _dashboard{
             // Get total terjual
             const totalTerjual = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     status_keluar: 'Terjual'
                 }
             });
@@ -424,7 +424,7 @@ class _dashboard{
             // Get total disembelih
             const totalDisembelih = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     status_keluar: 'Disembelih'
                 }
             });
@@ -432,7 +432,7 @@ class _dashboard{
             // Get total mati
             const totalMati = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     status_keluar: 'Mati'
                 }
             });

@@ -10,6 +10,8 @@ class _riwayatKesehatan{
     // Get data RiwayatKesehatan
     getRiwayatKesehatan = async (req) => {
         try{
+            // Add id_peternakan to params
+            req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.RiwayatKesehatan.findAll({ 
                 attributes : ['id_riwayat_kesehatan', 'tanggal_sakit', 'tanggal_sembuh', 'createdAt', 'updatedAt'],
@@ -74,7 +76,8 @@ class _riwayatKesehatan{
                 id_ternak: value.id_ternak,
                 id_penyakit: value.id_penyakit,
                 tanggal_sakit: value.tanggal_sakit,
-                tanggal_sembuh: value.tanggal_sembuh
+                tanggal_sembuh: value.tanggal_sembuh,
+                id_peternakan: req.dataAuth.id_peternakan
             });
             if(add == null){
                 return{
@@ -131,7 +134,8 @@ class _riwayatKesehatan{
                 tanggal_sembuh: value.tanggal_sembuh
             }, {
                 where: {
-                    id_riwayat_kesehatan: value.id_riwayat_kesehatan
+                    id_riwayat_kesehatan: value.id_riwayat_kesehatan,
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){
@@ -178,7 +182,9 @@ class _riwayatKesehatan{
             // Query data
             const del = await this.db.RiwayatKesehatan.destroy({
                 where: {
-                    id_riwayat_kesehatan: value.id_riwayat_kesehatan
+                    id_riwayat_kesehatan: value.id_riwayat_kesehatan,
+                    id_peternakan: req.dataAuth.id_peternakan
+
                 }
             });
             if(del <= 0){

@@ -10,7 +10,7 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
           },
-          id_user:{
+          id_peternakan:{
             type: DataTypes.INTEGER,
             allowNull: false
           },
@@ -114,6 +114,10 @@ module.exports = (Sequelize, DataTypes) => {
       Ternak.hasMany(models.RiwayatKesehatan, {
           foreignKey: 'id_ternak',
           as: 'riwayat_kesehatan'
+      });
+      Ternak.belongsTo(models.Peternakan, {
+          foreignKey: 'id_peternakan',
+          as: 'peternakan'
       });
     };
     return Ternak;

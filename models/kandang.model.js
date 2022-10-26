@@ -6,7 +6,7 @@ module.exports = (Sequelize, DataTypes) => {
             autoIncrement: true,
             allowNull: false
         },
-        id_user:{
+        id_peternakan:{
             type: DataTypes.INTEGER,
             allowNull: false
         },
@@ -47,9 +47,9 @@ module.exports = (Sequelize, DataTypes) => {
             foreignKey: 'id_jenis_pakan',
             as: 'jenispakan'
         });
-        Kandang.belongsTo(models.AuthUser, {
-            foreignKey: 'id_user',
-            as: 'user'
+        Kandang.belongsTo(models.Peternakan, {
+            foreignKey: 'id_peternakan',
+            as: 'peternakan'
         });
         Kandang.belongsTo(models.JenisKandang, {
             foreignKey: 'id_jenis_kandang',

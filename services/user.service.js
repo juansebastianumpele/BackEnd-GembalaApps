@@ -40,7 +40,7 @@ class _user{
     generateNewToken = async (req) => {
         try{
             const schema = joi.object({
-                id_user: joi.number().required()
+                id_peternakan: joi.number().required()
             });
             const {error, value} = schema.validate(req.body);
             if(error){
@@ -55,7 +55,7 @@ class _user{
                 nama_pengguna: req.dataAuth.nama_pengguna, 
                 role: req.dataAuth.role,
                 status: req.dataAuth.status,
-                id_peternakan: value.id_user
+                id_peternakan: value.id_peternakan
             });
 
             return {

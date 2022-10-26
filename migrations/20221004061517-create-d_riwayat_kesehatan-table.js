@@ -10,6 +10,16 @@ module.exports = {
         autoIncrement: true,
         allowNull: false
       },
+      id_peternakan: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'd_peternakan',
+          key: 'id_peternakan'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
       id_ternak:{
         type: Sequelize.INTEGER,
         allowNull: false,

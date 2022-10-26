@@ -3,50 +3,35 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_jenis_bahan_pakan', { 
-      id_jenis_bahan_pakan:{
+    await queryInterface.createTable('d_peternakan', {
+      id_peternakan: {
         type: Sequelize.INTEGER,
-        primaryKey: true,
+        allowNull: false,
         autoIncrement: true,
-        allowNull: false
+        primaryKey: true,
       },
-      id_peternakan:{
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'd_peternakan',
-          key: 'id_peternakan'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      jenis_bahan_pakan:{
+      nama_peternakan: {
         type: Sequelize.STRING,
-        allowNull: false
-      },
-      satuan:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      stok:{
-        type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 0
+      },
+      alamat: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
-      updatedAt: {
+      updatedAt:{
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-      },
+      }
     });
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_jenis_bahan_pakan');
+    await queryInterface.dropTable('d_peternakan');
   }
 };

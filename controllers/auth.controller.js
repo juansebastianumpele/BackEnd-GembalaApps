@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
+const {adminMiddleware, superAdminMiddleware} = require('../middlewares/authorization');
 const authService = require('../services/auth.service');
 
 const authController = (db) =>{
@@ -31,7 +32,6 @@ const authController = (db) =>{
      */
 
     AuthController.post('/register', async (req, res, next) => {
-        console.log('register');
         const register = await s$auth.register(req.body);
         response.sendResponse(res, register);
     });
@@ -48,7 +48,7 @@ const authController = (db) =>{
     /**
      * Get Profile
      */
-    AuthController.get('/profile', authentication, async (req, res, next) => {
+    AuthController.get('/profile', authentication, adminMiddleware, async (req, res, next) => {
         const detail = await s$auth.getProfile(req);
         response.sendResponse(res, detail);
     });
@@ -58,7 +58,7 @@ const authController = (db) =>{
      * @param {string} password
      */
 
-    AuthController.delete('/delete-account', authentication, async (req, res, next) => {
+    AuthController.delete('/delete-account', authentication, adminMiddleware, async (req, res, next) => {
         const deleteAccount = await s$auth.deleteAccount(req);
         response.sendResponse(res, deleteAccount);
     });
@@ -72,7 +72,7 @@ const authController = (db) =>{
      * @param {string} alamat
      */
 
-    AuthController.put('/update-account', authentication, async (req, res, next) => {
+    AuthController.put('/update-account', authentication, adminMiddleware, async (req, res, next) => {
         const updateAccount = await s$auth.updateAccount(req);
         response.sendResponse(res, updateAccount);
     });
@@ -83,7 +83,7 @@ const authController = (db) =>{
      * @param {string} new_password
      */
 
-    AuthController.put('/update-password', authentication, async (req, res, next) => {
+    AuthController.put('/update-password', authentication, adminMiddleware, async (req, res, next) => {
         const updatePassword = await s$auth.updatePassword(req);
         response.sendResponse(res, updatePassword);
     });
@@ -113,6 +113,15 @@ const authController = (db) =>{
         const activateAccount = await s$auth.verifyAccount(req.query.token);
         // response.sendResponse(res, activateAccount);
         res.redirect('https://gembala.netlify.app')
+    });
+
+    /**
+     * Register BOD account
+     * @param {string} email
+     */
+    AuthController.post('/register-bod', authentication, adminMiddleware, async (req, res, next) => {
+        const registerBod = await s$auth.registerBod(req);
+        response.sendResponse(res, registerBod);
     });
 
     return AuthController;

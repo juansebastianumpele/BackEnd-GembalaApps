@@ -10,7 +10,7 @@ class _kandang{
     getKandang = async (req) => {
         try{
             // Add id_peternakan to params
-            req.query.id_user = req.dataAuth.id_peternakan
+            req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.Kandang.findAll({
                 attributes : ['id_kandang', 'kode_kandang', 'persentase_kebutuhan_pakan', 'createdAt', 'updatedAt'],
@@ -95,7 +95,7 @@ class _kandang{
             }
 
             const add = await this.db.Kandang.create({
-                id_user: req.dataAuth.id_peternakan,
+                id_peternakan: req.dataAuth.id_peternakan,
                 kode_kandang: value.kode_kandang,
                 id_jenis_kandang: value.id_jenis_kandang,
                 id_jenis_pakan: value.id_jenis_pakan,
@@ -157,7 +157,7 @@ class _kandang{
             }, {
                 where: {
                     id_kandang: value.id_kandang,
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
             if(update <= 0){
@@ -203,7 +203,7 @@ class _kandang{
             const del = await this.db.Kandang.destroy({
                 where: {
                     id_kandang: value.id_kandang,
-                    id_user: req.dataAuth.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
             if(del <= 0){

@@ -36,7 +36,7 @@ class _rfid{
                 attributes: ['id_ternak'],
                 where: {
                     rf_id: value.rf_id,
-                    id_user: value.id_peternakan
+                    id_peternakan: value.id_peternakan
                 }
             })
             if(checkTernak.length > 0){
@@ -52,7 +52,7 @@ class _rfid{
             // Add New Ternak
             const addTernak = await this.db.Ternak.create({
                 rf_id: value.rf_id,
-                id_user: value.id_peternakan,
+                id_peternakan: value.id_peternakan,
                 id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (status ? status.id_status_ternak : null) : null
             })
 
