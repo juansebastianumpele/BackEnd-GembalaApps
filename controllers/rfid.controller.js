@@ -12,7 +12,7 @@ const rfidController = (db) => {
      * @param {number} id_peternakan
      * @param {string} jenis_ternak_baru
     */
-    RfidController.post('/', async (req, res, next) => {
+    RfidController.post('/add-data', async (req, res, next) => {
         const detail = await s$rfid.rfid(req);
         response.sendResponse(res, detail);
     } );
@@ -20,7 +20,7 @@ const rfidController = (db) => {
     /**
      * Get Data Ternak
     */
-    RfidController.post('/', async (req, res, next) => {
+    RfidController.post('/get-data', async (req, res, next) => {
         const detail = await s$rfid.rfidGetTernak(req);
         response.sendResponse(res, detail);
     } );

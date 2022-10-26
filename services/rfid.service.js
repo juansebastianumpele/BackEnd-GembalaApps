@@ -114,7 +114,7 @@ class _rfid{
                     {
                         model: this.db.Kandang,
                         as: 'kandang',
-                        attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan']
+                        attributes: ['id_kandang', 'kode_kandang', 'id_jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan']
                     },
                     {
                         model: this.db.RiwayatKesehatan,

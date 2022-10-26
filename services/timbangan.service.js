@@ -65,6 +65,7 @@ class _timbangan{
 
             // Query data ternak
             const ternak = await this.db.Ternak.findOne({
+                attributes: ['id_ternak', 'rf_id'],
                 where: {
                     rf_id: value.rf_id
                 }
