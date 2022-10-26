@@ -10,7 +10,7 @@ module.exports = {
       nomor_telepon: '081315372263',
       role: 'superadmin',
       status: 'active',
-      alamat: 'Jl. Asem Kranji Blok K-7 Universitas Gadjah Mada Sekip, Bulaksumur, Sendowo, Sinduadi, Kec. Mlati, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55284',
+      alamat: 'Sinduadi, Mlati, Sleman, D.I. Yogyakarta',
       kata_sandi: await hashPassword('12345678')
     },{
       nama_pengguna: 'admin1',
