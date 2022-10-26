@@ -50,6 +50,14 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
           },
+          id_status_ternak:{
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
+          status_kesehatan:{
+            type: DataTypes.STRING,
+            allowNull: false
+          },
           id_kandang:{
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -82,6 +90,10 @@ module.exports = (Sequelize, DataTypes) => {
       LKPemasukan.belongsTo(models.Kandang, {
         foreignKey: 'id_kandang',
         as: 'kandang'
+      });
+      LKPemasukan.belongsTo(models.Status, {
+        foreignKey: 'id_status_ternak',
+        as: 'status_ternak'
       });
     };
 

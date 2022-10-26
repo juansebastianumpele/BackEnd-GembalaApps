@@ -44,6 +44,14 @@ const lkPemasukanController = (db) => {
         response.sendResponse(res, result);
     });
 
+    /**
+     * Get LK Pemasukan this month
+     */
+    LKPemasukanController.get('/this-month', authentication, adminMiddleware, async (req, res, next) => {
+        const result = await s$lkPemasukan.getLKPemasukanThisMonth(req);
+        response.sendResponse(res, result);
+    });
+
     return LKPemasukanController;
 }
 

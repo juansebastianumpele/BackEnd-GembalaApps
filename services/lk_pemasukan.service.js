@@ -57,6 +57,8 @@ class _lkPemasukan{
                 cek_kuku_kaki: joi.string().required(),
                 cek_kondisi_fisik_lain: joi.string().required(),
                 cek_bcs: joi.number().required(),
+                id_status_ternak: joi.number().required(),
+                status_kesehatan: joi.string().required(),
                 id_kandang: joi.number().required(),
             });
             const {error, value} = schema.validate(req.body);
@@ -65,6 +67,20 @@ class _lkPemasukan{
                 return{
                     code: 400,
                     error: errorDetails
+                }
+            }
+
+            // Check Ternak in LK Pemasukan
+            const ternak = await this.db.LKPemasukan.findOne({
+                where: {
+                    id_ternak: value.id_ternak,
+                    id_user: req.dataAuth.id_peternakan
+                }
+            });
+            if(ternak){
+                return{
+                    code: 400,
+                    error: 'Ternak already in LK Pemasukan'
                 }
             }
 
@@ -87,6 +103,7 @@ class _lkPemasukan{
                 jenis_kelamin: value.jenis_kelamin,
                 id_kandang: value.id_kandang,
                 id_fp: fase.id_fp,
+                id_status_ternak: value.id_status_ternak,
             },{
                 where: {
                     id_ternak: value.id_ternak,
@@ -112,6 +129,8 @@ class _lkPemasukan{
                 cek_kuku_kaki: value.cek_kuku_kaki,
                 cek_kondisi_fisik_lain: value.cek_kondisi_fisik_lain,
                 cek_bcs: value.cek_bcs,
+                id_status_ternak: value.id_status_ternak,
+                status_kesehatan: value.status_kesehatan,
                 id_kandang: value.id_kandang,
                 id_user: req.dataAuth.id_peternakan,
             });
@@ -168,6 +187,48 @@ class _lkPemasukan{
             };
         }catch (error){
             log_error('getLKPemasukan Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
+    // Get LK Pemasukan by this Month
+    getLKPemasukanThisMonth = async (req) => {
+        try{
+            // Add id_user to params
+            req.query.id_user = req.dataAuth.id_peternakan;
+            // Query Data
+            const lkPemasukan = await this.db.LKPemasukan.findAll({
+                where: req.query,
+                order: [
+                    ['createdAt', 'DESC']
+                ]
+            });
+            if(lkPemasukan.length <= 0){
+                return{
+                    code: 404,
+                    error: 'Data lk pemasukan not found'
+                }
+            }
+
+            // Filter by this month
+            const thisDate = new Date();
+            const monthYear = thisDate.getMonth() + '-' + thisDate.getFullYear();
+            const filtered = lkPemasukan.filter((item) => {
+                return item.dataValues.createdAt.getMonth() + '-' + item.dataValues.createdAt.getFullYear() === monthYear;
+            });
+
+            return {
+                code: 200,
+                data: {
+                    total: filtered.length,
+                    list: filtered
+                }
+            };
+        }catch (error){
+            log_error('getLKPemasukanThisMonth Service', error);
             return {
                 code: 500,
                 error

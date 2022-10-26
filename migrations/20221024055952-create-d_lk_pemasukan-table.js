@@ -73,6 +73,16 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      id_status_ternak: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'd_status_ternak',
+          key: 'id_status_ternak'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
       status_kesehatan:{
         type: Sequelize.ENUM,
         values: ['sehat', 'sakit'],

@@ -14,6 +14,8 @@ const rfidController = require("../controllers/rfid.controller");
 const webDashController = require("../controllers/web_dash.controller");
 const lkPemasukanController = require("../controllers/lk_pemasukan.controller");
 const mobileDashController = require("../controllers/mobile_dash.controller");
+const statusController = require("../controllers/status.controller");
+const jenisKandangController = require("../controllers/jenis_kandang.controller");
 
 // Define url API in here
 const _routes = [
@@ -32,7 +34,9 @@ const _routes = [
     ['/rfid', rfidController],
     ['/web-dash', webDashController],
     ['/lk-pemasukan', lkPemasukanController],
-    ['/mobile-dash', mobileDashController]
+    ['/mobile-dash', mobileDashController],
+    ['/status-ternak', statusController],
+    ['/jenis-kandang', jenisKandangController],
 ];
 
 const routes = (app, db) => {

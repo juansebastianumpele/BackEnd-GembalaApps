@@ -89,7 +89,7 @@ class _rfid{
                 }
             }
 
-            const getTernak = await this.db.Ternak.findAll({
+            const getTernak = await this.db.Ternak.findOne({
                 attributes : ['id_ternak', 
                 'rf_id', 
                 'image', 
@@ -146,10 +146,7 @@ class _rfid{
 
             return {
                 code: 200,
-                data: {
-                    total: getTernak.length,
-                    getTernak
-                }
+                data: getTernak
             };
 
         }catch(error){
