@@ -11,7 +11,7 @@ const timbanganController = require("../controllers/timbangan.controller");
 const ternakController = require("../controllers/ternak.controller");
 const riwayatKesehatanController = require("../controllers/riwayat_kesehatan.controller");
 const rfidController = require("../controllers/rfid.controller");
-const dashboardController = require("../controllers/dashboard.controller");
+const webDashController = require("../controllers/web_dash.controller");
 const lkPemasukanController = require("../controllers/lk_pemasukan.controller");
 const mobileDashController = require("../controllers/mobile_dash.controller");
 
@@ -30,7 +30,7 @@ const _routes = [
     ['/ternak', ternakController],
     ['/riwayat-kesehatan', riwayatKesehatanController],
     ['/rfid', rfidController],
-    ['/dashboard', dashboardController],
+    ['/web-dash', webDashController],
     ['/lk-pemasukan', lkPemasukanController],
     ['/mobile-dash', mobileDashController]
 ];

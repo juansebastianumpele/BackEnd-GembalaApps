@@ -24,9 +24,15 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      jenis_kandang:{
-        type: Sequelize.STRING,
-        allowNull: false
+      id_jenis_kandang:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'd_jenis_kandang',
+          key: 'id_jenis_kandang'
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
       },
       id_jenis_pakan:{
         type: Sequelize.INTEGER,

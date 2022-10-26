@@ -14,8 +14,8 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        jenis_kandang: {
-            type: DataTypes.STRING,
+        id_jenis_kandang:{
+            type: DataTypes.INTEGER,
             allowNull: false
         },
         id_jenis_pakan:{
@@ -50,7 +50,11 @@ module.exports = (Sequelize, DataTypes) => {
         Kandang.belongsTo(models.AuthUser, {
             foreignKey: 'id_user',
             as: 'user'
-        })
+        });
+        Kandang.belongsTo(models.JenisKandang, {
+            foreignKey: 'id_jenis_kandang',
+            as: 'jeniskandang'
+        });
     };
 
     return Kandang;

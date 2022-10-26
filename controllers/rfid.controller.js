@@ -20,7 +20,7 @@ const rfidController = (db) => {
     /**
      * Get Data Ternak
     */
-    RfidController.get('/', async (req, res, next) => {
+    RfidController.post('/', async (req, res, next) => {
         const detail = await s$rfid.rfidGetTernak(req);
         response.sendResponse(res, detail);
     } );

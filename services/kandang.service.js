@@ -13,7 +13,7 @@ class _kandang{
             req.query.id_user = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.Kandang.findAll({
-                attributes : ['id_kandang', 'kode_kandang', 'jenis_kandang', 'persentase_kebutuhan_pakan', 'createdAt', 'updatedAt'],
+                attributes : ['id_kandang', 'kode_kandang', 'persentase_kebutuhan_pakan', 'createdAt', 'updatedAt'],
                 include: [
                     {
                         model: this.db.Ternak,
@@ -30,6 +30,14 @@ class _kandang{
                         attributes: [
                             'id_jenis_pakan',
                             'jenis_pakan'
+                        ]
+                    },
+                    {
+                        model: this.db.JenisKandang,
+                        as: 'jeniskandang',
+                        attributes: [
+                            'id_jenis_kandang',
+                            'jenis_kandang'
                         ]
                     }
                 ],
@@ -72,7 +80,7 @@ class _kandang{
             // Validate data
             const schema = joi.object({
                 kode_kandang: joi.string().required(),
-                jenis_kandang: joi.string().required(),
+                id_jenis_kandang: joi.number().required(),
                 id_jenis_pakan: joi.number().required(),
                 persentase_kebutuhan_pakan: joi.number().required()
             });
@@ -89,7 +97,7 @@ class _kandang{
             const add = await this.db.Kandang.create({
                 id_user: req.dataAuth.id_peternakan,
                 kode_kandang: value.kode_kandang,
-                jenis_kandang: value.jenis_kandang,
+                id_jenis_kandang: value.id_jenis_kandang,
                 id_jenis_pakan: value.id_jenis_pakan,
                 persentase_kebutuhan_pakan: value.persentase_kebutuhan_pakan
             });
@@ -105,7 +113,7 @@ class _kandang{
                 data: {
                     id_kandang: add.id_kandang,
                     kode_kandang: add.kode_kandang,
-                    jenis_kandang: add.jenis_kandang,
+                    id_jenis_kandang: add.id_jenis_kandang,
                     createdAt: date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
                 }
             };
@@ -126,7 +134,7 @@ class _kandang{
             const schema = joi.object({
                 id_kandang: joi.number().required(),
                 kode_kandang: joi.string().required(),
-                jenis_kandang: joi.string().required(),
+                id_jenis_kandang: joi.number().required(),
                 id_jenis_pakan: joi.number().required(),
                 persentase_kebutuhan_pakan: joi.number().required()
             });
@@ -143,7 +151,7 @@ class _kandang{
             // Query data
             const update = await this.db.Kandang.update({
                 kode_kandang: value.kode_kandang,
-                jenis_kandang: value.jenis_kandang,
+                id_jenis_kandang: value.id_jenis_kandang,
                 id_jenis_pakan: value.id_jenis_pakan,
                 persentase_kebutuhan_pakan: value.persentase_kebutuhan_pakan
             }, {
