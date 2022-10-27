@@ -402,6 +402,7 @@ class _auth{
     verify = async (req) => {
         try{
             const user = await this.db.AuthUser.findOne({
+                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status', 'lastAccess', 'createdAt', 'updatedAt'],
                 include: [{
                     model: this.db.Peternakan,
                     as: 'peternakan'
@@ -596,57 +597,6 @@ class _auth{
             }
         }
     }
-        
-
-    // verifyForgotPassword = (req) => {
-    //     try{
-    //         const schema = joi.object({
-    //             token: joi.string().required()
-    //         });
-    //         const {error, value} = schema.validate(req.body);
-    //         if (error) {
-    //             const errorDetails = error.details.map(detail => detail.message).join(', ');
-    //             log_error('verifyForgotPassword Service', errorDetails);
-    //             return {
-    //                 code: 400,
-    //                 error: errorDetails
-    //             }
-    //         }
-
-    //         const decoded = jwt.verify(value.token, config.jwt.secret)
-
-    //         const user = this.db.AuthUser.findOne({where : {username: decoded.username}});
-    //         if (user == null) {
-    //             return {
-    //                 code: 404,
-    //                 error: 'Sorry, user not found'
-    //             }
-    //         }
-    //         return {
-    //             code: 200,
-    //             data: {
-    //                 id_users: user.id_users,
-    //                 username: user.username,
-    //                 nama_lengkap: user.nama_lengkap,
-    //                 role: user.role,
-    //                 foto: user.foto,
-    //                 email: user.email,
-    //                 no_hp: user.no_hp,
-    //                 alamat: user.alamat,
-    //                 time: new Date(),
-    //                 iat: decoded.iat,
-    //                 exp: decoded.exp
-    //             }
-    //         };
-    //     }catch (error){
-    //         log_error('verifyForgotPassword Service', error);
-    //         return {
-    //             code: 500,
-    //             error
-    //         }
-    //     }
-    // }
-    
 }
 
 module.exports = (db) => new _auth(db);

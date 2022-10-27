@@ -23,7 +23,7 @@ module.exports = (Sequelize, DataTypes) => {
           allowNull: false
         }
     }, {
-        tableName: "d_peternakan_ternak",
+        tableName: "d_peternakan",
     });
 
     Peternakan.associate = function (models) {
