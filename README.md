@@ -1,5 +1,5 @@
-<!-- # STRUCTURE CODE
-![](Structure%20Code.png) -->
+# STRUCTURE CODE
+![](structure-code.png)
 
 ##
 
@@ -29,12 +29,15 @@ https://documenter.getpostman.com/view/16756766/2s83eyrcXr
 - [x] Bahan Pakan
 - [x] Jenis Pakan
 - [x] Pakan
-- [ ] Ternak - `Note: onProgress`
-- [ ] Riwayat Kesehatan - `Note: onProgress`
+- [x] Ternak - `Note: onProgress`
+- [x] Riwayat Kesehatan - `Note: onProgress`
 - [x] Timbangan
 - [ ] Kawin - `Note: onProgress`
 - [ ] Populasi - `Note: onProgress`
 - [ ] Riwayat Perkawinan - `Note: Pending`
+- [x] Jenis Kandang
+- [x] Status Ternak
+- [x] LK Pemasukan  
 
 ## Model
 
@@ -50,23 +53,29 @@ https://documenter.getpostman.com/view/16756766/2s83eyrcXr
 - [x] Pakan
 - [x] Penyakit
 - [ ] Populasi - `Note: Pending`  
-- [ ] Riwayat Penyakit - `Note:  Pending`
-- [ ] Ternak `Note: onProgress`
+- [x] Riwayat Penyakit - `Note:  Pending`
+- [x] Ternak `Note: onProgress`
 - [x] Timbangan
 - [ ] Riwayat Perkawinan - `Note: Pending`
+- [x] Jenis Kandang
+- [x] Status Ternak
+- [x] LK Pemasukan  
 
 ## Service
 - [x] Auth
 - [x] Bahan Pakan
 - [x] Bangsa
-- [ ] Dashboard - `Note: Fixing`
+- [ ] Dashboard - `Note: onProgress`
 - [x] Fase
 - [x] Kandang
 - [ ] Kawin - `Note: Pending`
 - [x] Pakan
 - [x] Penyakit
 - [x] RFID
-- [ ] Riwayat Penyakit - `Note: Pending`
-- [ ] Ternak - `Note: onProgress`
+- [x] Riwayat Penyakit - `Note: Pending`
+- [x] Ternak - `Note: onProgress`
 - [x] Timbangan
 - [x] User
+- [x] Jenis Kandang
+- [x] Status Ternak
+- [x] LK Pemasukan  
