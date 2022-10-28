@@ -34,7 +34,7 @@ class _kandang{
                     },
                     {
                         model: this.db.JenisKandang,
-                        as: 'jeniskandang',
+                        as: 'jenis_kandang',
                         attributes: [
                             'id_jenis_kandang',
                             'jenis_kandang'
