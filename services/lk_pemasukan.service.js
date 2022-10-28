@@ -14,7 +14,42 @@ class _lkPemasukan{
             req.query.id_fp = null;
             // Query Data
             const list = await this.db.Ternak.findAll({
-                attributes: ['id_ternak', 'rf_id', 'image', 'jenis_kelamin', 'id_bangsa', 'id_kandang', 'id_fp', 'id_dam', 'id_sire', 'berat', 'suhu', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt'],
+                attributes: ['id_ternak', 'rf_id', 'image', 'jenis_kelamin', 'berat', 'suhu', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt'],
+                include: [
+                    {
+                        model: this.db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa']
+                    },
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang'],
+                        include: [
+                            {
+                                model: this.db.JenisKandang,
+                                as: 'jenis_kandang',
+                                attributes: ['id_jenis_kandang', 'jenis_kandang']
+                            }
+                        ]
+                    },
+                    {
+                        model: this.db.Fase,
+                        as: 'fase',
+                        attributes: ['id_fp', 'fase']
+                    },
+                    {
+                        model: this.db.Ternak,
+                        as: 'dam',
+                        attributes: ['id_ternak', 'rf_id']
+                    },
+                    {
+                        model: this.db.Ternak,
+                        as: 'sire',
+                        attributes: ['id_ternak', 'rf_id']
+                    }
+                ],
+
                 where: req.query,
                 order: [
                     ['createdAt', 'DESC']
@@ -167,6 +202,29 @@ class _lkPemasukan{
             // Query Data
             const lkPemasukan = await this.db.LKPemasukan.findAll({
                 where: req.query,
+                include: [
+                    {
+                        model: this.db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa']
+                    },
+                    {   model: this.db.Status,
+                        as: 'status_ternak',
+                        attributes: ['id_status_ternak', 'status_ternak']
+                    },
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang'],
+                        include: [
+                            {
+                                model: this.db.JenisKandang,
+                                as: 'jenis_kandang',
+                                attributes: ['id_jenis_kandang', 'jenis_kandang']
+                            }
+                        ]
+                    }
+                ],
                 order: [
                     ['createdAt', 'DESC']
                 ]
