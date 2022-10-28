@@ -26,7 +26,7 @@ class _kandang{
                     },
                     {
                         model: this.db.JenisPakan,
-                        as: 'jenispakan',
+                        as: 'jenis_pakan',
                         attributes: [
                             'id_jenis_pakan',
                             'jenis_pakan'

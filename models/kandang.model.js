@@ -45,7 +45,7 @@ module.exports = (Sequelize, DataTypes) => {
         });
         Kandang.belongsTo(models.JenisPakan, {
             foreignKey: 'id_jenis_pakan',
-            as: 'jenispakan'
+            as: 'jenis_pakan'
         });
         Kandang.belongsTo(models.Peternakan, {
             foreignKey: 'id_peternakan',
@@ -53,7 +53,7 @@ module.exports = (Sequelize, DataTypes) => {
         });
         Kandang.belongsTo(models.JenisKandang, {
             foreignKey: 'id_jenis_kandang',
-            as: 'jeniskandang'
+            as: 'jenis_kandang'
         });
     };
 

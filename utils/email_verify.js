@@ -37,8 +37,6 @@ const verifyEmailForgotPassword = async (dataAuth, newPass) => {
     return emailVerify(dataAuth.email, 'Forgot Password', message);
 }
 const bodEmailRegister = async (email, pass) => {
-    console.log(email)
-    console.log(pass)
     message = `<h1>REGISTER ACCOUNT GEMBALA</h1>
                 <h2>Hi</h2>
                 <p>Your account has been created. Please login with your email and password below :</p>

@@ -40,8 +40,6 @@ const authentication = async (req, res, next) => {
           iat: decoded.iat,
           exp: decoded.exp
         }
-
-        console.log(req.dataAuth)
         
         next()
         return
