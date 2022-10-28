@@ -133,7 +133,8 @@ class _riwayatKesehatan{
                 id_ternak: joi.number().required(),
                 id_penyakit: joi.number().required(),
                 tanggal_sakit: joi.date().required(),
-                tanggal_sembuh: joi.date().allow(null)
+                tanggal_sembuh: joi.date().allow(null),
+                id_kandang: joi.string().allow(null)
             });
 
             const { error, value } = schema.validate(req.body);
@@ -161,6 +162,24 @@ class _riwayatKesehatan{
                 return{
                     code: 400,
                     error: `Failed to update Riwayat Kesehatan`
+                }
+            }
+
+            // Update kandang ternak
+            if(value.id_kandang != null){
+                const update = await this.db.Ternak.update({
+                    id_kandang: value.id_kandang
+                }, {
+                    where: {
+                        id_ternak: value.id_ternak,
+                        id_peternakan: req.dataAuth.id_peternakan
+                    }
+                });
+                if(update <= 0){
+                    return{
+                        code: 400,
+                        error: `Failed to update kandang ternak`
+                    }
                 }
             }
 

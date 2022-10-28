@@ -220,10 +220,50 @@ class _lkPemasukan{
                 return item.dataValues.createdAt.getMonth() + '-' + item.dataValues.createdAt.getFullYear() === monthYear;
             });
 
+            let totalBetina = 0;
+            let totalJantan = 0;
+            let totalJenisKelaminUnknown = 0;
+            for(let i=0; i < filtered.length; i++){
+                if(filtered[i].dataValues.jenis_kelamin.toLowerCase() === 'betina'){
+                    totalBetina++;
+                }else if(filtered[i].dataValues.jenis_kelamin.toLowerCase() === 'jantan'){
+                    totalJantan++;
+                }else{
+                    totalJenisKelaminUnknown++;
+                }
+            }
+
+            // Get total ternak by kode kandang
+            const kandang = await this.db.Kandang.findAll({
+                attributes: ['id_kandang', 'kode_kandang'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(kandang.length <= 0){
+                return{
+                    code: 404,
+                    error: 'Data kandang not found'
+                }
+            }
+
+            for(let i=0; i < kandang.length; i++){
+                kandang[i].dataValues.total = 0;
+                for(let j=0; j < filtered.length; j++){
+                    if(filtered[j].dataValues.id_kandang === kandang[i].dataValues.id_kandang){
+                        kandang[i].dataValues.total++;
+                    }
+                }
+            }
+
             return {
                 code: 200,
                 data: {
                     total: filtered.length,
+                    total_betina: totalBetina,
+                    total_jantan: totalJantan,
+                    totalJenisKelaminUnknown,
+                    total_by_kandang: kandang,
                     list: filtered
                 }
             };
