@@ -16,7 +16,6 @@ const lkPemasukanController = require("../controllers/lk_pemasukan.controller");
 const mobileDashController = require("../controllers/mobile_dash.controller");
 const statusController = require("../controllers/status.controller");
 const jenisKandangController = require("../controllers/jenis_kandang.controller");
-const adaptasiController = require("../controllers/adaptasi.controller");
 
 // Define url API in here
 const _routes = [
@@ -38,7 +37,6 @@ const _routes = [
     ['/mobile-dash', mobileDashController],
     ['/status-ternak', statusController],
     ['/jenis-kandang', jenisKandangController],
-    ['/adaptasi', adaptasiController]
 ];
 
 const routes = (app, db) => {

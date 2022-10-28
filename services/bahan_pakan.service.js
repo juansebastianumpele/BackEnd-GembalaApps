@@ -198,6 +198,14 @@ class _bahanPakan{
             req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.BahanPakan.findAll({
+                attributes : ['id_bahan_pakan', "tanggal", "jumlah", "keterangan", "createdAt", "updatedAt"],
+                include: [
+                    {
+                        model: this.db.JenisBahanPakan,
+                        as: 'jenis_bahan_pakan',
+                        attributes: ['id_jenis_bahan_pakan', 'jenis_bahan_pakan', 'satuan']
+                    }
+                ],  
                 where : req.query
             });
             if(list.length <= 0){

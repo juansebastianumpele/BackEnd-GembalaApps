@@ -9,7 +9,7 @@ module.exports = (Sequelize, DataTypes) => {
             autoIncrement: true,
             allowNull: false
           },
-          id_peterakan:{
+          id_peternakan:{
             type: DataTypes.INTEGER,
             allowNull: false
           },
