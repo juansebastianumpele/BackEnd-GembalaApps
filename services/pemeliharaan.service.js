@@ -40,6 +40,12 @@ class _pemeliharaan{
                 item.dataValues.tanggal_pemeliharaan.getMonth() === date.getMonth() &&
                 item.dataValues.tanggal_pemeliharaan.getFullYear() === date.getFullYear()
             }); 
+            if(result.length <= 0){
+                return{
+                    code: 404,
+                    error: `Data pemeliharaan not found`
+                }
+            }
 
             return {
                 code: 200,
