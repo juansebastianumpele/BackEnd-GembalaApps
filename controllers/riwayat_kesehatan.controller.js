@@ -50,6 +50,14 @@ const riwayatKesehatanController = (db) => {
         response.sendResponse(res, del);
     });
 
+    /**
+     * Get total ternak sakit by penyakit
+     */
+    RiwayatKesehatanController.get('/total-sakit-by-penyakit', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$riwayatKesehatan.getTotalTernakSakitByPenyakit(req);
+        response.sendResponse(res, detail);
+    });
+
     return RiwayatKesehatanController;
 }
 

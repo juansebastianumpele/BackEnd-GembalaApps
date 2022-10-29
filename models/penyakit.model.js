@@ -31,9 +31,9 @@ module.exports = (Sequelize, DataTypes) => {
     });
 
     Penyakit.associate = function (models) {
-        Penyakit.hasMany(models.Ternak, {
+        Penyakit.hasMany(models.RiwayatKesehatan, {
             foreignKey: 'id_penyakit',
-            as: 'ternak'
+            as: 'riwayat_kesehatan'
         });
     }
 

@@ -247,6 +247,48 @@ class _riwayatKesehatan{
             }
         }
     }
+
+    // Get total ternak sakit by penyakit
+    getTotalTernakSakitByPenyakit = async (req) => {
+        try{
+            // Get data penyakit
+            const penyakit = await this.db.Penyakit.findAll({
+                attributes: ['id_penyakit', 'nama_penyakit'],
+                include: [{
+                    model: this.db.RiwayatKesehatan,
+                    as: 'riwayat_kesehatan',
+                    attributes: ['id_riwayat_kesehatan', 'id_ternak', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
+                    where: {
+                        id_peternakan: req.dataAuth.id_peternakan,
+                        tanggal_sembuh: null
+                    }
+                }]
+            });
+            if(penyakit == null){
+                return{
+                    code: 400,
+                    error: `Failed to get data penyakit`
+                }
+            }
+
+            for(let i = 0; i < penyakit.length; i++){
+                penyakit[i].dataValues.total = penyakit[i].dataValues.riwayat_kesehatan.length;
+                delete penyakit[i].dataValues.riwayat_kesehatan;
+            }
+
+            return {
+                code: 200,
+                data: penyakit
+            };
+        }
+        catch (error) {
+            log_error('getTotalTernakSakitByPenyakit Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
 }
 
 module.exports = (db) => new _riwayatKesehatan(db);
