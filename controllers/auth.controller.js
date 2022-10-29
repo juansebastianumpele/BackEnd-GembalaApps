@@ -3,6 +3,7 @@ const response = require('../utils/response');
 const authentication = require('../middlewares/authentication');
 const {adminMiddleware, superAdminMiddleware} = require('../middlewares/authorization');
 const authService = require('../services/auth.service');
+const { auth } = require('../config/app.config');
 
 const authController = (db) =>{
     const s$auth = authService(db);
@@ -112,7 +113,7 @@ const authController = (db) =>{
     AuthController.get('/verify-account', async (req, res, next) => {
         const activateAccount = await s$auth.verifyAccount(req.query.token);
         // response.sendResponse(res, activateAccount);
-        res.redirect('https://gembala.netlify.app')
+        res.redirect(auth.url_redirect_verify);
     });
 
     /**
