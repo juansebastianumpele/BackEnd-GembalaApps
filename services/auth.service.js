@@ -200,6 +200,7 @@ class _auth{
                 include: [
                     {
                         model: this.db.Peternakan,
+                        as: 'peternakan',
                         attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'createdAt', 'updatedAt']
                     }
                 ],
