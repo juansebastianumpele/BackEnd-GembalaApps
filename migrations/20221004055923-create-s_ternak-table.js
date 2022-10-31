@@ -107,11 +107,9 @@ module.exports = {
       status_keluar:{
         type: Sequelize.ENUM,
         values: [
-          'Dijual',
-          'Dipotong',
-          'Dikembalikan',
+          'Jual',
           'Mati',
-          'Lainnya'
+          'Sembelih'
         ],
         allowNull: true
       },

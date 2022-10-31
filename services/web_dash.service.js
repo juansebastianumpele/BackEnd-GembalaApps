@@ -414,10 +414,10 @@ class _dashboard{
     getTotalTernakByStatusKeluar = async (req) => {
         try{
             // Get total terjual
-            const totalTerjual = await this.db.Ternak.count({
+            const totalDijual = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    status_keluar: 'Terjual'
+                    status_keluar: 'Jual'
                 }
             });
 
@@ -425,7 +425,7 @@ class _dashboard{
             const totalDisembelih = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    status_keluar: 'Disembelih'
+                    status_keluar: 'Sembilah'
                 }
             });
 
@@ -440,9 +440,9 @@ class _dashboard{
             return {
                 code: 200,
                 data: {
-                    total_terjual: totalTerjual,
+                    total_dijual: totalDijual,
+                    total_mati: totalMati,
                     total_disembelih: totalDisembelih,
-                    total_mati: totalMati
                 }
             }
         }catch(error){
