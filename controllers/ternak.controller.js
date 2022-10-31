@@ -75,6 +75,17 @@ const ternakController = (db) => {
         response.sendResponse(res, del);
     });
 
+    /**
+     * Ternak keluar
+     * @param {number} id_ternak
+     * @param {string} tanggal_keluar
+     * @param {string} status_keluar
+     */
+    TernakController.put('/keluar', authentication, adminMiddleware, async (req, res, next) => {
+        const edit = await s$ternak.ternakKeluar(req);
+        response.sendResponse(res, edit);
+    });
+
     return TernakController;
 }
 

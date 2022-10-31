@@ -11,6 +11,8 @@ class _ternak{
         try{
             // Add id_peternakan to params
             req.query.id_peternakan = req.dataAuth.id_peternakan
+            req.query.status_keluar = null,
+            req.query.tanggal_keluar = null
             // Query data
             const list = await this.db.Ternak.findAll({
                 attributes : ['id_ternak', 
@@ -37,7 +39,19 @@ class _ternak{
                     {
                         model: this.db.Kandang,
                         as: 'kandang',
-                        attributes: ['id_kandang', 'kode_kandang', 'jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan']
+                        attributes: ['id_kandang', 'kode_kandang', 'id_jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan'],
+                        include: [
+                            {
+                                model: this.db.JenisKandang,
+                                as: 'jenis_kandang',
+                                attributes: ['id_jenis_kandang', 'jenis_kandang']
+                            },
+                            {
+                                model: this.db.JenisPakan,
+                                as: 'jenis_pakan',
+                                attributes: ['id_jenis_pakan', 'jenis_pakan']
+                            }
+                        ]
                     },
                     {
                         model: this.db.RiwayatKesehatan,
@@ -62,7 +76,7 @@ class _ternak{
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
-                list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * 0.05).toFixed(2);
+                list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
                 delete list[i].dataValues.riwayat_kesehatan;
             }
 
@@ -281,6 +295,59 @@ class _ternak{
         }
         catch (error) {
             log_error('deleteTernak Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
+    // Ternak Keluar
+    ternakKeluar = async (req) => {
+        try {
+            // Validate Data
+            const schema = joi.object({
+                id_ternak: joi.number().required(),
+                status_keluar: joi.string().required(),
+                tanggal_keluar: joi.date().required()
+            });
+
+            const {error, value} = schema.validate(req.body);
+            if(error){
+                const errorDetails = error.details.map(i => i.message).join(',');
+                return{
+                    code: 400,
+                    error: errorDetails
+                }
+            }
+
+            // Query Data
+            const update = await this.db.Ternak.update({
+                status_keluar: value.status_keluar,
+                tanggal_keluar: value.tanggal_keluar
+            }, {
+                where: {
+                    id_ternak: value.id_ternak,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(update <= 0){
+                return{
+                    code: 400,
+                    error: `Failed to update Ternak`
+                }
+            }
+
+            return {
+                code: 200,
+                data: {
+                    id: value.id_ternak,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
+            };
+        }
+        catch (error) {
+            log_error('ternakKeluar Service', error);
             return {
                 code: 500,
                 error
