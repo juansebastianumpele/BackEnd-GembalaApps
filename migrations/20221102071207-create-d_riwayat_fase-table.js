@@ -3,12 +3,12 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_adaptasi', {
-      id_adaptasi: {
-        type: Sequelize.INTEGER,
+    await queryInterface.createTable('d_riwayat_fase', {
+      id_riwayat_fase: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
+        type: Sequelize.INTEGER
       },
       id_peternakan: {
         type: Sequelize.INTEGER,
@@ -16,6 +16,16 @@ module.exports = {
         references: {
           model: 'd_peternakan',
           key: 'id_peternakan'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      id_fp: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'd_fase',
+          key: 'id_fp'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
@@ -30,20 +40,9 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      id_treatment: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'd_treatment',
-          key: 'id_treatment'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      tanggal_adaptasi: {
+      tanggal: {
         type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -59,6 +58,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_adaptasi');
+    await queryInterface.dropTable('d_riwayat_fase');
   }
 };

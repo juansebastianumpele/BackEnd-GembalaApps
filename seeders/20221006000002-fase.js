@@ -5,16 +5,25 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('d_fase', [
       {
-        fase: "pemasukan"
+        fase: "adaptasi 1"
       },
       {
-        fase: "adaptasi"
+        fase: "adaptasi 2"
+      },
+      {
+        fase: "adaptasi 3"
+      },
+      {
+        fase: "adaptasi 4"
+      },
+      {
+        fase: "adaptasi 5"
       },
       {
         fase: "waiting list perkawinan"
       },
       {
-        fase: "proses perkawinan"
+        fase: "perkawinan"
       },
       {
         fase: "kebuntingan"

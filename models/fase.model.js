@@ -27,6 +27,10 @@ module.exports = (Sequelize, DataTypes) => {
             foreignKey: 'id_fp',
             as: 'ternak'
         });
+        Fase.hasMany(models.RiwayatFase, {
+            foreignKey: 'id_fp',
+            as: 'riwayat_fase'
+        });
     };
     return Fase;
 }

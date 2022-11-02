@@ -15,12 +15,17 @@ class _adaptasi{
             req.query.id_peternakan = req.dataAuth.id_peternakan;
             // Query Data
             const list = await this.db.Adaptasi.findAll({ 
-                attributes: ['id_adaptasi', 'id_peternakan', 'id_ternak', 'id_treatment', 'tanggal_adaptasi', 'createdAt', 'updatedAt'],
+                attributes: ['id_adaptasi', 'tanggal_adaptasi'],
                 include: [
                     {
                         model: this.db.Ternak,
                         as: 'ternak',
                         attributes: ['id_ternak', 'rf_id']
+                    },
+                    {
+                        model: this.db.Treatment,
+                        as: 'treatment',
+                        attributes: ['id_treatment', 'step', 'treatment']
                     }
                 ],
                 where : req.query });
@@ -52,7 +57,9 @@ class _adaptasi{
             // Validate Data
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                id_treatment: joi.number().required()
+                treatments: joi.array().items(joi.object({
+                    id_treatment: joi.number().required()
+                })).required()
             });
             const {error, value} = schema.validate(req.body);
             if(error){
@@ -61,19 +68,230 @@ class _adaptasi{
                     error: error.details[0].message
                 }
             }
-            // Create Data
-            const data = await this.db.Adaptasi.create({
-                id_peternakan: req.dataAuth.id_peternakan,
-                id_ternak: value.id_ternak,
-                id_treatment: value.id_treatment,
-                tanggal_adaptasi: new Date()
+            if(value.treatments.length <= 0){
+                return {
+                    code: 400,
+                    error: 'Treatments must be filled'
+                }
+            }
+
+            // Create treatment apllied
+            for(let i = 0; i < value.treatments.length; i++){
+                const createAdaptasi = await this.db.Adaptasi.create({
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_ternak: value.id_ternak,
+                    id_treatment: value.treatments[i].id_treatment,
+                    tanggal_adaptasi: new Date()
+                });
+                if(!createAdaptasi){
+                    return {
+                        code: 400,
+                        error: 'Failed to create adaptasi'
+                    }
+                }
+            }
+
+            // get fase ternak
+            const faseTernak = await this.db.Ternak.findOne({
+                attributes: ['id_ternak', 'id_fp'],
+                include: [
+                    {
+                        model: this.db.Fase,
+                        as: 'fase',
+                        attributes: ['id_fp', 'fase']
+                    }
+                ],
+                where: {
+                    id_ternak: value.id_ternak,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
             });
+            if(!faseTernak){
+                return {
+                    code: 404,
+                    error: 'Ternak not found'
+                }
+            }
+
+            // update fase ternak
+            if(faseTernak.dataValues.fase && faseTernak.dataValues.fase.fase.split(' ')[1] < 5){
+                let stepAdaptasi = `adaptasi ${parseInt(faseTernak.dataValues.fase.fase.split(' ')[1]) + 1}`;
+                const getIdFase = await this.db.Fase.findOne({
+                    attributes: ['id_fp'],
+                    where: {
+                        fase: stepAdaptasi
+                    }
+                });
+                if(!getIdFase){
+                    return {
+                        code: 404,
+                        error: 'Fase not found'
+                    }
+                }
+                const updateFase = await this.db.Ternak.update({
+                    id_fp: getIdFase.dataValues.id_fp
+                },{
+                    where: {
+                        id_ternak: value.id_ternak,
+                        id_peternakan: req.dataAuth.id_peternakan
+                    }
+                });
+                if(!updateFase){
+                    return {
+                        code: 400,
+                        error: 'Failed to update fase'
+                    }
+                }
+
+                // Create History Fase
+                const createHistoryFase = await this.db.RiwayatFase.create({
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_ternak: value.id_ternak,
+                    id_fp: getIdFase.dataValues.id_fp,
+                    tanggal: new Date()
+                });
+                if(!createHistoryFase){
+                    return {
+                        code: 400,
+                        error: 'Failed to create history fase'
+                    }
+                }
+            }else if(faseTernak.dataValues.fase && faseTernak.dataValues.fase.fase.split(' ')[1] == 5){
+                const getIdFase = await this.db.Fase.findOne({
+                    attributes: ['id_fp'],
+                    where: {
+                        fase: 'waiting list perkawinan'
+                    }
+                });
+                if(!getIdFase){
+                    return {
+                        code: 404,
+                        error: 'Fase not found'
+                    }
+                }
+                const updateFase = await this.db.Ternak.update({
+                    id_fp: getIdFase.dataValues.id_fp
+                },{
+                    where: {
+                        id_ternak: value.id_ternak,
+                        id_peternakan: req.dataAuth.id_peternakan
+                    }
+                });
+                if(!updateFase){
+                    return {
+                        code: 400,
+                        error: 'Failed to update fase'
+                    }
+                }
+
+                // Create History Fase
+                const createHistoryFase = await this.db.RiwayatFase.create({
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_ternak: value.id_ternak,
+                    id_fp: getIdFase.dataValues.id_fp,
+                    tanggal: new Date()
+                });
+                if(!createHistoryFase){
+                    return {
+                        code: 400,
+                        error: 'Failed to create history fase'
+                    }
+                }
+            }else{
+                return {
+                    code: 400,
+                    error: 'Ternak not in adaptasi fase'
+                }
+            }
+
             return {
                 code: 200,
-                data
-            };
+                data: {
+                    message: 'Success to create adaptasi'
+                }
+            }
         }catch (error){
             log_error('createAdaptasi Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
+    // Get ternak by fase adaptasi
+    getTernakByStep = async (req) => {
+        try{
+            if(!req.query.step){
+                return {
+                    code: 400,
+                    error: 'Step must be filled'
+                }
+            }
+            if(req.query.step < 1 || req.query.step > 5){
+                return {
+                    code: 400,
+                    error: 'Step must be between 1 and 5'
+                }
+            }
+            // get data fase
+            const fase = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: `adaptasi ${req.query.step}`
+                }
+            });
+            if(!fase){
+                return {
+                    code: 404,
+                    error: 'Fase not found'
+                }
+            }
+            // Query Data
+            const list = await this.db.Ternak.findAll({ 
+                attributes: ['id_ternak', 'rf_id'],
+                include: [
+                    {
+                        model: this.db.Fase,
+                        as: 'fase',
+                        attributes: ['id_fp', 'fase']
+                    },
+                    {
+                        model: this.db.RiwayatFase,
+                        as: 'riwayat_fase',
+                        attributes: ['tanggal'],
+                    },
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang'],
+                    }
+                ],
+                where : {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: fase.dataValues.id_fp
+                } });
+            if(list.length <= 0){
+                return{
+                    code: 404,
+                    error: 'Data ternak not found'
+                }
+            }
+
+            for(let i = 0; i < list.length; i++){
+                list[i].dataValues.tanggal = list[i].dataValues.riwayat_fase.length > 0 ? list[i].dataValues.riwayat_fase[list[i].dataValues.riwayat_fase.length - 1].tanggal : null;
+                delete list[i].dataValues.riwayat_fase;
+            }
+
+            return {
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
+            };
+        }catch (error){
+            log_error('getTernakByFaseAdaptasi Service', error);
             return {
                 code: 500,
                 error

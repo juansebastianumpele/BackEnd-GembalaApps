@@ -122,7 +122,7 @@ class _lkPemasukan{
             // get data fase
             const fase = await this.db.Fase.findOne({
                 where: {
-                    fase: 'adaptasi'
+                    fase: 'adaptasi 1'
                 }
             });
             if(!fase){
@@ -137,7 +137,7 @@ class _lkPemasukan{
                 id_bangsa: value.id_bangsa,
                 jenis_kelamin: value.jenis_kelamin,
                 id_kandang: value.id_kandang,
-                id_fp: fase.id_fp,
+                id_fp: fase.dataValues.id_fp,
                 id_status_ternak: value.id_status_ternak,
             },{
                 where: {
@@ -149,6 +149,20 @@ class _lkPemasukan{
                 return{
                     code: 404,
                     error: 'Data ternak not found'
+                }
+            }
+
+            // Create riwayat fase
+            const riwayatFase = await this.db.RiwayatFase.create({
+                id_ternak: value.id_ternak,
+                id_fp: fase.dataValues.id_fp,
+                id_peternakan: req.dataAuth.id_peternakan,
+                tanggal: new Date()
+            });
+            if(!riwayatFase){
+                return{
+                    code: 500,
+                    error: 'Failed to create riwayat fase'
                 }
             }
 
