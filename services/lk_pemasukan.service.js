@@ -122,7 +122,7 @@ class _lkPemasukan{
             // get data fase
             const fase = await this.db.Fase.findOne({
                 where: {
-                    fase: 'adaptasi'
+                    fase: 'Adaptasi'
                 }
             });
             if(!fase){
