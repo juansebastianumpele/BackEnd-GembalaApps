@@ -5,19 +5,16 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('d_jenis_kandang', [
     {
-      jenis_kandang: 'Kandang Sapi',
+      jenis_kandang: 'Kandang Kawin',
     },
     {
-      jenis_kandang: 'Kandang Kambing',
+      jenis_kandang: 'Kandang Laktasi',
     },
     {
-      jenis_kandang: 'Kandang Ayam',
+      jenis_kandang: 'Kandang Rekondisi',
     },
     {
-      jenis_kandang: 'Kandang Bebek',
-    },
-    {
-      jenis_kandang: 'Kandang Itik',
+      jenis_kandang: 'Kandang Isolasi',
     },
   ], {});
   },

@@ -5,12 +5,12 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('d_peternakan', [
       {
-        nama_peternakan: "peternakan 1",
-        alamat: "alamat 1"
+        nama_peternakan: "Texley Ranch",
+        alamat: "Selomartani, Kalasan, Sleman, Yogyakarta",
       },
       {
-        nama_peternakan: "peternakan 2",
-        alamat: "alamat 2"
+        nama_peternakan: "Gembala Farm",
+        alamat: "Selomartani, Kalasan, Sleman, Yogyakarta"
       },
     ], {});
   },
