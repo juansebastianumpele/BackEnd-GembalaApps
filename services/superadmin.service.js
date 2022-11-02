@@ -12,6 +12,8 @@ class _superAdmin{
     // Get Data users
     getUsers = async (req) => {
         try{
+            // Add query params
+            req.query.role = 'admin';
             // Query Data
             const list = await this.db.AuthUser.findAll({ 
                 attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status'],
