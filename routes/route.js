@@ -1,4 +1,4 @@
-const userController = require("../controllers/user.controller");
+const superAdminController = require("../controllers/superadmin.controller");
 const authController = require("../controllers/auth.controller");
 const kandangController = require("../controllers/kandang.controller");
 const pakanController = require("../controllers/pakan.controller");
@@ -21,7 +21,7 @@ const pemeliharaanController = require("../controllers/pemeliharaan.controller")
 // Define url API in here
 const _routes = [
     ['/auth', authController],
-    ['/users', userController],
+    ['/superadmin', superAdminController],
     ['/kandang', kandangController],
     ['/pakan', pakanController],
     ['/bahan-pakan', bahanPakanController],

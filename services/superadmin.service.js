@@ -3,7 +3,9 @@ const {log_error} = require('../utils/logging');
 const joi = require('joi');
 const {generateToken} = require('../utils/auth');
 const config = require('../config/app.config')
-class _user{
+const date = require('date-and-time');
+
+class _superAdmin{
     constructor(db){
         this.db = db;
     }
@@ -12,7 +14,14 @@ class _user{
         try{
             // Query Data
             const list = await this.db.AuthUser.findAll({ 
-                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'alamat', 'nama_peternakan', 'role', 'status',  'createdAt', 'updatedAt'],
+                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status'],
+                include: [
+                    {
+                        model: this.db.Peternakan,
+                        as: 'peternakan',
+                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat'],
+                    }
+                ],
                 where : req.query });
             if(list.length <= 0){
                 return{
@@ -76,4 +85,4 @@ class _user{
     }
 }
 
-module.exports = (db) => new _user(db);
+module.exports = (db) => new _superAdmin(db);
