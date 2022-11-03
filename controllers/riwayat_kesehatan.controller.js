@@ -21,7 +21,7 @@ const riwayatKesehatanController = (db) => {
      * @param {number} id_ternak
      * @param {number} id_penyakit
      * @param {date} tanggal_sakit
-     * @param {date} tanggal_sembuh
+     * @param {number} id_kandang
      */
     RiwayatKesehatanController.post('/', authentication, adminMiddleware, async (req, res, next) => {
         const add = await s$riwayatKesehatan.createRiwayatKesehatan(req);
@@ -31,10 +31,11 @@ const riwayatKesehatanController = (db) => {
     /**
      * Update Riwayat Kesehatan
      * @param {number} id_riwayat_kesehatan
-     * @param {number} id_ternak
-     * @param {number} id_penyakit
      * @param {date} tanggal_sakit
      * @param {date} tanggal_sembuh
+     * @param {string} gejala
+     * @param {string} penanganan
+     * @param {number} id_kandang
     */
     RiwayatKesehatanController.put('/', authentication, adminMiddleware, async (req, res, next) => {
         const edit = await s$riwayatKesehatan.updateRiwayatKesehatan(req);

@@ -29,6 +29,14 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
           },
+          gejala:{
+            type: DataTypes.STRING,
+            allowNull: false
+          },
+          penanganan:{
+            type: DataTypes.STRING,
+            allowNull: false
+          },
           createdAt: {
             type: DataTypes.DATE,
             allowNull: false

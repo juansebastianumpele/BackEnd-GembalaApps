@@ -48,6 +48,14 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true
       },
+      gejala:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      penanganan:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,

@@ -14,7 +14,7 @@ class _riwayatKesehatan{
             req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.RiwayatKesehatan.findAll({ 
-                attributes : ['id_riwayat_kesehatan', 'tanggal_sakit', 'tanggal_sembuh', 'createdAt', 'updatedAt'],
+                attributes : ['id_riwayat_kesehatan', 'tanggal_sakit', 'tanggal_sembuh', 'gejala', 'penanganan'],
                 include: [
                     {
                         model: this.db.Ternak,
@@ -58,9 +58,8 @@ class _riwayatKesehatan{
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 id_penyakit: joi.number().required(),
-                tanggal_sakit: joi.date().required(),
-                tanggal_sembuh: joi.date().allow(null),
-                id_kandang: joi.string().allow(null)
+                tanggal_sakit: joi.date().allow(null),
+                id_kandang: joi.number().allow(null)
             });
 
             const { error, value } = schema.validate(req.body);
@@ -72,12 +71,26 @@ class _riwayatKesehatan{
                 }
             }
 
-            // Query data
+            // Get data penyakit
+            const penyakit = await this.db.Penyakit.findOne({  
+                where: {
+                    id_penyakit: value.id_penyakit
+                }
+            });
+            if(!penyakit){
+                return{
+                    code: 404,
+                    error: `Data penyakit not found`
+                }
+            }
+
+            // Create RiwayatKesehatan
             const add = await this.db.RiwayatKesehatan.create({
                 id_ternak: value.id_ternak,
                 id_penyakit: value.id_penyakit,
-                tanggal_sakit: value.tanggal_sakit,
-                tanggal_sembuh: value.tanggal_sembuh,
+                tanggal_sakit: value.tanggal_sakit ? value.tanggal_sakit : new Date(),
+                gejala: penyakit.dataValues.gejala,
+                penanganan: penyakit.dataValues.penanganan,
                 id_peternakan: req.dataAuth.id_peternakan
             });
             if(add == null){
@@ -130,11 +143,11 @@ class _riwayatKesehatan{
             // Validate data
             const schema = joi.object({
                 id_riwayat_kesehatan: joi.number().required(),
-                id_ternak: joi.number().required(),
-                id_penyakit: joi.number().required(),
-                tanggal_sakit: joi.date().required(),
+                tanggal_sakit: joi.date().allow(null),
                 tanggal_sembuh: joi.date().allow(null),
-                id_kandang: joi.string().allow(null)
+                id_kandang: joi.number().allow(null),
+                gejala: joi.string().allow(null),
+                penanganan: joi.string().allow(null)
             });
 
             const { error, value } = schema.validate(req.body);
@@ -146,12 +159,26 @@ class _riwayatKesehatan{
                 }
             }
 
+            // Check data RiwayatKesehatan
+            const check = await this.db.RiwayatKesehatan.findOne({
+                where: {
+                    id_riwayat_kesehatan: value.id_riwayat_kesehatan,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(!check){
+                return{
+                    code: 404,
+                    error: `Data riwayat kesehatan not found`
+                }
+            }
+
             // Query data
             const update = await this.db.RiwayatKesehatan.update({
-                id_ternak: value.id_ternak,
-                id_penyakit: value.id_penyakit,
-                tanggal_sakit: value.tanggal_sakit,
-                tanggal_sembuh: value.tanggal_sembuh
+                tanggal_sakit: value.tanggal_sakit ? value.tanggal_sakit : check.dataValues.tanggal_sakit,
+                tanggal_sembuh: value.tanggal_sembuh ? value.tanggal_sembuh : check.dataValues.tanggal_sembuh,
+                gejala: value.gejala ? value.gejala : check.dataValues.gejala,
+                penanganan: value.penanganan ? value.penanganan : check.dataValues.penanganan
             }, {
                 where: {
                     id_riwayat_kesehatan: value.id_riwayat_kesehatan,
@@ -171,7 +198,7 @@ class _riwayatKesehatan{
                     id_kandang: value.id_kandang
                 }, {
                     where: {
-                        id_ternak: value.id_ternak,
+                        id_ternak: check.dataValues.id_ternak,
                         id_peternakan: req.dataAuth.id_peternakan
                     }
                 });
