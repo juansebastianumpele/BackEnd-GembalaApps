@@ -577,7 +577,7 @@ class _ternak{
     getDataIndukanFormInput = async (req) => {
         try {
             // Get data status
-            const status = await this.db.Ternak.findOne({
+            const status = await this.db.Status.findOne({
                 where: {
                     status_ternak : 'indukan'
                 }
@@ -624,7 +624,7 @@ class _ternak{
     getDataPejantanFormInput = async (req) => {
         try {
             // Get data status
-            const status = await this.db.Ternak.findOne({
+            const status = await this.db.Status.findOne({
                 where: {
                     status_ternak : 'pejantan'
                 }

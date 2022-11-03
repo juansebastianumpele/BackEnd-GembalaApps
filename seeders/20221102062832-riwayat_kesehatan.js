@@ -12,14 +12,14 @@ module.exports = {
     },
     {
       id_peternakan: 1,
-      id_ternak: 1,
+      id_ternak: 4,
       id_penyakit: 2,
       tanggal_sakit: "2022-10-02",
       tanggal_sembuh: "2022-10-15",
     },
     {
       id_peternakan: 1,
-      id_ternak: 1,
+      id_ternak: 4,
       id_penyakit: 3,
       tanggal_sakit: "2022-11-02",
       tanggal_sembuh: null,

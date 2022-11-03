@@ -42,7 +42,7 @@ const _routes = [
     ['/jenis-kandang', jenisKandangController],
     ['/pemeliharaan', pemeliharaanController],
     ['/adaptasi', adaptasiController],
-    ['form-input', formInputController]
+    ['/form-input', formInputController]
 ];
 
 const routes = (app, db) => {
