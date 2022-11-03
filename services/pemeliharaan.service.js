@@ -14,7 +14,7 @@ class _pemeliharaan{
             req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.Pemeliharaan.findAll({
-                attributes : ['id_pemeliharaan', 'tanggal_pemeliharaan'],
+                attributes: ['tanggal_pemeliharaan', 'jenis_pakan', 'jumlah_pakan', 'pembersihan_kandang', 'pembersihan_ternak'],
                 include: [
                     {
                         model: this.db.Kandang,
@@ -70,7 +70,7 @@ class _pemeliharaan{
             req.query.id_peternakan = req.dataAuth.id_peternakan
             // Query data
             const list = await this.db.Pemeliharaan.findAll({
-                attributes : ['id_pemeliharaan', 'tanggal_pemeliharaan'],
+                attributes: ['tanggal_pemeliharaan', 'jenis_pakan', 'jumlah_pakan', 'pembersihan_kandang', 'pembersihan_ternak'],
                 include: [
                     {
                         model: this.db.Kandang,
