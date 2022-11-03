@@ -201,8 +201,29 @@ class _dashboard{
                 }
             }
 
+            // Get ternak fase pemasukan
+            const ternakFasePemasukan = await this.db.Ternak.count({
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: null,
+                    status_keluar: null
+                }
+            });
+
             // Get total ternak by fase
             let totalTernakByFase = [];
+            totalTernakByFase.push({
+                fase: 'Pemasukan',
+                total_ternak: ternakFasePemasukan
+            })
+            totalTernakByFase.push({
+                fase: 'Adaptasi',
+                total_ternak: 0
+            });
+            totalTernakByFase.push({
+                fase: 'Perkawinan',
+                total_ternak: 0
+            });
             for(let i = 0; i < fase.length; i++){
                 const totalTernak = await this.db.Ternak.count({
                     where: {
@@ -212,11 +233,16 @@ class _dashboard{
                     }
                 });
 
-                totalTernakByFase.push({
-                    id_fp: fase[i].dataValues.id_fp,
-                    fase: fase[i].dataValues.fase,
-                    total_ternak: totalTernak
-                });
+                if(fase[i].dataValues.fase.toLowerCase().startsWith('adaptasi')){
+                    totalTernakByFase[1].total_ternak += totalTernak;
+                }else if(fase[i].dataValues.fase.toLowerCase().includes('perkawinan')){
+                    totalTernakByFase[2].total_ternak += totalTernak;
+                }else{
+                    totalTernakByFase.push({
+                        fase: fase[i].dataValues.fase,
+                        total_ternak: totalTernak
+                    });
+                }
             }
 
             return {
