@@ -76,33 +76,53 @@ class _mobileDash{
                 }
             });
 
-            // Get status
-            const status = await this.db.Status.findAll({});
-            if(status == null){
+            // Get status id cempe
+            const statusCempe = await this.db.Status.findOne({
+                attributes: ['id_status_ternak'],
+                where: {
+                    status_ternak: 'Cempe'
+                }
+            });
+            if(!statusCempe){
                 return {
-                    code: 404,
-                    message: 'Status Ternak Pejantan Not Found'
+                    status: 404,
+                    message: 'Status Cempe tidak ditemukan'
                 }
             }
 
-            let id_pejantan;
-            let id_indukan;
-            let id_cempe;
-            for(let i = 0; i < status.length; i++){
-                if(status[i].dataValues.status_ternak == 'pejantan'){
-                    id_pejantan = status[i].dataValues.id_status_ternak;
-                }else if(status[i].dataValues.status_ternak == 'indukan'){
-                    id_indukan = status[i].dataValues.id_status_ternak;
-                }else if(status[i].dataValues.status_ternak == 'cempe'){
-                    id_cempe = status[i].dataValues.id_status_ternak;
+            // Get status is pejantan
+            const statusPejantan = await this.db.Status.findOne({
+                attributes: ['id_status_ternak'],
+                where: {
+                    status_ternak: 'Pejantan'
+                }
+            });
+            if(!statusPejantan){
+                return {
+                    status: 404,
+                    message: 'Status Pejantan tidak ditemukan'
+                }
+            }
+
+            // Get status is indukan
+            const statusIndukan = await this.db.Status.findOne({
+                attributes: ['id_status_ternak'],
+                where: {
+                    status_ternak: 'Indukan'
+                }
+            });
+            if(!statusIndukan){
+                return {
+                    status: 404,
+                    message: 'Status Indukan tidak ditemukan'
                 }
             }
 
             // Get total ternak pejantan
             const totalTernakPejantan = await this.db.Ternak.count({
                 where: {
-                    id_user: req.dataAuth.id_peternakan,
-                    id_status_ternak: id_pejantan,
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_status_ternak: statusPejantan.dataValues.id_status_ternak,
                     status_keluar: null
                 }
             });
@@ -120,7 +140,7 @@ class _mobileDash{
             const totalTernakIndukan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: id_indukan,
+                    id_status_ternak: statusIndukan.dataValues.id_status_ternak,
                     status_keluar: null
                 }
             });
@@ -138,7 +158,7 @@ class _mobileDash{
             const totalTernakCempeJantan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: id_cempe,
+                    id_status_ternak: statusCempe.dataValues.id_status_ternak,
                     jenis_kelamin: 'jantan',
                     status_keluar: null
                 }
@@ -148,7 +168,7 @@ class _mobileDash{
             const totalTernakCempeBetina = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: id_cempe,
+                    id_status_ternak: statusCempe.dataValues.id_status_ternak,
                     jenis_kelamin: 'betina',
                     status_keluar: null
                 }

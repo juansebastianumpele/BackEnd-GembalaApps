@@ -8,7 +8,7 @@ class _adaptasi{
     constructor(db){
         this.db = db;
     }
-    // Get Data adaptasi 
+    /// Get Data adaptasi 
     getAdaptasi = async (req) => {
         try{
             // add id_peternakan, id_ternak to query
@@ -51,14 +51,57 @@ class _adaptasi{
         }
     }
 
-    // Create Data adaptasi
+    /// Get Data adaptasi by step
+    getAdaptasiByStep = async (req) => {
+        try{
+            // add id_peternakan, id_ternak to query
+            req.query.id_peternakan = req.dataAuth.id_peternakan;
+            // Query Data
+            const list = await this.db.Adaptasi.findAll({ 
+                attributes: ['id_adaptasi', 'tanggal_adaptasi'],
+                include: [
+                    {
+                        model: this.db.Ternak,
+                        as: 'ternak',
+                        attributes: ['id_ternak', 'rf_id']
+                    },
+                    {
+                        model: this.db.Treatment,
+                        as: 'treatment',
+                        attributes: ['id_treatment', 'step', 'treatment']
+                    }
+                ],
+                where : req.query });
+            if(list.length <= 0){
+                return{
+                    code: 404,
+                    error: 'Data adaptasi not found'
+                }
+            }
+            return {
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
+            };
+        }catch (error){
+            log_error('getAdaptasi Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
+    /// Create Data adaptasi
     createAdaptasi = async (req) => {
         try{
             // Validate Data
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 treatments: joi.array().items(joi.object({
-                    id_treatment: joi.number().required()
+                id_treatment: joi.number().required()
                 })).required()
             });
             const {error, value} = schema.validate(req.body);
@@ -75,26 +118,14 @@ class _adaptasi{
                 }
             }
 
-            // Create treatment apllied
-            for(let i = 0; i < value.treatments.length; i++){
-                const createAdaptasi = await this.db.Adaptasi.create({
-                    id_peternakan: req.dataAuth.id_peternakan,
-                    id_ternak: value.id_ternak,
-                    id_treatment: value.treatments[i].id_treatment,
-                    tanggal_adaptasi: new Date()
-                });
-                if(!createAdaptasi){
-                    return {
-                        code: 400,
-                        error: 'Failed to create adaptasi'
-                    }
-                }
-            }
-
-            // get fase ternak
-            const faseTernak = await this.db.Ternak.findOne({
-                attributes: ['id_ternak', 'id_fp'],
+            // Check data ternak
+            const ternak = await this.db.Ternak.findOne({
                 include: [
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang']
+                    },
                     {
                         model: this.db.Fase,
                         as: 'fase',
@@ -106,16 +137,33 @@ class _adaptasi{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!faseTernak){
+            if(!ternak){
                 return {
                     code: 404,
-                    error: 'Ternak not found'
+                    error: 'Data ternak not found'
+                }
+            }
+
+            // Create treatment apllied
+            for(let i = 0; i < value.treatments.length; i++){
+                const createAdaptasi = await this.db.Adaptasi.create({
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_ternak: value.id_ternak,
+                    id_treatment: value.treatments[i].id_treatment,
+                    kode_kandang: ternak.dataValues.kandang.kode_kandang,
+                    tanggal_adaptasi: new Date()
+                });
+                if(!createAdaptasi){
+                    return {
+                        code: 400,
+                        error: 'Failed to create adaptasi'
+                    }
                 }
             }
 
             // update fase ternak
-            if(faseTernak.dataValues.fase && faseTernak.dataValues.fase.fase.split(' ')[1] < 5){
-                let stepAdaptasi = `adaptasi ${parseInt(faseTernak.dataValues.fase.fase.split(' ')[1]) + 1}`;
+            if(ternak.dataValues.fase && ternak.dataValues.fase.fase.split(' ')[1] < 5){
+                let stepAdaptasi = `adaptasi ${parseInt(ternak.dataValues.fase.fase.split(' ')[1]) + 1}`;
                 const getIdFase = await this.db.Fase.findOne({
                     attributes: ['id_fp'],
                     where: {
@@ -156,7 +204,7 @@ class _adaptasi{
                         error: 'Failed to create history fase'
                     }
                 }
-            }else if(faseTernak.dataValues.fase && faseTernak.dataValues.fase.fase.split(' ')[1] == 5){
+            }else if(ternak.dataValues.fase && ternak.dataValues.fase.fase.split(' ')[1] == 5){
                 const getIdFase = await this.db.Fase.findOne({
                     attributes: ['id_fp'],
                     where: {
@@ -219,7 +267,7 @@ class _adaptasi{
         }
     }
 
-    // Get ternak by fase adaptasi
+    /// Get ternak by fase adaptasi
     getTernakByStep = async (req) => {
         try{
             if(!req.query.step){

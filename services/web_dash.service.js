@@ -8,55 +8,8 @@ class _dashboard{
     constructor(db){
         this.db = db;
     }
-    // // Get Data Populasi
-    // getPopulasi = async (req) => {
-    //     try{
-    //         const list = await this.db.Populasi.findAll({
-    //             attributes : ['id_populasi', 'tanggal', 'populasi'],
-    //             where : req.query
-    //         });
-    //         if(list.length <= 0){
-    //             return {
-    //                 code: 404,
-    //                 error: 'Data Population not found'
-    //             }
-    //         }
-    //         return {
-    //             code: 200,
-    //             data: {
-    //                 total: list.length,
-    //                 list: list
-    //             }
-    //         }
-    //     }
-    //     catch(err){
-    //         log_error('Populasi Service',err);
-    //         return err;
-    //     }
-    // }
 
-    // // Create Jumlah Populasi per hari
-    // createPopulasi = async () => {
-    //     try {
-    //         setInterval(async () => {
-    //             const now = new Date();
-    //             const tanggal = date.format(now, 'YYYY-MM-DD');
-    //             const populasi = await this.db.Ternak.count({});
-    //             const add = await this.db.Populasi.create({
-    //                 tanggal: tanggal,
-    //                 populasi: populasi
-    //             });
-    //         }, 1000 * 60 * 60 * 24);
-    //     }catch (error){
-    //         log_error('createPopulasi Service', error);
-    //         return {
-    //             code: 500,
-    //             error
-    //         }
-    //     }
-    // }
-
-    // Get Data total ternak by status
+    /// Get Data total ternak by status
     getTotalTernakByStatus = async (req) => {
         try{
             // Get total ternak
@@ -68,25 +21,45 @@ class _dashboard{
                 }
             });
 
-            // Get status
-            const status = await this.db.Status.findAll({});
-            if(status == null){
+            // Get status id cempe
+            const statusCempe = await this.db.Status.findOne({
+                attributes: ['id_status_ternak'],
+                where: {
+                    status_ternak: 'Cempe'
+                }
+            });
+            if(!statusCempe){
                 return {
-                    code: 404,
-                    message: 'Status Ternak Pejantan Not Found'
+                    status: 404,
+                    message: 'Status Cempe tidak ditemukan'
                 }
             }
 
-            let id_pejantan;
-            let id_indukan;
-            let id_cempe;
-            for(let i = 0; i < status.length; i++){
-                if(status[i].dataValues.status_ternak == 'pejantan'){
-                    id_pejantan = status[i].dataValues.id_status_ternak;
-                }else if(status[i].dataValues.status_ternak == 'indukan'){
-                    id_indukan = status[i].dataValues.id_status_ternak;
-                }else if(status[i].dataValues.status_ternak == 'cempe'){
-                    id_cempe = status[i].dataValues.id_status_ternak;
+            // Get status is pejantan
+            const statusPejantan = await this.db.Status.findOne({
+                attributes: ['id_status_ternak'],
+                where: {
+                    status_ternak: 'Pejantan'
+                }
+            });
+            if(!statusPejantan){
+                return {
+                    status: 404,
+                    message: 'Status Pejantan tidak ditemukan'
+                }
+            }
+
+            // Get status is indukan
+            const statusIndukan = await this.db.Status.findOne({
+                attributes: ['id_status_ternak'],
+                where: {
+                    status_ternak: 'Indukan'
+                }
+            });
+            if(!statusIndukan){
+                return {
+                    status: 404,
+                    message: 'Status Indukan tidak ditemukan'
                 }
             }
 
@@ -94,7 +67,7 @@ class _dashboard{
             const totalTernakPejantan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: id_pejantan,
+                    id_status_ternak: statusPejantan.dataValues.id_status_ternak,
                     status_keluar: null
                 }
             });
@@ -112,7 +85,7 @@ class _dashboard{
             const totalTernakIndukan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: id_indukan,
+                    id_status_ternak: statusIndukan.dataValues.id_status_ternak,
                     status_keluar: null
                 }
             });
@@ -130,7 +103,7 @@ class _dashboard{
             const totalTernakCempeJantan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: id_cempe,
+                    id_status_ternak: statusCempe.dataValues.id_status_ternak,
                     jenis_kelamin: 'jantan',
                     status_keluar: null
                 }
@@ -140,7 +113,7 @@ class _dashboard{
             const totalTernakCempeBetina = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: id_cempe,
+                    id_status_ternak: statusCempe.dataValues.id_status_ternak,
                     jenis_kelamin: 'betina',
                     status_keluar: null
                 }
@@ -167,7 +140,7 @@ class _dashboard{
         }
     }
 
-    // Get total kandang
+    /// Get total kandang
     getTotalKandang = async (req) => {
         try{
             const totalKandang = await this.db.Kandang.count({
@@ -216,7 +189,7 @@ class _dashboard{
         }
     }
 
-    // Get total ternak by fase
+    /// Get total ternak by fase
     getTotalTernakByFase = async (req) => {
         try{
             // Get data fase
@@ -335,7 +308,7 @@ class _dashboard{
         }
     }
 
-    // Get ADG Cempe
+    /// Get ADG Cempe
     getADGCempe = async (req) => {
         try{
             // Get data status ternak cempe

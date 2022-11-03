@@ -1,7 +1,6 @@
 const joi = require('joi');
 const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
-// const db = require('../models');
 const config = require('../config/app.config');
 const jwt = require('jsonwebtoken');
 const {log_error, log_success, log_info} = require('../utils/logging');
