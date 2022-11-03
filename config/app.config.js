@@ -4,7 +4,7 @@ const {URL} = process.env;
 module.exports = {
   jwt:{
         secret: "$2a$19$QeyGVx5HvztvllwoKJnCBea1AMJCTUAioDLPepc7fCS.Sjd.ZdD3O",
-        expiresIn: 3600
+        expiresIn: 18000
     },
     url: URL,
     auth:{
