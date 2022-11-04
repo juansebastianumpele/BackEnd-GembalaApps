@@ -432,13 +432,16 @@ class _adaptasi{
                         [Op.gte]: 1,
                         [Op.lte]: 5
                     }
-                } });
+                } 
+            });
             if(list.length <= 0){
                 return{
                     code: 404,
                     error: 'Data ternak not found'
                 }
             }
+
+            let totalByKandang = {}
 
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.perlakuan = list[i].dataValues.fase.fase.split(' ')[1];
@@ -449,12 +452,20 @@ class _adaptasi{
                 delete list[i].dataValues.fase;
                 delete list[i].dataValues.kandang;
                 delete list[i].dataValues.timbangan;
+
+                totalByKandang[list[i].dataValues.kode_kandang] ? totalByKandang[list[i].dataValues.kode_kandang]++ : totalByKandang[list[i].dataValues.kode_kandang] = 1;
             }
+
+            const ternakBetina = list.filter((item) => item.dataValues.jenis_kelamin.toLowerCase() == 'betina');
+            const ternakJantan = list.filter((item) => item.dataValues.jenis_kelamin.toLowerCase() == 'jantan');
 
             return {
                 code: 200,
                 data: {
                     total: list.length,
+                    ternak_betina: ternakBetina.length,
+                    ternak_jantan: ternakJantan.length,
+                    total_per_kandang: totalByKandang,
                     list
                 }
             };
