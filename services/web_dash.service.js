@@ -31,7 +31,7 @@ class _dashboard{
             if(!statusCempe){
                 return {
                     status: 404,
-                    message: 'Status Cempe tidak ditemukan'
+                    error: 'Status Cempe tidak ditemukan'
                 }
             }
 
@@ -45,7 +45,7 @@ class _dashboard{
             if(!statusPejantan){
                 return {
                     status: 404,
-                    message: 'Status Pejantan tidak ditemukan'
+                    error: 'Status Pejantan tidak ditemukan'
                 }
             }
 
@@ -59,7 +59,7 @@ class _dashboard{
             if(!statusIndukan){
                 return {
                     status: 404,
-                    message: 'Status Indukan tidak ditemukan'
+                    error: 'Status Indukan tidak ditemukan'
                 }
             }
 
@@ -135,7 +135,7 @@ class _dashboard{
             log_error(error);
             return {
                 code: 500,
-                message: 'Internal Server Error'
+                error: 'Internal Server Error'
             }
         }
     }
@@ -159,7 +159,7 @@ class _dashboard{
             log_error(error);
             return {
                 code: 500,
-                message: 'Internal Server Error'
+                error: 'Internal Server Error'
             }
         }
     }
@@ -184,7 +184,7 @@ class _dashboard{
             log_error(error);
             return {
                 code: 500,
-                message: 'Internal Server Error'
+                error: 'Internal Server Error'
             }
         }
     }
@@ -197,7 +197,7 @@ class _dashboard{
             if(fase == null){
                 return {
                     code: 404,
-                    message: 'Fase Ternak Not Found'
+                    error: 'Fase Ternak Not Found'
                 }
             }
 
@@ -254,7 +254,7 @@ class _dashboard{
             log_error(error);
             return {
                 code: 500,
-                message: 'Internal Server Error'
+                error: 'Internal Server Error'
             }
         }
     }
@@ -267,7 +267,7 @@ class _dashboard{
             if(jenisKandang.length <= 0){
                 return {
                     code: 404,
-                    message: 'Jenis Kandang Not Found'
+                    error: 'Jenis Kandang Not Found'
                 }
             }
 
@@ -280,7 +280,7 @@ class _dashboard{
             if(kandang.length <= 0){
                 return {
                     code: 404,
-                    message: 'Kandang Not Found'
+                    error: 'Kandang Not Found'
                 }
             }
             
@@ -295,7 +295,7 @@ class _dashboard{
             if(ternak.length <= 0){
                 return {
                     code: 404,
-                    message: 'Ternak Not Found'
+                    error: 'Ternak Not Found'
                 }
             }
 
@@ -329,7 +329,7 @@ class _dashboard{
             log_error(error);
             return {
                 code: 500,
-                message: 'Internal Server Error'
+                error: 'Internal Server Error'
             }
         }
     }
@@ -347,7 +347,7 @@ class _dashboard{
             if(statusTernak == null){
                 return {
                     code: 404,
-                    message: 'Status Ternak Cempe Not Found'
+                    error: 'Status Ternak Cempe Not Found'
                 }
             }
 
@@ -363,7 +363,7 @@ class _dashboard{
             if(ternakCempe.length <= 0){
                 return {
                     code: 404,
-                    message: 'Ternak Cempe Not Found'
+                    error: 'Ternak Cempe Not Found'
                 }
             }
 
@@ -404,7 +404,7 @@ class _dashboard{
             log_error(error);
             return {
                 code: 500,
-                message: 'Internal Server Error'
+                error: 'Internal Server Error'
             }
         }
     }
@@ -448,7 +448,7 @@ class _dashboard{
             log_error(error);
             return {
                 code: 500,
-                message: 'Internal Server Error'
+                error: 'Internal Server Error'
             }
         }
     }

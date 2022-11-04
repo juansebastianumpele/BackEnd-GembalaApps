@@ -10,6 +10,7 @@ class _auth{
     constructor(db){
         this.db = db;
     }
+    /// Login Service
     login = async (data) => {
         // Validate data
         const schema = joi.object({
@@ -77,6 +78,7 @@ class _auth{
         }
     }
 
+    /// Register Service
     register = async (data) => {
         try{
             // Validate data
@@ -173,6 +175,7 @@ class _auth{
         }
     }
 
+    /// Logout Service
     logout = async (req, res) => {
         const update = await this.db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
         if (update <= 0) {
@@ -191,6 +194,7 @@ class _auth{
         }
     }
 
+    /// Get Profile Service
     getProfile = async (req) => {
         try{
             // Query Data
@@ -226,8 +230,8 @@ class _auth{
         }
     }
     
+    /// Delete Account Service
     deleteAccount = async (req) => {
-
         // Validate data
         const schema = joi.object({
             kata_sandi: joi.string().required()
@@ -279,8 +283,8 @@ class _auth{
         }
     }
     
+    /// Update Account Service
     updateAccount = async (req) => {
-
         // Validate data
         const schema = joi.object({
             nama_pengguna: joi.string().required(),
@@ -340,8 +344,8 @@ class _auth{
         }
     }
 
+    /// Update PAssword Service 
     updatePassword = async (req) => {
-
         // Validate Data
         const schema = joi.object({
             kata_sandi: joi.string().required(),
@@ -398,7 +402,7 @@ class _auth{
         }
     }  
 
-    // Verify token
+    /// Verify token
     verify = async (req) => {
         try{
             const user = await this.db.AuthUser.findOne({
@@ -434,7 +438,7 @@ class _auth{
         }
     }
 
-    // verify Account
+    /// verify Account
     verifyAccount = async (token) => {
         try{
             const decoded = jwt.verify(token, config.jwt.secret)
@@ -469,6 +473,7 @@ class _auth{
         }
     }
 
+    /// Forgot Password
     forgotPassword = async (req) => {
         try{
             // Validate data
@@ -521,7 +526,7 @@ class _auth{
         }
     }
 
-    // Register bod
+    /// Register bod
     registerBod = async (req) => {
         try{
             // Validate data

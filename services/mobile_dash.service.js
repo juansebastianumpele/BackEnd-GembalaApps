@@ -1,11 +1,10 @@
-// Helper databse yang dibuat
 const {log_error} = require('../utils/logging');
 
 class _mobileDash{
     constructor(db){
         this.db = db;
     }
-    // Get Data total ternak
+    /// Get Data total ternak
     getTotalTernak = async (req) => {
         try{
             // Get total ternak
@@ -59,12 +58,12 @@ class _mobileDash{
             log_error(error);
             return {
                 code: 500,
-                message: 'Internal Server Error'
+                error: 'Internal Server Error'
             }
         }
     }
 
-    // Get Data total ternak by status
+    /// Get Data total ternak by status
     getTotalTernakByStatus = async (req) => {
         try{
             // Get total ternak
@@ -86,7 +85,7 @@ class _mobileDash{
             if(!statusCempe){
                 return {
                     status: 404,
-                    message: 'Status Cempe tidak ditemukan'
+                    error: 'Status Cempe tidak ditemukan'
                 }
             }
 
@@ -100,7 +99,7 @@ class _mobileDash{
             if(!statusPejantan){
                 return {
                     status: 404,
-                    message: 'Status Pejantan tidak ditemukan'
+                    error: 'Status Pejantan tidak ditemukan'
                 }
             }
 
@@ -114,7 +113,7 @@ class _mobileDash{
             if(!statusIndukan){
                 return {
                     status: 404,
-                    message: 'Status Indukan tidak ditemukan'
+                    error: 'Status Indukan tidak ditemukan'
                 }
             }
 
@@ -190,7 +189,77 @@ class _mobileDash{
             log_error(error);
             return {
                 code: 500,
-                message: 'Internal Server Error'
+                error: 'Internal Server Error'
+            }
+        }
+    }
+
+    /// Get total ternak by fase
+    getTotalTernakByFase = async (req) => {
+        try{
+            // Get data fase
+            const fase = await this.db.Fase.findAll({});
+            if(fase == null){
+                return {
+                    code: 404,
+                    error: 'Fase Ternak Not Found'
+                }
+            }
+
+            // Get ternak fase pemasukan
+            const ternakFasePemasukan = await this.db.Ternak.count({
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: null,
+                    status_keluar: null
+                }
+            });
+
+            // Get total ternak by fase
+            let totalTernakByFase = [];
+            totalTernakByFase.push({
+                fase: 'Pemasukan',
+                total_ternak: ternakFasePemasukan
+            })
+            totalTernakByFase.push({
+                fase: 'Adaptasi',
+                total_ternak: 0
+            });
+            totalTernakByFase.push({
+                fase: 'Perkawinan',
+                total_ternak: 0
+            });
+            for(let i = 0; i < fase.length; i++){
+                const totalTernak = await this.db.Ternak.count({
+                    where: {
+                        id_peternakan: req.dataAuth.id_peternakan,
+                        id_fp: fase[i].dataValues.id_fp,
+                        status_keluar: null
+                    }
+                });
+
+                if(fase[i].dataValues.fase.toLowerCase().startsWith('adaptasi')){
+                    totalTernakByFase[1].total_ternak += totalTernak;
+                }else if(fase[i].dataValues.fase.toLowerCase().includes('perkawinan')){
+                    totalTernakByFase[2].total_ternak += totalTernak;
+                }else{
+                    totalTernakByFase.push({
+                        fase: fase[i].dataValues.fase,
+                        total_ternak: totalTernak
+                    });
+                }
+            }
+
+            return {
+                code: 200,
+                data: totalTernakByFase
+            }
+
+        }catch(error){
+            log_error(error);
+            return {
+                code: 500,
+                error: 'Internal Server Error'
             }
         }
     }

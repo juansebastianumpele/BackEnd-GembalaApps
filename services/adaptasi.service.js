@@ -3,6 +3,7 @@ const {log_error} = require('../utils/logging');
 const joi = require('joi');
 const {generateToken} = require('../utils/auth');
 const config = require('../config/app.config')
+const { Op } = require('sequelize');
 
 class _adaptasi{
     constructor(db){
@@ -54,37 +55,88 @@ class _adaptasi{
     /// Get Data adaptasi by step
     getAdaptasiByStep = async (req) => {
         try{
-            // add id_peternakan, id_ternak to query
-            req.query.id_peternakan = req.dataAuth.id_peternakan;
-            // Query Data
-            const list = await this.db.Adaptasi.findAll({ 
-                attributes: ['id_adaptasi', 'tanggal_adaptasi'],
-                include: [
-                    {
-                        model: this.db.Ternak,
-                        as: 'ternak',
-                        attributes: ['id_ternak', 'rf_id']
-                    },
-                    {
-                        model: this.db.Treatment,
-                        as: 'treatment',
-                        attributes: ['id_treatment', 'step', 'treatment']
-                    }
-                ],
-                where : req.query });
-            if(list.length <= 0){
+            // Check query params
+            if(!req.query.step){
                 return{
-                    code: 404,
-                    error: 'Data adaptasi not found'
+                    code: 400,
+                    error: 'Step is required'
+                }
+            }else if(req.query.step < 1 || req.query.step > 5){
+                return{
+                    code: 400,
+                    error: 'Step must be between 1 and 5'
                 }
             }
-            return {
+
+            // Get data fase
+            const fase = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: req.query.step == 5 ? "Waiting List Perkawinan" : `adaptasi ${parseInt(req.query.step) + 1}`
+                }
+            });
+
+            // Get data ternak by step adaptasi
+            const ternakByStepAdaptasi = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'rf_id'],
+                include: [
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang']
+                    },
+                    {
+                        model: this.db.Adaptasi,
+                        as: 'adaptasi',
+                        attributes: ['id_adaptasi', 'tanggal_adaptasi'],
+                        include: [
+                            {
+                                model: this.db.Treatment,
+                                as: 'treatment',
+                                attributes: ['id_treatment', 'step', 'treatment']
+                            }
+                        ]
+                    }
+                ],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: fase.dataValues.id_fp
+                }
+            });
+
+            // Filter data by step
+            for(let i = 0; i < ternakByStepAdaptasi.length; i++){
+                if(ternakByStepAdaptasi[i].dataValues.adaptasi.length > 0){
+                    for(let j = 0; j < ternakByStepAdaptasi[i].dataValues.adaptasi.length; j++){
+                        if(ternakByStepAdaptasi[i].dataValues.adaptasi[j].treatment.step != req.query.step){
+                            ternakByStepAdaptasi[i].dataValues.adaptasi.splice(j, 1);
+                            j--;
+                        }
+                    }
+                }
+            }
+
+            for(let i = 0; i < ternakByStepAdaptasi.length; i++){
+                if(ternakByStepAdaptasi[i].dataValues.adaptasi.length <= 0){
+                    ternakByStepAdaptasi.splice(i, 1);
+                    i--;
+                }
+            }
+
+            if(ternakByStepAdaptasi.length <= 0){
+                return {
+                    code: 404,
+                    error: 'Data ternak not found'
+                }
+            }
+            
+            return{
                 code: 200,
                 data: {
-                    total: list.length,
-                    list
+                    total: ternakByStepAdaptasi.length,
+                    list: ternakByStepAdaptasi
                 }
-            };
+            }
         }catch (error){
             log_error('getAdaptasi Service', error);
             return {
@@ -340,6 +392,74 @@ class _adaptasi{
             };
         }catch (error){
             log_error('getTernakByFaseAdaptasi Service', error);
+            return {
+                code: 500,
+                error
+            }
+        }
+    }
+
+    /// Get all ternak in adaptasi fase
+    getAllTernakInAdaptasi = async (req) => {
+        try{
+            const list = await this.db.Ternak.findAll({ 
+                attributes: ['id_ternak', 'rf_id', 'jenis_kelamin'],
+                include: [
+                    {
+                        model: this.db.Fase,
+                        as: 'fase',
+                        attributes: ['id_fp', 'fase']
+                    },
+                    {
+                        model: this.db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa']
+                    },
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang'],
+                    },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['id_timbangan','berat', 'suhu', 'tanggal_timbang'],
+                    }
+                ],
+                where : {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: {
+                        [Op.gte]: 1,
+                        [Op.lte]: 5
+                    }
+                } });
+            if(list.length <= 0){
+                return{
+                    code: 404,
+                    error: 'Data ternak not found'
+                }
+            }
+
+            for(let i = 0; i < list.length; i++){
+                list[i].dataValues.perlakuan = list[i].dataValues.fase.fase.split(' ')[1];
+                list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].berat : null;
+                list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].suhu : null;
+                list[i].dataValues.kode_kandang = list[i].dataValues.kandang.kode_kandang;
+                list[i].dataValues.bangsa = list[i].dataValues.bangsa.bangsa;
+                delete list[i].dataValues.fase;
+                delete list[i].dataValues.kandang;
+                delete list[i].dataValues.timbangan;
+            }
+
+            return {
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
+            };
+        }catch (error){
+            log_error('getAllTernakInAdaptasi Service', error);
             return {
                 code: 500,
                 error

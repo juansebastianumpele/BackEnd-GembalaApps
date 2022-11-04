@@ -37,10 +37,18 @@ const adaptasiController = (db) => {
     });
 
     /**
-     * Get all adaptasi
+     * Get all riwayat adaptasi
      */
     AdaptasiController.get('/', authentication, adminMiddleware, async (req, res, next) => {
         const list = await s$adaptasi.getAdaptasi(req);
+        response.sendResponse(res, list);
+    });
+
+    /**
+     * Get all riwayat adaptasi by step
+     */
+    AdaptasiController.get('/by-step', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$adaptasi.getAdaptasiByStep(req);
         response.sendResponse(res, list);
     });
 
@@ -50,6 +58,14 @@ const adaptasiController = (db) => {
      */
     AdaptasiController.get('/step', authentication, adminMiddleware, async (req, res, next) => {
         const list = await s$adaptasi.getTernakByStep(req);
+        response.sendResponse(res, list);
+    });
+
+    /**
+     * Get all ternak in adaptasi
+     */
+    AdaptasiController.get('/ternak', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$adaptasi.getAllTernakInAdaptasi(req);
         response.sendResponse(res, list);
     });
 
