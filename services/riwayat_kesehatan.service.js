@@ -19,7 +19,14 @@ class _riwayatKesehatan{
                     {
                         model: this.db.Ternak,
                         as: 'ternak',
-                        attributes: ['id_ternak', 'rf_id']
+                        attributes: ['id_ternak', 'rf_id'],
+                        include: [
+                            {
+                                model: this.db.Kandang,
+                                as: 'kandang',
+                                attributes: ['id_kandang', 'kode_kandang']
+                            }
+                        ]
                     },
                     {
                         model: this.db.Penyakit,
@@ -35,6 +42,12 @@ class _riwayatKesehatan{
                     error: `Data riwayat kesehatan not found`
                 }
             }
+
+            for(let i = 0; i < list.length; i++){
+                list[i].dataValues.kandang = list[i].dataValues.ternak.kandang;
+                delete list[i].dataValues.ternak.dataValues.kandang
+            }
+
             return {
                 code: 200,
                 data: {
