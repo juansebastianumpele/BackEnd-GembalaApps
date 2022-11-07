@@ -158,6 +158,20 @@ class _ternak{
                 }
             }
 
+            // Add Timbangan
+            const timbangan = await this.db.Timbangan.create({
+                id_ternak: add.id_ternak,
+                berat: value.berat,
+                suhu: value.suhu,
+                tanggal_timbang: new Date(),
+            });
+            if(timbangan === null){
+                return{
+                    code: 400,
+                    error: `Failed to create new Timbangan`
+                }
+            }
+
             return {
                 code: 200,
                 data: {
@@ -235,6 +249,40 @@ class _ternak{
                     error: `Failed to update Ternak`
                 }
             }
+
+            // Get data Timbangan
+            const timbangan = await this.db.Timbangan.findAll({
+                where: {
+                    id_ternak: value.id_ternak
+                },
+                order: [
+                    ['createdAt', 'DESC']
+                ],
+                limit: 1
+            });
+            if(timbangan.length <= 0){
+                return{
+                    code: 400,
+                    error: `Failed to get Timbangan`
+                }
+            }
+
+            // Update Timbangan
+            const updateTimbangan = await this.db.Timbangan.update({
+                berat: value.berat,
+                suhu: value.suhu
+            }, {
+                where: {
+                    id_timbangan: timbangan[0].id_timbangan
+                }
+            });
+            if(updateTimbangan <= 0){
+                return{
+                    code: 400,
+                    error: `Failed to update Timbangan`
+                }
+            }
+
 
             return {
                 code: 200,
