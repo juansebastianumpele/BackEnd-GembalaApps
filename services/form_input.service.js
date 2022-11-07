@@ -22,6 +22,13 @@ class _formInput{
             // Get kode kandang
             const kodeKandang = await this.db.Kandang.findAll({
                 attributes: ['id_kandang','kode_kandang'],
+                include: [
+                    {
+                        model: this.db.JenisKandang,
+                        as: 'jenis_kandang',
+                        attributes: ['jenis_kandang']
+                    }
+                ],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan
                 }
@@ -31,6 +38,10 @@ class _formInput{
                     code: 404,
                     error: 'Data kode kandang not found'
                 }
+            }
+
+            for(let i = 0; i < kodeKandang.length; i++){
+                kodeKandang[i].dataValues.jenis_kandang = kodeKandang[i].dataValues.jenis_kandang.jenis_kandang;
             }
 
             // Get jenis pakan
@@ -86,7 +97,6 @@ class _formInput{
                     status_ternak: 'Indukan'
                 }
             });
-            console.log(statusIndukan)
             if(!statusIndukan){
                 return{
                     code: 404,
