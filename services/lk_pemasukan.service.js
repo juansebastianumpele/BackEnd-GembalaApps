@@ -1,6 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const {log_error} = require('../utils/logging');
+const createHistoryFase = require('./riwayat_fase.service');
 
 class _lkPemasukan{
     constructor(db){
@@ -9,9 +10,24 @@ class _lkPemasukan{
     // Get Data Ternak Masuk
     getTernakMasuk = async (req) => {
         try{
+            // Get data fase
+            const dataFase = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: "Pemasukan"
+                }
+            });
+            if(!dataFase){
+                return{
+                    code: 500,
+                    error: 'Something went wrong, data fase not found'
+                }
+            }
+
             // Add id_user to query
             req.query.id_peternakan = req.dataAuth.id_peternakan;
-            req.query.id_fp = null;
+            req.query.id_fp = dataFase.dataValues.id_fp;
+
             // Query Data
             const list = await this.db.Ternak.findAll({
                 attributes: ['id_ternak', 'rf_id', 'image', 'jenis_kelamin', 'berat', 'suhu', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt'],
@@ -153,16 +169,14 @@ class _lkPemasukan{
             }
 
             // Create riwayat fase
-            const riwayatFase = await this.db.RiwayatFase.create({
+            const createRiwayatFase = await createHistoryFase(this.db, req, {
                 id_ternak: value.id_ternak,
-                id_fp: fase.dataValues.id_fp,
-                id_peternakan: req.dataAuth.id_peternakan,
-                tanggal: new Date()
+                id_fp: fase.dataValues.id_fp
             });
-            if(!riwayatFase){
+            if(!createRiwayatFase){
                 return{
                     code: 500,
-                    error: 'Failed to create riwayat fase'
+                    error: 'Something went wrong, create riwayat fase failed'
                 }
             }
 
