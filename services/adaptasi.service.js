@@ -75,6 +75,12 @@ class _adaptasi{
                     fase: req.query.step == 5 ? "Waiting List Perkawinan" : `adaptasi ${parseInt(req.query.step) + 1}`
                 }
             });
+            if(!fase){
+                return{
+                    code: 404,
+                    error: 'Data fase not found'
+                }
+            }
 
             // Get data ternak by step adaptasi
             const ternakByStepAdaptasi = await this.db.Ternak.findAll({
@@ -95,7 +101,10 @@ class _adaptasi{
                                 as: 'treatment',
                                 attributes: ['id_treatment', 'step', 'treatment']
                             }
-                        ]
+                        ],
+                        order: [
+                            ['tanggal_adaptasi', 'DESC']
+                        ],
                     }
                 ],
                 where: {
@@ -106,9 +115,11 @@ class _adaptasi{
 
             // Filter data by step
             for(let i = 0; i < ternakByStepAdaptasi.length; i++){
+                ternakByStepAdaptasi[i].dataValues.tanggal_adaptasi = ternakByStepAdaptasi[i].dataValues.adaptasi[0].dataValues.tanggal_adaptasi;
                 if(ternakByStepAdaptasi[i].dataValues.adaptasi.length > 0){
                     for(let j = 0; j < ternakByStepAdaptasi[i].dataValues.adaptasi.length; j++){
                         if(ternakByStepAdaptasi[i].dataValues.adaptasi[j].treatment.step != req.query.step){
+                            console.log(ternakByStepAdaptasi[i].dataValues.adaptasi[j].treatment.step != req.query.step)
                             ternakByStepAdaptasi[i].dataValues.adaptasi.splice(j, 1);
                             j--;
                         }
@@ -116,11 +127,39 @@ class _adaptasi{
                 }
             }
 
+            // Remove ternak that has no treatment
             for(let i = 0; i < ternakByStepAdaptasi.length; i++){
                 if(ternakByStepAdaptasi[i].dataValues.adaptasi.length <= 0){
                     ternakByStepAdaptasi.splice(i, 1);
                     i--;
                 }
+            }
+
+            // Get treatment by step
+            const treatmentByStep = await this.db.Treatment.findAll({
+                attributes: ['id_treatment', 'treatment'],
+                where: {
+                    step: req.query.step
+                }
+            });
+            if(treatmentByStep.length <= 0){
+                return{
+                    code: 404,
+                    error: 'Treatment not found'
+                }
+            }
+
+            for(let i = 0; i < ternakByStepAdaptasi.length; i++){
+                ternakByStepAdaptasi[i].dataValues.treatments = {};
+                for(let j = 0; j < treatmentByStep.length; j++){
+                    for(let k = 0; k < ternakByStepAdaptasi[i].dataValues.adaptasi.length; k++){
+                        ternakByStepAdaptasi[i].dataValues.treatments[treatmentByStep[j].dataValues.treatment] = ternakByStepAdaptasi[i].dataValues.adaptasi[k].treatment.id_treatment == treatmentByStep[j].dataValues.id_treatment ? true : false;
+                        if(ternakByStepAdaptasi[i].dataValues.treatments[treatmentByStep[j].dataValues.treatment]){
+                            break;
+                        }
+                    }
+                }
+                delete ternakByStepAdaptasi[i].dataValues.adaptasi;
             }
 
             if(ternakByStepAdaptasi.length <= 0){
