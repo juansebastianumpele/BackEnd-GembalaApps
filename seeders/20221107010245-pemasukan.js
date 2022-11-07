@@ -6,7 +6,7 @@ module.exports = {
     await queryInterface.bulkInsert('d_lk_pemasukan', [
       {
         id_peternakan: 1,
-        id_ternak: 3,
+        id_ternak: 1,
         rf_id: '00e2001a83191322050669e0c1ff',
         id_bangsa: 1,
         jenis_kelamin: 'jantan',
@@ -22,7 +22,7 @@ module.exports = {
       },
       {
         id_peternakan: 1,
-        id_ternak: 4,
+        id_ternak: 2,
         rf_id: '00e2001a83191322050669e0c1ff',
         id_bangsa: 1,
         jenis_kelamin: 'betina',
