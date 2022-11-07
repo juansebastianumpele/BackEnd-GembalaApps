@@ -440,7 +440,7 @@ class _adaptasi{
     getAllTernakInAdaptasi = async (req) => {
         try{
             const list = await this.db.Ternak.findAll({ 
-                attributes: ['id_ternak', 'rf_id', 'jenis_kelamin'],
+                attributes: ['id_ternak', 'rf_id', 'jenis_kelamin', 'berat', 'suhu'],
                 include: [
                     {
                         model: this.db.Fase,
@@ -457,11 +457,6 @@ class _adaptasi{
                         as: 'kandang',
                         attributes: ['id_kandang', 'kode_kandang'],
                     },
-                    {
-                        model: this.db.Timbangan,
-                        as: 'timbangan',
-                        attributes: ['id_timbangan','berat', 'suhu', 'tanggal_timbang'],
-                    }
                 ],
                 where : {
                     id_peternakan: req.dataAuth.id_peternakan,
@@ -482,19 +477,18 @@ class _adaptasi{
 
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.perlakuan = list[i].dataValues.fase.fase.split(' ')[1];
-                list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].berat : null;
-                list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].suhu : null;
-                list[i].dataValues.kode_kandang = list[i].dataValues.kandang.kode_kandang;
-                list[i].dataValues.bangsa = list[i].dataValues.bangsa.bangsa;
+                list[i].dataValues.kode_kandang = list[i].dataValues.kandang ? list[i].dataValues.kandang.dataValues.kode_kandang : null;
+                list[i].dataValues.bangsa = list[i].dataValues.bangsa ? list[i].dataValues.bangsa.dataValues.bangsa : null;
                 delete list[i].dataValues.fase;
                 delete list[i].dataValues.kandang;
-                delete list[i].dataValues.timbangan;
 
-                totalByKandang[list[i].dataValues.kode_kandang] ? totalByKandang[list[i].dataValues.kode_kandang]++ : totalByKandang[list[i].dataValues.kode_kandang] = 1;
+                if(list[i].dataValues.kode_kandang != null){
+                    totalByKandang[list[i].dataValues.kode_kandang] ? totalByKandang[list[i].dataValues.kode_kandang]++ : totalByKandang[list[i].dataValues.kode_kandang] = 1;
+                }
             }
 
-            const ternakBetina = list.filter((item) => item.dataValues.jenis_kelamin.toLowerCase() == 'betina');
-            const ternakJantan = list.filter((item) => item.dataValues.jenis_kelamin.toLowerCase() == 'jantan');
+            const ternakBetina = list.filter((item) => item.dataValues.jenis_kelamin != null && item.dataValues.jenis_kelamin.toLowerCase() == 'betina');
+            const ternakJantan = list.filter((item) => item.dataValues.jenis_kelamin != null && item.dataValues.jenis_kelamin.toLowerCase() == 'jantan');
 
             return {
                 code: 200,
