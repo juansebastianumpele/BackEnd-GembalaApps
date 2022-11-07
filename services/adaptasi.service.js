@@ -115,11 +115,9 @@ class _adaptasi{
 
             // Filter data by step
             for(let i = 0; i < ternakByStepAdaptasi.length; i++){
-                ternakByStepAdaptasi[i].dataValues.tanggal_adaptasi = ternakByStepAdaptasi[i].dataValues.adaptasi[0].dataValues.tanggal_adaptasi;
                 if(ternakByStepAdaptasi[i].dataValues.adaptasi.length > 0){
                     for(let j = 0; j < ternakByStepAdaptasi[i].dataValues.adaptasi.length; j++){
                         if(ternakByStepAdaptasi[i].dataValues.adaptasi[j].treatment.step != req.query.step){
-                            console.log(ternakByStepAdaptasi[i].dataValues.adaptasi[j].treatment.step != req.query.step)
                             ternakByStepAdaptasi[i].dataValues.adaptasi.splice(j, 1);
                             j--;
                         }
@@ -149,8 +147,10 @@ class _adaptasi{
                 }
             }
 
+            // Check if ternak has treatment and add tanggal_adaptasi
             for(let i = 0; i < ternakByStepAdaptasi.length; i++){
                 ternakByStepAdaptasi[i].dataValues.treatments = {};
+                ternakByStepAdaptasi[i].dataValues.tanggal_adaptasi = ternakByStepAdaptasi[i].dataValues.adaptasi[0].dataValues.tanggal_adaptasi;
                 for(let j = 0; j < treatmentByStep.length; j++){
                     for(let k = 0; k < ternakByStepAdaptasi[i].dataValues.adaptasi.length; k++){
                         ternakByStepAdaptasi[i].dataValues.treatments[treatmentByStep[j].dataValues.treatment] = ternakByStepAdaptasi[i].dataValues.adaptasi[k].treatment.id_treatment == treatmentByStep[j].dataValues.id_treatment ? true : false;
