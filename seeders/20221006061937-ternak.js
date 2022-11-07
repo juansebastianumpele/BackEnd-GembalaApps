@@ -47,7 +47,7 @@ module.exports = {
         jenis_kelamin: null,
         id_bangsa: null,
         id_kandang: null,
-        id_fp: null,
+        id_fp: 7,
         id_status_ternak: null,
         id_dam: null,
         id_sire: null,
