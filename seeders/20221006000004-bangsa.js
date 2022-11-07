@@ -62,6 +62,9 @@ module.exports = {
         bangsa: 'Waringin'
       },
       {
+        bangsa: 'Merino'
+      },
+      {
         bangsa: 'Lainnya'
       },
     ], {});
