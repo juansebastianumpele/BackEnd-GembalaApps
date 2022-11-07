@@ -329,50 +329,28 @@ class _lkPemasukan{
                 return item.dataValues.createdAt.getMonth() + '-' + item.dataValues.createdAt.getFullYear() === monthYear;
             });
 
-            let totalBetina = 0;
-            let totalJantan = 0;
-            let totalJenisKelaminUnknown = 0;
-            for(let i=0; i < filtered.length; i++){
-                if(filtered[i].dataValues.jenis_kelamin.toLowerCase() === 'betina'){
-                    totalBetina++;
-                }else if(filtered[i].dataValues.jenis_kelamin.toLowerCase() === 'jantan'){
-                    totalJantan++;
-                }else{
-                    totalJenisKelaminUnknown++;
+            let totalByKandang = {}
+
+            for(let i = 0; i < filtered.length; i++){
+                filtered[i].dataValues.kode_kandang = filtered[i].dataValues.kandang ? filtered[i].dataValues.kandang.dataValues.kode_kandang : null;
+                filtered[i].dataValues.bangsa = filtered[i].dataValues.bangsa ? filtered[i].dataValues.bangsa.dataValues.bangsa : null;
+                delete filtered[i].dataValues.kandang;
+
+                if(filtered[i].dataValues.kode_kandang != null){
+                    totalByKandang[filtered[i].dataValues.kode_kandang] ? totalByKandang[filtered[i].dataValues.kode_kandang]++ : totalByKandang[filtered[i].dataValues.kode_kandang] = 1;
                 }
             }
 
-            // Get total ternak by kode kandang
-            const kandang = await this.db.Kandang.findAll({
-                attributes: ['id_kandang', 'kode_kandang'],
-                where: {
-                    id_peternakan: req.dataAuth.id_peternakan
-                }
-            });
-            if(kandang.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data kandang not found'
-                }
-            }
-
-            for(let i=0; i < kandang.length; i++){
-                kandang[i].dataValues.total = 0;
-                for(let j=0; j < filtered.length; j++){
-                    if(filtered[j].dataValues.id_kandang === kandang[i].dataValues.id_kandang){
-                        kandang[i].dataValues.total++;
-                    }
-                }
-            }
+            const ternakBetina = filtered.filter((item) => item.dataValues.jenis_kelamin != null && item.dataValues.jenis_kelamin.toLowerCase() == 'betina');
+            const ternakJantan = filtered.filter((item) => item.dataValues.jenis_kelamin != null && item.dataValues.jenis_kelamin.toLowerCase() == 'jantan');
 
             return {
                 code: 200,
                 data: {
                     total: filtered.length,
-                    total_betina: totalBetina,
-                    total_jantan: totalJantan,
-                    totalJenisKelaminUnknown,
-                    total_by_kandang: kandang,
+                    total_betina: ternakBetina.length,
+                    total_jantan: ternakJantan.length,
+                    total_by_kandang: totalByKandang,
                     list: filtered
                 }
             };
