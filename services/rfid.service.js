@@ -1,6 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const {log_error, log_info} = require('../utils/logging')
+const createRiwayatFase = require('./riwayat_fase.service');
 
 class _rfid{
     constructor(db){
@@ -49,12 +50,36 @@ class _rfid{
                 }
             }
 
+            // Get data fase
+            const fase = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: "Pemasukan"
+                }
+            });
+            if(!fase){
+                return{
+                    code: 500,
+                    error: "Something went wrong, data fase not found"
+                }
+            }
+
             // Add New Ternak
             const addTernak = await this.db.Ternak.create({
                 rf_id: value.rf_id,
                 id_peternakan: value.id_peternakan,
-                id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (status ? status.id_status_ternak : null) : null
+                id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (status ? status.id_status_ternak : null) : null,
+                id_fp: fase.dataValues.id_fp
             })
+
+            // Create riwayat fase
+            const riwayatFase = await createRiwayatFase(this.db, req, addTernak);
+            if(!riwayatFase){
+                return{
+                    code: 500,
+                    error: "Something went wrong, data riwayat fase not found"
+                }
+            }
 
             return{
                 code: 200,
