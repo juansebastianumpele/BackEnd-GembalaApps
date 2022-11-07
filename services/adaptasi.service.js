@@ -4,6 +4,7 @@ const joi = require('joi');
 const {generateToken} = require('../utils/auth');
 const config = require('../config/app.config')
 const { Op } = require('sequelize');
+const createHistoryFase = require('./riwayat_fase.service');
 
 class _adaptasi{
     constructor(db){
@@ -253,7 +254,7 @@ class _adaptasi{
             }
 
             // update fase ternak
-            if(ternak.dataValues.fase && ternak.dataValues.fase.fase.split(' ')[1] < 5){
+            if(ternak.dataValues.fase && parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1]) < 5){
                 let stepAdaptasi = `adaptasi ${parseInt(ternak.dataValues.fase.fase.split(' ')[1]) + 1}`;
                 const getIdFase = await this.db.Fase.findOne({
                     attributes: ['id_fp'],
@@ -283,23 +284,22 @@ class _adaptasi{
                 }
 
                 // Create History Fase
-                const createHistoryFase = await this.db.RiwayatFase.create({
-                    id_peternakan: req.dataAuth.id_peternakan,
+                const historyFase = await createHistoryFase(this.db, req, {
                     id_ternak: value.id_ternak,
-                    id_fp: getIdFase.dataValues.id_fp,
-                    tanggal: new Date()
-                });
-                if(!createHistoryFase){
+                    id_fp: getIdFase.dataValues.id_fp
+                })
+                if(!historyFase){
                     return {
-                        code: 400,
-                        error: 'Failed to create history fase'
+                        code: 500,
+                        error: 'Something went wrong, failed to create history fase'
                     }
                 }
-            }else if(ternak.dataValues.fase && ternak.dataValues.fase.fase.split(' ')[1] == 5){
+                
+            }else if(ternak.dataValues.fase && parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1]) == 5){
                 const getIdFase = await this.db.Fase.findOne({
                     attributes: ['id_fp'],
                     where: {
-                        fase: 'waiting list perkawinan'
+                        fase: 'Waiting List Perkawinan'
                     }
                 });
                 if(!getIdFase){
@@ -324,16 +324,14 @@ class _adaptasi{
                 }
 
                 // Create History Fase
-                const createHistoryFase = await this.db.RiwayatFase.create({
-                    id_peternakan: req.dataAuth.id_peternakan,
+                const historyFase = await createHistoryFase(this.db, req, {
                     id_ternak: value.id_ternak,
-                    id_fp: getIdFase.dataValues.id_fp,
-                    tanggal: new Date()
-                });
-                if(!createHistoryFase){
+                    id_fp: getIdFase.dataValues.id_fp
+                })
+                if(!historyFase){
                     return {
-                        code: 400,
-                        error: 'Failed to create history fase'
+                        code: 500,
+                        error: 'Something went wrong, failed to create history fase'
                     }
                 }
             }else{
