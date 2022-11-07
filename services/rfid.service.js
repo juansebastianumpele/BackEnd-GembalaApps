@@ -50,6 +50,7 @@ class _rfid{
                 }
             }
 
+            
             // Get data fase
             const fase = await this.db.Fase.findOne({
                 attributes: ['id_fp'],
@@ -63,7 +64,7 @@ class _rfid{
                     error: "Something went wrong, data fase not found"
                 }
             }
-
+            
             // Add New Ternak
             const addTernak = await this.db.Ternak.create({
                 rf_id: value.rf_id,
@@ -73,7 +74,11 @@ class _rfid{
             })
 
             // Create riwayat fase
-            const riwayatFase = await createRiwayatFase(this.db, req, addTernak);
+            const riwayatFase = await createRiwayatFase(this.db, req, {
+                id_ternak: addTernak.id_ternak,
+                id_fp: addTernak.id_fp,
+                id_peternakan: value.id_peternakan
+            });
             if(!riwayatFase){
                 return{
                     code: 500,
