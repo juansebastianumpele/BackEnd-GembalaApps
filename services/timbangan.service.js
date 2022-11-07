@@ -91,6 +91,17 @@ class _timbangan{
                 }
             }
 
+            // Update data ternak
+            const update = await this.db.Ternak.update({
+                berat: value.berat,
+                suhu: value.suhu
+            },{
+                where: {
+                    rf_id: value.rf_id,
+                    id_ternak: ternak.id_ternak
+                }
+            });
+
             return {
                 code: 200,
                 data: {
