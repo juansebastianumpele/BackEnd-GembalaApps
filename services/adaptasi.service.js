@@ -1,8 +1,6 @@
 // Helper databse yang dibuat
 const {log_error} = require('../utils/logging');
 const joi = require('joi');
-const {generateToken} = require('../utils/auth');
-const config = require('../config/app.config')
 const { Op } = require('sequelize');
 const createHistoryFase = require('./riwayat_fase.service');
 

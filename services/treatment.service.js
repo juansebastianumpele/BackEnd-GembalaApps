@@ -1,6 +1,3 @@
-// Helper databse yang dibuat
-const joi = require('joi');
-const date = require('date-and-time');
 const {log_error} = require('../utils/logging');
 
 class _treatment{
@@ -31,15 +28,12 @@ class _treatment{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            console.log(ternak);
             if(!ternak){
                 return {
                     code: 404,
                     error: 'Ternak not found'
                 }
             }
-
-            console.log(ternak.dataValues.fase.dataValues.fase);
 
             if(ternak.dataValues.fase.dataValues.fase.toLowerCase().startsWith('adaptasi')){
                 const list = await this.db.Treatment.findAll({

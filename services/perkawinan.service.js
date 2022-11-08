@@ -1,7 +1,5 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const date = require('date-and-time');
-const { Op } = require('sequelize');
 const { log_error } = require('../utils/logging');
 const createHistoryFase = require('./riwayat_fase.service');
 
