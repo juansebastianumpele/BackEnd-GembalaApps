@@ -1,6 +1,6 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const date = require('date-and-time');
+const dateFormat = require('date-and-time');
 const { log_error } = require('../utils/logging');
 class _ternak{
     constructor(db){
@@ -85,6 +85,13 @@ class _ternak{
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
                 delete list[i].dataValues.riwayat_kesehatan;
+
+                // Format Date
+                list[i].dataValues.tanggal_lahir = list[i].dataValues.tanggal_lahir ? dateFormat.format(list[i].dataValues.tanggal_lahir, 'DD/MM/YYYY') : null;
+                list[i].dataValues.tanggal_masuk = list[i].dataValues.tanggal_masuk ? dateFormat.format(list[i].dataValues.tanggal_masuk, 'DD/MM/YYYY') : null;
+                list[i].dataValues.tanggal_keluar = list[i].dataValues.tanggal_keluar ? dateFormat.format(list[i].dataValues.tanggal_keluar, 'DD/MM/YYYY') : null;
+                list[i].dataValues.createdAt = list[i].dataValues.createdAt ? dateFormat.format(list[i].dataValues.createdAt, 'DD/MM/YYYY HH:mm:ss') : null;
+                list[i].dataValues.updatedAt = list[i].dataValues.updatedAt ? dateFormat.format(list[i].dataValues.updatedAt, 'DD/MM/YYYY HH:mm:ss') : null;
             }
 
             return {
@@ -177,7 +184,7 @@ class _ternak{
                 data: {
                     id: add.id_ternak,
                     rf_id: add.rf_id,
-                    createdAt: date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
+                    createdAt: dateFormat.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -289,7 +296,7 @@ class _ternak{
                 data: {
                     id: value.id_ternak,
                     rf_id: value.rf_id,
-                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt: dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -337,7 +344,7 @@ class _ternak{
                 code: 200,
                 data: {
                     id: value.id_ternak,
-                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt: dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -390,7 +397,7 @@ class _ternak{
                 code: 200,
                 data: {
                     id: value.id_ternak,
-                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt: dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -494,6 +501,13 @@ class _ternak{
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
                 delete list[i].dataValues.riwayat_kesehatan;
+
+                // Format Date
+                list[i].dataValues.tanggal_lahir = list[i].dataValues.tanggal_lahir ? dateFormat.format(list[i].dataValues.tanggal_lahir, 'DD/MM/YYYY') : null;
+                list[i].dataValues.tanggal_masuk = list[i].dataValues.tanggal_masuk ? dateFormat.format(list[i].dataValues.tanggal_masuk, 'DD/MM/YYYY') : null;
+                list[i].dataValues.tanggal_keluar = list[i].dataValues.tanggal_keluar ? dateFormat.format(list[i].dataValues.tanggal_keluar, 'DD/MM/YYYY') : null;
+                list[i].dataValues.createdAt = list[i].dataValues.createdAt ? dateFormat.format(list[i].dataValues.createdAt, 'DD/MM/YYYY HH:mm:ss') : null;
+                list[i].dataValues.updatedAt = list[i].dataValues.updatedAt ? dateFormat.format(list[i].dataValues.updatedAt, 'DD/MM/YYYY HH:mm:ss') : null;
             }
 
             return {
@@ -603,6 +617,13 @@ class _ternak{
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
                 delete list[i].dataValues.riwayat_kesehatan;
+
+                // Format Date
+                list[i].dataValues.tanggal_lahir = list[i].dataValues.tanggal_lahir ? dateFormat.format(list[i].dataValues.tanggal_lahir, 'DD/MM/YYYY') : null;
+                list[i].dataValues.tanggal_masuk = list[i].dataValues.tanggal_masuk ? dateFormat.format(list[i].dataValues.tanggal_masuk, 'DD/MM/YYYY') : null;
+                list[i].dataValues.tanggal_keluar = list[i].dataValues.tanggal_keluar ? dateFormat.format(list[i].dataValues.tanggal_keluar, 'DD/MM/YYYY') : null;
+                list[i].dataValues.createdAt = list[i].dataValues.createdAt ? dateFormat.format(list[i].dataValues.createdAt, 'DD/MM/YYYY HH:mm:ss') : null;
+                list[i].dataValues.updatedAt = list[i].dataValues.updatedAt ? dateFormat.format(list[i].dataValues.updatedAt, 'DD/MM/YYYY HH:mm:ss') : null;
             }
 
             return {

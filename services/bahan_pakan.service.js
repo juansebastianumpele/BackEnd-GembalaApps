@@ -214,6 +214,13 @@ class _bahanPakan{
                     error: 'Data bahan pakan not found'
                 }
             }
+
+            // Format date
+            for(let i = 0; i < list.length; i++){
+                list[i].dataValues.tanggal = date.format(list[i].tanggal, 'YYYY-MM-DD')
+                list[i].dataValues.createdAt = date.format(list[i].createdAt, 'YYYY-MM-DD HH:mm:ss')
+                list[i].dataValues.updatedAt = date.format(list[i].updatedAt, 'YYYY-MM-DD HH:mm:ss')
+            }
     
             return {
                 code : 200,

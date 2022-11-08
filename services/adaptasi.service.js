@@ -3,7 +3,7 @@ const {log_error} = require('../utils/logging');
 const joi = require('joi');
 const { Op } = require('sequelize');
 const createHistoryFase = require('./riwayat_fase.service');
-
+const date = require('date-and-time');
 class _adaptasi{
     constructor(db){
         this.db = db;
@@ -35,6 +35,11 @@ class _adaptasi{
                     error: 'Data adaptasi not found'
                 }
             }
+
+            for(let i = 0; i < list.length; i++){
+                list[i].dataValues.tanggal_adaptasi = list[i].dataValues.tanggal_adaptasi ? date.format(list[i].dataValues.tanggal_adaptasi, 'DD/MM/YYYY') : null;
+            }
+
             return {
                 code: 200,
                 data: {
@@ -116,6 +121,9 @@ class _adaptasi{
             for(let i = 0; i < ternakByStepAdaptasi.length; i++){
                 if(ternakByStepAdaptasi[i].dataValues.adaptasi.length > 0){
                     for(let j = 0; j < ternakByStepAdaptasi[i].dataValues.adaptasi.length; j++){
+                        // format tanggal
+                        ternakByStepAdaptasi[i].dataValues.adaptasi[j].dataValues.tanggal_adaptasi = ternakByStepAdaptasi[i].dataValues.adaptasi[j].dataValues.tanggal_adaptasi ? date.format(ternakByStepAdaptasi[i].dataValues.adaptasi[j].dataValues.tanggal_adaptasi, 'DD/MM/YYYY') : null;
+                        // Check step
                         if(ternakByStepAdaptasi[i].dataValues.adaptasi[j].treatment.step != req.query.step){
                             ternakByStepAdaptasi[i].dataValues.adaptasi.splice(j, 1);
                             j--;
@@ -149,7 +157,9 @@ class _adaptasi{
             // Check if ternak has treatment and add tanggal_adaptasi
             for(let i = 0; i < ternakByStepAdaptasi.length; i++){
                 ternakByStepAdaptasi[i].dataValues.treatments = {};
-                ternakByStepAdaptasi[i].dataValues.tanggal_adaptasi = ternakByStepAdaptasi[i].dataValues.adaptasi[0].dataValues.tanggal_adaptasi;
+                // format tanggal
+                ternakByStepAdaptasi[i].dataValues.tanggal_adaptasi = ternakByStepAdaptasi[i].dataValues.adaptasi[0].dataValues.tanggal_adaptasi ? date.format(ternakByStepAdaptasi[i].dataValues.adaptasi[0].dataValues.tanggal_adaptasi, 'DD/MM/YYYY') : null;
+                // Check if ternak has treatment
                 for(let j = 0; j < treatmentByStep.length; j++){
                     for(let k = 0; k < ternakByStepAdaptasi[i].dataValues.adaptasi.length; k++){
                         ternakByStepAdaptasi[i].dataValues.treatments[treatmentByStep[j].dataValues.treatment] = ternakByStepAdaptasi[i].dataValues.adaptasi[k].treatment.id_treatment == treatmentByStep[j].dataValues.id_treatment ? true : false;
@@ -436,7 +446,8 @@ class _adaptasi{
             }
 
             for(let i = 0; i < list.length; i++){
-                list[i].dataValues.tanggal = list[i].dataValues.riwayat_fase.length > 0 ? list[i].dataValues.riwayat_fase[list[i].dataValues.riwayat_fase.length - 1].tanggal : null;
+                // format tanggal
+                list[i].dataValues.tanggal = list[i].dataValues.riwayat_fase.length > 0 ? date.format(list[i].dataValues.riwayat_fase[list[i].dataValues.riwayat_fase.length - 1].tanggal) : null;
                 delete list[i].dataValues.riwayat_fase;
             }
 

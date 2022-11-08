@@ -1,7 +1,9 @@
 // Helper databse yang dibuat
+const { date } = require('joi');
 const joi = require('joi');
 const {log_error} = require('../utils/logging');
 const createHistoryFase = require('./riwayat_fase.service');
+const dateFormat = require('date-and-time');
 
 class _lkPemasukan{
     constructor(db){
@@ -210,7 +212,7 @@ class _lkPemasukan{
                     id_lk_pemasukan: lkPemasukan.id_lk_pemasukan,
                     id_ternak: lkPemasukan.id_ternak,
                     rf_id: lkPemasukan.rf_id,
-                    createdAt: lkPemasukan.createdAt,
+                    createdAt: dateFormat.format(lkPemasukan.createdAt, 'DD-MM-YYYY HH:mm:ss')
                 }
             };
         }catch (error){

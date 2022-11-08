@@ -1,6 +1,6 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const date = require('date-and-time');
+const dateFormat = require('date-and-time');
 const {log_error} = require('../utils/logging');
 
 class _pakan{
@@ -94,7 +94,7 @@ class _pakan{
                 data: {
                     id_jenis_pakan: add.id_jenis_pakan,
                     jenis_pakan: add.jenis_pakan,
-                    createdAt : date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
+                    createdAt : dateFormat.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -153,7 +153,7 @@ class _pakan{
                 data: {
                     id_jenis_pakan: value.id_jenis_pakan,
                     jenis_pakan: value.jenis_pakan,
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt : dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -200,7 +200,7 @@ class _pakan{
                 code: 200,
                 data: {
                     id_jenis_pakan: value.id_jenis_pakan,
-                    deletedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt : dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -236,11 +236,18 @@ class _pakan{
             }
 
             for(let i = 0; i < list.length; i++){
+                // Chheck status pakan
                 if(list[i].dataValues.tanggal_konsumsi != null){
                     list[i].dataValues.status = list[i].dataValues.tanggal_konsumsi < new Date() ? 'Siap' : 'Belum Siap';
                 }else{
                     list[i].dataValues.status = 'Kosong';
                 }
+
+                // Format date
+                list[i].dataValues.tanggal_pembuatan = list[i].dataValues.tanggal_pembuatan ? dateFormat.format(list[i].dataValues.tanggal_pembuatan, 'YYYY-MM-DD') : null;
+                list[i].dataValues.tanggal_konsumsi = list[i].dataValues.tanggal_konsumsi ? dateFormat.format(list[i].dataValues.tanggal_konsumsi, 'YYYY-MM-DD') : null;
+                list[i].dataValues.createdAt = list[i].dataValues.createdAt ? dateFormat.format(list[i].dataValues.createdAt, 'YYYY-MM-DD HH:mm:ss') : null;
+                list[i].dataValues.updatedAt = list[i].dataValues.updatedAt ? dateFormat.format(list[i].dataValues.updatedAt, 'YYYY-MM-DD HH:mm:ss') : null;
             }
 
             return {
@@ -311,7 +318,7 @@ class _pakan{
                     id_pakan: add.id_pakan,
                     id_jenis_pakan: add.id_jenis_pakan,
                     id: add.id,
-                    createdAt : date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
+                    createdAt : dateFormat.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -380,7 +387,7 @@ class _pakan{
                     id_pakan: value.id_pakan,
                     id_jenis_pakan: value.id_jenis_pakan,
                     id: value.id,
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt : dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -428,7 +435,7 @@ class _pakan{
                 code: 200,
                 data: {
                     id_pakan: value.id_pakan,
-                    deletedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt : dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -491,7 +498,7 @@ class _pakan{
             // Query data
             const update = await this.db.Pakan.update({
                 tanggal_pembuatan: value.tanggal_pembuatan != null ? value.tanggal_pembuatan : new Date(),
-                tanggal_konsumsi: value.tanggal_konsumsi != null ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
+                tanggal_konsumsi: value.tanggal_konsumsi != null ? value.tanggal_konsumsi : dateFormat.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
             }, {
                 where: {
                     id_pakan: value.id_pakan,
@@ -510,8 +517,8 @@ class _pakan{
                 data: {
                     id_pakan: update.id_pakan,
                     tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
-                    tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : dateFormat.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
+                    updatedAt : dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -574,7 +581,7 @@ class _pakan{
             // Query data
             const update = await this.db.Pakan.update({
                 tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
-                tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
+                tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : dateFormat.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
             }, {
                 where: {
                     id_pakan: value.id_pakan,
@@ -593,8 +600,8 @@ class _pakan{
                 data: {
                     id_pakan: value.id_pakan,
                     tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
-                    tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : dateFormat.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
+                    updatedAt : dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
@@ -647,7 +654,7 @@ class _pakan{
                     id_pakan: value.id_pakan,
                     tanggal_pembuatan: null,
                     tanggal_konsumsi: null,
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt : dateFormat.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
         }
