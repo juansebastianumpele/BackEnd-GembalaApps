@@ -39,11 +39,13 @@ class _treatment{
                 }
             }
 
-            if(ternak.dataValues.fase.fase.startsWith('adaptasi')){
+            console.log(ternak.dataValues.fase.dataValues.fase);
+
+            if(ternak.dataValues.fase.dataValues.fase.toLowerCase().startsWith('adaptasi')){
                 const list = await this.db.Treatment.findAll({
                     attributes: ['id_treatment', 'step', 'treatment'],
                     where: {
-                        step: parseInt(ternak.dataValues.fase.fase.split(' ')[1])
+                        step: parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1])
                     }
                 });
                 if(list.length <= 0){
