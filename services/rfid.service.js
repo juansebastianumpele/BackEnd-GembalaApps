@@ -51,14 +51,28 @@ class _rfid{
             }
 
             
-            // Get data fase
-            const fase = await this.db.Fase.findOne({
+            // Get data fase pemasukan
+            const idFasePemasukan = await this.db.Fase.findOne({
                 attributes: ['id_fp'],
                 where: {
                     fase: "Pemasukan"
                 }
             });
-            if(!fase){
+            if(!idFasePemasukan){
+                return{
+                    code: 500,
+                    error: "Something went wrong, data fase not found"
+                }
+            }
+
+            // Get data fase Kelahiran
+            const idFaseKelahiran = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: "Kelahiran"
+                }
+            });
+            if(!idFaseKelahiran){
                 return{
                     code: 500,
                     error: "Something went wrong, data fase not found"
@@ -70,7 +84,7 @@ class _rfid{
                 rf_id: value.rf_id,
                 id_peternakan: value.id_peternakan,
                 id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (status ? status.id_status_ternak : null) : null,
-                id_fp: fase.dataValues.id_fp
+                id_fp: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? idFaseKelahiran.dataValues.id_fp : idFasePemasukan.dataValues.id_fp,
             })
 
             // Create riwayat fase
