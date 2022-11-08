@@ -222,6 +222,11 @@ class _adaptasi{
                         model: this.db.Fase,
                         as: 'fase',
                         attributes: ['id_fp', 'fase']
+                    },
+                    {
+                        model: this.db.Status,
+                        as: 'status',
+                        attributes: ['id_status', 'status']
                     }
                 ],
                 where: {
@@ -296,20 +301,37 @@ class _adaptasi{
                 }
                 
             }else if(ternak.dataValues.fase && parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1]) == 5){
-                const getIdFase = await this.db.Fase.findOne({
+                // get id fase waiting list perkawinan
+                const getIdFasePrePerkawinan = await this.db.Fase.findOne({
                     attributes: ['id_fp'],
                     where: {
                         fase: 'Waiting List Perkawinan'
                     }
                 });
-                if(!getIdFase){
+                if(!getIdFasePrePerkawinan){
                     return {
-                        code: 404,
-                        error: 'Fase not found'
+                        code: 500,
+                        error: 'Something went wrong, fase preperkawinan not found'
                     }
                 }
+
+                // Get id fase perkawinan
+                const getIdFasePerkawinan = await this.db.Fase.findOne({
+                    attributes: ['id_fp'],
+                    where: {
+                        fase: "Perkawinan"
+                    }
+                })
+                if(!getIdFasePerkawinan){
+                    return{
+                        code: 404,
+                        error: 'Something went wrong, fase perkawinan not found'
+                    }
+                }
+
+                // Update fase ternak
                 const updateFase = await this.db.Ternak.update({
-                    id_fp: getIdFase.dataValues.id_fp
+                    id_fp: ternak.dataValues.status.dataValues.status.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
                 },{
                     where: {
                         id_ternak: value.id_ternak,
@@ -326,7 +348,7 @@ class _adaptasi{
                 // Create History Fase
                 const historyFase = await createHistoryFase(this.db, req, {
                     id_ternak: value.id_ternak,
-                    id_fp: getIdFase.dataValues.id_fp
+                    id_fp: ternak.dataValues.status.dataValues.status.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
                 })
                 if(!historyFase){
                     return {
