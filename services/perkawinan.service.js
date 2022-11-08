@@ -3,6 +3,7 @@ const joi = require('joi');
 const date = require('date-and-time');
 const { Op } = require('sequelize');
 const { log_error } = require('../utils/logging');
+const createHistoryFase = require('./riwayat_fase.service');
 
 class _perkawinan {
     constructor(db) {
@@ -103,6 +104,102 @@ class _perkawinan {
                 return {
                     code: 500,
                     error: 'Something went wrong, data fase not found'
+                }
+            }
+
+            // Get data ternak indukan
+            const dataIndukan = await this.db.Ternak.findOne({
+                attributes: ['id_ternak','id_fp'],
+                where: {
+                    id_ternak: value.id_indukan,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(!dataIndukan){
+                return {
+                    code: 404,
+                    error: 'Data ternak indukan not found'
+                }
+            }
+
+            // Get data ternak pejantan
+            const dataPejantan = await this.db.Ternak.findOne({
+                attributes: ['id_ternak','id_fp', 'id_kandang'],
+                where: {
+                    id_ternak: value.id_pejantan,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(!dataPejantan){
+                return {
+                    code: 404,
+                    error: 'Data ternak pejantan not found'
+                }
+            }
+
+            // Check ternak indukan and pejantan
+            if(dataIndukan.dataValues.id_ternak == dataPejantan.dataValues.id_dam){
+                return {
+                    code: 400,
+                    error: `Perkawinan tidak bisa dilakukan, ternak ${dataIndukan.dataValues.id_ternak} adalah 'Dam' ternak ${dataPejantan.dataValues.id_ternak}`
+                }
+            }else if(dataIndukan.dataValues.id_sire == dataPejantan.dataValues.id_ternak){
+                return {
+                    code: 400,
+                    error: `Perkawinan tidak bisa dilakukan, ternak ${dataPejantan.dataValues.id_ternak} adalah 'Sire' ternak ${dataIndukan.dataValues.id_ternak}`
+                }
+            }
+
+            // Create Perkawinan
+            const createPerkawinan = await this.db.Perkawinan.create({
+                id_indukan: dataIndukan.dataValues.id_ternak,
+                id_pejantan: dataPejantan.dataValues.id_ternak,
+                id_peternakan: req.dataAuth.id_peternakan,
+                id_kandang: value.id_kandang,
+                tanggal_perkawinan: new Date()
+            });
+            if(!createPerkawinan){
+                return {
+                    code: 500,
+                    error: 'Something went wrong, create perkawinan failed'
+                }
+            }
+
+            // Update ternak indukan
+            const updateIndukan = await this.db.Ternak.update({
+                id_fp: dataFase.dataValues.id_fp,
+                id_kandang: dataPejantan.dataValues.id_kandang
+            },{
+                where: {
+                    id_ternak: dataIndukan.dataValues.id_ternak
+                }
+            });
+            if(!updateIndukan){
+                return {
+                    code: 500,
+                    error: 'Something went wrong, update ternak indukan failed'
+                }
+            }
+
+            // Create riwayat fase ternak indukan
+            const historyFaseIndukan = await createHistoryFase(this.db, req, {
+                id_ternak: dataIndukan.dataValues.id_ternak,
+                id_fp: dataFase.dataValues.id_fp
+            });
+            if(!historyFaseIndukan){
+                return {
+                    code: 500,
+                    error: 'Something went wrong, create history fase ternak indukan failed'
+                }
+            }
+
+            return {
+                code: 200,
+                data: {
+                    id_perkawinan: createPerkawinan.dataValues.id_perkawinan,
+                    id_indukan: createPerkawinan.dataValues.id_indukan,
+                    id_pejantan: createPerkawinan.dataValues.id_pejantan,
+                    createdAt: createPerkawinan.dataValues.createdAt,
                 }
             }
 
