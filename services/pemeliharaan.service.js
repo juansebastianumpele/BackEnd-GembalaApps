@@ -1,7 +1,6 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const {log_error} = require('../utils/logging');
-const dateFormat = require('date-and-time');
 
 class _pemeliharaan{
     constructor(db){
@@ -40,12 +39,6 @@ class _pemeliharaan{
                 item.dataValues.tanggal_pemeliharaan.getMonth() === date.getMonth() &&
                 item.dataValues.tanggal_pemeliharaan.getFullYear() === date.getFullYear()
             }); 
-
-            // Format Date
-            for(let i = 0; i < result.length; i++){
-                result[i].dataValues.tanggal_pemeliharaan = dateFormat.format(result[i].dataValues.tanggal_pemeliharaan, 'DD/MM/YYYY');
-            }
-
             if(result.length <= 0){
                 return{
                     code: 404,
@@ -95,12 +88,6 @@ class _pemeliharaan{
                     error: `Data pemeliharaan not found`
                 }
             }
-
-            // Format Date
-            for(let i = 0; i < list.length; i++){
-                list[i].dataValues.tanggal_pemeliharaan = dateFormat.format(list[i].dataValues.tanggal_pemeliharaan, 'DD/MM/YYYY');
-            }
-
             return {
                 code: 200,
                 data: {
@@ -155,7 +142,7 @@ class _pemeliharaan{
                     id_pemeliharaan: pemeliharaan.id_pemeliharaan,
                     id_kandang: pemeliharaan.id_kandang,
                     tanggal_pemeliharaan: pemeliharaan.tanggal_pemeliharaan,
-                    createdAt: dateFormat.format(pemeliharaan.createdAt, 'DD/MM/YYYY HH:mm:ss'),
+                    createdAt: pemeliharaan.createdAt,
                 }
             }
         } catch (error) {
