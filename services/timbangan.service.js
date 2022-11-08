@@ -1,4 +1,3 @@
-// Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
 const {log_error} = require('../utils/logging');
@@ -101,6 +100,12 @@ class _timbangan{
                     id_ternak: ternak.id_ternak
                 }
             });
+            if(update <= 0){
+                return{
+                    code: 400,
+                    error: `Failed to update data ternak`
+                }
+            }
 
             return {
                 code: 200,
