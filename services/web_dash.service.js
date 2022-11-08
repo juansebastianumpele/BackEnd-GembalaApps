@@ -377,7 +377,7 @@ class _dashboard{
                 });
                 if(dataTimbangCempe != null){
                     dataTimbangCempe.forEach((data) => {
-                        const dateID = data.dataValues.tanggal_timbang.getFullYear() + '-' + (data.dataValues.tanggal_timbang.getMonth()) 
+                        const dateID = data.dataValues.tanggal_timbang.getFullYear() + '-' + (data.dataValues.tanggal_timbang.getMonth() + 1) 
                         if(beratBadanTernakCempe[dateID]){
                             beratBadanTernakCempe[dateID] = {
                                 total_berat: beratBadanTernakCempe[dateID].total_berat + data.dataValues.berat,
