@@ -250,8 +250,8 @@ class _perkawinan {
                 id_perkawinan: joi.number().required(),
                 status: joi.string().valid('Bunting', 'Tidak Bunting', 'Abortus').allow(null),
                 id_kandang: joi.number().required(),
-                usg_1: joi.date().required(),
-                usg_2: joi.date().required()
+                usg_1: joi.boolean().required(),
+                usg_2: joi.boolean().required()
             });
             const {error, value} = schema.validate(req.body);
             if(error){
@@ -261,6 +261,74 @@ class _perkawinan {
                     error: errorMessage
                 }
             }
+
+            // Get data fase waiting list
+            const idFaseWaitingList = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    nama_fase: 'Waiting List Perkawinan'
+                }
+            });
+            if(!idFaseWaitingList){
+                return {
+                    code: 500,
+                    error: 'Something went wrong, get id fase waiting list failed'
+                }
+            }
+
+            // Get data fase Perkawinan
+            const idFasePerkawinan = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    nama_fase: 'Perkawinan'
+                }
+            });
+            if(!idFasePerkawinan){
+                return {
+                    code: 500,
+                    error: 'Something went wrong, get id fase perkawinan failed'
+                }
+            }
+            
+
+            // Check status perkawinan
+            if(value.usg_2){
+                // move ternak indukan to waiting list and update status perkawinan
+                const updateKandanIndukan = await this.db.Ternak.update({
+                    id_kandang: value.id_kandang,
+                    status: (value.status.toLowerCase() == 'tidak bunting' || value.status.toLowerCase() == 'abortus') ? idFaseWaitingList.dataValues.id_fp : idFasePerkawinan.dataValues.id_fp
+                },{
+                    where: {
+                        id_ternak: value.id_indukan,
+                        id_peternakan: req.dataAuth.id_peternakan
+                    }
+                });
+                if(updateKandanIndukan <= 0){
+                    return {
+                        code: 500,
+                        error: 'Something went wrong, update kandang ternak indukan failed'
+                    }
+                }
+            }
+
+            // Update status perkawinan
+            const updatePerkawinan = await this.db.Perkawinan.update({
+                status: value.status,
+                usg_1: value.usg_1,
+                usg_2: value.usg_2
+            },{
+                where: {
+                    id_perkawinan: value.id_perkawinan,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(updatePerkawinan <= 0){
+                return {
+                    code: 500,
+                    error: 'Something went wrong, update perkawinan failed'
+                }
+            }
+
 
             
 

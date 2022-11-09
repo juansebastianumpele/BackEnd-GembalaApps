@@ -1,6 +1,6 @@
 module.exports = (Sequelize, DataTypes) => {
-    const Perkawinan = Sequelize.define("Perkawinan", {
-        id_perkawinan:{
+    const RiwayatPerkawinan = Sequelize.define("RiwayatPerkawinan", {
+        id_riwayat_perkawinan:{
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
@@ -16,54 +16,54 @@ module.exports = (Sequelize, DataTypes) => {
         },
         id_pejantan:{
           type: DataTypes.INTEGER,
-          allowNull: false
+          allowNull: true
         },
         id_kandang:{
           type: DataTypes.INTEGER,
-          allowNull: false
+          allowNull: true
         },
         tanggal_perkawinan:{
           type: DataTypes.DATE,
           allowNull: false
         },
-        usg_1:{
+        status:{
+          type: DataTypes.ENUM('Bunting', 'Tidak Bunting', 'Abortus'),
+          allowNull: false
+        },
+        usg:{
+          type: DataTypes.INTEGER,
+          allowNull: false
+        },
+        createdAt: {
           type: DataTypes.DATE,
           allowNull: true
         },
-        usg_2:{
+        updatedAt: {
           type: DataTypes.DATE,
           allowNull: true
-        },
-        createdAt:{
-          type: DataTypes.DATE,
-          allowNull: false
-        },
-        updatedAt:{
-          type: DataTypes.DATE,
-          allowNull: false
         }
     }, {
-        tableName: "d_perkawinan",
+        tableName: "d_riwayat_perkawinan",
     });
 
-    Perkawinan.associate = function (models) {
-        Perkawinan.belongsTo(models.Peternakan, {
+    RiwayatPerkawinan.associate = function (models) {
+        RiwayatPerkawinan.belongsTo(models.Peternakan, {
             foreignKey: 'id_peternakan',
             as: 'peternakan'
         });
-        Perkawinan.belongsTo(models.Ternak, {
+        RiwayatPerkawinan.belongsTo(models.Ternak, {
             foreignKey: 'id_indukan',
             as: 'indukan'
         });
-        Perkawinan.belongsTo(models.Ternak, {
+        RiwayatPerkawinan.belongsTo(models.Ternak, {
             foreignKey: 'id_pejantan',
             as: 'pejantan'
         });
-        Perkawinan.belongsTo(models.Kandang, {
+        RiwayatPerkawinan.belongsTo(models.Kandang, {
             foreignKey: 'id_kandang',
             as: 'kandang'
         });
     };
 
-    return Perkawinan;
+    return RiwayatPerkawinan;
 }

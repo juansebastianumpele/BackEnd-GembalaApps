@@ -3,12 +3,12 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_perkawinan', {
-      id_perkawinan: {
+    await queryInterface.createTable('d_riwayat_perkawinan', {
+      id_riwayat_perkawinan: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        primaryKey: true,
         autoIncrement: true,
-        primaryKey: true
+        allowNull: false
       },
       id_peternakan: {
         type: Sequelize.INTEGER,
@@ -19,6 +19,16 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
+      },
+      id_kandang: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'd_kandang',
+          key: 'id_kandang'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
       id_indukan: {
         type: Sequelize.INTEGER,
@@ -32,20 +42,10 @@ module.exports = {
       },
       id_pejantan: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 's_ternak',
           key: 'id_ternak'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      id_kandang: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'd_kandang',
-          key: 'id_kandang'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
@@ -54,18 +54,15 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
-      status:{
-        type: Sequelize.ENUM('Bunting', 'Tidak Bunting', 'Abortus'),
+      status: {
+        type: Sequelize.ENUM,
+        values: [
+          'Bunting', 'Tidak Bunting', 'Abortus'
+        ],
         allowNull: false
       },
-      usg_1: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-        allowNull: false
-      },
-      usg_2: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
+      usg: {
+        type: Sequelize.INTEGER,
         allowNull: false
       },
       createdAt: {
@@ -82,6 +79,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_perkawinan');
+    await queryInterface.dropTable('d_riwayat_perkawinan');
   }
 };
