@@ -79,5 +79,3 @@ https://documenter.getpostman.com/view/16756766/2s83eyrcXr
 - [x] Jenis Kandang
 - [x] Status Ternak
 - [x] LK Pemasukan 
-
-test 
