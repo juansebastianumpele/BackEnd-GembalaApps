@@ -40,9 +40,15 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      kode_kandang:{
-        type: Sequelize.STRING,
-        allowNull: false
+      id_kandang: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'd_kandang',
+          key: 'id_kandang'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
       tanggal_adaptasi: {
         type: Sequelize.DATE,

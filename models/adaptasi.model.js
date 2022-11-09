@@ -22,9 +22,9 @@ module.exports = (Sequelize, DataTypes) => {
           type: DataTypes.DATE,
           allowNull: false
         },
-        kode_kandang:{
-          type: DataTypes.STRING,
-          allowNull: false
+        id_kandang: {
+          type: DataTypes.INTEGER,
+          allowNull: true
         },
         createdAt:{
           type: DataTypes.DATE,
@@ -50,6 +50,10 @@ module.exports = (Sequelize, DataTypes) => {
         Adaptasi.belongsTo(models.Treatment, {
             foreignKey: 'id_treatment',
             as: 'treatment'
+        });
+        Adaptasi.belongsTo(models.Kandang, {
+            foreignKey: 'id_kandang',
+            as: 'kandang'
         });
     };
     

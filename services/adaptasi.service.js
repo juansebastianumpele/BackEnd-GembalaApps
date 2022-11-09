@@ -190,6 +190,7 @@ class _adaptasi{
             // Validate Data
             const schema = joi.object({
                 id_ternak: joi.number().required(),
+                id_kandang: joi.number().required(),
                 treatments: joi.array().items(joi.object({
                 id_treatment: joi.number().required()
                 })).required()
@@ -224,7 +225,7 @@ class _adaptasi{
                     {
                         model: this.db.Status,
                         as: 'status',
-                        attributes: ['id_status', 'status']
+                        attributes: ['id_status_ternak', 'status_ternak']
                     }
                 ],
                 where: {
@@ -245,7 +246,7 @@ class _adaptasi{
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_ternak: value.id_ternak,
                     id_treatment: value.treatments[i].id_treatment,
-                    kode_kandang: ternak.dataValues.kandang.kode_kandang,
+                    id_kandang: value.id_kandang,
                     tanggal_adaptasi: new Date()
                 });
                 if(!createAdaptasi){
@@ -329,7 +330,8 @@ class _adaptasi{
 
                 // Update fase ternak
                 const updateFase = await this.db.Ternak.update({
-                    id_fp: ternak.dataValues.status.dataValues.status.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
+                    id_fp: ternak.dataValues.status.dataValues.status_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp,
+                    id_kandang: value.id_kandang
                 },{
                     where: {
                         id_ternak: value.id_ternak,
@@ -346,7 +348,7 @@ class _adaptasi{
                 // Create History Fase
                 const historyFase = await createHistoryFase(this.db, req, {
                     id_ternak: value.id_ternak,
-                    id_fp: ternak.dataValues.status.dataValues.status.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
+                    id_fp: ternak.dataValues.status.dataValues.status_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
                 })
                 if(!historyFase){
                     return {
@@ -395,7 +397,7 @@ class _adaptasi{
             const fase = await this.db.Fase.findOne({
                 attributes: ['id_fp'],
                 where: {
-                    fase: `adaptasi ${req.query.step}`
+                    fase: `Adaptasi ${req.query.step}`
                 }
             });
             if(!fase){
@@ -408,15 +410,15 @@ class _adaptasi{
             const list = await this.db.Ternak.findAll({ 
                 attributes: ['id_ternak', 'rf_id'],
                 include: [
-                    {
-                        model: this.db.Fase,
-                        as: 'fase',
-                        attributes: ['id_fp', 'fase']
-                    },
+                    // {
+                    //     model: this.db.Fase,
+                    //     as: 'fase',
+                    //     attributes: ['id_fp', 'fase']
+                    // },
                     {
                         model: this.db.RiwayatFase,
                         as: 'riwayat_fase',
-                        attributes: ['tanggal'],
+                        attributes: ['tanggal', 'id_fp'],
                     },
                     {
                         model: this.db.Kandang,
@@ -435,9 +437,32 @@ class _adaptasi{
                 }
             }
 
+            // Get fase adaptasi 1
+            const faseAdaptasi1 = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: 'Adaptasi 1'
+                }
+            });
+            if(!faseAdaptasi1){
+                return {
+                    code: 500,
+                    error: 'Something went wrong, fase adaptasi 1 not found'
+                }
+            }
+
             for(let i = 0; i < list.length; i++){
-                list[i].dataValues.tanggal = list[i].dataValues.riwayat_fase.length > 0 ? list[i].dataValues.riwayat_fase[list[i].dataValues.riwayat_fase.length - 1].tanggal : null;
-                delete list[i].dataValues.riwayat_fase;
+                // filter data riwayat fase adaptasi 1
+                console.log(list[i].dataValues.riwayat_fase)
+                list[i].dataValues.riwayat_fase = list[i].dataValues.riwayat_fase.length > 0 
+                    ? list[i].dataValues.riwayat_fase.filter((value) => {
+                        return value.dataValues.id_fp == faseAdaptasi1.dataValues.id_fp
+                    }) 
+                    : [];
+
+                // add date adaptasi 1
+                list[i].dataValues.tanggal = list[i].dataValues.riwayat_fase.length > 0 ? list[i].dataValues.riwayat_fase[0].dataValues.tanggal : null;
+                delete list[i].dataValues.riwayat_fase
             }
 
             return {
