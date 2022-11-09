@@ -78,4 +78,6 @@ https://documenter.getpostman.com/view/16756766/2s83eyrcXr
 - [x] User
 - [x] Jenis Kandang
 - [x] Status Ternak
-- [x] LK Pemasukan  
+- [x] LK Pemasukan 
+
+test 
