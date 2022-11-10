@@ -1,4 +1,5 @@
 const {log_error} = require('../utils/logging');
+const {Op} = require('sequelize');
 
 class _mobileDash{
     constructor(db){
@@ -7,11 +8,30 @@ class _mobileDash{
     /// Get Data total ternak
     getTotalTernak = async (req) => {
         try{
+            // Get id fase pemasukan
+            const idFasePemasukan = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: 'Pemasukan'
+                }
+            });
+            if(!idFasePemasukan){
+                log_error('getTotalTernak', 'Fase Pemasukan not found');
+                return {
+                    status: 500,
+                    message: `Something went wrong, fase pemasukan not found`
+                }
+            }
+
             // Get total ternak
             const ternak = await this.db.Ternak.findAll({
                 attributes: ['id_ternak'],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: {
+                        [Op.not] : idFasePemasukan.dataValues.id_fp,
+                        [Op.not] : null
+                    },
                     status_keluar: null
                 }
             });
@@ -66,15 +86,6 @@ class _mobileDash{
     /// Get Data total ternak by status
     getTotalTernakByStatus = async (req) => {
         try{
-            // Get total ternak
-            const totalTernak = await this.db.Ternak.count({
-                attributes: ['id_ternak'],
-                where: {
-                    id_peternakan: req.dataAuth.id_peternakan,
-                    status_keluar: null
-                }
-            });
-
             // Get status id cempe
             const statusCempe = await this.db.Status.findOne({
                 attributes: ['id_status_ternak'],
@@ -176,7 +187,7 @@ class _mobileDash{
             return {
                 code: 200,
                 data: {
-                    total_ternak: totalTernak,
+                    total_ternak: totalTernakJantan + totalTernakBetina,
                     total_ternak_pejantan: totalTernakPejantan,
                     total_ternak_jantan: totalTernakJantan,
                     total_ternak_indukan: totalTernakIndukan,
