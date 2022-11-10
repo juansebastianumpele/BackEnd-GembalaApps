@@ -24,8 +24,6 @@ class _perkawinan {
                 }
             }
 
-            console.log(dataFase.dataValues.id_fp);
-
             // Get ternak in waiting list perkawinan
             const ternakWaitingList = await this.db.Ternak.findAll({
                 attributes: ['id_ternak'],
@@ -92,13 +90,13 @@ class _perkawinan {
             }
 
             // Get data fase
-            const dataFase = await this.db.Fase.findOne({
+            const idFasePerkawinan = await this.db.Fase.findOne({
                 attributes: ['id_fp'],
                 where: {
                     fase: "Perkawinan"
                 }
             });
-            if(!dataFase){
+            if(!idFasePerkawinan){
                 return {
                     code: 500,
                     error: 'Something went wrong, data fase not found'
@@ -165,7 +163,7 @@ class _perkawinan {
 
             // Update ternak indukan
             const updateIndukan = await this.db.Ternak.update({
-                id_fp: dataFase.dataValues.id_fp,
+                id_fp: idFasePerkawinan.dataValues.id_fp,
                 id_kandang: dataPejantan.dataValues.id_kandang
             },{
                 where: {
@@ -182,7 +180,7 @@ class _perkawinan {
             // Create riwayat fase ternak indukan
             const historyFaseIndukan = await createHistoryFase(this.db, req, {
                 id_ternak: dataIndukan.dataValues.id_ternak,
-                id_fp: dataFase.dataValues.id_fp
+                id_fp: idFasePerkawinan.dataValues.id_fp
             });
             if(!historyFaseIndukan){
                 return {
@@ -250,8 +248,8 @@ class _perkawinan {
                 id_perkawinan: joi.number().required(),
                 status: joi.string().valid('Bunting', 'Tidak Bunting', 'Abortus').allow(null),
                 id_kandang: joi.number().required(),
-                usg_1: joi.date().required(),
-                usg_2: joi.date().required()
+                usg_1: joi.boolean().required(),
+                usg_2: joi.boolean().required()
             });
             const {error, value} = schema.validate(req.body);
             if(error){
@@ -260,6 +258,103 @@ class _perkawinan {
                     code: 400,
                     error: errorMessage
                 }
+            }
+
+            // Check USG
+            if(value.usg_1 == true && value.usg_2 == true){
+                return {
+                    code: 400,
+                    error: 'USG 1 dan USG 2 tidak bisa diisi true bersamaan'
+                }
+            }else if(value.usg_1 == false && value.usg_2 == true){
+                return {
+                    code: 400,
+                    error: 'USG 1 harus diisi terlebih dahulu'
+                }
+            }
+
+            // Check data perkawinan
+            const dataPerkawinan = await this.db.Perkawinan.findOne({
+                attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'status'],
+                where: {
+                    id_perkawinan: value.id_perkawinan,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(!dataPerkawinan){
+                return {
+                    code: 404,
+                    error: 'Data perkawinan not found'
+                }
+            }
+
+            // Update perkawinan
+            const updatePerkawinan = await this.db.Perkawinan.update({
+                status: value.status,
+                id_kandang: value.id_kandang,
+                usg_1: value.usg_1,
+                usg_2: value.usg_2
+            },{
+                where: {
+                    id_perkawinan: value.id_perkawinan,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(updatePerkawinan <= 0){
+                return {
+                    code: 500,
+                    error: 'Something went wrong, update perkawinan failed'
+                }
+            }
+
+            // Create Riwayat Fase usg1
+            if(value.usg_1 == true && dataPerkawinan.dataValues.usg_1 == false){
+                // Create riwayat perkawinan
+                const riwayatPerkawinanUsg1 = this.db.RiwayatPerkawinan.create({
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_kandang: value.id_kandang,
+                    id_indukan: dataPerkawinan.dataValues.id_indukan,
+                    id_pejantan: dataPerkawinan.dataValues.id_pejantan,
+                    tanggal_perkawinan: dataPerkawinan.dataValues.tanggal_perkawinan,
+                    status: value.status,
+                    usg: 1
+                });
+                if(!riwayatPerkawinanUsg1){
+                    return {
+                        code: 500,
+                        error: 'Something went wrong, create riwayat perkawinan usg 1 failed'
+                    }
+                }
+            }
+            
+            // Create Riwayat Fase usg2
+            if(value.usg_2 == true && dataPerkawinan.dataValues.usg_2 == false && dataPerkawinan.dataValues.usg_1 == true){
+                // Create riwayat perkawinan
+                const riwayatPerkawinanUsg2 = this.db.RiwayatPerkawinan.create({
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_kandang: value.id_kandang,
+                    id_indukan: dataPerkawinan.dataValues.id_indukan,
+                    id_pejantan: dataPerkawinan.dataValues.id_pejantan,
+                    tanggal_perkawinan: dataPerkawinan.dataValues.tanggal_perkawinan,
+                    status: value.status,
+                    usg: 2
+                });
+                if(!riwayatPerkawinanUsg2){
+                    return {
+                        code: 500,
+                        error: 'Something went wrong, create riwayat perkawinan usg 2 failed'
+                    }
+                }
+
+                // Update status fase indukan
+                const updateStatusFaseIndukan = await this.db.Ternak.update({
+                    status_fase: 'Kawin'
+                },{
+                    where: {
+                        id_ternak: dataPerkawinan.dataValues.id_indukan,
+                        id_peternakan: req.dataAuth.id_peternakan
+                    }
+                });
             }
 
             
