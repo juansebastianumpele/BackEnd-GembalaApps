@@ -17,10 +17,10 @@ const mobileDashController = (db) => {
     });
 
     /**
-     * Get Data total ternak by status
+     * Get Data total ternak by jenis
      */
-    MobileDashController.get('/total-ternak-by-status', authentication, adminMiddleware, async (req, res, next) => {
-        const list = await s$mobileDash.getTotalTernakByStatus(req);
+    MobileDashController.get('/total-ternak-by-jenis', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$mobileDash.getTotalTernakByJenis(req);
         response.sendResponse(res, list);
     });
 
