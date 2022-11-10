@@ -283,7 +283,8 @@ class _adaptasi{
                     }
                 }
                 const updateFase = await this.db.Ternak.update({
-                    id_fp: getIdFase.dataValues.id_fp
+                    id_fp: getIdFase.dataValues.id_fp,
+                    id_kandang: value.id_kandang
                 },{
                     where: {
                         id_ternak: value.id_ternak,
