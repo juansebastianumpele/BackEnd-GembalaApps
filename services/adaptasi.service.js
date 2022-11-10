@@ -192,7 +192,7 @@ class _adaptasi{
                 id_ternak: joi.number().required(),
                 id_kandang: joi.number().required(),
                 treatments: joi.array().items(joi.object({
-                id_treatment: joi.number().required()
+                id_treatment: joi.number().allow(null),
                 })).required()
             });
             const {error, value} = schema.validate(req.body);
@@ -241,19 +241,29 @@ class _adaptasi{
             }
 
             // Create treatment apllied
+            let countTreatment = 0;
             for(let i = 0; i < value.treatments.length; i++){
-                const createAdaptasi = await this.db.Adaptasi.create({
-                    id_peternakan: req.dataAuth.id_peternakan,
-                    id_ternak: value.id_ternak,
-                    id_treatment: value.treatments[i].id_treatment,
-                    id_kandang: value.id_kandang,
-                    tanggal_adaptasi: new Date()
-                });
-                if(!createAdaptasi){
-                    return {
-                        code: 400,
-                        error: 'Failed to create adaptasi'
+                if(value.treatments[i].id_treatment != null){
+                    countTreatment++;
+                    const createAdaptasi = await this.db.Adaptasi.create({
+                        id_peternakan: req.dataAuth.id_peternakan,
+                        id_ternak: value.id_ternak,
+                        id_treatment: value.treatments[i].id_treatment,
+                        id_kandang: value.id_kandang,
+                        tanggal_adaptasi: new Date()
+                    });
+                    if(!createAdaptasi){
+                        return {
+                            code: 400,
+                            error: 'Failed to create adaptasi'
+                        }
                     }
+                }
+            }
+            if(countTreatment <= 0){
+                return {
+                    code: 400,
+                    error: 'At least one treatment must be filled'
                 }
             }
 
