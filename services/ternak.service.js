@@ -24,7 +24,7 @@ class _ternak{
                 'berat', 
                 'suhu', 
                 'tanggal_lahir',
-                [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
+                // [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -85,6 +85,8 @@ class _ternak{
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
+                const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
+                list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 delete list[i].dataValues.riwayat_kesehatan;
             }
 
@@ -432,7 +434,6 @@ class _ternak{
                 'berat', 
                 'suhu', 
                 'tanggal_lahir',
-                [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -495,6 +496,8 @@ class _ternak{
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
+                const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
+                list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 delete list[i].dataValues.riwayat_kesehatan;
             }
 
@@ -541,7 +544,6 @@ class _ternak{
                 'berat', 
                 'suhu', 
                 'tanggal_lahir',
-                [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -604,6 +606,8 @@ class _ternak{
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
+                const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
+                list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 delete list[i].dataValues.riwayat_kesehatan;
             }
 
