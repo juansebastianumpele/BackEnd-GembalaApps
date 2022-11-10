@@ -69,7 +69,8 @@ class _ternak{
                         attributes: ['id_status_ternak', 'status_ternak']
                     }
                 ],
-                where : req.query
+                where : req.query,
+                order : [['createdAt', 'DESC']]
             });
             
             if(list.length <= 0){
@@ -161,8 +162,9 @@ class _ternak{
             // Add Timbangan
             const timbangan = await this.db.Timbangan.create({
                 id_ternak: add.id_ternak,
-                berat: value.berat,
-                suhu: value.suhu,
+                rf_id: add.rf_id,
+                berat: add.berat,
+                suhu: add.suhu,
                 tanggal_timbang: new Date(),
             });
             if(timbangan === null){
