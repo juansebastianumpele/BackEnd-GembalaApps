@@ -111,6 +111,12 @@ class _adaptasi{
                     id_fp: fase.dataValues.id_fp
                 }
             });
+            if(ternakByStepAdaptasi.length <= 0){
+                return{
+                    code: 404,
+                    error: 'Data ternak by step adaptasi not found'
+                }
+            }
 
             // Filter data by step
             for(let i = 0; i < ternakByStepAdaptasi.length; i++){
@@ -223,9 +229,9 @@ class _adaptasi{
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: this.db.Status,
-                        as: 'status',
-                        attributes: ['id_status_ternak', 'status_ternak']
+                        model: this.db.JenisTernak,
+                        as: 'jenis_ternak',
+                        attributes: ['id_jenis_ternak', 'jenis_ternak']
                     }
                 ],
                 where: {
@@ -341,7 +347,7 @@ class _adaptasi{
 
                 // Update fase ternak
                 const updateFase = await this.db.Ternak.update({
-                    id_fp: ternak.dataValues.status.dataValues.status_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp,
+                    id_fp: ternak.dataValues.jenis_ternak.dataValues.jenis_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp,
                     id_kandang: value.id_kandang
                 },{
                     where: {
@@ -359,7 +365,7 @@ class _adaptasi{
                 // Create History Fase
                 const historyFase = await createHistoryFase(this.db, req, {
                     id_ternak: value.id_ternak,
-                    id_fp: ternak.dataValues.status.dataValues.status_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
+                    id_fp: ternak.dataValues.jenis_ternak.dataValues.jenis_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
                 })
                 if(!historyFase){
                     return {
@@ -464,7 +470,6 @@ class _adaptasi{
 
             for(let i = 0; i < list.length; i++){
                 // filter data riwayat fase adaptasi 1
-                console.log(list[i].dataValues.riwayat_fase)
                 list[i].dataValues.riwayat_fase = list[i].dataValues.riwayat_fase.length > 0 
                     ? list[i].dataValues.riwayat_fase.filter((value) => {
                         return value.dataValues.id_fp == faseAdaptasi1.dataValues.id_fp
@@ -496,7 +501,7 @@ class _adaptasi{
     getAllTernakInAdaptasi = async (req) => {
         try{
             const list = await this.db.Ternak.findAll({ 
-                attributes: ['id_ternak', 'rf_id', 'jenis_kelamin', 'berat', 'suhu'],
+                attributes: ['id_ternak', 'rf_id', 'jenis_kelamin'],
                 include: [
                     {
                         model: this.db.Fase,
@@ -513,6 +518,11 @@ class _adaptasi{
                         as: 'kandang',
                         attributes: ['id_kandang', 'kode_kandang'],
                     },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['id_timbangan', 'berat', 'suhu'],
+                    }
                 ],
                 where : {
                     id_peternakan: req.dataAuth.id_peternakan,
@@ -532,9 +542,13 @@ class _adaptasi{
             let totalByKandang = {}
 
             for(let i = 0; i < list.length; i++){
+                console.log(list[i].dataValues.timbangan)
                 list[i].dataValues.perlakuan = list[i].dataValues.fase.fase.split(' ')[1];
                 list[i].dataValues.kode_kandang = list[i].dataValues.kandang ? list[i].dataValues.kandang.dataValues.kode_kandang : null;
                 list[i].dataValues.bangsa = list[i].dataValues.bangsa ? list[i].dataValues.bangsa.dataValues.bangsa : null;
+                list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : null;
+                list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.suhu : null;
+                delete list[i].dataValues.timbangan;
                 delete list[i].dataValues.fase;
                 delete list[i].dataValues.kandang;
 

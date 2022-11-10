@@ -25,10 +25,10 @@ class _rfid{
                 }
             }
 
-            // Get data status ternak cempe
-            const status = await this.db.Status.findOne({
+            // Get data jenia ternak cempe
+            const jenisTernak = await this.db.JenisTernak.findOne({
                 where: {
-                    status_ternak: "cempe"
+                    jenis_ternak: "cempe"
                 }
             });
 
@@ -83,7 +83,7 @@ class _rfid{
             const addTernak = await this.db.Ternak.create({
                 rf_id: value.rf_id,
                 id_peternakan: value.id_peternakan,
-                id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (status ? status.id_status_ternak : null) : null,
+                id_jenis_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (jenisTernak ? jenisTernak.dataValues.id_jenis_ternak : null) : null,
                 id_fp: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? idFaseKelahiran.dataValues.id_fp : idFasePemasukan.dataValues.id_fp,
             })
 
@@ -133,17 +133,15 @@ class _rfid{
                 }
             }
 
-            const getTernak = await this.db.Ternak.findOne({
+            // Query data
+            const list = await this.db.Ternak.findOne({
                 attributes : ['id_ternak', 
                 'rf_id', 
                 'image', 
                 'jenis_kelamin', 
                 'id_dam', 
                 'id_sire', 
-                'berat', 
-                'suhu', 
                 'tanggal_lahir',
-                [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -158,7 +156,19 @@ class _rfid{
                     {
                         model: this.db.Kandang,
                         as: 'kandang',
-                        attributes: ['id_kandang', 'kode_kandang', 'id_jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan']
+                        attributes: ['id_kandang', 'kode_kandang', 'id_jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan'],
+                        include: [
+                            {
+                                model: this.db.JenisKandang,
+                                as: 'jenis_kandang',
+                                attributes: ['id_jenis_kandang', 'jenis_kandang']
+                            },
+                            {
+                                model: this.db.JenisPakan,
+                                as: 'jenis_pakan',
+                                attributes: ['id_jenis_pakan', 'jenis_pakan']
+                            }
+                        ]
                     },
                     {
                         model: this.db.RiwayatKesehatan,
@@ -171,26 +181,49 @@ class _rfid{
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: this.db.Status,
-                        as: 'status',
+                        model: this.db.StatusTernak,
+                        as: 'status_ternak',
                         attributes: ['id_status_ternak', 'status_ternak']
-                    }
+                    },
+                    {
+                        model: this.db.JenisTernak,
+                        as: 'jenis_ternak',
+                        attributes: ['id_jenis_ternak', 'jenis_ternak']
+                    },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['id_timbangan', 'berat']
+                    },
                 ],
                 where : {
-                    rf_id: value.rf_id,
+                    rf_id: value.rf_id
                 }
             });
-
-            if(getTernak == null){
-                return {
+            
+            if(!list){
+                return{
                     code: 404,
                     error: 'Data Ternak not found'
                 }
             }
+            
+            list.dataValues.penyakit = (list.riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
+            list.dataValues.status_kesehatan = list.dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
+            list.dataValues.umur = Math.round(list.dataValues.umur / 30);
+            list.dataValues.kebutuhan_pakan = ((list.dataValues.timbangan.length > 0 
+                ? list.dataValues.timbangan[list.dataValues.timbangan.length - 1].dataValues.berat 
+                : 0) * ((list.dataValues.kandang && list.dataValues.kandang.persentase_kebutuhan_pakan 
+                    ? list.dataValues.kandang.persentase_kebutuhan_pakan 
+                    : 0)/100)).toFixed(2);
+            const umurHari =  list.dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list.dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
+            list.dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
+            delete list.dataValues.riwayat_kesehatan;
+            delete list.dataValues.timbangan;
 
             return {
                 code: 200,
-                data: getTernak
+                data: list
             };
 
         }catch(error){

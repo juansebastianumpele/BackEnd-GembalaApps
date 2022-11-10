@@ -217,7 +217,7 @@ class _perkawinan {
             req.query.id_peternakan = req.dataAuth.id_peternakan;
             // get data perkawinan
             const dataPerkawinan = await this.db.Perkawinan.findAll({
-                attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'status'],
+                attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'id_status_ternak'],
                 include: [
                     {
                         model: this.db.Kandang,
@@ -248,7 +248,7 @@ class _perkawinan {
             // Schema validation
             const schema = joi.object({
                 id_perkawinan: joi.number().required(),
-                status: joi.string().valid('Bunting', 'Tidak Bunting', 'Abortus').allow(null),
+                id_status_ternak: joi.number().required(),
                 id_kandang: joi.number().required(),
                 usg_1: joi.boolean().required(),
                 usg_2: joi.boolean().required()
@@ -289,6 +289,20 @@ class _perkawinan {
                     error: 'Something went wrong, get id fase perkawinan failed'
                 }
             }
+
+            // Get id status ternak
+            const idStatusTernak = await this.db.StatusTernak.findOne({
+                attributes: ['id_status_ternak'],
+                where: {
+                    status_ternak : 'tidak bunting'
+                }
+            });
+            if(!idStatusTernak){
+                return {
+                    code: 500,
+                    error: 'Something went wrong, get id status ternak failed'
+                }
+            }
             
 
             // Check status perkawinan
@@ -296,7 +310,7 @@ class _perkawinan {
                 // move ternak indukan to waiting list and update status perkawinan
                 const updateKandanIndukan = await this.db.Ternak.update({
                     id_kandang: value.id_kandang,
-                    status: (value.status.toLowerCase() == 'tidak bunting' || value.status.toLowerCase() == 'abortus') ? idFaseWaitingList.dataValues.id_fp : idFasePerkawinan.dataValues.id_fp
+                    id_status_ternak: (value.id_status_ternak == idStatusTernak.dataValues.is_status_ternak) ? idFaseWaitingList.dataValues.id_fp : idFasePerkawinan.dataValues.id_fp
                 },{
                     where: {
                         id_ternak: value.id_indukan,
@@ -313,7 +327,7 @@ class _perkawinan {
 
             // Update status perkawinan
             const updatePerkawinan = await this.db.Perkawinan.update({
-                status: value.status,
+                id_status_ternak: value.id_status_ternak,
                 usg_1: value.usg_1,
                 usg_2: value.usg_2
             },{

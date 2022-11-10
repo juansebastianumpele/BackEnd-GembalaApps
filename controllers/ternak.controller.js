@@ -18,6 +18,22 @@ const ternakController = (db) => {
     });
 
     /**
+     * Get List Ternak
+    */
+    TernakController.get('/indukan', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$ternak.getDataIndukan(req);
+        response.sendResponse(res, detail);
+    });
+
+    /**
+     * Get List Ternak
+    */
+    TernakController.get('/pejantan', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$ternak.getDataPejantan(req);
+        response.sendResponse(res, detail);
+    });
+
+    /**
      * Create new data ternak
      * @param {string} rf_id
      * @param {number} id_varietas

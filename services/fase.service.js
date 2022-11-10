@@ -15,7 +15,14 @@ class _fase{
                     {
                         model: this.db.Ternak,
                         as: 'ternak',
-                        attributes: ['id_ternak', 'rf_id','berat'],
+                        attributes: ['id_ternak', 'rf_id'],
+                        include: [
+                            {
+                                model: this.db.Timbangan,
+                                as: 'timbangan',
+                                attributes: ['id_timbangan', 'berat', 'suhu'],
+                            }
+                        ]
                     }
                 ],
                 where: req.query
@@ -23,10 +30,13 @@ class _fase{
 
             for(let i=0; i<list.length; i++){
                 list[i].dataValues.populasi = list[i].dataValues.ternak.length;
-                const berat_total = list[i].dataValues.ternak.reduce((a, b) => a + b.berat, 0);
+                const berat_total = list[i].dataValues.ternak.reduce((a, b) => a + b.dataValues.timbangan[b.dataValues.timbangan.length - 1].berat, 0);
                 const berat_rata = berat_total / list[i].dataValues.ternak.length;
                 list[i].dataValues.berat_rata = (!berat_rata) ? 0 : berat_rata;
                 list[i].dataValues.berat_total = berat_total;
+                for(let j=0; j<list[i].dataValues.ternak.length; j++){
+                    delete list[i].dataValues.ternak[j].dataValues.timbangan;
+                }
             }
 
             if(list.length <= 0){

@@ -18,8 +18,8 @@ class _mobileDash{
             if(!idFasePemasukan){
                 log_error('getTotalTernak', 'Fase Pemasukan not found');
                 return {
-                    status: 500,
-                    message: `Something went wrong, fase pemasukan not found`
+                    code: 500,
+                    error: `Something went wrong, fase pemasukan not found`
                 }
             }
 
@@ -83,48 +83,48 @@ class _mobileDash{
         }
     }
 
-    /// Get Data total ternak by status
-    getTotalTernakByStatus = async (req) => {
+    /// Get Data total ternak by jenis
+    getTotalTernakByJenis = async (req) => {
         try{
-            // Get status id cempe
-            const statusCempe = await this.db.Status.findOne({
-                attributes: ['id_status_ternak'],
+            // Get jenis id cempe
+            const jenisCempe = await this.db.JenisTernak.findOne({
+                attributes: ['id_jenis_ternak'],
                 where: {
-                    status_ternak: 'Cempe'
+                    jenis_ternak: 'Cempe'
                 }
             });
-            if(!statusCempe){
+            if(!jenisCempe){
                 return {
-                    status: 404,
-                    error: 'Status Cempe tidak ditemukan'
+                    code: 404,
+                    error: 'Jenis ternak Cempe tidak ditemukan'
                 }
             }
 
-            // Get status is pejantan
-            const statusPejantan = await this.db.Status.findOne({
-                attributes: ['id_status_ternak'],
+            // Get jenis id pejantan
+            const jenisPejantan = await this.db.JenisTernak.findOne({
+                attributes: ['id_jenis_ternak'],
                 where: {
-                    status_ternak: 'Pejantan'
+                    jenis_ternak: 'Pejantan'
                 }
             });
-            if(!statusPejantan){
+            if(!jenisPejantan){
                 return {
-                    status: 404,
-                    error: 'Status Pejantan tidak ditemukan'
+                    code: 404,
+                    error: 'Jenis ternak Pejantan tidak ditemukan'
                 }
             }
 
-            // Get status is indukan
-            const statusIndukan = await this.db.Status.findOne({
-                attributes: ['id_status_ternak'],
+            // Get jenis id indukan
+            const jenisIndukan = await this.db.JenisTernak.findOne({
+                attributes: ['id_jenis_ternak'],
                 where: {
-                    status_ternak: 'Indukan'
+                    jenis_ternak: 'Indukan'
                 }
             });
-            if(!statusIndukan){
+            if(!jenisIndukan){
                 return {
-                    status: 404,
-                    error: 'Status Indukan tidak ditemukan'
+                    code: 404,
+                    error: 'Jenis ternak Indukan tidak ditemukan'
                 }
             }
 
@@ -132,7 +132,7 @@ class _mobileDash{
             const totalTernakPejantan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: statusPejantan.dataValues.id_status_ternak,
+                    id_jenis_ternak: jenisPejantan.dataValues.id_jenis_ternak,
                     status_keluar: null
                 }
             });
@@ -150,7 +150,7 @@ class _mobileDash{
             const totalTernakIndukan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: statusIndukan.dataValues.id_status_ternak,
+                    id_jenis_ternak: jenisIndukan.dataValues.id_jenis_ternak,
                     status_keluar: null
                 }
             });
@@ -168,7 +168,7 @@ class _mobileDash{
             const totalTernakCempeJantan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: statusCempe.dataValues.id_status_ternak,
+                    id_jenis_ternak: jenisCempe.dataValues.id_jenis_ternak,
                     jenis_kelamin: 'jantan',
                     status_keluar: null
                 }
@@ -178,7 +178,7 @@ class _mobileDash{
             const totalTernakCempeBetina = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: statusCempe.dataValues.id_status_ternak,
+                    id_jenis_ternak: jenisCempe.dataValues.id_jenis_ternak,
                     jenis_kelamin: 'betina',
                     status_keluar: null
                 }

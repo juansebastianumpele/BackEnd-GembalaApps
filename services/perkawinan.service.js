@@ -215,7 +215,7 @@ class _perkawinan {
             req.query.id_peternakan = req.dataAuth.id_peternakan;
             // get data perkawinan
             const dataPerkawinan = await this.db.Perkawinan.findAll({
-                attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'status'],
+                attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'id_status_ternak'],
                 include: [
                     {
                         model: this.db.Kandang,
@@ -246,7 +246,7 @@ class _perkawinan {
             // Schema validation
             const schema = joi.object({
                 id_perkawinan: joi.number().required(),
-                status: joi.string().valid('Bunting', 'Tidak Bunting', 'Abortus').allow(null),
+                id_status_ternak: joi.number().required(),
                 id_kandang: joi.number().required(),
                 usg_1: joi.boolean().required(),
                 usg_2: joi.boolean().required()
@@ -275,7 +275,7 @@ class _perkawinan {
 
             // Check data perkawinan
             const dataPerkawinan = await this.db.Perkawinan.findOne({
-                attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'status'],
+                attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'id_status_ternak'],
                 where: {
                     id_perkawinan: value.id_perkawinan,
                     id_peternakan: req.dataAuth.id_peternakan
@@ -290,7 +290,7 @@ class _perkawinan {
 
             // Update perkawinan
             const updatePerkawinan = await this.db.Perkawinan.update({
-                status: value.status,
+                id_status_ternak: value.id_status_ternak,
                 id_kandang: value.id_kandang,
                 usg_1: value.usg_1,
                 usg_2: value.usg_2
@@ -316,7 +316,7 @@ class _perkawinan {
                     id_indukan: dataPerkawinan.dataValues.id_indukan,
                     id_pejantan: dataPerkawinan.dataValues.id_pejantan,
                     tanggal_perkawinan: dataPerkawinan.dataValues.tanggal_perkawinan,
-                    status: value.status,
+                    id_status_ternak: value.id_status_ternak,
                     usg: 1
                 });
                 if(!riwayatPerkawinanUsg1){
@@ -336,7 +336,7 @@ class _perkawinan {
                     id_indukan: dataPerkawinan.dataValues.id_indukan,
                     id_pejantan: dataPerkawinan.dataValues.id_pejantan,
                     tanggal_perkawinan: dataPerkawinan.dataValues.tanggal_perkawinan,
-                    status: value.status,
+                    id_status_ternak: value.id_status_ternak,
                     usg: 2
                 });
                 if(!riwayatPerkawinanUsg2){
@@ -346,15 +346,15 @@ class _perkawinan {
                     }
                 }
 
-                // Update status fase indukan
-                const updateStatusFaseIndukan = await this.db.Ternak.update({
-                    status_fase: 'Kawin'
-                },{
-                    where: {
-                        id_ternak: dataPerkawinan.dataValues.id_indukan,
-                        id_peternakan: req.dataAuth.id_peternakan
-                    }
-                });
+                // // Update status fase indukan
+                // const updateStatusFaseIndukan = await this.db.Ternak.update({
+                //     status_fase: 'Kawin'
+                // },{
+                //     where: {
+                //         id_ternak: dataPerkawinan.dataValues.id_indukan,
+                //         id_peternakan: req.dataAuth.id_peternakan
+                //     }
+                // });
             }
 
             

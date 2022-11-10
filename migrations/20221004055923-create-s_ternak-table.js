@@ -66,6 +66,16 @@ module.exports = {
         onDelete: "SET NULL",
         onUpdate: "CASCADE"
       },
+      id_jenis_ternak:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'd_jenis_ternak',
+          key: 'id_jenis_ternak'
+        },
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE"
+      },
       id_fp:{
         type: Sequelize.INTEGER,
         allowNull: true,
@@ -83,14 +93,6 @@ module.exports = {
       id_sire:{
         type: Sequelize.INTEGER,
         allowNull: true,
-      },
-      berat: {
-        type: Sequelize.INTEGER,
-        allowNull: true
-      },
-      suhu: {
-        type: Sequelize.INTEGER,
-        allowNull: true
       },
       tanggal_lahir:{
         type: Sequelize.DATE,

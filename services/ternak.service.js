@@ -21,10 +21,7 @@ class _ternak{
                 'jenis_kelamin', 
                 'id_dam', 
                 'id_sire', 
-                'berat', 
-                'suhu', 
                 'tanggal_lahir',
-                // [this.db.sequelize.fn('datediff', this.db.sequelize.fn('NOW'), this.db.sequelize.col('tanggal_lahir')), 'umur'],
                 'tanggal_masuk', 
                 'tanggal_keluar', 
                 'status_keluar', 
@@ -64,9 +61,19 @@ class _ternak{
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: this.db.Status,
-                        as: 'status',
+                        model: this.db.StatusTernak,
+                        as: 'status_ternak',
                         attributes: ['id_status_ternak', 'status_ternak']
+                    },
+                    {
+                        model: this.db.JenisTernak,
+                        as: 'jenis_ternak',
+                        attributes: ['id_jenis_ternak', 'jenis_ternak']
+                    },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['id_timbangan', 'berat']
                     }
                 ],
                 where : req.query,
@@ -84,10 +91,15 @@ class _ternak{
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
-                list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
+                list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
+                    ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
+                    : 0) * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan 
+                        ? list[i].dataValues.kandang.persentase_kebutuhan_pakan 
+                        : 0)/100)).toFixed(2);
                 const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 delete list[i].dataValues.riwayat_kesehatan;
+                delete list[i].dataValues.timbangan;
             }
 
             return {
@@ -125,6 +137,7 @@ class _ternak{
                 id_sire: joi.number().allow(null),
                 id_fp: joi.number().allow(null),
                 id_status_ternak: joi.number().allow(null),
+                id_jenis_ternak: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
 
@@ -161,18 +174,20 @@ class _ternak{
                 }
             }
 
-            // Add Timbangan
-            const timbangan = await this.db.Timbangan.create({
-                id_ternak: add.id_ternak,
-                rf_id: add.rf_id,
-                berat: add.berat,
-                suhu: add.suhu,
-                tanggal_timbang: new Date(),
-            });
-            if(timbangan === null){
-                return{
-                    code: 400,
-                    error: `Failed to create new Timbangan`
+           if(value.berat || value.suhu){
+                // Add Timbangan
+                const timbangan = await this.db.Timbangan.create({
+                    id_ternak: add.id_ternak,
+                    rf_id: add.rf_id,
+                    berat: add.berat ? add.berat : 0,
+                    suhu: add.suhu ? add.suhu : 0,
+                    tanggal_timbang: new Date(),
+                });
+                if(timbangan === null){
+                    return{
+                        code: 400,
+                        error: `Failed to create new Timbangan`
+                    }
                 }
             }
 
@@ -213,6 +228,7 @@ class _ternak{
                 id_sire: joi.number().allow(null),
                 id_fp: joi.number().allow(null),
                 id_status_ternak: joi.number().allow(null),
+                id_jenis_ternak: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
 
@@ -230,8 +246,6 @@ class _ternak{
                 image: value.image,
                 jenis_kelamin: value.jenis_kelamin,
                 id_bangsa: value.id_bangsa,
-                berat: value.berat,
-                suhu: value.suhu,
                 tanggal_lahir: value.tanggal_lahir,
                 tanggal_masuk: value.tanggal_masuk,
                 tanggal_keluar: value.tanggal_keluar,
@@ -240,6 +254,7 @@ class _ternak{
                 id_sire: value.id_sire,
                 id_fp: value.id_fp,
                 id_status_ternak: value.id_status_ternak,
+                id_jenis_ternak: value.id_jenis_ternak,
                 id_kandang: value.id_kandang
             }, {
                 where: {
@@ -273,11 +288,11 @@ class _ternak{
 
             // Update Timbangan
             const updateTimbangan = await this.db.Timbangan.update({
-                berat: value.berat,
-                suhu: value.suhu
+                berat: value.berat ? value.berat : timbangan[0].dataValues.berat,
+                suhu: value.suhu ? value.suhu : timbangan[0].dataValues.suhu,
             }, {
                 where: {
-                    id_timbangan: timbangan[0].id_timbangan
+                    id_timbangan: timbangan[0].dataValues.id_timbangan
                 }
             });
             if(updateTimbangan <= 0){
@@ -410,16 +425,16 @@ class _ternak{
     // Get data Indukan
     getDataIndukan = async (req) => {
         try {
-            // Get data status
-            const status = await this.db.Ternak.findOne({
+            // Get data jenis ternak
+            const jenisTernak = await this.db.JenisTernak.findOne({
                 where: {
-                    status_ternak : 'indukan'
+                    jenis_ternak : 'Indukan'
                 }
             });
-            if(!status){
+            if(!jenisTernak){
                 return{
                     code: 400,
-                    error: `Status Ternak not found`
+                    error: `Jenis Ternak Indukan not found`
                 }
             }
 
@@ -431,8 +446,6 @@ class _ternak{
                 'jenis_kelamin', 
                 'id_dam', 
                 'id_sire', 
-                'berat', 
-                'suhu', 
                 'tanggal_lahir',
                 'tanggal_masuk', 
                 'tanggal_keluar', 
@@ -473,32 +486,48 @@ class _ternak{
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: this.db.Status,
-                        as: 'status',
+                        model: this.db.StatusTernak,
+                        as: 'status_ternak',
                         attributes: ['id_status_ternak', 'status_ternak']
+                    },
+                    {
+                        model: this.db.JenisTernak,
+                        as: 'jenis_ternak',
+                        attributes: ['id_jenis_ternak', 'jenis_ternak']
+                    },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['id_timbangan', 'berat']
                     }
                 ],
                 where : {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: status.dataValues.id_status_ternak
-                }
+                    id_jenis_ternak: jenisTernak.dataValues.id_jenis_ternak
+                },
+                order : [['createdAt', 'DESC']]
             });
-
-            if (list.length <= 0) {
-                return {
+            
+            if(list.length <= 0){
+                return{
                     code: 404,
-                    error: 'Data indukan not found'
+                    error: 'Data Ternak not found'
                 }
             }
-
+            
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
-                list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
+                list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
+                    ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
+                    : 0) * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan 
+                        ? list[i].dataValues.kandang.persentase_kebutuhan_pakan 
+                        : 0)/100)).toFixed(2);
                 const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 delete list[i].dataValues.riwayat_kesehatan;
+                delete list[i].dataValues.timbangan;
             }
 
             return {
@@ -517,19 +546,19 @@ class _ternak{
         }
     }
 
-    // Get data penjantan kecuali Sire (Bapak)
+    // Get data penjantan 
     getDataPejantan = async (req) => {
         try {
-            // Get data status
-            const status = await this.db.Ternak.findOne({
+            // Get data jenis ternak
+            const jenisTernak = await this.db.JenisTernak.findOne({
                 where: {
-                    status_ternak : 'pejantan'
+                    jenis_ternak : 'Pejantan'
                 }
             });
-            if(!status){
+            if(!jenisTernak){
                 return{
                     code: 400,
-                    error: `Status Ternak not found`
+                    error: `Jenis Ternak Pejantan not found`
                 }
             }
 
@@ -541,8 +570,6 @@ class _ternak{
                 'jenis_kelamin', 
                 'id_dam', 
                 'id_sire', 
-                'berat', 
-                'suhu', 
                 'tanggal_lahir',
                 'tanggal_masuk', 
                 'tanggal_keluar', 
@@ -583,32 +610,48 @@ class _ternak{
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: this.db.Status,
-                        as: 'status',
+                        model: this.db.StatusTernak,
+                        as: 'status_ternak',
                         attributes: ['id_status_ternak', 'status_ternak']
+                    },
+                    {
+                        model: this.db.JenisTernak,
+                        as: 'jenis_ternak',
+                        attributes: ['id_jenis_ternak', 'jenis_ternak']
+                    },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['id_timbangan', 'berat']
                     }
                 ],
                 where : {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: status.dataValues.id_status_ternak
-                }
+                    id_jenis_ternak: jenisTernak.dataValues.id_jenis_ternak
+                },
+                order : [['createdAt', 'DESC']]
             });
-
-            if (list.length <= 0) {
-                return {
+            
+            if(list.length <= 0){
+                return{
                     code: 404,
-                    error: 'Data indukan not found'
+                    error: 'Data Ternak not found'
                 }
             }
-
+            
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
-                list[i].dataValues.kebutuhan_pakan = (list[i].dataValues.berat * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan ? list[i].dataValues.kandang.persentase_kebutuhan_pakan : 0)/100)).toFixed(2);
+                list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
+                    ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
+                    : 0) * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan 
+                        ? list[i].dataValues.kandang.persentase_kebutuhan_pakan 
+                        : 0)/100)).toFixed(2);
                 const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 delete list[i].dataValues.riwayat_kesehatan;
+                delete list[i].dataValues.timbangan;
             }
 
             return {

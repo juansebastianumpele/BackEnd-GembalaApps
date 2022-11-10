@@ -1,12 +1,12 @@
 module.exports = (Sequelize, DataTypes) => {
-    const Status = Sequelize.define("Status", {
-        id_status_ternak:{
+    const JenisTernak = Sequelize.define("JenisTernak", {
+        id_jenis_ternak:{
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
           allowNull: false
         },
-        status_ternak:{
+        jenis_ternak:{
           type: DataTypes.STRING,
           allowNull: false
         },
@@ -19,14 +19,15 @@ module.exports = (Sequelize, DataTypes) => {
           allowNull: false
         }  
     }, {
-        tableName: "d_status_ternak",
+        tableName: "d_jenis_ternak",
     });
 
-    Status.associate = function (models) {
-        Status.hasMany(models.Ternak, {
-            foreignKey: 'id_status_ternak',
+    JenisTernak.associate = function (models) {
+        JenisTernak.hasMany(models.Ternak, {
+            foreignKey: 'id_jenis_ternak',
             as: 'ternak'
         });
     };
-    return Status;
+
+    return JenisTernak;
 }

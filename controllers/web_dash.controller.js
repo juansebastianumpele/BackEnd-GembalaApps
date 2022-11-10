@@ -28,8 +28,8 @@ const webDashController = (db) => {
     /**
      * Get total ternak by status ternak
      */
-    WebDashController.get('/total-ternak-by-status', authentication, adminMiddleware, async (req, res, next) => {
-        const list = await s$webDash.getTotalTernakByStatus(req);
+    WebDashController.get('/total-ternak-by-jenis', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$webDash.getTotalTernakByJenis(req);
         response.sendResponse(res, list);
     });
 

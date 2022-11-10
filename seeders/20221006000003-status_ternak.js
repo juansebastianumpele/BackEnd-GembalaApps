@@ -5,22 +5,13 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert('d_status_ternak', [
       {
-        status_ternak: "Indukan"
-      },
-      {
-        status_ternak: "Pejantan"
-      },
-      {
-        status_ternak: "Cempe"
-      },
-      {
         status_ternak: "Bunting"
       },
       {
-        status_ternak: "Abortus"
+        status_ternak: "Tidak Bunting"
       },
       {
-        status_ternak: "Kelahiran"
+        status_ternak: "Abortus"
       },
       {
         status_ternak: "Lepas Sapih"

@@ -30,7 +30,7 @@ class _lkPemasukan{
 
             // Query Data
             const list = await this.db.Ternak.findAll({
-                attributes: ['id_ternak', 'rf_id', 'image', 'jenis_kelamin', 'berat', 'suhu', 'tanggal_lahir', 'tanggal_masuk', 'tanggal_keluar', 'status_keluar', 'createdAt', 'updatedAt'],
+                attributes: ['id_ternak', 'rf_id', 'image'],
                 include: [
                     {
                         model: this.db.Bangsa,
@@ -108,7 +108,7 @@ class _lkPemasukan{
                 cek_kuku_kaki: joi.string().required(),
                 cek_kondisi_fisik_lain: joi.string().required(),
                 cek_bcs: joi.number().required(),
-                id_status_ternak: joi.number().required(),
+                id_jenis_ternak: joi.number().required(),
                 status_kesehatan: joi.string().required(),
                 id_kandang: joi.number().required(),
             });
@@ -154,7 +154,7 @@ class _lkPemasukan{
                 jenis_kelamin: value.jenis_kelamin,
                 id_kandang: value.id_kandang,
                 id_fp: fase.dataValues.id_fp,
-                id_status_ternak: value.id_status_ternak,
+                id_jenis_ternak: value.id_jenis_ternak,
             },{
                 where: {
                     id_ternak: value.id_ternak,
@@ -192,7 +192,7 @@ class _lkPemasukan{
                 cek_kuku_kaki: value.cek_kuku_kaki,
                 cek_kondisi_fisik_lain: value.cek_kondisi_fisik_lain,
                 cek_bcs: value.cek_bcs,
-                id_status_ternak: value.id_status_ternak,
+                id_jenis_ternak: value.id_jenis_ternak,
                 status_kesehatan: value.status_kesehatan,
                 id_kandang: value.id_kandang,
                 id_peternakan: req.dataAuth.id_peternakan,
@@ -236,9 +236,9 @@ class _lkPemasukan{
                         as: 'bangsa',
                         attributes: ['id_bangsa', 'bangsa']
                     },
-                    {   model: this.db.Status,
-                        as: 'status_ternak',
-                        attributes: ['id_status_ternak', 'status_ternak']
+                    {   model: this.db.JenisTernak,
+                        as: 'jenis_ternak',
+                        attributes: ['id_jenis_ternak', 'jenis_ternak']
                     },
                     {
                         model: this.db.Kandang,
@@ -294,9 +294,9 @@ class _lkPemasukan{
                         as: 'bangsa',
                         attributes: ['id_bangsa', 'bangsa']
                     },
-                    {   model: this.db.Status,
-                        as: 'status_ternak',
-                        attributes: ['id_status_ternak', 'status_ternak']
+                    {   model: this.db.JenisTernak,
+                        as: 'jenis_ternak',
+                        attributes: ['id_jenis_ternak', 'jenis_ternak']
                     },
                     {
                         model: this.db.Kandang,
