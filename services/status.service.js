@@ -10,7 +10,8 @@ class _status{
     getStatus = async (req) => {
         try{
             // Query Data
-            const list = await this.db.Status.findAll({
+            const list = await this.db.StatusTernak.findAll({
+                attrbutes: ['id_status_ternak','status_ternak'],
                 where: req.query
             });
             if(list.length <= 0){
@@ -48,7 +49,7 @@ class _status{
                     error: error.details[0].message
                 }
             }
-            const status = await this.db.Status.create(value);
+            const status = await this.db.StatusTernak.create(value);
             return {
                 code: 200,
                 data: status
@@ -78,7 +79,7 @@ class _status{
             }
 
             // Update Status Ternak
-            const status = await this.db.Status.update({
+            const status = await this.db.StatusTernak.update({
                 status_ternak: value.status_ternak
             }, {
                 where: {
@@ -124,7 +125,7 @@ class _status{
             }
 
             // Delete Status Ternak
-            const status = await this.db.Status.destroy({
+            const status = await this.db.StatusTernak.destroy({
                 where: {
                     id_status_ternak: value.id_status_ternak
                 }
