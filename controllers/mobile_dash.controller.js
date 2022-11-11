@@ -19,8 +19,8 @@ const mobileDashController = (db) => {
     /**
      * Get Data total ternak by jenis
      */
-    MobileDashController.get('/total-ternak-by-jenis', authentication, adminMiddleware, async (req, res, next) => {
-        const list = await s$mobileDash.getTotalTernakByJenis(req);
+    MobileDashController.get('/total-ternak-by-status', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$mobileDash.getTotalTernakByStatus(req);
         response.sendResponse(res, list);
     });
 
