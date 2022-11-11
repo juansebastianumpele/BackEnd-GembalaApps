@@ -75,10 +75,11 @@ class _perkawinan {
     // Create Process Perkawinan
     createPerkawinan = async (req) => {
         try{
+            // Create transaction
+            const t = await this.db.sequelize.transaction();
             const schema = joi.object({
                 id_indukan: joi.number().required(),
-                id_pejantan: joi.number().required(),
-                id_kandang: joi.number().required()
+                id_pejantan: joi.number().required()
             });
             const {error, value} = schema.validate(req.body);
             if(error){
@@ -116,6 +117,11 @@ class _perkawinan {
                     code: 404,
                     error: 'Data ternak indukan not found'
                 }
+            }else if(dataIndukan.dataValues.id_fp == idFasePerkawinan.dataValues.id_fp){
+                return {
+                    code: 400,
+                    error: 'Ternak indukan already in perkawinan'
+                }
             }
 
             // Get data ternak pejantan
@@ -130,6 +136,11 @@ class _perkawinan {
                 return {
                     code: 404,
                     error: 'Data ternak pejantan not found'
+                }
+            }else if(dataPejantan.dataValues.id_fp != idFasePerkawinan.dataValues.id_fp){
+                return {
+                    code: 400,
+                    error: 'Ternak pejantan not in Fase perkawinan'
                 }
             }
 
@@ -151,10 +162,11 @@ class _perkawinan {
                 id_indukan: dataIndukan.dataValues.id_ternak,
                 id_pejantan: dataPejantan.dataValues.id_ternak,
                 id_peternakan: req.dataAuth.id_peternakan,
-                id_kandang: value.id_kandang,
+                id_kandang: dataPejantan.dataValues.id_kandang,
                 tanggal_perkawinan: new Date()
-            });
+            },{transaction: t});
             if(!createPerkawinan){
+                await t.rollback();
                 return {
                     code: 500,
                     error: 'Something went wrong, create perkawinan failed'
@@ -169,8 +181,9 @@ class _perkawinan {
                 where: {
                     id_ternak: dataIndukan.dataValues.id_ternak
                 }
-            });
+            },{transaction: t});
             if(!updateIndukan){
+                await t.rollback();
                 return {
                     code: 500,
                     error: 'Something went wrong, update ternak indukan failed'
@@ -183,12 +196,14 @@ class _perkawinan {
                 id_fp: idFasePerkawinan.dataValues.id_fp
             });
             if(!historyFaseIndukan){
+                await t.rollback();
                 return {
                     code: 500,
-                    error: 'Something went wrong, create history fase ternak indukan failed'
+                    error: 'Something went wrong, create history fase indukan failed'
                 }
             }
 
+            await t.commit();
             return {
                 code: 200,
                 data: {

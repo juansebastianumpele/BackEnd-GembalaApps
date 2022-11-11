@@ -16,6 +16,16 @@ const perkawinanController = (db) => {
         response.sendResponse(res, list);
     });
 
+    /**
+     * Create Perkawinan
+     * @param {number} id_indukan
+     * @param {number} id_pejantan
+     */
+     PerkawinanController.post('/', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$perkawinan.createPerkawinan(req);
+        response.sendResponse(res, list);
+    });
+
     return PerkawinanController;
 }
 
