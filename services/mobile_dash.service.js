@@ -32,6 +32,12 @@ class _mobileDash{
                         [Op.not] : idFasePemasukan.dataValues.id_fp,
                         [Op.not] : null
                     },
+                    id_status_ternak: {
+                        [Op.not]: null
+                    },
+                    jenis_kelamin: {
+                        [Op.not]: null
+                    },
                     status_keluar: null
                 }
             });
@@ -133,6 +139,7 @@ class _mobileDash{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: statusPejantan.dataValues.id_status_ternak,
+                    jenis_kelamin: "Jantan",
                     status_keluar: null
                 }
             });
@@ -141,6 +148,9 @@ class _mobileDash{
             const totalTernakJantan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
+                    id_status_ternak: {
+                        [Op.not]: null
+                    },
                     jenis_kelamin: 'Jantan',
                     status_keluar: null
                 }
@@ -151,6 +161,7 @@ class _mobileDash{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: statusIndukan.dataValues.id_status_ternak,
+                    jenis_kelamin: "Betina",
                     status_keluar: null
                 }
             });
@@ -159,6 +170,9 @@ class _mobileDash{
             const totalTernakBetina = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
+                    id_status_ternak: {
+                        [Op.not]: null
+                    },
                     jenis_kelamin: 'Betina',
                     status_keluar: null
                 }
@@ -218,13 +232,19 @@ class _mobileDash{
             }
 
             // Get ternak fase pemasukan
-            const ternakFasePemasukan = await this.db.Ternak.count({
-                where: {
-                    id_peternakan: req.dataAuth.id_peternakan,
-                    id_fp: null,
-                    status_keluar: null
-                }
-            });
+            // const ternakFasePemasukan = await this.db.Ternak.count({
+            //     where: {
+            //         id_peternakan: req.dataAuth.id_peternakan,
+            //         id_status_ternak: {
+            //             [Op.not]: null
+            //         },
+            //         jenis_kelamin: {
+            //             [Op.not]: null
+            //         },
+            //         id_fp: null,
+            //         status_keluar: null
+            //     }
+            // });
 
             // Get total ternak by fase
             let totalTernakByFase = [];
@@ -245,6 +265,12 @@ class _mobileDash{
                     where: {
                         id_peternakan: req.dataAuth.id_peternakan,
                         id_fp: fase[i].dataValues.id_fp,
+                        id_status_ternak: {
+                            [Op.not]: null
+                        },
+                        jenis_kelamin: {
+                            [Op.not]: null
+                        },
                         status_keluar: null
                     }
                 });
