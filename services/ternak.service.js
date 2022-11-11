@@ -73,7 +73,7 @@ class _ternak{
                     {
                         model: this.db.Timbangan,
                         as: 'timbangan',
-                        attributes: ['id_timbangan', 'berat']
+                        attributes: ['id_timbangan', 'berat', 'suhu']
                     }
                 ],
                 where : req.query,
@@ -90,7 +90,6 @@ class _ternak{
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
-                list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
                     ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
                     : 0) * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan 
@@ -98,6 +97,8 @@ class _ternak{
                         : 0)/100)).toFixed(2);
                 const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
+                list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
+                list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.suhu : 0;
                 delete list[i].dataValues.riwayat_kesehatan;
                 delete list[i].dataValues.timbangan;
             }
@@ -510,7 +511,6 @@ class _ternak{
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
-                list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
                     ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
                     : 0) * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan 
@@ -518,6 +518,8 @@ class _ternak{
                         : 0)/100)).toFixed(2);
                 const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
+                list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
+                list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.suhu : 0;
                 delete list[i].dataValues.riwayat_kesehatan;
                 delete list[i].dataValues.timbangan;
             }
@@ -629,7 +631,6 @@ class _ternak{
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
-                list[i].dataValues.umur = Math.round(list[i].dataValues.umur / 30);
                 list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
                     ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
                     : 0) * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan 
@@ -637,6 +638,8 @@ class _ternak{
                         : 0)/100)).toFixed(2);
                 const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
+                list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
+                list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.suhu : 0;
                 delete list[i].dataValues.riwayat_kesehatan;
                 delete list[i].dataValues.timbangan;
             }
