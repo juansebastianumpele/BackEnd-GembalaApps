@@ -1,5 +1,6 @@
 // Helper databse yang dibuat
 const {log_error, log_info} = require('../utils/logging');
+const {Op} = require('sequelize')
 
 class _dashboard{
     constructor(db){
@@ -14,6 +15,9 @@ class _dashboard{
                 attributes: ['id_ternak'],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
+                    id_status_ternak: {
+                        [Op.not]: null
+                    },
                     status_keluar: null
                 }
             });
@@ -65,6 +69,7 @@ class _dashboard{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: statusPejantan.dataValues.id_status_ternak,
+                    jenis_kelamin: 'Jantan',
                     status_keluar: null
                 }
             });
@@ -73,7 +78,10 @@ class _dashboard{
             const totalTernakJantan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    jenis_kelamin: 'jantan',
+                    jenis_kelamin: 'Jantan',
+                    id_status_ternak: {
+                        [Op.not]: null
+                    },
                     status_keluar: null
                 }
             });
@@ -83,6 +91,7 @@ class _dashboard{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: statusIndukan.dataValues.id_status_ternak,
+                    jenis_kelamin: "Betina",
                     status_keluar: null
                 }
             });
@@ -91,7 +100,10 @@ class _dashboard{
             const totalTernakBetina = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    jenis_kelamin: 'betina',
+                    jenis_kelamin: 'Betina',
+                    id_status_ternak: {
+                        [Op.not]: null
+                    },
                     status_keluar: null
                 }
             });
@@ -101,7 +113,7 @@ class _dashboard{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: statusCempe.dataValues.id_status_ternak,
-                    jenis_kelamin: 'jantan',
+                    jenis_kelamin: 'Jantan',
                     status_keluar: null
                 }
             });
@@ -111,7 +123,7 @@ class _dashboard{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: statusCempe.dataValues.id_status_ternak,
-                    jenis_kelamin: 'betina',
+                    jenis_kelamin: 'Betina',
                     status_keluar: null
                 }
             });
@@ -167,6 +179,12 @@ class _dashboard{
             const totalTernak = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
+                    id_status_ternak: {
+                        [Op.not]: null,
+                    },
+                    jenis_kelamin: {
+                        [Op.not]: null
+                    },
                     status_keluar: null
                 }
             });
@@ -198,20 +216,20 @@ class _dashboard{
                 }
             }
 
-            // Get ternak fase pemasukan
-            const ternakFasePemasukan = await this.db.Ternak.count({
-                where: {
-                    id_peternakan: req.dataAuth.id_peternakan,
-                    id_fp: null,
-                    status_keluar: null
-                }
-            });
+            // // Get ternak fase pemasukan
+            // const ternakFasePemasukan = await this.db.Ternak.count({
+            //     where: {
+            //         id_peternakan: req.dataAuth.id_peternakan,
+            //         id_fp: null,
+            //         status_keluar: null
+            //     }
+            // });
 
             // Get total ternak by fase
             let totalTernakByFase = [];
             totalTernakByFase.push({
                 fase: 'Pemasukan',
-                total_ternak: ternakFasePemasukan
+                total_ternak: 0
             })
             totalTernakByFase.push({
                 fase: 'Adaptasi',
@@ -226,11 +244,19 @@ class _dashboard{
                     where: {
                         id_peternakan: req.dataAuth.id_peternakan,
                         id_fp: fase[i].dataValues.id_fp,
+                        id_status_ternak: {
+                            [Op.not]: null
+                        },
+                        jenis_kelamin: {
+                            [Op.not]: null
+                        },
                         status_keluar: null
                     }
                 });
 
-                if(fase[i].dataValues.fase.toLowerCase().startsWith('adaptasi')){
+                if(fase[i].dataValues.fase.toLowerCase() == 'pemasukan'){
+                    totalTernakByFase[0].total_ternak += totalTernak;
+                }else if(fase[i].dataValues.fase.toLowerCase().startsWith('adaptasi')){
                     totalTernakByFase[1].total_ternak += totalTernak;
                 }else if(fase[i].dataValues.fase.toLowerCase().includes('perkawinan')){
                     totalTernakByFase[2].total_ternak += totalTernak;
@@ -286,6 +312,15 @@ class _dashboard{
                 attributes: ['id_kandang'],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
+                    id_kandang: {
+                        [Op.not]: null
+                    },
+                    id_status_ternak: {
+                        [Op.not]: null
+                    },
+                    jenis_kelamin: {
+                        [Op.not]: null
+                    },
                     status_keluar: null
                 }
             });
@@ -354,6 +389,9 @@ class _dashboard{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: statusTernak.dataValues.id_status_ternak,
+                    jenis_kelamin: {
+                        [Op.not]: null
+                    },
                     status_keluar: null
                 }
             });
@@ -421,7 +459,7 @@ class _dashboard{
             const totalDisembelih = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    status_keluar: 'Sembilah'
+                    status_keluar: 'Sembelih'
                 }
             });
 
