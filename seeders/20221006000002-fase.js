@@ -32,6 +32,9 @@ module.exports = {
         fase: "Kebuntingan"
       },
       {
+        fase: "Laktasi"
+      },
+      {
         fase: "Kelahiran"
       },
       {

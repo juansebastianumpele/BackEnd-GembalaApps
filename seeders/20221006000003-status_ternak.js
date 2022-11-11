@@ -12,6 +12,9 @@ module.exports = {
       },
       {
         status_ternak: "Cempe"
+      },
+      {
+        status_ternak: "Afkir"
       }
     ], {});
   },
