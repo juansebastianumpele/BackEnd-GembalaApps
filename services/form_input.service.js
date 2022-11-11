@@ -7,12 +7,12 @@ class _formInput{
     constructor(db){
         this.db = db;
     }
-    // Get Jenis Ternak
+    // Get Status Ternak
     getDataFormInput = async (req) => {
         try{
-            // Get jenis ternak
-            const jenisTernak = await this.db.JenisTernak.findAll({});
-            if(jenisTernak.length <= 0){
+            // Get status ternak
+            const statusTernak = await this.db.StatusTernak.findAll({});
+            if(statusTernak.length <= 0){
                 return{
                     code: 404,
                     error: 'Data janis ternak not found'
@@ -91,29 +91,29 @@ class _formInput{
                 }
             }
             
-            // Get jenis ternak indukan
-            const jenisIndukan = await this.db.JenisTernak.findOne({
+            // Get status ternak indukan
+            const statusIndukan = await this.db.StatusTernak.findOne({
                 where: {
-                    jenis_ternak: 'Indukan'
+                    status_ternak: 'Indukan'
                 }
             });
-            if(!jenisIndukan){
+            if(!statusIndukan){
                 return{
                     code: 404,
-                    error: 'Data jenis ternak indukan not found'
+                    error: 'Data status ternak indukan not found'
                 }
             }
 
-            // Get jenis ternak pejantan
-            const jenisPejantan = await this.db.JenisTernak.findOne({
+            // Get status ternak pejantan
+            const statusPejantan = await this.db.StatusTernak.findOne({
                 where: {
-                    jenis_ternak: 'Pejantan'
+                    status_ternak: 'Pejantan'
                 }
             });
-            if(!jenisPejantan){
+            if(!statusPejantan){
                 return{
                     code: 404,
-                    error: 'Data jenis ternak pejantan not found'
+                    error: 'Data status ternak pejantan not found'
                 }
             }
 
@@ -123,7 +123,7 @@ class _formInput{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     jenis_kelamin: 'betina',
-                    id_jenis_ternak: jenisIndukan.dataValues.id_jenis_ternak
+                    id_status_ternak: statusIndukan.dataValues.id_status_ternak
                 }
             });
             if(indukan.length <= 0){
@@ -139,7 +139,7 @@ class _formInput{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     jenis_kelamin: 'jantan',
-                    id_jenis_ternak: jenisPejantan.dataValues.id_jenis_ternak
+                    id_status_ternak: statusPejantan.dataValues.id_status_ternak
                 }
             });
             if(pejantan.length <= 0){
@@ -152,7 +152,7 @@ class _formInput{
             return {
                 code: 200,
                 data: {
-                    jenis_ternak: jenisTernak,
+                    status_ternak: statusTernak,
                     kode_kandang: kodeKandang,
                     jenis_pakan: jenisPakan,
                     penyakit: penyakit,

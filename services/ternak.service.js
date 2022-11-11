@@ -66,9 +66,9 @@ class _ternak{
                         attributes: ['id_status_ternak', 'status_ternak']
                     },
                     {
-                        model: this.db.JenisTernak,
-                        as: 'jenis_ternak',
-                        attributes: ['id_jenis_ternak', 'jenis_ternak']
+                        model: this.db.StatusTernak,
+                        as: 'status_ternak',
+                        attributes: ['id_status_ternak', 'status_ternak']
                     },
                     {
                         model: this.db.Timbangan,
@@ -137,7 +137,6 @@ class _ternak{
                 id_sire: joi.number().allow(null),
                 id_fp: joi.number().allow(null),
                 id_status_ternak: joi.number().allow(null),
-                id_jenis_ternak: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
 
@@ -228,7 +227,6 @@ class _ternak{
                 id_sire: joi.number().allow(null),
                 id_fp: joi.number().allow(null),
                 id_status_ternak: joi.number().allow(null),
-                id_jenis_ternak: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
 
@@ -254,7 +252,6 @@ class _ternak{
                 id_sire: value.id_sire,
                 id_fp: value.id_fp,
                 id_status_ternak: value.id_status_ternak,
-                id_jenis_ternak: value.id_jenis_ternak,
                 id_kandang: value.id_kandang
             }, {
                 where: {
@@ -425,16 +422,16 @@ class _ternak{
     // Get data Indukan
     getDataIndukan = async (req) => {
         try {
-            // Get data jenis ternak
-            const jenisTernak = await this.db.JenisTernak.findOne({
+            // Get data status ternak
+            const statusTernak = await this.db.StatusTernak.findOne({
                 where: {
-                    jenis_ternak : 'Indukan'
+                    status_ternak : 'Indukan'
                 }
             });
-            if(!jenisTernak){
+            if(!statusTernak){
                 return{
                     code: 400,
-                    error: `Jenis Ternak Indukan not found`
+                    error: `Status Ternak Indukan not found`
                 }
             }
 
@@ -491,11 +488,6 @@ class _ternak{
                         attributes: ['id_status_ternak', 'status_ternak']
                     },
                     {
-                        model: this.db.JenisTernak,
-                        as: 'jenis_ternak',
-                        attributes: ['id_jenis_ternak', 'jenis_ternak']
-                    },
-                    {
                         model: this.db.Timbangan,
                         as: 'timbangan',
                         attributes: ['id_timbangan', 'berat']
@@ -503,7 +495,7 @@ class _ternak{
                 ],
                 where : {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_jenis_ternak: jenisTernak.dataValues.id_jenis_ternak
+                    id_status_ternak: statusTernak.dataValues.id_status_ternak
                 },
                 order : [['createdAt', 'DESC']]
             });
@@ -549,16 +541,16 @@ class _ternak{
     // Get data penjantan 
     getDataPejantan = async (req) => {
         try {
-            // Get data jenis ternak
-            const jenisTernak = await this.db.JenisTernak.findOne({
+            // Get data status ternak
+            const statusTernak = await this.db.StatusTernak.findOne({
                 where: {
-                    jenis_ternak : 'Pejantan'
+                    status_ternak : 'Pejantan'
                 }
             });
-            if(!jenisTernak){
+            if(!statusTernak){
                 return{
                     code: 400,
-                    error: `Jenis Ternak Pejantan not found`
+                    error: `Status Ternak Pejantan not found`
                 }
             }
 
@@ -615,11 +607,6 @@ class _ternak{
                         attributes: ['id_status_ternak', 'status_ternak']
                     },
                     {
-                        model: this.db.JenisTernak,
-                        as: 'jenis_ternak',
-                        attributes: ['id_jenis_ternak', 'jenis_ternak']
-                    },
-                    {
                         model: this.db.Timbangan,
                         as: 'timbangan',
                         attributes: ['id_timbangan', 'berat']
@@ -627,7 +614,7 @@ class _ternak{
                 ],
                 where : {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_jenis_ternak: jenisTernak.dataValues.id_jenis_ternak
+                    id_status_ternak: statusTernak.dataValues.id_status_ternak
                 },
                 order : [['createdAt', 'DESC']]
             });

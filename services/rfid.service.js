@@ -25,12 +25,18 @@ class _rfid{
                 }
             }
 
-            // Get data jenia ternak cempe
-            const jenisTernak = await this.db.JenisTernak.findOne({
+            // Get data status ternak cempe
+            const statusTernakCempe = await this.db.StatusTernak.findOne({
                 where: {
-                    jenis_ternak: "cempe"
+                    status_ternak: "cempe"
                 }
             });
+            if(!statusTernakCempe){
+                return {
+                    code: 500,
+                    error: "Something went wrong, status ternak cempe not found"
+                }
+            }
 
             // Check Ternak
             const checkTernak = await this.db.Ternak.findAll({
@@ -83,7 +89,7 @@ class _rfid{
             const addTernak = await this.db.Ternak.create({
                 rf_id: value.rf_id,
                 id_peternakan: value.id_peternakan,
-                id_jenis_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (jenisTernak ? jenisTernak.dataValues.id_jenis_ternak : null) : null,
+                id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (statusTernakCempe ? statusTernakCempe.dataValues.id_status_ternak : null) : null,
                 id_fp: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? idFaseKelahiran.dataValues.id_fp : idFasePemasukan.dataValues.id_fp,
             })
 
@@ -184,11 +190,6 @@ class _rfid{
                         model: this.db.StatusTernak,
                         as: 'status_ternak',
                         attributes: ['id_status_ternak', 'status_ternak']
-                    },
-                    {
-                        model: this.db.JenisTernak,
-                        as: 'jenis_ternak',
-                        attributes: ['id_jenis_ternak', 'jenis_ternak']
                     },
                     {
                         model: this.db.Timbangan,

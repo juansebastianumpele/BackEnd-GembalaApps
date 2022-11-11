@@ -6,8 +6,8 @@ class _dashboard{
         this.db = db;
     }
 
-    /// Get Data total ternak by jenis ternak
-    getTotalTernakByJenis = async (req) => {
+    /// Get Data total ternak by sttaus ternak
+    getTotalTernakByStatus = async (req) => {
         try{
             // Get total ternak
             const totalTernak = await this.db.Ternak.count({
@@ -18,45 +18,45 @@ class _dashboard{
                 }
             });
 
-            // Get jenis id cempe
-            const jenisCempe = await this.db.JenisTernak.findOne({
-                attributes: ['id_jenis_ternak'],
+            // Get status id cempe
+            const statusCempe = await this.db.StatusTernak.findOne({
+                attributes: ['id_status_ternak'],
                 where: {
-                    jenis_ternak: 'Cempe'
+                    status_ternak: 'Cempe'
                 }
             });
-            if(!jenisCempe){
+            if(!statusCempe){
                 return {
                     code: 404,
-                    error: 'Jenis Ternak Cempe tidak ditemukan'
+                    error: 'Status Ternak Cempe tidak ditemukan'
                 }
             }
 
-            // Get jenis is pejantan
-            const jenisPejantan = await this.db.JenisTernak.findOne({
-                attributes: ['id_jenis_ternak'],
+            // Get status is pejantan
+            const statusPejantan = await this.db.StatusTernak.findOne({
+                attributes: ['id_status_ternak'],
                 where: {
-                    jenis_ternak: 'Pejantan'
+                    status_ternak: 'Pejantan'
                 }
             });
-            if(!jenisPejantan){
+            if(!statusPejantan){
                 return {
                     code: 404,
-                    error: 'Jenis Ternak Pejantan tidak ditemukan'
+                    error: 'Status Ternak Pejantan tidak ditemukan'
                 }
             }
 
-            // Get jenis is indukan
-            const jenisIndukan = await this.db.JenisTernak.findOne({
-                attributes: ['id_jenis_ternak'],
+            // Get status is indukan
+            const statusIndukan = await this.db.StatusTernak.findOne({
+                attributes: ['id_status_ternak'],
                 where: {
-                    jenis_ternak: 'Indukan'
+                    status_ternak: 'Indukan'
                 }
             });
-            if(!jenisIndukan){
+            if(!statusIndukan){
                 return {
                     code: 404,
-                    error: 'Jenis Ternak Indukan tidak ditemukan'
+                    error: 'Status Ternak Indukan tidak ditemukan'
                 }
             }
 
@@ -64,7 +64,7 @@ class _dashboard{
             const totalTernakPejantan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_jenis_ternak: jenisPejantan.dataValues.id_jenis_ternak,
+                    id_status_ternak: statusPejantan.dataValues.id_status_ternak,
                     status_keluar: null
                 }
             });
@@ -82,7 +82,7 @@ class _dashboard{
             const totalTernakIndukan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_jenis_ternak: jenisIndukan.dataValues.id_jenis_ternak,
+                    id_status_ternak: statusIndukan.dataValues.id_status_ternak,
                     status_keluar: null
                 }
             });
@@ -100,7 +100,7 @@ class _dashboard{
             const totalTernakCempeJantan = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_jenis_ternak: jenisCempe.dataValues.id_jenis_ternak,
+                    id_status_ternak: statusCempe.dataValues.id_status_ternak,
                     jenis_kelamin: 'jantan',
                     status_keluar: null
                 }
@@ -110,7 +110,7 @@ class _dashboard{
             const totalTernakCempeBetina = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_jenis_ternak: jenisCempe.dataValues.id_jenis_ternak,
+                    id_status_ternak: statusCempe.dataValues.id_status_ternak,
                     jenis_kelamin: 'betina',
                     status_keluar: null
                 }
@@ -334,17 +334,17 @@ class _dashboard{
     /// Get ADG Cempe
     getADGCempe = async (req) => {
         try{
-            // Get data jenis ternak cempe
-            const jenisTernak = await this.db.JenisTernak.findOne({
-                attributes: ['id_jenis_ternak'],
+            // Get data status ternak cempe
+            const statusTernak = await this.db.StatusTernak.findOne({
+                attributes: ['id_status_ternak'],
                 where: {
-                    jenis_ternak: 'cempe'
+                    status_ternak: 'Cempe'
                 }
             });
-            if(jenisTernak == null){
+            if(statusTernak == null){
                 return {
                     code: 404,
-                    error: 'Jenis Ternak Cempe Not Found'
+                    error: 'Status Ternak Cempe Not Found'
                 }
             }
 
@@ -353,7 +353,7 @@ class _dashboard{
                 attributes: ['id_ternak'],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_jenis_ternak: jenisTernak.dataValues.id_jenis_ternak,
+                    id_status_ternak: statusTernak.dataValues.id_status_ternak,
                     status_keluar: null
                 }
             });

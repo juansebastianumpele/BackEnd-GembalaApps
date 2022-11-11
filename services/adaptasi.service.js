@@ -229,9 +229,9 @@ class _adaptasi{
                         attributes: ['id_fp', 'fase']
                     },
                     {
-                        model: this.db.JenisTernak,
-                        as: 'jenis_ternak',
-                        attributes: ['id_jenis_ternak', 'jenis_ternak']
+                        model: this.db.StatusTernak,
+                        as: 'status_ternak',
+                        attributes: ['id_status_ternak', 'status_ternak']
                     }
                 ],
                 where: {
@@ -347,7 +347,7 @@ class _adaptasi{
 
                 // Update fase ternak
                 const updateFase = await this.db.Ternak.update({
-                    id_fp: ternak.dataValues.jenis_ternak.dataValues.jenis_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp,
+                    id_fp: ternak.dataValues.status_ternak.dataValues.status_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp,
                     id_kandang: value.id_kandang
                 },{
                     where: {
@@ -365,7 +365,7 @@ class _adaptasi{
                 // Create History Fase
                 const historyFase = await createHistoryFase(this.db, req, {
                     id_ternak: value.id_ternak,
-                    id_fp: ternak.dataValues.jenis_ternak.dataValues.jenis_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
+                    id_fp: ternak.dataValues.status_ternak.dataValues.status_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
                 })
                 if(!historyFase){
                     return {

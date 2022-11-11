@@ -54,15 +54,14 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
-      id_status_ternak:{
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'd_status_ternak',
-          key: 'id_status_ternak'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
+      status: {
+        type: Sequelize.ENUM,
+        values: [
+          'Bunting',
+          'Tidak Bunting',
+          'Abortus',
+        ],
+        allowNull: false
       },
       usg_1: {
         type: Sequelize.BOOLEAN,
