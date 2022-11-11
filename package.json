@@ -10,7 +10,8 @@
     "setdev": "npm install && npm run migrate && npm run dev",
     "migrate": "npx sequelize db:migrate && npx sequelize db:seed:all",
     "drop": "npx sequelize db:migrate:undo:all",
-    "resetdb": "npm run drop && npm run migrate"
+    "resetdb": "npm run drop && npm run migrate",
+    "pushdev": "git push origin dev && git push backup dev"
   },
   "author": "Sembada Farm",
   "license": "ISC",
