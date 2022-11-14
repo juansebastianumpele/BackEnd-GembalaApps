@@ -277,30 +277,24 @@ class _ternak{
                 ],
                 limit: 1
             });
-            if(timbangan.length <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to get Timbangan`
+            if(timbangan.length > 0){
+                // Update Timbangan
+                const updateTimbangan = await this.db.Timbangan.update({
+                    berat: value.berat ? value.berat : timbangan[0].dataValues.berat,
+                    suhu: value.suhu ? value.suhu : timbangan[0].dataValues.suhu,
+                }, {
+                    where: {
+                        id_timbangan: timbangan[0].dataValues.id_timbangan
+                    }
+                });
+                if(updateTimbangan <= 0){
+                    return{
+                        code: 400,
+                        error: `Failed to update Timbangan`
+                    }
                 }
             }
-
-            // Update Timbangan
-            const updateTimbangan = await this.db.Timbangan.update({
-                berat: value.berat ? value.berat : timbangan[0].dataValues.berat,
-                suhu: value.suhu ? value.suhu : timbangan[0].dataValues.suhu,
-            }, {
-                where: {
-                    id_timbangan: timbangan[0].dataValues.id_timbangan
-                }
-            });
-            if(updateTimbangan <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update Timbangan`
-                }
-            }
-
-
+            
             return {
                 code: 200,
                 data: {
