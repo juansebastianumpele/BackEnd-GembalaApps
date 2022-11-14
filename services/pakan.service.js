@@ -560,7 +560,7 @@ class _pakan{
             // Get data jenis pakan
             const jenisPakan = await this.db.JenisPakan.findOne({
                 where: {
-                    id_jenis_pakan: pakan.id_jenis_pakan,
+                    id_jenis_pakan: pakan.dataValues.id_jenis_pakan,
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
@@ -574,7 +574,7 @@ class _pakan{
             // Query data
             const update = await this.db.Pakan.update({
                 tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
-                tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
+                tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.dataValues.interval_pakan),
             }, {
                 where: {
                     id_pakan: value.id_pakan,
@@ -593,7 +593,7 @@ class _pakan{
                 data: {
                     id_pakan: value.id_pakan,
                     tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
-                    tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
+                    tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.dataValues.interval_pakan),
                     updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
                 }
             };
