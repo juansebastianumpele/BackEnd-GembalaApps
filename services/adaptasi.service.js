@@ -199,6 +199,8 @@ class _adaptasi{
                 id_kandang: joi.number().required(),
                 treatments: joi.array().items(joi.object({
                 id_treatment: joi.number().allow(null),
+                step: joi.number().allow(null),
+                treatment: joi.string().allow(null),
                 })).required()
             });
             const {error, value} = schema.validate(req.body);
@@ -246,10 +248,24 @@ class _adaptasi{
                 }
             }
 
+            // Check ternak fase
+            if(!ternak.dataValues.fase.dataValues.fase.startsWith('Adaptasi')){
+                return {
+                    code: 400,
+                    error: 'Ternak is not in adaptasi fase'
+                }
+            }
+
             // Create treatment apllied
             let countTreatment = 0;
             for(let i = 0; i < value.treatments.length; i++){
                 if(value.treatments[i].id_treatment != null){
+                    if(value.treatment[i].step != parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1])){
+                        return {
+                            code: 400,
+                            error: 'Treatment step must be same with ternak step'
+                        }
+                    }
                     countTreatment++;
                     const createAdaptasi = await this.db.Adaptasi.create({
                         id_peternakan: req.dataAuth.id_peternakan,
