@@ -73,10 +73,11 @@ class _treatment{
     }   
 
     // Get All Treatment
-    getAllTreatment = async () => {
+    getAllTreatment = async (req) => {
         try{
             const list = await this.db.Treatment.findAll({
-                attributes: ['id_treatment', 'step', 'treatment']
+                attributes: ['id_treatment', 'step', 'treatment'],
+                where: req.query
             });
             if(list.length <= 0){
                 return {

@@ -263,7 +263,7 @@ class _adaptasi{
                     if(value.treatments[i].step != parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1])){
                         return {
                             code: 400,
-                            error: 'Treatment step must be same with ternak step'
+                            error: 'This treatment is not for this step'
                         }
                     }
                     countTreatment++;
