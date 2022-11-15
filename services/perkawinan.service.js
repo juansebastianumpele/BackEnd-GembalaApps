@@ -60,6 +60,7 @@ class _perkawinan {
 
     // Create Process Perkawinan
     createPerkawinan = async (req) => {
+        const t = await this.db.sequelize.transaction();
         try{
             // Validate data
             const schema = joi.object({
@@ -68,15 +69,6 @@ class _perkawinan {
             });
             const {error, value} = schema.validate(req.body);
             if(error) newError(400, error.details[0].message, 'createPerkawinan Service');
-
-            // Get data perkawinan
-            const dataPerkawinan = await this.db.Perkawinan.findOne({
-                where: {
-                    id_indukan: value.id_indukan,
-                    id_peternakan: req.dataAuth.id_peternakan
-                }
-            });
-            if(dataPerkawinan) newError(400, 'Ternak indukan already in Perkawinan', 'createPerkawinan Service');
 
             // Get data fase
             const idFasePerkawinan = await this.db.Fase.findOne({
@@ -95,6 +87,7 @@ class _perkawinan {
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
+            console.log(dataIndukan);
             if(!dataIndukan){
                 newError(404, 'Data Ternak Indukan not found', 'createPerkawinan Service');
             }else if(dataIndukan.dataValues.id_fp == idFasePerkawinan.dataValues.id_fp){
@@ -124,12 +117,12 @@ class _perkawinan {
 
             // Create Perkawinan
             const createPerkawinan = await this.db.Perkawinan.create({
-                id_indukan: dataIndukan.dataValues.id_ternak,
-                id_pejantan: dataPejantan.dataValues.id_ternak,
+                id_indukan: value.id_indukan,
+                id_pejantan: value.id_pejantan,
                 id_peternakan: req.dataAuth.id_peternakan,
                 id_kandang: dataPejantan.dataValues.id_kandang,
                 tanggal_perkawinan: new Date()
-            });
+            },{transaction: t});
             if(!createPerkawinan) newError(500, 'Failed to create Perkawinan', 'createPerkawinan Service');
             
             // Update ternak indukan
@@ -138,17 +131,23 @@ class _perkawinan {
                 id_kandang: dataPejantan.dataValues.id_kandang
             },{
                 where: {
-                    id_ternak: dataIndukan.dataValues.id_ternak
-                }
+                    id_ternak: value.id_indukan,
+                },
+                transaction: t
             });
             if(!updateIndukan) newError(500, 'Failed to update Ternak Indukan', 'createPerkawinan Service');
 
-            // Create riwayat fase ternak indukan
-            const historyFaseIndukan = await createHistoryFase(this.db, req, {
-                id_ternak: dataIndukan.dataValues.id_ternak,
-                id_fp: idFasePerkawinan.dataValues.id_fp
-            });
-            if(!historyFaseIndukan) newError(500, 'Failed to create history fase Ternak Indukan', 'createPerkawinan Service');
+            // Create riwayat fase
+            const historyFase = await this.db.RiwayatFase.create({
+                id_ternak: value.id_indukan,
+                id_fp: idFasePerkawinan.dataValues.id_fp,
+                id_peternakan: req.dataAuth.id_peternakan,
+                tanggal: new Date()
+            },{transaction: t});
+            if(!historyFase) newError(500, 'Failed to create riwayat fase', 'setTernakAbortus Service');
+
+            // Commit transaction
+            await t.commit();
 
             return {
                 code: 200,
@@ -161,6 +160,8 @@ class _perkawinan {
             }
 
         }catch(error){
+            // Rollback transaction
+            await t.rollback();
             return errorHandler(error);
         }
     }
@@ -198,6 +199,7 @@ class _perkawinan {
 
     // Update Process Perkawinan
     updatePerkawinan = async (req) => {
+        const t = await this.db.sequelize.transaction();
         try{
             // Schema validation
             const schema = joi.object({
@@ -210,7 +212,6 @@ class _perkawinan {
             const {error, value} = schema.validate(req.body);
             if(error) newError(400, error.details[0].message, 'updatePerkawinan Service');
 
-            console.log(value.usg_1, value.usg_2);
             // Check USG
             if(value.usg_1 == true && value.usg_2 == true){
                 newError(400, 'Can\'t update USG 1 and USG 2 at the same time', 'updatePerkawinan Service');
@@ -229,7 +230,6 @@ class _perkawinan {
             if(!dataPerkawinan) newError(404, 'Data Perkawinan not found', 'updatePerkawinan Service');
 
             // Update perkawinan
-            console.log(value);
             const updatePerkawinan = await this.db.Perkawinan.update({
                 status: value.status,
                 id_kandang: value.id_kandang,
@@ -239,14 +239,15 @@ class _perkawinan {
                 where: {
                     id_perkawinan: value.id_perkawinan,
                     id_peternakan: req.dataAuth.id_peternakan
-                }
+                },
+                transaction: t
             });
             if(updatePerkawinan <= 0) newError(500, 'Failed to update Perkawinan', 'updatePerkawinan Service');
 
             // Create Riwayat Fase usg1
             if(value.usg_1 == true && dataPerkawinan.dataValues.usg_1 == false){
                 // Create riwayat perkawinan
-                const riwayatPerkawinanUsg1 = this.db.RiwayatPerkawinan.create({
+                const riwayatPerkawinanUsg1 = await this.db.RiwayatPerkawinan.create({
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_kandang: value.id_kandang,
                     id_indukan: dataPerkawinan.dataValues.id_indukan,
@@ -254,9 +255,11 @@ class _perkawinan {
                     tanggal_perkawinan: dataPerkawinan.dataValues.tanggal_perkawinan,
                     status: value.status,
                     usg: 1
-                });
+                },{transaction: t});
                 if(!riwayatPerkawinanUsg1) newError(500, 'Failed to create Riwayat Perkawinan USG 1', 'updatePerkawinan Service');
 
+                // Commit transaction
+                await t.commit();
                 return {
                     code: 200,
                     data: {
@@ -269,7 +272,7 @@ class _perkawinan {
             // Create Riwayat Fase usg2
             if(value.usg_2 == true && dataPerkawinan.dataValues.usg_2 == false && dataPerkawinan.dataValues.usg_1 == true){
                 // Create riwayat perkawinan
-                const riwayatPerkawinanUsg2 = this.db.RiwayatPerkawinan.create({
+                const riwayatPerkawinanUsg2 = await this.db.RiwayatPerkawinan.create({
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_kandang: value.id_kandang,
                     id_indukan: dataPerkawinan.dataValues.id_indukan,
@@ -277,7 +280,7 @@ class _perkawinan {
                     tanggal_perkawinan: dataPerkawinan.dataValues.tanggal_perkawinan,
                     status: value.status,
                     usg: 2
-                });
+                },{transaction: t});
                 if(!riwayatPerkawinanUsg2) newError(500, 'Failed to create Riwayat Perkawinan USG 2', 'updatePerkawinan Service');
 
                 
@@ -300,21 +303,24 @@ class _perkawinan {
                 if(!dataFaseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan not found', 'updatePerkawinan Service');
 
                 // Update Fase Indukan
-                const updateFaseIndukan = await this.db.Indukan.update({
+                const updateFaseIndukan = await this.db.Ternak.update({
                     id_fp: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fase : dataFaseWaitingListPerkawinan.dataValues.id_fase
                 },{
                     where: {
                         id_indukan: dataPerkawinan.dataValues.id_indukan,
                         id_peternakan: req.dataAuth.id_peternakan
-                    }
+                    },
+                    transaction: t
                 });
                 if(updateFaseIndukan <= 0) newError(500, 'Failed to update Fase Indukan', 'updatePerkawinan Service');
 
                 // Create Riwayat Fase Indukan
-                const historyFaseIndukan = await createHistoryFase(req, this.db, {
-                    id_indukan: value.id_indukan,
-                    id_fase: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fase : dataFaseWaitingListPerkawinan.dataValues.id_fase
-                })
+                const historyFaseIndukan = await this.db.RiwayatFase.create({
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_ternak: dataPerkawinan.dataValues.id_indukan,
+                    id_fase: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fase : dataFaseWaitingListPerkawinan.dataValues.id_fase,
+                    tanggal: new Date()
+                },{transaction: t});
                 if(!historyFaseIndukan) newError(500, 'Failed to create Riwayat Fase Indukan', 'updatePerkawinan Service');
 
                 // Delete Perkawinan
@@ -323,9 +329,11 @@ class _perkawinan {
                         id_perkawinan: value.id_perkawinan,
                         id_peternakan: req.dataAuth.id_peternakan
                     }
-                });
+                },{transaction: t});
                 if(deletePerkawinan <= 0) newError(500, 'Failed to delete Perkawinan', 'updatePerkawinan Service');
 
+                // Commit transaction
+                await t.commit();
                 return {
                     status: 200,
                     data: {
@@ -337,6 +345,8 @@ class _perkawinan {
                 newError(500, 'Failed to update Perkawinan', 'updatePerkawinan Service');
             }
         }catch(error){
+            // Rollback transaction
+            await t.rollback();
             return errorHandler(error);
         }
     }
