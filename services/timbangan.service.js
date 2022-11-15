@@ -1,6 +1,5 @@
 const joi = require('joi');
-const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _timbangan{
     constructor(db){
@@ -21,12 +20,7 @@ class _timbangan{
                 ],
                 where : req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: `Data timbangan not found`
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Timbangan not found', 'getDataTimbangan Service');
             return {
                 code: 200,
                 data: {
@@ -35,11 +29,7 @@ class _timbangan{
                 }
             };
         }catch (error){
-            log_error('getDataTimbangan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -54,13 +44,7 @@ class _timbangan{
             });
 
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'createDataTimbangan Service');
 
             // Query data ternak
             const ternak = await this.db.Ternak.findOne({
@@ -69,12 +53,7 @@ class _timbangan{
                     rf_id: value.rf_id
                 }
             });
-            if(ternak == null){
-                return{
-                    code: 404,
-                    error: `Data ternak not found`
-                }
-            }
+            if(!ternak) newError(404, 'Data Ternak not found', 'createDataTimbangan Service');
 
             // Query data
             const add = await this.db.Timbangan.create({
@@ -83,12 +62,7 @@ class _timbangan{
                 berat: value.berat,
                 suhu: value.suhu
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to add data timbangan`
-                }
-            }
+            if(!add) newError(500, 'Failed to create Data Timbangan', 'createDataTimbangan Service');
 
             // Update data ternak
             const update = await this.db.Ternak.update({
@@ -100,12 +74,7 @@ class _timbangan{
                     id_ternak: ternak.id_ternak
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update data ternak`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update Data Ternak', 'createDataTimbangan Service');
 
             return {
                 code: 200,
@@ -113,16 +82,12 @@ class _timbangan{
                     id_timbangan: add.id_timbangan,
                     id_ternak: add.id_ternak,
                     rf_id: add.rf_id,
-                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    createdAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('createDataTimbangan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -135,15 +100,8 @@ class _timbangan{
                 berat: joi.number().required(),
                 suhu: joi.number().required()
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updateDataTimbangan Service');
 
             // Query data
             const update = await this.db.Timbangan.update({
@@ -154,27 +112,18 @@ class _timbangan{
                     id_timbangan: value.id_timbangan
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update data timbangan`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update Data Timbangan', 'updateDataTimbangan Service');
 
             return {
                 code: 200,
                 data: {
                     id_timbangan: value.id_timbangan,
-                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('updateDataTimbangan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -185,15 +134,8 @@ class _timbangan{
             const schema = joi.object({
                 id_timbangan: joi.number().required()
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'deleteDataTimbangan Service');
 
             // Query data
             const del = await this.db.Timbangan.destroy({
@@ -201,27 +143,18 @@ class _timbangan{
                     id_timbangan: value.id_timbangan
                 }
             });
-            if(del <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete data timbangan`
-                }
-            }
+            if(del <= 0) newError(500, 'Failed to delete Data Timbangan', 'deleteDataTimbangan Service');
             
             return {
                 code: 200,
                 data: {
                     id_timbangan: value.id_timbangan,
-                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('deleteDataTimbangan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

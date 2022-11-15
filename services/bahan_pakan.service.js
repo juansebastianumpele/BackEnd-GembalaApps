@@ -1,7 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _bahanPakan{
     constructor(db){
@@ -16,12 +16,7 @@ class _bahanPakan{
             const list = await this.db.JenisBahanPakan.findAll({
                 where : req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data jenis bahan pakan not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Bahan Pakan not found', 'getJenisBahanPakan');
     
             return {
                 code : 200,
@@ -31,11 +26,7 @@ class _bahanPakan{
                 },
             };
         }catch (error){
-            log_error('getJenisBahanPakan Service', error);
-            return {
-                code : 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -49,25 +40,14 @@ class _bahanPakan{
             });
 
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'createJenisBahanPakan');
 
             const add = await this.db.JenisBahanPakan.create({
                 id_peternakan: req.dataAuth.id_peternakan,
                 jenis_bahan_pakan: value.jenis_bahan_pakan,
                 satuan: value.satuan,
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to create new jenis bahan pakan`
-                }
-            }
+            if(!add) newError(500, 'Failed to create new data', 'createJenisBahanPakan');
 
             return {
                 code: 200,
@@ -79,11 +59,7 @@ class _bahanPakan{
             };
         }
         catch (error) {
-            log_error('createJenisBahanPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -98,13 +74,7 @@ class _bahanPakan{
             });
 
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updateJenisBahanPakan');
 
             // Query data
             const update = await this.db.JenisBahanPakan.update({
@@ -117,12 +87,7 @@ class _bahanPakan{
                 }
             });
 
-            if(update[0] <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update jenis bahan pakan`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed update jenis bahan pakan', 'updateJenisBahanPakan');
 
             return {
                 code: 200,
@@ -134,11 +99,7 @@ class _bahanPakan{
             };
         }
         catch (error) {
-            log_error('updateJenisBahanPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -149,15 +110,8 @@ class _bahanPakan{
             const schema = joi.object({
                 id_jenis_bahan_pakan: joi.number().required()
             });
-        
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'deleteJenisBahanPakan');
 
             // Query data
             const del = await this.db.JenisBahanPakan.destroy({
@@ -166,13 +120,7 @@ class _bahanPakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-
-            if(del <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete jenis bahan pakan`
-                }
-            }
+            if (del <= 0) newError(500, 'Failed to delete jenis bahan pakan', 'deleteJenisBahanPakan');
 
             return {
                 code: 200,
@@ -183,11 +131,7 @@ class _bahanPakan{
             };
         }
         catch (error) {
-            log_error('deleteJenisBahanPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -208,12 +152,7 @@ class _bahanPakan{
                 ],  
                 where : req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data bahan pakan not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Bahan Pakan not found', 'getBahanPakan');
     
             return {
                 code : 200,
@@ -223,11 +162,7 @@ class _bahanPakan{
                 },
             };
         }catch (error){
-            log_error('getBahanPakan Service', error);
-            return {
-                code : 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
     
@@ -241,15 +176,8 @@ class _bahanPakan{
                 jumlah: joi.number().required(),
                 keterangan: joi.string().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'createBahanPakan');
 
             // create mutasi bahan pakan
             const add = await this.db.BahanPakan.create({
@@ -259,12 +187,7 @@ class _bahanPakan{
                 jumlah: value.jumlah == '' || value.jumlah == null ? 0 : value.jumlah,
                 keterangan: value.keterangan,
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to create new bahan pakan`
-                }
-            }
+            if(!add) newError(500, 'Failed to create new data bahan pakan', 'createBahanPakan');
 
             // update stok bahan pakan
             const update = await this.db.JenisBahanPakan.update({
@@ -275,13 +198,7 @@ class _bahanPakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-
-            if(update[0] <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update stok bahan pakan ${value.id_jenis_bahan_pakan}`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update jenis bahan pakan', 'createBahanPakan');
 
             return {
                 code: 200,
@@ -293,11 +210,7 @@ class _bahanPakan{
             };
         }
         catch (error) {
-            log_error('createBahanPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

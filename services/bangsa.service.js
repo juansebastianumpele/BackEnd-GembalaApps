@@ -1,7 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _bangsa{
     constructor(db){
@@ -12,12 +12,7 @@ class _bangsa{
         try{
             // Query data
             const list = await this.db.Bangsa.findAll({ where : req.query });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data bangsa not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Bangsa not found', 'getBangsa');
             return {
                 code: 200,
                 data: {
@@ -26,11 +21,7 @@ class _bangsa{
                 }
             };
         }catch (error){
-            log_error('getVarietas Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -41,26 +32,14 @@ class _bangsa{
             const schema = joi.object({
                 bangsa: joi.string().required()
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'createBangsa');
 
             // Query data
             const add = await this.db.Bangsa.create({
                 bangsa: value.bangsa
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to create new varietas`
-                }
-            }
+            if(!add) newError(500, 'Failed to create new data', 'createBangsa');
 
             return {
                 code: 200,
@@ -72,11 +51,7 @@ class _bangsa{
             };
         }
         catch (error) {
-            log_error('createVarietas Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -88,15 +63,8 @@ class _bangsa{
                 id_bangsa: joi.number().required(),
                 bangsa: joi.string().required()
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updateBangsa');
 
             // Query data
             const update = await this.db.Bangsa.update({
@@ -106,12 +74,7 @@ class _bangsa{
                     id_bangsa: value.id_bangsa
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update bangsa`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update data', 'updateBangsa');
 
             return {
                 code: 200,
@@ -122,11 +85,7 @@ class _bangsa{
             };
         }
         catch (error) {
-            log_error('updateBangsa Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -137,15 +96,8 @@ class _bangsa{
             const schema = joi.object({
                 id_bangsa: joi.number().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'deleteBangsa');
 
             // Query data
             const del = await this.db.Bangsa.destroy({
@@ -153,12 +105,7 @@ class _bangsa{
                     id_bangsa: value.id_bangsa
                 }
             });
-            if(del <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete bangsa`
-                }
-            }
+            if(del <= 0) newError(500, 'Failed to delete data', 'deleteBangsa');
             
             return {
                 code: 200,
@@ -169,11 +116,7 @@ class _bangsa{
             };
         }
         catch (error) {
-            log_error('deleteBangsa Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

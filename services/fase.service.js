@@ -1,7 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 class _fase{
     constructor(db){
         this.db = db;
@@ -9,7 +9,7 @@ class _fase{
     // Get Fase
     getFase = async (req) => {
         try{            
-            // Query Data
+            // get all data fase
             const list = await this.db.Fase.findAll({
                 include: [
                     {
@@ -40,12 +40,7 @@ class _fase{
                 }
             }
 
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data fase not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Fase not found', 'getFase Service');
             
             return {
                 code : 200,
@@ -55,39 +50,25 @@ class _fase{
                 },
             };
         }catch (error){
-            log_error('getFase Service', error);
-            return {
-                code : 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     // Create new fase
     createFase = async (req) => {
         try {
+            // Validate data
             const schema = joi.object({
                 fase: joi.string().required()
             });
-
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'createFase Service');
 
+            // Create new fase
             const add = await this.db.Fase.create({
                 fase: value.fase
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to create fase`
-                }
-            }
+            if(!add) newError(500, 'Failed to create new data', 'createFase Service');
 
             return {
                 code : 200,
@@ -98,11 +79,7 @@ class _fase{
             };
         }
         catch (error) {
-            log_error('createFase Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -114,16 +91,10 @@ class _fase{
                 id_fp: joi.number().required(),
                 fase: joi.string().required(),
             });
-
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'updateFase Service');
 
+            // Update data fase
             const update = await this.db.Fase.update({
                 fase: value.fase
             }, {
@@ -131,12 +102,7 @@ class _fase{
                     id_fp: value.id_fp
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update fase`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update data', 'updateFase Service');
 
             return {
                 code: 200,
@@ -147,41 +113,27 @@ class _fase{
             };
         }
         catch (error) {
-            log_error('updateFase Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     // Delete fase
     deleteFase = async (req) => {
         try {
+            // Validate Data
             const schema = joi.object({
                 id_fp: joi.number().required(),
             });
-
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'deleteFase Service');
 
+            // Delete data fase
             const del = await this.db.Fase.destroy({
                 where: {
                     id_fp: value.id_fp
                 }
             });
-            if(del <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete fase`
-                }
-            }
+            if(del <= 0) newError(500, 'Failed to delete data', 'deleteFase Service');
 
             return {
                 code: 200,
@@ -192,11 +144,7 @@ class _fase{
             };
         }
         catch (error) {
-            log_error('deleteFase Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

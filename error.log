@@ -1,0 +1,30 @@
+2022-11-14T07:46:36.563Z - 404 - Data tidak ditemukan 
+ 
+2022-11-14T07:46:50.774Z - 404 - Data tidak ditemukan 
+ 
+2022-11-14T07:46:52.388Z - 404 - Data tidak ditemukan 
+ 
+2022-11-14T07:47:09.832Z - 404 - Data tidak ditemukan 
+2022-11-14T07:47:10.880Z - 404 - Data tidak ditemukan 
+2022-11-14T07:47:15.664Z - 404 - Data tidak ditemukan 
+Mon Nov 14 2022 14:50:52 GMT+0700 (Western Indonesia Time) - 404 - Data tidak ditemukan 
+Mon Nov 14 2022 14:52:04 GMT+0700 (Western Indonesia Time) - [getAdaptasi] - Data tidak ditemukan 
+Mon Nov 14 2022 14:52:19 GMT+0700 (Western Indonesia Time) - [getAdaptasi] Data tidak ditemukan 
+Mon Nov 14 2022 14:53:18 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data tidak ditemukan 
+Mon Nov 14 2022 14:53:59 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 14:56:16 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:06:29 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:08:08 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:08:43 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:09:19 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:10:21 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:10:35 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:10:41 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:10:44 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:10:50 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:11:01 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 15:11:27 GMT+0700 (Western Indonesia Time) - 404 - [getAdaptasi] Data Adaptasi not found 
+Mon Nov 14 2022 17:34:16 GMT+0700 (Western Indonesia Time) - 500 - [Unknown] (conn=14, no: 1054, SQLState: 42S22) Unknown column 'id_fase' in 'field list'
+sql: SELECT `id_ternak`, `id_fase` FROM `s_ternak` AS `Ternak` WHERE `Ternak`.`id_peternakan` = 1 AND `Ternak`.`status_keluar` IS NULL AND `Ternak`.`id_fp` IS NOT NULL; - parameters:[] Mon Nov 14 2022 17:34:42 GMT+0700 (Western Indonesia Time) - 500 - [Unknown] (conn=16, no: 1054, SQLState: 42S22) Unknown column 'id_fase' in 'field list'
+sql: SELECT `id_ternak`, `id_fase` FROM `s_ternak` AS `Ternak` WHERE `Ternak`.`id_peternakan` = 1 AND `Ternak`.`status_keluar` IS NULL AND `Ternak`.`id_fp` IS NOT NULL; - parameters:[] Mon Nov 14 2022 17:41:17 GMT+0700 (Western Indonesia Time) - 500 - [Unknown] (conn=38, no: 1054, SQLState: 42S22) Unknown column 'fase.id_fase' in 'field list'
+sql: SELECT `Ternak`.`id_ternak`, `Ternak`.`id_fp`, `fase`.`id_fp` AS `fase.id_fp`, `fase`.`id_fase` AS `fase.id_fase`, `fase`.`fase` AS `fase.fase` FROM `s_ternak` AS `Ternak` LEFT OUTER JOIN `d_fase` AS `fase` ON `Ternak`.`id_fp` = `fase`.`id_fp` WHERE `Ternak`.`id_peternakan` = 1 AND `Ternak`.`status_keluar` IS NULL AND `Ternak`.`id_fp` IS NOT NULL; - parameters:[] Mon Nov 14 2022 17:48:57 GMT+0700 (Western Indonesia Time) - 500 - [Unknown] ternak[i].dataValues.fase.dataValues.fase.include is not a function 

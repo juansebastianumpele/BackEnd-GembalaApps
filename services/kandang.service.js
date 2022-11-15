@@ -1,7 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const {log_error, log_info} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 class _kandang{
     constructor(db){
         this.db = db;
@@ -52,12 +52,6 @@ class _kandang{
                 ],
                 where : req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data kandang not found'
-                }
-            }
             for (let i = 0; i < list.length; i++) {
                 list[i].dataValues.populasi = list[i].dataValues.ternak.length;
                 // const berat_total = list[i].dataValues.ternak.reduce((a, b) => a + b.dataValues.timbangan[b.dataValues.timbangan.length - 1].berat, 0);
@@ -68,6 +62,8 @@ class _kandang{
                 list[i].dataValues.kebutuhan_pakan = berat_total * (list[i].dataValues.persentase_kebutuhan_pakan/100);
                 delete list[i].dataValues.ternak;
             }
+            if(list.length <= 0) newError(404, 'Data Kandang not found', 'getKandang Service');
+
             return {
                 code : 200,
                 data: {
@@ -76,11 +72,7 @@ class _kandang{
                 },
             };
         }catch (error){
-            log_error('getKandang Service', error);
-            return {
-                code : 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -96,13 +88,7 @@ class _kandang{
             });
 
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.message, 'createKandang Service');
 
             const add = await this.db.Kandang.create({
                 id_peternakan: req.dataAuth.id_peternakan,
@@ -111,12 +97,7 @@ class _kandang{
                 id_jenis_pakan: value.id_jenis_pakan,
                 persentase_kebutuhan_pakan: value.persentase_kebutuhan_pakan
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to create kandang`
-                }
-            }
+            if(!add) newError(500, 'Failed to create new Kandang', 'createKandang Service');
 
             return {
                 code : 200,
@@ -129,11 +110,7 @@ class _kandang{
             };
         }
         catch (error) {
-            log_error('createKandang Service', error);
-            return {
-                code : 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -148,15 +125,8 @@ class _kandang{
                 id_jenis_pakan: joi.number().required(),
                 persentase_kebutuhan_pakan: joi.number().required()
             });
-
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.message, 'updateKandang Service');
 
             // Query data
             const update = await this.db.Kandang.update({
@@ -170,12 +140,7 @@ class _kandang{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update kandang`
-                }
-            }
+            if(update <= 0) newError(404, 'Data Kandang not found', 'updateKandang Service');
 
             return {
                 code : 200,
@@ -186,11 +151,7 @@ class _kandang{
             };
         }
         catch (error) {
-            log_error('updateKandang Service', error);
-            return {
-                code : 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -201,27 +162,17 @@ class _kandang{
             const schema = joi.object({
                 id_kandang: joi.number().required(),
             });
-
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.message, 'deleteKandang Service');
+
+            // Delete data kandang
             const del = await this.db.Kandang.destroy({
                 where: {
                     id_kandang: value.id_kandang,
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(del <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete kandang`
-                }
-            }
+            if(del <= 0) newError(404, 'Data Kandang not found', 'deleteKandang Service');
             
             return {
                 code : 200,
@@ -232,11 +183,7 @@ class _kandang{
             };
         }
         catch (error) {
-            log_error('deleteKandang Service', error);
-            return {
-                code : 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

@@ -1,7 +1,6 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _riwayatKesehatan{
     constructor(db){
@@ -36,12 +35,7 @@ class _riwayatKesehatan{
                 ],
                 where : req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: `Data riwayat kesehatan not found`
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data riwayat kesehatan not found', 'getRiwayatKesehatan Service');
 
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.kandang = list[i].dataValues.ternak.kandang;
@@ -56,11 +50,7 @@ class _riwayatKesehatan{
                 }
             };
         }catch (error){
-            log_error('getRiwayatKesehatan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -74,15 +64,8 @@ class _riwayatKesehatan{
                 tanggal_sakit: joi.date().allow(null),
                 id_kandang: joi.number().allow(null)
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'createRiwayatKesehatan Service');
 
             // Get data penyakit
             const penyakit = await this.db.Penyakit.findOne({  
@@ -90,12 +73,7 @@ class _riwayatKesehatan{
                     id_penyakit: value.id_penyakit
                 }
             });
-            if(!penyakit){
-                return{
-                    code: 404,
-                    error: `Data penyakit not found`
-                }
-            }
+            if(!penyakit) newError(404, 'Data penyakit not found', 'createRiwayatKesehatan Service');
 
             // Create RiwayatKesehatan
             const add = await this.db.RiwayatKesehatan.create({
@@ -106,12 +84,7 @@ class _riwayatKesehatan{
                 penanganan: penyakit.dataValues.penanganan,
                 id_peternakan: req.dataAuth.id_peternakan
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to create new Riwayat Kesehatan`
-                }
-            }
+            if(!add) newError(500, 'Failed to create data riwayat penyakit', 'createRiwayatKesehatan Service');
 
             // Update kandang ternak
             if(value.id_kandang != null){
@@ -123,12 +96,7 @@ class _riwayatKesehatan{
                         id_peternakan: req.dataAuth.id_peternakan
                     }
                 });
-                if(update <= 0){
-                    return{
-                        code: 400,
-                        error: `Failed to update kandang ternak`
-                    }
-                }
+                if(update <= 0) newError(500, 'Failed to update data ternak', 'createRiwayatKesehatan Service');
             }
 
             return {
@@ -137,16 +105,12 @@ class _riwayatKesehatan{
                     id_riwayat_kesehatan: add.id_riwayat_kesehatan,
                     id_ternak: add.id_ternak,
                     id_penyakit: add.id_penyakit,
-                    createdAt: date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
+                    createdAt: add.createdAt,
                 }
             };
         }
         catch (error) {
-            log_error('createRiwayatKesehatan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -162,15 +126,8 @@ class _riwayatKesehatan{
                 gejala: joi.string().allow(null),
                 penanganan: joi.string().allow(null)
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updateRiwayatKesehatan Service');
 
             // Check data RiwayatKesehatan
             const check = await this.db.RiwayatKesehatan.findOne({
@@ -179,12 +136,7 @@ class _riwayatKesehatan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!check){
-                return{
-                    code: 404,
-                    error: `Data riwayat kesehatan not found`
-                }
-            }
+            if(!check) newError(404, 'Data riwayat kesehatan not found', 'updateRiwayatKesehatan Service');
 
             // Query data
             const update = await this.db.RiwayatKesehatan.update({
@@ -198,12 +150,7 @@ class _riwayatKesehatan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update Riwayat Kesehatan`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update data riwayat kesehatan', 'updateRiwayatKesehatan Service');
 
             // Update kandang ternak
             if(value.id_kandang != null){
@@ -215,28 +162,19 @@ class _riwayatKesehatan{
                         id_peternakan: req.dataAuth.id_peternakan
                     }
                 });
-                if(update <= 0){
-                    return{
-                        code: 400,
-                        error: `Failed to update kandang ternak`
-                    }
-                }
+                if(update <= 0) newError(500, 'Failed to update data ternak', 'updateRiwayatKesehatan Service');
             }
 
             return {
                 code: 200,
                 data: {
                     id_riwayat_kesehatan: value.id_riwayat_kesehatan,
-                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('updateRiwayatKesehatan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -247,15 +185,8 @@ class _riwayatKesehatan{
             const schema = joi.object({
                 id_riwayat_kesehatan: joi.number().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'deleteRiwayatKesehatan Service');
 
             // Query data
             const del = await this.db.RiwayatKesehatan.destroy({
@@ -264,27 +195,17 @@ class _riwayatKesehatan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(del <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete Riwayat Kesehatan`
-                }
-            }
-            
+            if(del <= 0) newError(500, 'Failed to delete data riwayat kesehatan', 'deleteRiwayatKesehatan Service');
             return {
                 code: 200,
                 data: {
                     id_riwayat_kesehatan: value.id_riwayat_kesehatan,
-                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('deleteRiwayatKesehatan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -304,12 +225,7 @@ class _riwayatKesehatan{
                     }
                 }]
             });
-            if(penyakit == null){
-                return{
-                    code: 400,
-                    error: `Failed to get data penyakit`
-                }
-            }
+            if(penyakit.length <= 0) newError(404, 'Data penyakit not found', 'getTotalTernakSakitByPenyakit Service');
 
             for(let i = 0; i < penyakit.length; i++){
                 penyakit[i].dataValues.total = penyakit[i].dataValues.riwayat_kesehatan.length;
@@ -322,11 +238,7 @@ class _riwayatKesehatan{
             };
         }
         catch (error) {
-            log_error('getTotalTernakSakitByPenyakit Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

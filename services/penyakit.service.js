@@ -1,7 +1,6 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _penyakit{
     constructor(db){
@@ -10,14 +9,10 @@ class _penyakit{
     // Get Data Penyakit
     getPenyakit = async (req) => {
         try{
-            // Query data
+            // Get data penyakit
             const list = await this.db.Penyakit.findAll({ where : req.query });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data penyakit not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Penyakit not found', 'getPenyakit Service');
+
             return {
                 code : 200,
                 data: {
@@ -26,11 +21,7 @@ class _penyakit{
                 },
             };
         }catch (error){
-            log_error('getPenyakit Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -43,43 +34,28 @@ class _penyakit{
                 gejala: joi.string().required(),
                 penanganan: joi.string().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'createPenyakit Service');
 
-            // Query data
+            // Create new penyakit
             const add = await this.db.Penyakit.create({
                 nama_penyakit: value.nama_penyakit,
                 gejala: value.gejala,
                 penanganan: value.penanganan,
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to create penyakit`
-                }
-            }
+            if(!add) newError(500, 'Failed to create new data penyakit', 'createPenyakit Service');
+
             return {
                 code: 200,
                 data: {
                     id_penyakit: add.id_penyakit,
                     nama_penyakit: add.nama_penyakit,
-                    createdAt: date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
+                    createdAt: add.createdAt
                 }
             };
         }
         catch (error) {
-            log_error('createPenyakit Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -93,17 +69,10 @@ class _penyakit{
                 gejala: joi.string().required(),
                 penanganan: joi.string().required()
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updatePenyakit Service');
 
-            // Query data
+            // Update penyakit
             const update = await this.db.Penyakit.update({
                 nama_penyakit: value.nama_penyakit,
                 deskripsi: value.deskripsi,
@@ -114,27 +83,18 @@ class _penyakit{
                     id_penyakit: value.id_penyakit
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update penyakit`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update data penyakit', 'updatePenyakit Service');
 
             return {
                 code: 200,
                 data: {
                     id_penyakit: value.id_penyakit,
-                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('updatePenyakit Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -145,15 +105,8 @@ class _penyakit{
             const schema = joi.object({
                 id_penyakit: joi.number().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'deletePenyakit Service');
 
             // Query data
             const del = await this.db.Penyakit.destroy({
@@ -161,27 +114,18 @@ class _penyakit{
                     id_penyakit: value.id_penyakit
                 }
             });
-            if(del <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete penyakit`
-                }
-            }
+            if(del <= 0) newError(500, 'Failed to delete data penyakit', 'deletePenyakit Service');
             
             return {
                 code: 200,
                 data: {
                     id_penyakit: value.id_penyakit,
-                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('deletePenyakit Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

@@ -1,7 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _jenisKandang{
     constructor(db){
@@ -10,16 +10,11 @@ class _jenisKandang{
     // Get Jenis Kandang
     getJenisKandang = async (req) => {
         try{
-            // Query Data
+            // Get data jenis kandang
             const list = await this.db.JenisKandang.findAll({
                 where: req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data jenis kandang not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Jenis Kandang not found', 'getJenisKandang Service');
             return {
                 code: 200,
                 data: {
@@ -28,34 +23,23 @@ class _jenisKandang{
                 }
             };
         }catch (error){
-            log_error('getJenisKandang Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     // Create new jenis kandang
     createJenisKandang = async (req) => {
         try {
+            // Validate request body
             const schema = joi.object({
                 jenis_kandang: joi.string().required()
             });
             const {error, value} = schema.validate(req.body);
-            if(error){
-                return {
-                    code: 400,
-                    error: error.details[0].message
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'createJenisKandang Service');
+
+            // Create new jenis kandang
             const jenisKandang = await this.db.JenisKandang.create(value);
-            if(!jenisKandang){
-                return {
-                    code: 400,
-                    error: 'Failed to create jenis kandang'
-                }
-            }
+            if(!jenisKandang) newError(500, 'Failed to create new data jenis kandang', 'createJenisKandang Service');
 
             return {
                 code: 200,
@@ -66,28 +50,20 @@ class _jenisKandang{
                 }
             }
         } catch (error) {
-            log_error('createJenisKandang Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     // Update jenis kandang
     updateJenisKandang = async (req) => {
         try {
+            // Validate request body
             const schema = joi.object({
                 id_jenis_kandang: joi.number().required(),
                 jenis_kandang: joi.string().required()
             });
             const {error, value} = schema.validate(req.body);
-            if(error){
-                return {
-                    code: 400,
-                    error: error.details[0].message
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'updateJenisKandang Service');
 
             // Update jenis kandang
             const jenisKandang = await this.db.JenisKandang.update({
@@ -97,12 +73,7 @@ class _jenisKandang{
                     id_jenis_kandang: value.id_jenis_kandang
                 }
             });
-            if(jenisKandang <= 0){
-                return {
-                    code: 400,
-                    error: 'Failed to update jenis kandang'
-                }
-            }
+            if(jenisKandang <= 0) newError(500, 'Failed to update data jenis kandang', 'updateJenisKandang Service');
 
             return {
                 code: 200,
@@ -113,27 +84,19 @@ class _jenisKandang{
                 }
             }
         } catch (error) {
-            log_error('updateJenisKandang Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     // Delete jenis kandang
     deleteJenisKandang = async (req) => {
         try {
+            // Validate request body
             const schema = joi.object({
                 id_jenis_kandang: joi.number().required()
             });
             const {error, value} = schema.validate(req.body);
-            if(error){
-                return {
-                    code: 400,
-                    error: error.details[0].message
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'deleteJenisKandang Service');
 
             // Delete jenis kandang
             const jenisKandang = await this.db.JenisKandang.destroy({
@@ -141,12 +104,7 @@ class _jenisKandang{
                     id_jenis_kandang: value.id_jenis_kandang
                 }
             });
-            if(jenisKandang <= 0){
-                return {
-                    code: 400,
-                    error: 'Failed to delete jenis kandang'
-                }
-            }
+            if(jenisKandang <= 0) newError(500, 'Failed to delete data jenis kandang', 'deleteJenisKandang Service');
 
             return {
                 code: 200,
@@ -156,11 +114,7 @@ class _jenisKandang{
                 }
             }
         } catch (error) {
-            log_error('deleteJenisKandang Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

@@ -1,9 +1,9 @@
 // Helper databse yang dibuat
-const {log_error} = require('../utils/logging');
 const joi = require('joi');
 const {generateToken} = require('../utils/auth');
 const config = require('../config/app.config')
 const date = require('date-and-time');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _superAdmin{
     constructor(db){
@@ -14,7 +14,7 @@ class _superAdmin{
         try{
             // Add query params
             req.query.role = 'admin';
-            // Query Data
+            // Get data users
             const list = await this.db.AuthUser.findAll({ 
                 attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status'],
                 include: [
@@ -25,12 +25,8 @@ class _superAdmin{
                     }
                 ],
                 where : req.query });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data users not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Users not found', 'getUsers Service');
+
             return {
                 code: 200,
                 data: {
@@ -39,28 +35,21 @@ class _superAdmin{
                 }
             };
         }catch (error){
-            log_error('getUsers Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     // Generate new toke for superadmin and bod 
     generateNewToken = async (req) => {
         try{
+            // Validate request
             const schema = joi.object({
                 id_peternakan: joi.number().required()
             });
             const {error, value} = schema.validate(req.body);
-            if(error){
-                return {
-                    code: 400,
-                    error: error.details[0].message
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'generateNewToken Service');
             
+            // Generate new token
             const token = generateToken({ 
                 id_user: req.dataAuth.id_user, 
                 nama_pengguna: req.dataAuth.nama_pengguna, 
@@ -78,11 +67,7 @@ class _superAdmin{
             }
         }
         catch (error){
-            log_error('generateNewToken Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

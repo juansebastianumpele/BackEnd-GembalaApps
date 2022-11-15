@@ -1,6 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _pemeliharaan{
     constructor(db){
@@ -11,7 +12,7 @@ class _pemeliharaan{
         try{
             // Add id_peternakan to params
             req.query.id_peternakan = req.dataAuth.id_peternakan
-            // Query data
+            // Get data Pemeliharaan
             const list = await this.db.Pemeliharaan.findAll({
                 attributes: ['tanggal_pemeliharaan', 'jenis_pakan', 'jumlah_pakan', 'pembersihan_kandang', 'pembersihan_ternak'],
                 include: [
@@ -26,25 +27,15 @@ class _pemeliharaan{
                 ],
                 where : req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: `Data pemeliharaan not found`
-                }
-            }
-
+            
             const date = new Date();
             const result = list.filter((item) => {
                 return item.dataValues.tanggal_pemeliharaan.getDate() === date.getDate() &&
                 item.dataValues.tanggal_pemeliharaan.getMonth() === date.getMonth() &&
                 item.dataValues.tanggal_pemeliharaan.getFullYear() === date.getFullYear()
             }); 
-            if(result.length <= 0){
-                return{
-                    code: 404,
-                    error: `Data pemeliharaan not found`
-                }
-            }
+            
+            if(result.length <= 0) newError(404, 'Data Pemeliharaan not found', 'getPemeliharaan Service');
 
             return {
                 code: 200,
@@ -54,11 +45,7 @@ class _pemeliharaan{
                 }
             };
         }catch (error){
-            log_error('getPemeliharaan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            errorHandler(error);
         }
     }
 
@@ -67,7 +54,7 @@ class _pemeliharaan{
         try{
             // Add id_peternakan to params
             req.query.id_peternakan = req.dataAuth.id_peternakan
-            // Query data
+            // Get data Pemeliharaan
             const list = await this.db.Pemeliharaan.findAll({
                 attributes: ['tanggal_pemeliharaan', 'jenis_pakan', 'jumlah_pakan', 'pembersihan_kandang', 'pembersihan_ternak'],
                 include: [
@@ -82,12 +69,8 @@ class _pemeliharaan{
                 ],
                 where : req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: `Data pemeliharaan not found`
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Pemeliharaan not found', 'getAllPemeliharaan Service');
+
             return {
                 code: 200,
                 data: {
@@ -96,11 +79,7 @@ class _pemeliharaan{
                 }
             };
         }catch (error){
-            log_error('getAllPemeliharaan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            errorHandler(error);
         }
     }
 
@@ -117,12 +96,7 @@ class _pemeliharaan{
                 pembersihan_ternak: joi.boolean().required(),
             });
             const {error, value} = schema.validate(req.body);
-            if(error){
-                return {
-                    code: 400,
-                    error: error.details[0].message
-                }
-            }
+            if(error) newError(400, error.message, 'createPemeliharaan Service');
             
             // Create data
             const pemeliharaan = await this.db.Pemeliharaan.create(
@@ -136,6 +110,8 @@ class _pemeliharaan{
                     id_peternakan: req.dataAuth.id_peternakan
                 },
             );
+            if(!pemeliharaan) newError(500, 'Failed to create Pemeliharaan', 'createPemeliharaan Service');
+
             return {
                 code: 200,
                 data: {
@@ -146,11 +122,7 @@ class _pemeliharaan{
                 }
             }
         } catch (error) {
-            log_error('createPemeliharaan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            errorHandler(error);
         }
     }
 }

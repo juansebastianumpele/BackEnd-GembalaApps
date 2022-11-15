@@ -216,15 +216,6 @@ class _dashboard{
                 }
             }
 
-            // // Get ternak fase pemasukan
-            // const ternakFasePemasukan = await this.db.Ternak.count({
-            //     where: {
-            //         id_peternakan: req.dataAuth.id_peternakan,
-            //         id_fp: null,
-            //         status_keluar: null
-            //     }
-            // });
-
             // Get total ternak by fase
             let totalTernakByFase = [];
             totalTernakByFase.push({

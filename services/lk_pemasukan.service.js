@@ -1,7 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const {log_error} = require('../utils/logging');
 const createHistoryFase = require('./riwayat_fase.service');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _lkPemasukan{
     constructor(db){
@@ -17,18 +17,13 @@ class _lkPemasukan{
                     fase: "Pemasukan"
                 }
             });
-            if(!dataFase){
-                return{
-                    code: 500,
-                    error: 'Something went wrong, data fase not found'
-                }
-            }
+            if(!dataFase) newError(404, 'Data Fase not found', 'getTernakMasuk Service');
 
             // Add id_user to query
             req.query.id_peternakan = req.dataAuth.id_peternakan;
             req.query.id_fp = dataFase.dataValues.id_fp;
 
-            // Query Data
+            // Get data ternak masuk
             const list = await this.db.Ternak.findAll({
                 attributes: ['id_ternak', 'rf_id', 'image'],
                 include: [
@@ -71,12 +66,7 @@ class _lkPemasukan{
                     ['createdAt', 'DESC']
                 ]
             }); 
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data ternak masuk not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Ternak Masuk not found', 'getTernakMasuk Service');
 
             return {
                 code: 200,
@@ -86,17 +76,14 @@ class _lkPemasukan{
                 }
             };
         }catch (error){
-            log_error('getTernakMasuk Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     // Create LK Pemasukan
     createLKPemasukan = async (req) => {
         try{
+            // Validate request
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 rf_id: joi.string().required(),
@@ -113,13 +100,7 @@ class _lkPemasukan{
                 id_kandang: joi.number().required(),
             });
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map((i) => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.message, 'createLKPemasukan Service');
 
             // Check Ternak in LK Pemasukan
             const ternak = await this.db.LKPemasukan.findOne({
@@ -128,12 +109,7 @@ class _lkPemasukan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(ternak){
-                return{
-                    code: 400,
-                    error: 'Ternak already in LK Pemasukan'
-                }
-            }
+            if(ternak) newError(400, 'Ternak already in LK Pemasukan', 'createLKPemasukan Service');
 
             // get data fase
             const fase = await this.db.Fase.findOne({
@@ -141,12 +117,7 @@ class _lkPemasukan{
                     fase: 'adaptasi 1'
                 }
             });
-            if(!fase){
-                return{
-                    code: 404,
-                    error: 'Fase not found'
-                }
-            }
+            if(!fase) newError(404, 'Data Fase not found', 'createLKPemasukan Service');
 
             // Update Data ternak
             const update = await this.db.Ternak.update({
@@ -161,24 +132,14 @@ class _lkPemasukan{
                     id_peternakan: req.dataAuth.id_peternakan,
                 }
             });
-            if(update[0] <= 0){
-                return{
-                    code: 404,
-                    error: 'Data ternak not found'
-                }
-            }
+            if(update <= 0) newError(400, 'Failed update data ternak', 'createLKPemasukan Service');
 
             // Create riwayat fase
             const createRiwayatFase = await createHistoryFase(this.db, req, {
                 id_ternak: value.id_ternak,
                 id_fp: fase.dataValues.id_fp
             });
-            if(!createRiwayatFase){
-                return{
-                    code: 500,
-                    error: 'Something went wrong, create riwayat fase failed'
-                }
-            }
+            if(!createRiwayatFase) newError(400, 'Failed create riwayat fase', 'createLKPemasukan Service');
 
             // Create LK Pemasukan
             const lkPemasukan = await this.db.LKPemasukan.create({
@@ -197,12 +158,7 @@ class _lkPemasukan{
                 id_kandang: value.id_kandang,
                 id_peternakan: req.dataAuth.id_peternakan,
             });
-            if(!lkPemasukan){
-                return{
-                    code: 500,
-                    error: 'Internal Server Error'
-                }
-            }
+            if(!lkPemasukan) newError(400, 'Failed create LK Pemasukan', 'createLKPemasukan Service');
 
             return {
                 code: 200,
@@ -214,11 +170,7 @@ class _lkPemasukan{
                 }
             };
         }catch (error){
-            log_error('createLKPemasukan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -257,12 +209,7 @@ class _lkPemasukan{
                     ['createdAt', 'DESC']
                 ]
             });
-            if(lkPemasukan.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data lk pemasukan not found'
-                }
-            }
+            if(lkPemasukan.length <= 0) newError(404, 'Data LK Pemasukan not found', 'getLKPemasukan Service');
 
             return {
                 code: 200,
@@ -272,11 +219,7 @@ class _lkPemasukan{
                 }
             };
         }catch (error){
-            log_error('getLKPemasukan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -315,12 +258,7 @@ class _lkPemasukan{
                     ['createdAt', 'DESC']
                 ]
             });
-            if(lkPemasukan.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data lk pemasukan not found'
-                }
-            }
+            if(lkPemasukan.length <= 0) newError(404, 'Data LK Pemasukan not found', 'getLKPemasukanThisMonth Service');
 
             // Filter by this month
             const thisDate = new Date();
@@ -355,11 +293,7 @@ class _lkPemasukan{
                 }
             };
         }catch (error){
-            log_error('getLKPemasukanThisMonth Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

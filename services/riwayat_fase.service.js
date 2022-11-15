@@ -1,4 +1,3 @@
-
 // Riwayat Fase Service
 module.exports = async (db, req, dataTernak) => {
     // Create riwayat fase

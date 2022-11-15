@@ -3,78 +3,57 @@ const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
 const config = require('../config/app.config');
 const jwt = require('jsonwebtoken');
-const {log_error, log_success, log_info} = require('../utils/logging');
 const {verifyNewAccount, verifyEmailForgotPassword, bodEmailRegister} = require('../utils/email_verify');
 const randomstring = require("randomstring");
+const {newError, errorHandler} = require('../utils/errorHandler');
 class _auth{
     constructor(db){
         this.db = db;
     }
     /// Login Service
     login = async (data) => {
-        // Validate data
-        const schema = joi.object({
-            email: joi.string().email().required(),
-            kata_sandi: joi.string().required()
-        });
-        const {error, value} = schema.validate(data);
-        if (error) {
-            const errorDetails = error.details.map(detail => detail.message).join(',');
-            log_error('login Service', errorDetails);
-            return {
-                code: 400,
-                error: errorDetails
-            }
-        }
+        try{
+            // Validate data
+            const schema = joi.object({
+                email: joi.string().email().required(),
+                kata_sandi: joi.string().required()
+            });
+            const {error, value} = schema.validate(data);
+            if (error) newError(400, error.details[0].message, 'Login Service');
 
-        // Check if user exist
-        const checkUsername = await this.db.AuthUser.findOne({where : {email: value.email}});
-        if (checkUsername == null) {
-            return {
-                code: 404,
-                error: 'Sorry, user not found'
-            }
-        }
+            // Check if user exist
+            const checkUsername = await this.db.AuthUser.findOne({where : {email: value.email}});
+            if (!checkUsername) newError(400, 'Email tidak terdaftar', 'Login Service');
 
-        // Check status users
-        if(checkUsername.status == 'inactive'){
-            verifyNewAccount(checkUsername);
-            return {
-                code: 401,
-                error: 'Sorry, your account is not verified, please check your email'
+            // Check status users
+            if(checkUsername.status == 'inactive'){
+                verifyNewAccount(checkUsername);
+                newError(400, 'Sorry, your account is not verified, please check your email', 'Login Service');
             }
-        }
 
-        // Compare password
-        const isMatch = await comparePassword(value.kata_sandi, checkUsername.kata_sandi);
-        if (!isMatch) {
+            // Compare password
+            const isMatch = await comparePassword(value.kata_sandi, checkUsername.kata_sandi);
+            if (!isMatch) newError(400, 'Password not match', 'Login Service');
+
+            // Generate token
+            const token = generateToken({ 
+                id_user: checkUsername.id_user, 
+                nama_pengguna: checkUsername.nama_pengguna, 
+                role: checkUsername.role,
+                status: checkUsername.status,
+                id_peternakan: checkUsername.id_peternakan
+            });
+            if (!token) newError(400, 'Failed to generate token', 'Login Service');
+
             return {
-                code: 400,
-                error: 'Sorry, password not match'
+                code : 200,
+                data: {
+                    token,
+                    expiresAt: date.format(date.addSeconds(new Date(), config.jwt.expiresIn), 'YYYY-MM-DD HH:mm:ss')
+                },
             }
-        }
-
-        // Generate token
-        const token = generateToken({ 
-            id_user: checkUsername.id_user, 
-            nama_pengguna: checkUsername.nama_pengguna, 
-            role: checkUsername.role,
-            status: checkUsername.status,
-            id_peternakan: checkUsername.id_peternakan
-        });
-        if (!token) {
-            return {
-                code: 500,
-                error: 'Sorry, something went wrong'
-            }
-        }
-
-        return {
-            code : 200,
-            data: {
-                token,
-                expiresAt: date.format(date.addSeconds(new Date(), config.jwt.expiresIn), 'YYYY-MM-DD HH:mm:ss')
-            },
+        }catch(err){
+            return errorHandler(err);
         }
     }
 
@@ -92,26 +71,14 @@ class _auth{
                 ulangi_kata_sandi: joi.ref('kata_sandi')
             });
             const {error, value} = schema.validate(data);
-            if (error) {
-                const errorDetails = error.details.map(detail => detail.message).join(', ');
-                log_error('register Service', errorDetails);
-                return {
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'Register Service');
             // Check if user exist
             const checkUsername = await this.db.AuthUser.findOne({
                 where : {
                     nama_pengguna: value.nama_pengguna
                 }
             });
-            if (checkUsername !== null) {
-                return {
-                    code: 400,
-                    error: 'Sorry, nama pengguna already exist'
-                }
-            }
+            if (checkUsername) newError(400, 'Username already exist', 'Register Service');
 
             // check if email exist
             const checkEmail = await this.db.AuthUser.findOne({
@@ -119,24 +86,14 @@ class _auth{
                     email: value.email
                 }
             });
-            if (checkEmail !== null) {
-                return {
-                    code: 400,
-                    error: 'Sorry, email already exist'
-                }
-            }
+            if (checkEmail) newError(400, 'Email already exist', 'Register Service');
 
             // add peternakan
             const addPeternakan = await this.db.Peternakan.create({
                 nama_peternakan: value.nama_peternakan,
                 alamat: value.alamat
             });
-            if(addPeternakan == null){
-                return {
-                    code: 500,
-                    error: 'Sorry, something went wrong'
-                }
-            }
+            if(!addPeternakan) newError(400, 'Failed to add peternakan', 'Register Service');
 
             // Hash password
             value.kata_sandi = await hashPassword(value.kata_sandi);
@@ -151,12 +108,7 @@ class _auth{
                 nomor_telepon: value.nomor_telepon,
                 kata_sandi: value.kata_sandi
             });
-            if (register.affectedRows <= 0) {
-                return {
-                    code: 500,
-                    error: 'Sorry, something went wrong'
-                }
-            }
+            if (!register) newError(400, 'Failed to register', 'Register Service');
 
             verifyNewAccount(register);
 
@@ -167,30 +119,25 @@ class _auth{
                 }
             };
         }catch (error){
-            log_error('emailVerification Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     /// Logout Service
     logout = async (req, res) => {
-        const update = await this.db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
-        if (update <= 0) {
+        try{
+            const update = await this.db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
+            if (update <= 0) newError(400, 'Failed to logout', 'Logout Service');
             return {
-                code: 500,
-                error: 'Sorry, something went wrong'
+                code: 200,
+                data: {
+                    id_user: req.dataAuth.id_user,
+                    nama_pengguna: req.dataAuth.nama_pengguna,
+                    logoutAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             }
-        }
-        return {
-            code: 200,
-            data: {
-                id_user: req.dataAuth.id_user,
-                nama_pengguna: req.dataAuth.nama_pengguna,
-                logoutAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
-            }
+        }catch(err){
+            return errorHandler(err);
         }
     }
 
@@ -211,75 +158,49 @@ class _auth{
                     id_user: req.dataAuth.id_user
                 }
              });
-            if(list == null){
-                return{
-                    code: 404,
-                    error: 'Data users not found'
-                }
-            }
+            if(!list) newError(400, 'Failed to get profile', 'Get Profile Service');
+
             return {
                 code: 200,
                 data: list
             };
         }catch (error){
-            log_error('getProfile Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
     
     /// Delete Account Service
     deleteAccount = async (req) => {
-        // Validate data
-        const schema = joi.object({
-            kata_sandi: joi.string().required()
-        });
-        const {error, value} = schema.validate(req.body);
-        if (error) {
-            const errorDetails = error.details.map(detail => detail.message).join(', ');
-            log_error('deleteAccount Service', errorDetails);
-            return {
-                code: 400,
-                error: errorDetails
-            }
-        }
+        try{
+            // Validate data
+            const schema = joi.object({
+                kata_sandi: joi.string().required()
+            });
+            const {error, value} = schema.validate(req.body);
+            if (error) newError(400, error.details[0].message, 'DeleteAccount Service');
 
-        // Check if user exist
-        const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
-        if (checkUser == null) {
-            return {
-                code: 404,
-                error: 'Sorry, user not found'
-            }
-        }
+            // Check if user exist
+            const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+            if (!checkUser) newError(400, 'User not found', 'DeleteAccount Service');
 
-        // Compare password
-        const isMatch = await comparePassword(value.kata_sandi, checkUser.kata_sandi);
-        if (!isMatch) {
-            return {
-                code: 404,
-                error: 'Sorry, password not match'
-            }
-        }
+            // Compare password
+            const isMatch = await comparePassword(value.kata_sandi, checkUser.kata_sandi);
+            if (!isMatch) newError(400, 'Password not match', 'DeleteAccount Service');
 
-        // Delete data
-        const deletedAccount = await this.db.AuthUser.destroy({where: {id_user: req.dataAuth.id_user}});
-        if (deletedAccount <= 0) {
-            return {
-                code: 500,
-                error: `Sorry, delete account failed`
-            }
-        }
+            // Delete data
+            const deletedAccount = await this.db.AuthUser.destroy({where: {id_user: req.dataAuth.id_user}});
+            if (deletedAccount <= 0) newError(400, 'Failed to delete account', 'DeleteAccount Service');
 
-        return {
-            code: 200,
-            data: {
-                id_user: req.dataAuth.id_user,
-                nama_pengguna: req.dataAuth.nama_pengguna,
-                deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+            return {
+                code: 200,
+                data: {
+                    id_user: req.dataAuth.id_user,
+                    nama_pengguna: req.dataAuth.nama_pengguna,
+                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             }
+        }catch(err){
+            return errorHandler(err);
         }
     }
     
@@ -293,14 +214,7 @@ class _auth{
             nama_peternakan: joi.string().required(),
         });
         const {error, value} = schema.validate(req.body);
-        if (error) {
-            const errorDetails = error.details.map(detail => detail.message).join(', ');
-            log_error('updateAccount Service', errorDetails);
-            return {
-                code: 400,
-                error: errorDetails
-            }
-        }
+        if (error) newError(400, error.details[0].message, 'UpdateAccount Service');
 
         // Update data
         const updatedAccount = await this.db.AuthUser.update({
@@ -311,12 +225,7 @@ class _auth{
                 id_user: req.dataAuth.id_user
             }
         });
-        if (updatedAccount <= 0) {
-            return {
-                code: 500,
-                error: `Sorry, update account failed`
-            }
-        }
+        if (updatedAccount <= 0) newError(500, 'Failed to update account', 'UpdateAccount Service');
         
         // Update peternakan
         const updatedPeternakan = await this.db.Peternakan.update({
@@ -327,12 +236,7 @@ class _auth{
                 id_peternakan: req.dataAuth.id_peternakan
             }
         });
-        if (updatedPeternakan <= 0) {
-            return {
-                code: 500,
-                error: `Sorry, update peternakan failed`
-            }
-        }
+        if (updatedPeternakan <= 0) newError(500, 'Failed to update peternakan', 'UpdateAccount Service');
 
         return {
             code : 200,
@@ -353,44 +257,22 @@ class _auth{
             ulangi_kata_sandi_baru: joi.ref('kata_sandi_baru')
         });
         const {error, value} = schema.validate(req.body);
-        if (error) {
-            const errorDetails = error.details.map(detail => detail.message).join(', ');
-            log_error('updatePassword Service', errorDetails);
-            return {
-                code: 400,
-                error: errorDetails
-            }
-        }
+        if (error) newError(400, error.details[0].message, 'UpdatePassword Service');
 
         // Check if user exist
         const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
-        if (checkUser == null) {
-            return {
-                code: 404,
-                error: 'Sorry, user not found'
-            }
-        }
+        if (!checkUser) newError(400, 'User not found', 'UpdatePassword Service');
 
         // Compare password
         const isMatch = await comparePassword(value.kata_sandi, checkUser.kata_sandi);
-        if (!isMatch) {
-            return {
-                code: 400,
-                error: 'Sorry, password not match'
-            }
-        }
+        if (!isMatch) newError(400, 'Password not match', 'UpdatePassword Service');
 
         // Hash password
         const newPassword = await hashPassword(value.kata_sandi_baru);
 
         // Update data
         const updatedPassword = await this.db.AuthUser.update({kata_sandi: newPassword}, {where: {id_user: req.dataAuth.id_user}});
-        if (updatedPassword <= 0) {
-            return {
-                code: 500,
-                error: `Sorry, update password failed`
-            }
-        }
+        if (updatedPassword <= 0) newError(500, 'Failed to update password', 'UpdatePassword Service');
 
         return {
             code : 200,
@@ -415,12 +297,7 @@ class _auth{
                     id_user: req.dataAuth.id_user
                 }
             });
-            if (user == null) {
-                return {
-                    code: 404,
-                    error: 'Sorry, user not found'
-                }
-            }
+            if (!user) newError(400, 'User not found', 'Verify Service');
 
             user.dataValues.iat = req.dataAuth.iat;
             user.dataValues.exp = req.dataAuth.exp;
@@ -430,11 +307,7 @@ class _auth{
                 data: user
             };
         }catch (error){
-            log_error('verify Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -445,17 +318,9 @@ class _auth{
             
             if(decoded.message == 'verification'){
                 const activateAccount = await this.db.AuthUser.update({status: 'active'}, {where: {id_user: decoded.id_user}});
-                if (activateAccount <= 0) {
-                    return {
-                        code: 500,
-                        error: `Sorry, activate account failed`
-                    }
-                }
+                if (activateAccount <= 0) newError(500, 'Failed to activate account', 'VerifyAccount Service');
             }else{
-                return {
-                    code: 400,
-                    error: 'Sorry, token invalid'
-                }
+                newError(400, 'Invalid token', 'VerifyAccount Service');
             }
             
             return {
@@ -465,11 +330,7 @@ class _auth{
                 }
             };
         }catch(error){
-            log_error('verifyAccount Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -481,33 +342,16 @@ class _auth{
                 email: joi.string().email().required(),
             });
             const {error, value} = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map(detail => detail.message).join(', ');
-                log_error('forgotPassword Service', errorDetails);
-                return {
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'ForgotPassword Service');
             // Check if user exist
             const checkUser = await this.db.AuthUser.findOne({where : {email: value.email}});
-            if (checkUser == null) {
-                return {
-                    code: 400,
-                    error: 'Sorry, user not found'
-                }
-            }
+            if (!checkUser) newError(400, 'User not found', 'ForgotPassword Service');
 
             // updatedTempPassword
             const tempPassword = randomstring.generate(8);
             const tempPasswordHash = await hashPassword(tempPassword);
             const updatedTempPassword = await this.db.AuthUser.update({kata_sandi: tempPasswordHash}, {where: {id_user: checkUser.id_user}});
-            if (updatedTempPassword <= 0) {
-                return{
-                    code: 500,
-                    error: 'Sorry, update temp password failed'
-                }
-            }
+            if (updatedTempPassword <= 0) newError(500, 'Failed to update temp password', 'ForgotPassword Service');
 
             verifyEmailForgotPassword(checkUser, tempPassword);
 
@@ -518,11 +362,7 @@ class _auth{
                 }
             };
         }catch (error){
-            log_error('emailVerification Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -534,23 +374,11 @@ class _auth{
                 email: joi.string().email().required(),
             });
             const {error, value} = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map(detail => detail.message).join(', ');
-                log_error('registerBod Service', errorDetails);
-                return {
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'RegisterBod Service');
 
             // Check if user exist
             const checkUser = await this.db.AuthUser.findOne({where : {email: value.email}});
-            if (checkUser != null) {
-                return {
-                    code: 400,
-                    error: 'Sorry, user already exist'
-                }
-            }
+            if (checkUser) newError(400, 'User already exist', 'RegisterBod Service');
 
             // Generate random nama_pengguna
             let isUnique = false;
@@ -576,12 +404,7 @@ class _auth{
                 id_peternakan: req.dataAuth.id_peternakan,
                 kata_sandi
             });
-            if (user == null) {
-                return{
-                    code: 500,
-                    error: 'Sorry, create user failed'
-                }
-            }
+            if (!user) newError(500, 'Failed to create user', 'RegisterBod Service');
 
             bodEmailRegister(value.email, randomPassword);
 
@@ -595,11 +418,7 @@ class _auth{
                 }
             };
         }catch (error){
-            log_error('registerBod Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

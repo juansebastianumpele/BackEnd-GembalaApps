@@ -1,7 +1,5 @@
 // Helper databse yang dibuat
-const joi = require('joi');
-const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _formInput{
     constructor(db){
@@ -12,12 +10,7 @@ class _formInput{
         try{
             // Get status ternak
             const statusTernak = await this.db.StatusTernak.findAll({});
-            if(statusTernak.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data janis ternak not found'
-                }
-            }
+            if(statusTernak.length <= 0) newError(404, 'Data Status Ternak not found', 'getDataFormInput Service');
 
             // Get kode kandang
             const kodeKandang = await this.db.Kandang.findAll({
@@ -33,16 +26,10 @@ class _formInput{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(kodeKandang.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data kode kandang not found'
-                }
-            }
-
             for(let i = 0; i < kodeKandang.length; i++){
                 kodeKandang[i].dataValues.jenis_kandang = kodeKandang[i].dataValues.jenis_kandang.jenis_kandang;
             }
+            if(kodeKandang.length <= 0) newError(404, 'Data Kode Kandang not found', 'getDataFormInput Service');
 
             // Get jenis pakan
             const jenisPakan = await this.db.JenisPakan.findAll({
@@ -51,45 +38,25 @@ class _formInput{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(jenisPakan.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data jenis pakan not found'
-                }
-            }
+            if(jenisPakan.length <= 0) newError(404, 'Data Jenis Pakan not found', 'getDataFormInput Service');   
 
             // Get penyakit
             const penyakit = await this.db.Penyakit.findAll({
                 attributes: ['id_penyakit','nama_penyakit'],
             });
-            if(penyakit.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data penyakit not found'
-                }
-            }
+            if(penyakit.length <= 0) newError(404, 'Data Penyakit not found', 'getDataFormInput Service');
 
             // Get jenis kandang
             const jenisKandang = await this.db.JenisKandang.findAll({
                 attributes: ['id_jenis_kandang','jenis_kandang']
             });
-            if(jenisKandang.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data jenis kandang not found'
-                }
-            }
+            if(jenisKandang.length <= 0) newError(404, 'Data Jenis Kandang not found', 'getDataFormInput Service');
 
             // Get bangsa
             const bangsa = await this.db.Bangsa.findAll({
                 attributes: ['id_bangsa','bangsa']
             });
-            if(bangsa.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data bangsa not found'
-                }
-            }
+            if(bangsa.length <= 0) newError(404, 'Data Bangsa not found', 'getDataFormInput Service');
             
             // Get status ternak indukan
             const statusIndukan = await this.db.StatusTernak.findOne({
@@ -97,12 +64,7 @@ class _formInput{
                     status_ternak: 'Indukan'
                 }
             });
-            if(!statusIndukan){
-                return{
-                    code: 404,
-                    error: 'Data status ternak indukan not found'
-                }
-            }
+            if(!statusIndukan) newError(404, 'Data Status Ternak Indukan not found', 'getDataFormInput Service');
 
             // Get status ternak pejantan
             const statusPejantan = await this.db.StatusTernak.findOne({
@@ -110,12 +72,7 @@ class _formInput{
                     status_ternak: 'Pejantan'
                 }
             });
-            if(!statusPejantan){
-                return{
-                    code: 404,
-                    error: 'Data status ternak pejantan not found'
-                }
-            }
+            if(!statusPejantan) newError(404, 'Data Status Ternak Pejantan not found', 'getDataFormInput Service');
 
             // Get data indukan
             const indukan = await this.db.Ternak.findAll({
@@ -126,12 +83,7 @@ class _formInput{
                     id_status_ternak: statusIndukan.dataValues.id_status_ternak
                 }
             });
-            if(indukan.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data indukan not found'
-                }
-            }
+            if(indukan.length <= 0) newError(404, 'Data Indukan not found', 'getDataFormInput Service');
 
             // Get data pejantan
             const pejantan = await this.db.Ternak.findAll({
@@ -142,12 +94,7 @@ class _formInput{
                     id_status_ternak: statusPejantan.dataValues.id_status_ternak
                 }
             });
-            if(pejantan.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data pejantan not found'
-                }
-            }
+            if(pejantan.length <= 0) newError(404, 'Data Pejantan not found', 'getDataFormInput Service');
 
             return {
                 code: 200,
@@ -164,11 +111,7 @@ class _formInput{
             }
 
         }catch (error){
-            log_error('getDataInput Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

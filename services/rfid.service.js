@@ -2,6 +2,7 @@
 const joi = require('joi');
 const {log_error, log_info} = require('../utils/logging')
 const createRiwayatFase = require('./riwayat_fase.service');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _rfid{
     constructor(db){
@@ -17,26 +18,15 @@ class _rfid{
                 jenis_ternak_baru: joi.string().required(),
             });
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'rfid Service');
 
             // Get data status ternak cempe
             const statusTernakCempe = await this.db.StatusTernak.findOne({
                 where: {
-                    status_ternak: "cempe"
+                    status_ternak: "Cempe"
                 }
             });
-            if(!statusTernakCempe){
-                return {
-                    code: 500,
-                    error: "Something went wrong, status ternak cempe not found"
-                }
-            }
+            if(!statusTernakCempe) newError(404, 'Data Status Ternak Cempe not found', 'rfid Service');
 
             // Check Ternak
             const checkTernak = await this.db.Ternak.findAll({
@@ -46,15 +36,7 @@ class _rfid{
                     id_peternakan: value.id_peternakan
                 }
             })
-            if(checkTernak.length > 0){
-                return{
-                    code: 200,
-                    data: {
-                        message: "Ternak Already Exist",
-                        id_ternak: checkTernak[0].id_ternak
-                    }
-                }
-            }
+            if(checkTernak.length > 0) newError(400, 'Ternak Registered', 'rfid Service');
 
             
             // Get data fase pemasukan
@@ -64,12 +46,7 @@ class _rfid{
                     fase: "Pemasukan"
                 }
             });
-            if(!idFasePemasukan){
-                return{
-                    code: 500,
-                    error: "Something went wrong, data fase not found"
-                }
-            }
+            if(!idFasePemasukan) newError(404, 'Data Fase Pemasukan not found', 'rfid Service');
 
             // Get data fase Kelahiran
             const idFaseKelahiran = await this.db.Fase.findOne({
@@ -92,6 +69,7 @@ class _rfid{
                 id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (statusTernakCempe ? statusTernakCempe.dataValues.id_status_ternak : null) : null,
                 id_fp: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? idFaseKelahiran.dataValues.id_fp : idFasePemasukan.dataValues.id_fp,
             })
+            if(!addTernak) newError(500, 'Failed to create new data ternak', 'rfid Service');
 
             // Create riwayat fase
             const riwayatFase = await createRiwayatFase(this.db, req, {
@@ -99,12 +77,7 @@ class _rfid{
                 id_fp: addTernak.id_fp,
                 id_peternakan: value.id_peternakan
             });
-            if(!riwayatFase){
-                return{
-                    code: 500,
-                    error: "Something went wrong, data riwayat fase not found"
-                }
-            }
+            if(!riwayatFase) newError(500, 'Failed to create new data riwayat fase', 'rfid Service');
 
             return{
                 code: 200,
@@ -116,11 +89,7 @@ class _rfid{
 
 
         } catch (error) {
-            log_error('RFID Service', error)
-            return {
-                code: 500,
-                error,
-            };
+            return errorHandler(error);
         }
     }
 
@@ -131,14 +100,7 @@ class _rfid{
                 rf_id: joi.string().required(),
             });
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
-
+            if (error) newError(400, error.details[0].message, 'rfid Service');
             // Query data
             const list = await this.db.Ternak.findOne({
                 attributes : ['id_ternak', 
@@ -202,12 +164,7 @@ class _rfid{
                 }
             });
             
-            if(!list){
-                return{
-                    code: 404,
-                    error: 'Data Ternak not found'
-                }
-            }
+            if(!list) newError(404, 'Data Ternak not found', 'rfid Service');
             
             list.dataValues.penyakit = (list.riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
             list.dataValues.status_kesehatan = list.dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
@@ -228,11 +185,7 @@ class _rfid{
             };
 
         }catch(error){
-            log_error('RFIDGetDataTernak Service', error)
-            return {
-                code: 500,
-                error,
-            };
+            return errorHandler(error);
         }
     }
 }

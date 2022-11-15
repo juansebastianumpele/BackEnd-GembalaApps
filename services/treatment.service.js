@@ -1,4 +1,4 @@
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _treatment{
     constructor(db){
@@ -7,12 +7,7 @@ class _treatment{
     // Get Treatment
     getTreatment = async (req) => {
         try{
-            if(!req.query.id_ternak){
-                return {
-                    code: 400,
-                    error: 'id_ternak is required'
-                }
-            }
+            if(!req.query.id_ternak) newError(400, 'id_ternak is required', 'getTreatment Service');
 
             const ternak = await this.db.Ternak.findOne({
                 attributes: ['id_ternak', 'id_fp'],
@@ -28,12 +23,7 @@ class _treatment{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!ternak){
-                return {
-                    code: 404,
-                    error: 'Ternak not found'
-                }
-            }
+            if(!ternak) newError(404, 'Data Ternak not found', 'getTreatment Service');
 
             if(ternak.dataValues.fase.dataValues.fase.toLowerCase().startsWith('adaptasi')){
                 const list = await this.db.Treatment.findAll({
@@ -42,12 +32,8 @@ class _treatment{
                         step: parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1])
                     }
                 });
-                if(list.length <= 0){
-                    return{
-                        code: 404,
-                        error: 'Data treatment not found'
-                    }
-                }
+                if(list.length <= 0) newError(404, 'Data Treatment not found', 'getTreatment Service');
+                
                 return {
                     code: 200,
                     data: {
@@ -58,17 +44,10 @@ class _treatment{
                 };
             }
             else{
-                return {
-                    code: 400,
-                    error: 'Fase Pemeliharaan Ternak not in adaptasi'
-                }
+                newError(400, 'Ternak is not in Adaptasi', 'getTreatment Service');
             }
         }catch (error){
-            log_error('getTreatment Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }   
 
@@ -79,12 +58,8 @@ class _treatment{
                 attributes: ['id_treatment', 'step', 'treatment'],
                 where: req.query
             });
-            if(list.length <= 0){
-                return {
-                    code: 404,
-                    error: 'Data treatment not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Treatment not found', 'getAllTreatment Service');
+
             return {
                 code: 200,
                 data: {
@@ -93,11 +68,7 @@ class _treatment{
                 }
             }
         }catch(error){
-            log_error('getAllTreatment Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 

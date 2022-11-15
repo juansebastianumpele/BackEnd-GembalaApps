@@ -1,7 +1,6 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 class _status{
     constructor(db){
         this.db = db;
@@ -9,17 +8,13 @@ class _status{
     // Get Status
     getStatus = async (req) => {
         try{
-            // Query Data
+            // Get data status ternak
             const list = await this.db.StatusTernak.findAll({
                 attrbutes: ['id_status_ternak','status_ternak'],
                 where: req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data status not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Status not found', 'getStatus Service');
+
             return {
                 code: 200,
                 data: {
@@ -28,55 +23,43 @@ class _status{
                 }
             };
         }catch (error){
-            log_error('getStatus Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
     
     // Create new status
     createStatus = async (req) => {
         try {
+            // Validate data
             const schema = joi.object({
                 status_ternak: joi.string().required()
             });
             const {error, value} = schema.validate(req.body);
-            if(error){
-                return {
-                    code: 400,
-                    error: error.details[0].message
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'createStatus Service');
+
+            // Create new status
             const status = await this.db.StatusTernak.create(value);
+            if(!status) newError(500, 'Failed to create new data status', 'createStatus Service');
+
             return {
                 code: 200,
                 data: status
             }
         } catch (error) {
-            log_error('createStatus Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     // Update status
     updateStatus = async (req) => {
         try {
+            // Validate request body
             const schema = joi.object({
                 id_status_ternak: joi.number().required(),
                 status_ternak: joi.string().required()
             });
             const {error, value} = schema.validate(req.body);
-            if(error){
-                return {
-                    code: 400,
-                    error: error.details[0].message
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'updateStatus Service');
 
             // Update Status Ternak
             const status = await this.db.StatusTernak.update({
@@ -86,43 +69,30 @@ class _status{
                     id_status_ternak: value.id_status_ternak
                 }
             });
-            if(status <= 0){
-                return {
-                    code: 500,
-                    error: 'Failed to update status'
-                }
-            }
+            if(status <= 0) newError(500, 'Failed to update data status', 'updateStatus Service');
 
             return {
                 code: 200,
                 data: {
                     id_status_ternak: value.id_status_ternak,
                     status: value.status,
-                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt: new Date()
                 }
             }
         } catch (error) {
-            log_error('updateStatus Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
     // Delete status
     deleteStatus = async (req) => {
         try {
+            // Validate request body
             const schema = joi.object({
                 id_status_ternak: joi.number().required()
             });
             const {error, value} = schema.validate(req.body);
-            if(error){
-                return {
-                    code: 400,
-                    error: error.details[0].message
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'deleteStatus Service');
 
             // Delete Status Ternak
             const status = await this.db.StatusTernak.destroy({
@@ -130,26 +100,17 @@ class _status{
                     id_status_ternak: value.id_status_ternak
                 }
             });
-            if(status <= 0){
-                return {
-                    code: 404,
-                    error: 'Data status not found'
-                }
-            }
+            if(status <= 0) newError(500, 'Failed to delete data status', 'deleteStatus Service');
 
             return {
                 code: 200,
                 data: {
                     id_status_ternak: value.id_status_ternak,
-                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt: new Date()
                 }
             }
         } catch (error) {
-            log_error('deleteStatus Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

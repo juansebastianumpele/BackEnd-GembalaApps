@@ -1,5 +1,5 @@
-const {log_error} = require('../utils/logging');
 const {Op} = require('sequelize');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _mobileDash{
     constructor(db){
@@ -15,13 +15,7 @@ class _mobileDash{
                     fase: 'Pemasukan'
                 }
             });
-            if(!idFasePemasukan){
-                log_error('getTotalTernak', 'Fase Pemasukan not found');
-                return {
-                    code: 500,
-                    error: `Something went wrong, fase pemasukan not found`
-                }
-            }
+            if(!idFasePemasukan) newError(404, 'Fase Pemasukan not found');
 
             // Get total ternak
             const ternak = await this.db.Ternak.findAll({
@@ -81,11 +75,7 @@ class _mobileDash{
                 }
             }
         }catch(error){
-            log_error(error);
-            return {
-                code: 500,
-                error: 'Internal Server Error'
-            }
+            return errorHandler(error);
         }
     }
 
@@ -99,12 +89,7 @@ class _mobileDash{
                     status_ternak: 'Cempe'
                 }
             });
-            if(!statusCempe){
-                return {
-                    code: 404,
-                    error: 'Status ternak Cempe tidak ditemukan'
-                }
-            }
+            if(!statusCempe) newError(404, 'Status Cempe not found');
 
             // Get status id pejantan
             const statusPejantan = await this.db.StatusTernak.findOne({
@@ -113,12 +98,7 @@ class _mobileDash{
                     status_ternak: 'Pejantan'
                 }
             });
-            if(!statusPejantan){
-                return {
-                    code: 404,
-                    error: 'Status ternak Pejantan tidak ditemukan'
-                }
-            }
+            if(!statusPejantan) newError(404, 'Status Pejantan not found');
 
             // Get status id indukan
             const statusIndukan = await this.db.StatusTernak.findOne({
@@ -127,12 +107,7 @@ class _mobileDash{
                     status_ternak: 'Indukan'
                 }
             });
-            if(!statusIndukan){
-                return {
-                    code: 404,
-                    error: 'Status ternak Indukan tidak ditemukan'
-                }
-            }
+            if(!statusIndukan) newError(404, 'Status Indukan not found');
 
             // Get total ternak pejantan
             const totalTernakPejantan = await this.db.Ternak.count({
@@ -211,93 +186,66 @@ class _mobileDash{
                 }
             }
         }catch(error){
-            log_error(error);
-            return {
-                code: 500,
-                error: 'Internal Server Error'
-            }
+            return errorHandler(error);
         }
     }
 
     /// Get total ternak by fase
     getTotalTernakByFase = async (req) => {
         try{
+            const ternak = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'id_fp'],
+                include: [
+                    {
+                        model: this.db.Fase,
+                        as: 'fase',
+                        attributes: ['id_fp', 'fase']
+                    }
+                ],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    status_keluar: null,
+                    id_fp: {
+                        [Op.not]: null
+                    }
+                }
+            });
+
             // Get data fase
-            const fase = await this.db.Fase.findAll({});
-            if(fase == null){
-                return {
-                    code: 404,
-                    error: 'Fase Ternak Not Found'
+            const fase = await this.db.Fase.findAll({
+                attributes: ['id_fp', 'fase']
+            });
+            if(!fase) newError(404, 'Fase not found');
+
+            // Create Object Fase
+            let list = {};
+            for(let i = 0; i < fase.length; i++){
+                if(fase[i].dataValues.fase.toLowerCase().startsWith('adaptasi')){
+                    list['adaptasi'] = 0;
+                }else if(fase[i].dataValues.fase.toLowerCase().includes('perkawinan')){
+                    list['perkawinan'] = 0;
+                }else{
+                    list[fase[i].dataValues.fase.toLowerCase()] = 0;
                 }
             }
 
-            // Get ternak fase pemasukan
-            // const ternakFasePemasukan = await this.db.Ternak.count({
-            //     where: {
-            //         id_peternakan: req.dataAuth.id_peternakan,
-            //         id_status_ternak: {
-            //             [Op.not]: null
-            //         },
-            //         jenis_kelamin: {
-            //             [Op.not]: null
-            //         },
-            //         id_fp: null,
-            //         status_keluar: null
-            //     }
-            // });
-
-            // Get total ternak by fase
-            let totalTernakByFase = [];
-            totalTernakByFase.push({
-                fase: 'Pemasukan',
-                total_ternak: ternakFasePemasukan
-            })
-            totalTernakByFase.push({
-                fase: 'Adaptasi',
-                total_ternak: 0
-            });
-            totalTernakByFase.push({
-                fase: 'Perkawinan',
-                total_ternak: 0
-            });
-            for(let i = 0; i < fase.length; i++){
-                const totalTernak = await this.db.Ternak.count({
-                    where: {
-                        id_peternakan: req.dataAuth.id_peternakan,
-                        id_fp: fase[i].dataValues.id_fp,
-                        id_status_ternak: {
-                            [Op.not]: null
-                        },
-                        jenis_kelamin: {
-                            [Op.not]: null
-                        },
-                        status_keluar: null
-                    }
-                });
-
-                if(fase[i].dataValues.fase.toLowerCase().startsWith('Adaptasi')){
-                    totalTernakByFase[1].total_ternak += totalTernak;
-                }else if(fase[i].dataValues.fase.toLowerCase().includes('Perkawinan')){
-                    totalTernakByFase[2].total_ternak += totalTernak;
+            // Count ternak by fase
+            for(let i = 0; i < ternak.length; i++){
+                if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase().startsWith('adaptasi')){
+                    list['adaptasi']++;
+                }else if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase().includes('perkawinan')){
+                    list['perkawinan']++;
                 }else{
-                    totalTernakByFase.push({
-                        fase: fase[i].dataValues.fase,
-                        total_ternak: totalTernak
-                    });
+                    list[ternak[i].dataValues.fase.dataValues.fase.toLowerCase()]++;
                 }
             }
 
             return {
                 code: 200,
-                data: totalTernakByFase
+                data: list
             }
-
         }catch(error){
-            log_error(error);
-            return {
-                code: 500,
-                error: 'Internal Server Error'
-            }
+            return errorHandler(error);
         }
     }
 }

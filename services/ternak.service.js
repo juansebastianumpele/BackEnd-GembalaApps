@@ -1,7 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const date = require('date-and-time');
-const { log_error } = require('../utils/logging');
+const { newError, errorHandler } = require('../utils/errorHandler');
+
 class _ternak{
     constructor(db){
         this.db = db;
@@ -80,12 +80,7 @@ class _ternak{
                 order : [['createdAt', 'DESC']]
             });
             
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data Ternak not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Ternak not found', 'getTernak Service');
             
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
@@ -111,11 +106,7 @@ class _ternak{
                 }
             };
         }catch (error){
-            log_error('getTernak Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -140,15 +131,8 @@ class _ternak{
                 id_status_ternak: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
-
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'createTernak Service');
 
             // Check if Ternak already exist
             const ternak = await this.db.Ternak.findOne({
@@ -156,23 +140,13 @@ class _ternak{
                     rf_id: value.rf_id
                 }
             });
-            if(ternak){
-                return{
-                    code: 400,
-                    error: 'RFID Ternak already exist'
-                }
-            }
+            if(ternak) newError(400, 'RFID Ternak already exist', 'createTernak Service');
 
-            // Query Data
             // Add id_user to params
             value.id_peternakan = req.dataAuth.id_peternakan
+            // Create new Ternak
             const add = await this.db.Ternak.create(value);
-            if(add === null){
-                return{
-                    code: 400,
-                    error: `Failed to create new Ternak`
-                }
-            }
+            if(!add) newError(500, 'Failed to create Ternak', 'createTernak Service');
 
            if(value.berat || value.suhu){
                 // Add Timbangan
@@ -183,12 +157,7 @@ class _ternak{
                     suhu: add.suhu ? add.suhu : 0,
                     tanggal_timbang: new Date(),
                 });
-                if(timbangan === null){
-                    return{
-                        code: 400,
-                        error: `Failed to create new Timbangan`
-                    }
-                }
+                if(!timbangan) newError(500, 'Failed to create Timbangan', 'createTernak Service');
             }
 
             return {
@@ -196,16 +165,12 @@ class _ternak{
                 data: {
                     id: add.id_ternak,
                     rf_id: add.rf_id,
-                    createdAt: date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
+                    createdAt: add.createdAt
                 }
             };
         }
         catch (error) {
-            log_error('createTernak Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -230,16 +195,10 @@ class _ternak{
                 id_status_ternak: joi.number().allow(null),
                 id_kandang: joi.number().allow(null)
             });
-
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'updateTernak Service');
 
+            // Update Ternak
             const update = await this.db.Ternak.update({
                 rf_id: value.rf_id,
                 image: value.image,
@@ -260,12 +219,7 @@ class _ternak{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update Ternak`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update Ternak', 'updateTernak Service');
 
             // Get data Timbangan
             const timbangan = await this.db.Timbangan.findAll({
@@ -287,12 +241,7 @@ class _ternak{
                         id_timbangan: timbangan[0].dataValues.id_timbangan
                     }
                 });
-                if(updateTimbangan <= 0){
-                    return{
-                        code: 400,
-                        error: `Failed to update Timbangan`
-                    }
-                }
+                if(updateTimbangan <= 0) newError(500, 'Failed to update Timbangan', 'updateTernak Service');
             }
             
             return {
@@ -300,16 +249,12 @@ class _ternak{
                 data: {
                     id: value.id_ternak,
                     rf_id: value.rf_id,
-                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('updateTernak Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -320,15 +265,8 @@ class _ternak{
             const schema = joi.object({
                 id_ternak: joi.number().required(),
             });
-
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'deleteTernak Service');
 
             // Query Data
             const del = await this.db.Ternak.destroy({
@@ -337,27 +275,18 @@ class _ternak{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(del <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete Ternak`
-                }
-            }
+            if(del <= 0) newError(500, 'Failed to delete Ternak', 'deleteTernak Service');
 
             return {
                 code: 200,
                 data: {
                     id: value.id_ternak,
-                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('deleteTernak Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -370,17 +299,10 @@ class _ternak{
                 status_keluar: joi.string().required(),
                 tanggal_keluar: joi.date().required()
             });
-
             const {error, value} = schema.validate(req.body);
-            if(error){
-                const errorDetails = error.details.map(i => i.message).join(',');
-                return{
-                    code: 400,
-                    error: errorDetails
-                }
-            }
+            if(error) newError(400, error.details[0].message, 'ternakKeluar Service');
 
-            // Query Data
+            // Update Ternak
             const update = await this.db.Ternak.update({
                 status_keluar: value.status_keluar,
                 tanggal_keluar: value.tanggal_keluar
@@ -390,27 +312,18 @@ class _ternak{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update Ternak`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update Ternak', 'ternakKeluar Service');
 
             return {
                 code: 200,
                 data: {
                     id: value.id_ternak,
-                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt: new Date()
                 }
             };
         }
         catch (error) {
-            log_error('ternakKeluar Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -423,12 +336,7 @@ class _ternak{
                     status_ternak : 'Indukan'
                 }
             });
-            if(!statusTernak){
-                return{
-                    code: 400,
-                    error: `Status Ternak Indukan not found`
-                }
-            }
+            if(!statusTernak) newError(500, 'Failed to get data Status Ternak', 'getDataIndukan Service');
 
             // Query Data
             const list = await this.db.Ternak.findAll({
@@ -495,12 +403,7 @@ class _ternak{
                 order : [['createdAt', 'DESC']]
             });
             
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data Ternak not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Ternak Indukan not found', 'getDataIndukan Service');
             
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
@@ -526,11 +429,7 @@ class _ternak{
                 },
             };
         } catch (error) {
-            log_error('getDataIndukan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -543,12 +442,7 @@ class _ternak{
                     status_ternak : 'Pejantan'
                 }
             });
-            if(!statusTernak){
-                return{
-                    code: 400,
-                    error: `Status Ternak Pejantan not found`
-                }
-            }
+            if(!statusTernak) newError(500, 'Failed to get data Status Ternak', 'getDataPejantan Service');
 
             // Query Data
             const list = await this.db.Ternak.findAll({
@@ -615,12 +509,7 @@ class _ternak{
                 order : [['createdAt', 'DESC']]
             });
             
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data Ternak not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Data Ternak Pejantan not found', 'getDataPejantan Service');
             
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
@@ -646,11 +535,7 @@ class _ternak{
                 },
             };
         } catch (error) {
-            log_error('getDataIndukan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }

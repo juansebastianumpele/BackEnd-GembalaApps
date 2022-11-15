@@ -1,7 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const date = require('date-and-time');
-const {log_error} = require('../utils/logging');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _pakan{
     constructor(db){
@@ -13,16 +13,11 @@ class _pakan{
             // Add id_peternakan to params
             req.query.id_peternakan = req.dataAuth.id_peternakan
 
-            // Query data
+            // get jenis pakan
             const list = await this.db.JenisPakan.findAll({
                 where : req.query
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data jenis pakan not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Jenis pakan not found', 'getJenisPakan Service');
 
             // Get data Pakan
             const data = await this.db.Pakan.findAll({
@@ -36,6 +31,8 @@ class _pakan{
                 list[i].dataValues.stok_belum_siap = data.length > 0 ? data.filter((item) => item.dataValues.id_jenis_pakan == list[i].dataValues.id_jenis_pakan && item.dataValues.tanggal_pembuatan != null && item.dataValues.tanggal_konsumsi > new Date()).length : 0;
                 list[i].dataValues.stok_belum_dibuat = data.length > 0 ? data.filter((item) => item.dataValues.id_jenis_pakan == list[i].dataValues.id_jenis_pakan && item.dataValues.tanggal_pembuatan == null).length : 0;
             }
+
+            if(list.length <= 0) newError(404, 'Jenis pakan not found');
     
             return {
                 code : 200,
@@ -45,11 +42,7 @@ class _pakan{
                 },
             };
         }catch (error){
-            log_error('getJenisPakan Service', error);
-            return {
-                code : 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -63,17 +56,11 @@ class _pakan{
                 satuan: joi.string().required(),
                 komposisi: joi.string().allow(null),
                 nutrien: joi.string().allow(null),
-            });
-
+            }); 
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'createJenisPakan Service');
 
+            // Create new jenis pakan
             const add = await this.db.JenisPakan.create({
                 id_peternakan: req.dataAuth.id_peternakan,
                 jenis_pakan: value.jenis_pakan,
@@ -82,28 +69,19 @@ class _pakan{
                 komposisi: value.komposisi,
                 nutrien: value.nutrien,
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to create new pakan`
-                }
-            }
+            if(!add) newError(500, 'Failed to create jenis pakan', 'createJenisPakan Service');
 
             return {
                 code: 200,
                 data: {
                     id_jenis_pakan: add.id_jenis_pakan,
                     jenis_pakan: add.jenis_pakan,
-                    createdAt : date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
+                    createdAt : add.createdAt,
                 }
             };
         }
         catch (error) {
-            log_error('createPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -119,16 +97,10 @@ class _pakan{
                 komposisi: joi.string().allow(null),
                 nutrien: joi.string().allow(null),
             });
-            
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updateJenisPakan Service');
 
+            // Update jenis pakan
             const update = await this.db.JenisPakan.update({
                 jenis_pakan: value.jenis_pakan,
                 interval_pakan: value.interval_pakan,
@@ -141,28 +113,19 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update[0] == 0){
-                return{
-                    code: 400,
-                    error: `Failed to update jenis pakan`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update jenis pakan', 'updateJenisPakan Service');
 
             return {
                 code: 200,
                 data: {
                     id_jenis_pakan: value.id_jenis_pakan,
                     jenis_pakan: value.jenis_pakan,
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt : new Date(),
                 }
             };
         }
         catch (error) {
-            log_error('updateJenisPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -173,15 +136,8 @@ class _pakan{
             const schema = joi.object({
                 id_jenis_pakan: joi.number().required(),
             });
-            
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'deleteJenisPakan Service');
             
             const del = await this.db.JenisPakan.destroy({
                 where: {
@@ -189,27 +145,18 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(del == 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete jenis pakan`
-                }
-            }
+            if(del <= 0) newError(500, 'Failed to delete jenis pakan', 'deleteJenisPakan Service');
 
             return {
                 code: 200,
                 data: {
                     id_jenis_pakan: value.id_jenis_pakan,
-                    deletedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt : new Date(),
                 }
             };
         }
         catch (error) {
-            log_error('deleteJenisPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -228,12 +175,7 @@ class _pakan{
                 }],
                 where: req.query,
             });
-            if(list.length <= 0){
-                return{
-                    code: 404,
-                    error: 'Data pakan not found'
-                }
-            }
+            if(list.length <= 0) newError(404, 'Pakan not found');
 
             for(let i = 0; i < list.length; i++){
                 if(list[i].dataValues.tanggal_konsumsi != null){
@@ -251,11 +193,7 @@ class _pakan{
                 },
             };
         }catch (error){
-            log_error('getPakan Service', error);
-            return {
-                code : 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -267,15 +205,8 @@ class _pakan{
                 id_jenis_pakan: joi.number().required(),
                 id: joi.number().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'createPakan Service');
 
             // check id jenis_pakan
             const jenis_pakan = await this.db.Pakan.findOne({
@@ -285,12 +216,7 @@ class _pakan{
                     id_jenis_pakan: value.id_jenis_pakan,
                 }
             });
-            if(jenis_pakan != null){
-                return{
-                    code: 400,
-                    error: `ID already exist`
-                }
-            }
+            if(jenis_pakan) newError(400, 'ID already exist', 'createPakan Service');
 
             // add data pakan
             const add = await this.db.Pakan.create({
@@ -298,12 +224,7 @@ class _pakan{
                 id_jenis_pakan: value.id_jenis_pakan,
                 id: value.id,
             });
-            if(add == null){
-                return{
-                    code: 400,
-                    error: `Failed to create new pakan`
-                }
-            }
+            if(!add) newError(500, 'Failed to add pakan', 'createPakan Service');
 
             return {
                 code: 200,
@@ -311,16 +232,12 @@ class _pakan{
                     id_pakan: add.id_pakan,
                     id_jenis_pakan: add.id_jenis_pakan,
                     id: add.id,
-                    createdAt : date.format(add.createdAt, 'YYYY-MM-DD HH:mm:ss')
+                    createdAt : add.createdAt
                 }
             };
         }
         catch (error) {
-            log_error('createPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -333,15 +250,8 @@ class _pakan{
                 id_jenis_pakan: joi.number().required(),
                 id: joi.number().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updatePakan Service');
 
             // check id jenis_pakan
             const jenis_pakan = await this.db.Pakan.findOne({
@@ -350,12 +260,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(jenis_pakan != null){
-                return{
-                    code: 400,
-                    error: `ID already exist`
-                }
-            }
+            if(jenis_pakan) newError(400, 'ID already exist', 'updatePakan Service');
 
             // update data pakan
             const update = await this.db.Pakan.update({
@@ -367,12 +272,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to update pakan`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update pakan', 'updatePakan Service');
 
             return {
                 code: 200,
@@ -380,16 +280,12 @@ class _pakan{
                     id_pakan: value.id_pakan,
                     id_jenis_pakan: value.id_jenis_pakan,
                     id: value.id,
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt : new Date(),
                 }
             };
         }
         catch (error) {
-            log_error('updatePakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -400,44 +296,28 @@ class _pakan{
             const schema = joi.object({
                 id_pakan: joi.number().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'deletePakan Service');
 
-            // Query data
+            // Delete data pakan
             const del = await this.db.Pakan.destroy({
                 where: {
                     id_pakan: value.id_pakan,
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(del <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to delete pakan`
-                }
-            }
+            if(del <= 0) newError(500, 'Failed to delete pakan', 'deletePakan Service');
 
             return {
                 code: 200,
                 data: {
                     id_pakan: value.id_pakan,
-                    deletedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    deletedAt : new Date(),
                 }
             };
         }
         catch (error) {
-            log_error('deletePakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -450,15 +330,8 @@ class _pakan{
                 tanggal_pembuatan: joi.date().allow(null),
                 tanggal_konsumsi: joi.date().allow(null),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'fillPakan Service');
 
             // Get data pakan
             const pakan = await this.db.Pakan.findOne({
@@ -467,12 +340,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(pakan == null){
-                return{
-                    code: 400,
-                    error: `Pakan not found`
-                }
-            }
+            if(!pakan) newError(404, 'Pakan not found', 'fillPakan Service');
 
             // Get data jenis pakan
             const jenisPakan = await this.db.JenisPakan.findOne({
@@ -481,12 +349,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(jenisPakan == null){
-                return{
-                    code: 400,
-                    error: `Jenis pakan not found`
-                }
-            }
+            if(!jenisPakan) newError(404, 'Jenis pakan not found', 'fillPakan Service');
 
             // Query data
             const update = await this.db.Pakan.update({
@@ -498,12 +361,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to fill pakan`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to fill pakan', 'fillPakan Service');
 
             return {
                 code: 200,
@@ -511,16 +369,12 @@ class _pakan{
                     id_pakan: update.id_pakan,
                     tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
                     tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.interval_pakan),
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt : new Date(),
                 }
             };
         }
         catch (error) {
-            log_error('fillPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
     
@@ -533,15 +387,8 @@ class _pakan{
                 tanggal_pembuatan: joi.date().allow(null),
                 tanggal_konsumsi: joi.date().allow(null),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updateFillPakan Service');
 
             // Get data pakan
             const pakan = await this.db.Pakan.findOne({
@@ -550,12 +397,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(pakan == null){
-                return{
-                    code: 400,
-                    error: `Pakan not found`
-                }
-            }
+            if(!pakan) newError(404, 'Pakan not found', 'updateFillPakan Service');
 
             // Get data jenis pakan
             const jenisPakan = await this.db.JenisPakan.findOne({
@@ -564,12 +406,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(jenisPakan == null){
-                return{
-                    code: 400,
-                    error: `Jenis pakan not found`
-                }
-            }
+            if(!jenisPakan) newError(404, 'Jenis pakan not found', 'updateFillPakan Service');
 
             // Query data
             const update = await this.db.Pakan.update({
@@ -581,12 +418,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to fill pakan`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to update fill pakan', 'updateFillPakan Service');
 
             return {
                 code: 200,
@@ -594,16 +426,12 @@ class _pakan{
                     id_pakan: value.id_pakan,
                     tanggal_pembuatan: value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(),
                     tanggal_konsumsi: value.tanggal_konsumsi ? value.tanggal_konsumsi : date.addDays(value.tanggal_pembuatan ? value.tanggal_pembuatan : new Date(), jenisPakan.dataValues.interval_pakan),
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt : new Date(),
                 }
             };
         }
         catch (error) {
-            log_error('updateFillPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -614,17 +442,10 @@ class _pakan{
             const schema = joi.object({
                 id_pakan: joi.number().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'emptyPakan Service');
 
-            // Query data
+            // Update data
             const update = await this.db.Pakan.update({
                 tanggal_pembuatan: null,
                 tanggal_konsumsi: null,
@@ -634,12 +455,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0){
-                return{
-                    code: 400,
-                    error: `Failed to empty pakan`
-                }
-            }
+            if(update <= 0) newError(500, 'Failed to empty pakan', 'emptyPakan Service');
 
             return {
                 code: 200,
@@ -647,16 +463,12 @@ class _pakan{
                     id_pakan: value.id_pakan,
                     tanggal_pembuatan: null,
                     tanggal_konsumsi: null,
-                    updatedAt : date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    updatedAt : new Date(),
                 }
             };
         }
         catch (error) {
-            log_error('emptyPakan Service', error);
-            return {
-                code: 500,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }
