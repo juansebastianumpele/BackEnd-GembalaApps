@@ -17,12 +17,33 @@ const perkawinanController = (db) => {
     });
 
     /**
+     * Get Perkawinan
+     */
+    PerkawinanController.get('/', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$perkawinan.getPerkawinan(req);
+        response.sendResponse(res, list);
+    });
+
+    /**
      * Create Perkawinan
      * @param {number} id_indukan
      * @param {number} id_pejantan
      */
      PerkawinanController.post('/', authentication, adminMiddleware, async (req, res, next) => {
         const list = await s$perkawinan.createPerkawinan(req);
+        response.sendResponse(res, list);
+    });
+
+    /**
+     * Update Perkawinan
+     * @param {number} id_perkawinan
+     * @param {string} status
+     * @param {number} id_kandang
+     * @param {boolean} usg_1
+     * @param {boolean} usg_2
+     */
+    PerkawinanController.put('/', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$perkawinan.updatePerkawinan(req);
         response.sendResponse(res, list);
     });
 

@@ -35,11 +35,11 @@ module.exports = (Sequelize, DataTypes) => {
           ],
         },
         usg_1:{
-          type: DataTypes.DATE,
+          type: DataTypes.BOOLEAN,
           allowNull: true
         },
         usg_2:{
-          type: DataTypes.DATE,
+          type: DataTypes.BOOLEAN,
           allowNull: true
         },
         createdAt:{
