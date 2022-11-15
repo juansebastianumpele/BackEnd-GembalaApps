@@ -36,7 +36,15 @@ class _rfid{
                     id_peternakan: value.id_peternakan
                 }
             })
-            if(checkTernak.length > 0) newError(400, 'Ternak Registered', 'rfid Service');
+            if(checkTernak.length > 0){
+                return {
+                    code: 200,
+                    data: {
+                        id_ternak: checkTernak[0].dataValues.id_ternak,
+                        message: 'Ternak Registered'
+                    }
+                }
+            }
 
             
             // Get data fase pemasukan
