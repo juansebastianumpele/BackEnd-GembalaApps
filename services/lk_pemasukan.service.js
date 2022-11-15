@@ -120,12 +120,14 @@ class _lkPemasukan{
             if(!fase) newError(404, 'Data Fase not found', 'createLKPemasukan Service');
 
             // Update Data ternak
+            const date = new Date();
             const update = await this.db.Ternak.update({
                 id_bangsa: value.id_bangsa,
                 jenis_kelamin: value.jenis_kelamin,
                 id_kandang: value.id_kandang,
                 id_fp: fase.dataValues.id_fp,
                 id_status_ternak: value.id_status_ternak,
+                tanggal_lahir: date.setDate(date.getDate() - (value.cek_poel * 365)),
             },{
                 where: {
                     id_ternak: value.id_ternak,
