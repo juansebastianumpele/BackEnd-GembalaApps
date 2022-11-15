@@ -51,7 +51,10 @@ class _perkawinan {
 
             return {
                 code: 200,
-                data: ternakWaitingList
+                data: {
+                    total: ternakWaitingList.length,
+                    list: ternakWaitingList
+                }
             }
         } catch (error) {
             return errorHandler(error);
