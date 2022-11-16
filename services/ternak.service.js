@@ -1,6 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const { newError, errorHandler } = require('../utils/errorHandler');
+const {Op} = require('sequelize');
 
 class _ternak{
     constructor(db){
@@ -305,7 +306,9 @@ class _ternak{
             // Update Ternak
             const update = await this.db.Ternak.update({
                 status_keluar: value.status_keluar,
-                tanggal_keluar: value.tanggal_keluar
+                tanggal_keluar: value.tanggal_keluar,
+                id_kandang: null,
+                id_fp: null
             }, {
                 where: {
                     id_ternak: value.id_ternak,
@@ -510,6 +513,109 @@ class _ternak{
             });
             
             if(list.length <= 0) newError(404, 'Data Ternak Pejantan not found', 'getDataPejantan Service');
+            
+            for(let i = 0; i < list.length; i++){
+                list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
+                list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
+                list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
+                    ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
+                    : 0) * ((list[i].dataValues.kandang && list[i].dataValues.kandang.persentase_kebutuhan_pakan 
+                        ? list[i].dataValues.kandang.persentase_kebutuhan_pakan 
+                        : 0)/100)).toFixed(2);
+                const umurHari =  list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
+                list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
+                list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
+                list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.suhu : 0;
+                delete list[i].dataValues.riwayat_kesehatan;
+                delete list[i].dataValues.timbangan;
+            }
+
+            return {
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                },
+            };
+        } catch (error) {
+            return errorHandler(error);
+        }
+    }
+
+    // Get data ternak keluar 
+    getTernakKeluar = async (req) => {
+        try {
+            // Get ternak keluar
+            const list = await this.db.Ternak.findAll({
+                attributes : ['id_ternak', 
+                'rf_id', 
+                'image', 
+                'jenis_kelamin', 
+                'id_dam', 
+                'id_sire', 
+                'tanggal_lahir',
+                'tanggal_masuk', 
+                'tanggal_keluar', 
+                'status_keluar', 
+                'createdAt', 
+                'updatedAt'],
+                include: [
+                    {
+                        model: this.db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa']
+                    },
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang', 'id_jenis_kandang', 'persentase_kebutuhan_pakan', 'id_jenis_pakan'],
+                        include: [
+                            {
+                                model: this.db.JenisKandang,
+                                as: 'jenis_kandang',
+                                attributes: ['id_jenis_kandang', 'jenis_kandang']
+                            },
+                            {
+                                model: this.db.JenisPakan,
+                                as: 'jenis_pakan',
+                                attributes: ['id_jenis_pakan', 'jenis_pakan']
+                            }
+                        ]
+                    },
+                    {
+                        model: this.db.RiwayatKesehatan,
+                        as: 'riwayat_kesehatan',
+                        attributes: ['id_riwayat_kesehatan', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
+                    },
+                    {
+                        model: this.db.Fase,
+                        as: 'fase',
+                        attributes: ['id_fp', 'fase']
+                    },
+                    {
+                        model: this.db.StatusTernak,
+                        as: 'status_ternak',
+                        attributes: ['id_status_ternak', 'status_ternak']
+                    },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['id_timbangan', 'berat']
+                    }
+                ],
+                where : {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    status_keluar: {
+                        [Op.not]: null
+                    },
+                    tanggal_keluar:{
+                        [Op.not]: null
+                    }
+                },
+                order : [['createdAt', 'DESC']]
+            });
+            
+            if(list.length <= 0) newError(404, 'Data Ternak keluar not found', 'getTernakKeluar Service');
             
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))

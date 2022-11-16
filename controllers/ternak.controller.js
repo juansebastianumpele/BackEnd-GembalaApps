@@ -102,6 +102,14 @@ const ternakController = (db) => {
         response.sendResponse(res, edit);
     });
 
+    /**
+     * Get ternak keluar
+     */
+    TernakController.get('/keluar', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$ternak.getTernakKeluar(req);
+        response.sendResponse(res, detail);
+    });
+
     return TernakController;
 }
 
