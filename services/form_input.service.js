@@ -10,7 +10,6 @@ class _formInput{
         try{
             // Get status ternak
             const statusTernak = await this.db.StatusTernak.findAll({});
-            if(statusTernak.length <= 0) newError(404, 'Data Status Ternak not found', 'getDataFormInput Service');
 
             // Get kode kandang
             const kodeKandang = await this.db.Kandang.findAll({
@@ -29,7 +28,6 @@ class _formInput{
             for(let i = 0; i < kodeKandang.length; i++){
                 kodeKandang[i].dataValues.jenis_kandang = kodeKandang[i].dataValues.jenis_kandang.jenis_kandang;
             }
-            if(kodeKandang.length <= 0) newError(404, 'Data Kode Kandang not found', 'getDataFormInput Service');
 
             // Get jenis pakan
             const jenisPakan = await this.db.JenisPakan.findAll({
@@ -38,25 +36,21 @@ class _formInput{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(jenisPakan.length <= 0) newError(404, 'Data Jenis Pakan not found', 'getDataFormInput Service');   
 
             // Get penyakit
             const penyakit = await this.db.Penyakit.findAll({
                 attributes: ['id_penyakit','nama_penyakit'],
             });
-            if(penyakit.length <= 0) newError(404, 'Data Penyakit not found', 'getDataFormInput Service');
 
             // Get jenis kandang
             const jenisKandang = await this.db.JenisKandang.findAll({
                 attributes: ['id_jenis_kandang','jenis_kandang']
             });
-            if(jenisKandang.length <= 0) newError(404, 'Data Jenis Kandang not found', 'getDataFormInput Service');
 
             // Get bangsa
             const bangsa = await this.db.Bangsa.findAll({
                 attributes: ['id_bangsa','bangsa']
             });
-            if(bangsa.length <= 0) newError(404, 'Data Bangsa not found', 'getDataFormInput Service');
             
             // Get status ternak indukan
             const statusIndukan = await this.db.StatusTernak.findOne({
@@ -83,7 +77,6 @@ class _formInput{
                     id_status_ternak: statusIndukan.dataValues.id_status_ternak
                 }
             });
-            if(indukan.length <= 0) newError(404, 'Data Indukan not found', 'getDataFormInput Service');
 
             // Get data pejantan
             const pejantan = await this.db.Ternak.findAll({
@@ -94,7 +87,25 @@ class _formInput{
                     id_status_ternak: statusPejantan.dataValues.id_status_ternak
                 }
             });
-            if(pejantan.length <= 0) newError(404, 'Data Pejantan not found', 'getDataFormInput Service');
+
+            // Get fase perkawinan
+            const fasePerkawinan = await this.db.Fase.findOne({
+                where: {
+                    fase: 'Perkawinan'
+                }
+            });
+            if(!fasePerkawinan) newError(500, 'Data Fase Perkawinan not found', 'getDataFormInput Service');
+
+            // Get Pejantan in perkawinan
+            const pejantanInPerkawinan = await this.db.Ternak.findAll({
+                attributes: ['id_ternak','rf_id'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    jenis_kelamin: 'jantan',
+                    id_status_ternak: statusPejantan.dataValues.id_status_ternak,
+                    id_fp: fasePerkawinan.dataValues.id_fp
+                }
+            });
 
             return {
                 code: 200,
@@ -106,7 +117,8 @@ class _formInput{
                     jenis_kandang: jenisKandang,
                     bangsa: bangsa,
                     indukan: indukan,
-                    pejantan: pejantan
+                    pejantan: pejantan,
+                    pejantan_perkawinan: pejantanInPerkawinan
                 }
             }
 
