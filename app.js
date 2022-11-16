@@ -4,6 +4,7 @@ const route = require('./routes/route');
 const app = express();
 const db = require('./models');
 const {log_info} = require('./utils/logging');
+const ci_cd = require('./utils/ci_cd');
 // const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
@@ -32,8 +33,8 @@ app.use((req, res, next) => {
 // Routing
 route(app, db);
 
-// Auth Token blacklisted
-// global.blacklistedToken = [];
+// CI/CD
+ci_cd(app);
 
 app.listen(port, () => {
     log_info('app',`Server running on port ${port}`);
