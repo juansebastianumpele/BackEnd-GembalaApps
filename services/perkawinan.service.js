@@ -90,7 +90,6 @@ class _perkawinan {
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            console.log(dataIndukan);
             if(!dataIndukan){
                 newError(404, 'Data Ternak Indukan not found', 'createPerkawinan Service');
             }else if(dataIndukan.dataValues.id_fp == idFasePerkawinan.dataValues.id_fp){
@@ -357,34 +356,96 @@ class _perkawinan {
             await t.rollback();
             return errorHandler(error);
         }
-
     }
 
-    // // Get ternak in Perkawinan
-    // getTernakInPerkawinan = async (req) => {
-    //     try{
-    //         // Get i
-    //         // Get data ternak in Perkawinan
-    //         const dataTernakInPerkawinan = await this.db.Fase.findOne({
-    //             attributes: ['id_fase', 'fase'],
-    //             where: {
-    //                 fase: 'Perkawinan'
-    //             },
-    //             include: [
-    //                 {
-    //                     model: this.db.Ternak,
-    //                     as: 'ternak',
-    //                     attributes: ['id_ternak', 'jenis_kelamin'],id_fase
-    //                     include: [
-    //                         {
-    //                             model: this.db.Perkawinan,
-    //                             as: 'perkawinan',
-    //                             attributes: []
-    //                 }
-    //     }catch(error){
-    //         return errorHandler(error);
-    //     }
-    // }
+    // Get ternak in Perkawinan
+    getTernakInPerkawinan = async (req) => {
+        try{
+            // Get i
+            // Get data ternak in Perkawinan
+            const dataTernakInPerkawinan = await this.db.Fase.findOne({
+                attributes: ['id_fp', 'fase'],
+                where: {
+                    fase: 'Perkawinan'
+                },
+                include: [
+                    {
+                        model: this.db.Ternak,
+                        as: 'ternak',
+                        attributes: ['id_ternak', 'jenis_kelamin'],
+                        include: [
+                            {
+                                model: this.db.RiwayatFase,
+                                as: 'riwayat_fase',
+                                attributes: ['tanggal']
+                            },
+                            {
+                                model: this.db.Kandang,
+                                as: 'kandang',
+                                attributes: ['id_kandang', 'kode_kandang']
+                            },
+                            {
+                                model: this.db.Bangsa,
+                                as: 'bangsa',
+                                attributes: ['id_bangsa', 'bangsa']
+                            }
+                        ],
+                        where: {
+                            id_peternakan: req.dataAuth.id_peternakan
+                        }
+                    }
+                ]
+            });
+
+            // Get riwayat perkawinan
+            const dataRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
+                attributes: ['id_riwayat_perkawinan', 'id_indukan', 'id_pejantan'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    usg: 2
+                }
+            });
+
+            let data = dataTernakInPerkawinan.dataValues.ternak;
+            let totalByKandang = {};
+            for(let i = 0; i < data.length; i++){
+                const riwayatPerkawinan = dataRiwayatPerkawinan.filter((value) => {
+                    return value.dataValues.id_indukan == data[i].dataValues.id_ternak || value.dataValues.id_pejantan == data[i].dataValues.id_ternak;
+                });
+                data[i].dataValues.riwayat_perkawinan = `${riwayatPerkawinan.length} kali`
+
+                // Count coloni time
+                const waktuHari =  data[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(data[i].dataValues.riwayat_fase[data[i].dataValues.riwayat_fase.length -1].dataValues.tanggal))/(1000*60*60*24)) : 0;
+                data[i].dataValues.waktu_koloni = `${Math.floor(waktuHari/30)} bulan ${waktuHari%30} hari`;
+                delete data[i].dataValues.riwayat_fase;
+
+                // Get total ternak by kandang
+                if(totalByKandang[data[i].dataValues.kandang.dataValues.kode_kandang]){
+                    totalByKandang[data[i].dataValues.kandang.dataValues.kode_kandang] += 1;
+                }else{
+                    totalByKandang[data[i].dataValues.kandang.dataValues.kode_kandang] = 1;
+                }    
+            }
+            
+            
+            return {
+                code: 200,
+                data: {
+                    kandang: {
+                        total: Object.keys(totalByKandang).length,
+                        list: totalByKandang
+                    },
+                    ternak:{
+                        total: data.length,
+                        list: data
+                    }
+                }
+            }
+
+        }catch(error){
+            return errorHandler(error);
+        }
+    }
 }
 
 module.exports = (db) => new _perkawinan(db);

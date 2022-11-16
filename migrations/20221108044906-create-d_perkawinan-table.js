@@ -61,7 +61,7 @@ module.exports = {
           'Tidak Bunting',
           'Abortus',
         ],
-        allowNull: false
+        allowNull: true
       },
       usg_1: {
         type: Sequelize.BOOLEAN,

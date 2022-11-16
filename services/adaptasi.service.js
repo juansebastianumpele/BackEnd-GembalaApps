@@ -453,7 +453,6 @@ class _adaptasi{
             let totalByKandang = {}
 
             for(let i = 0; i < list.length; i++){
-                console.log(list[i].dataValues.timbangan)
                 list[i].dataValues.perlakuan = list[i].dataValues.fase.fase.split(' ')[1];
                 list[i].dataValues.kode_kandang = list[i].dataValues.kandang ? list[i].dataValues.kandang.dataValues.kode_kandang : null;
                 list[i].dataValues.bangsa = list[i].dataValues.bangsa ? list[i].dataValues.bangsa.dataValues.bangsa : null;

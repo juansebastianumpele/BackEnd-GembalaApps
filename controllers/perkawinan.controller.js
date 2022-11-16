@@ -47,6 +47,14 @@ const perkawinanController = (db) => {
         response.sendResponse(res, list);
     });
 
+    /**
+     * Get data ternak perkawinan
+     */
+    PerkawinanController.get('/ternak', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$perkawinan.getTernakInPerkawinan(req);
+        response.sendResponse(res, list);
+    });
+
     return PerkawinanController;
 }
 
