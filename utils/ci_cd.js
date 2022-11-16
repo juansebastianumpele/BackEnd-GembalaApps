@@ -11,7 +11,7 @@ module.exports = (app) =>{
             // res.writeHead(200)
             // res.end()
         })
-        res.send('ok')
+        res.writeHead(200)
         res.end()
     })
 }
