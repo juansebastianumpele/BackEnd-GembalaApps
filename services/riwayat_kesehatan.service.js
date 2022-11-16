@@ -1,6 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const {newError, errorHandler} = require('../utils/errorHandler');
+const {Op} = require('sequelize');
 
 class _riwayatKesehatan{
     constructor(db){
@@ -9,8 +10,19 @@ class _riwayatKesehatan{
     // Get data RiwayatKesehatan
     getRiwayatKesehatan = async (req) => {
         try{
-            // Add id_peternakan to params
+            // Add params
             req.query.id_peternakan = req.dataAuth.id_peternakan
+            if(req.query.status && req.query.status == 'sakit'){
+                req.query.tanggal_sembuh = null
+                delete req.query.status
+            }else if(req.query.status && req.query.status == 'sehat'){
+                req.query.tanggal_sembuh = {
+                    [Op.not]: null
+                }
+                delete req.query.status
+            }else{
+                delete req.query.status
+            }
             // Query data
             const list = await this.db.RiwayatKesehatan.findAll({ 
                 attributes : ['id_riwayat_kesehatan', 'tanggal_sakit', 'tanggal_sembuh', 'gejala', 'penanganan'],
@@ -53,6 +65,56 @@ class _riwayatKesehatan{
             return errorHandler(error);
         }
     }
+
+    // // Get ternak sakit
+    // getTernakSakit = async (req) => {
+    //     try{
+    //         // Add id_peternakan to params
+    //         req.query.id_peternakan = req.dataAuth.id_peternakan
+    //         req.query.tanggal_sembuh = null
+    //         // Query data
+    //         const list = await this.db.RiwayatKesehatan.findAll({ 
+    //             attributes : ['id_riwayat_kesehatan', 'tanggal_sakit', 'tanggal_sembuh', 'gejala', 'penanganan'],
+    //             include: [
+    //                 {
+    //                     model: this.db.Ternak,
+    //                     as: 'ternak',
+    //                     attributes: ['id_ternak', 'rf_id'],
+    //                     include: [
+    //                         {
+    //                             model: this.db.Kandang,
+    //                             as: 'kandang',
+    //                             attributes: ['id_kandang', 'kode_kandang']
+    //                         }
+    //                     ]
+    //                 },
+    //                 {
+    //                     model: this.db.Penyakit,
+    //                     as: 'penyakit',
+    //                     attributes: ['id_penyakit', 'nama_penyakit']
+    //                 }
+    //             ],
+    //             where : req.query
+    //         });
+    //         if(list.length <= 0) newError(404, 'Data riwayat kesehatan not found', 'getRiwayatKesehatan Service');
+
+    //         for(let i = 0; i < list.length; i++){
+    //             list[i].dataValues.kandang = list[i].dataValues.ternak.kandang;
+    //             delete list[i].dataValues.ternak.dataValues.kandang
+    //         }
+
+    //         return {
+    //             code: 200,
+    //             data: {
+    //                 total: list.length,
+    //                 list
+    //             }
+    //         };
+
+    //     }catch (error){
+    //         return errorHandler(error);
+    //     }
+    // }
 
     // Create new RiwayatKesehatan
     createRiwayatKesehatan = async (req) => {
