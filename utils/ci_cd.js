@@ -1,5 +1,5 @@
 module.exports = (app) =>{
-    app.post('/projectkita-api',(req,res) => {
+    app.post('/build-dashboard',(req,res) => {
         execFile('/home/sembadafarm/web/gembala.sembadafarm.com/pull.sh', (err, stdout, stderr) => {
             res.writeHead(200)
             res.end()
