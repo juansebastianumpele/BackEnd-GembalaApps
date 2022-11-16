@@ -78,5 +78,6 @@
   "todohighlight.toggleURI": false,
   "editor.cursorBlinking": "expand",
   "editor.cursorStyle": "line",
-  "editor.cursorSurroundingLines": 0
+  "editor.cursorSurroundingLines": 0,
+  "indentRainbow.indicatorStyle": "classic"
 }

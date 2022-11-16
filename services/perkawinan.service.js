@@ -214,14 +214,7 @@ class _perkawinan {
             });
             const {error, value} = schema.validate(req.body);
             if(error) newError(400, error.details[0].message, 'updatePerkawinan Service');
-
-            // Check USG
-            if(value.usg_1 == true && value.usg_2 == true){
-                newError(400, 'Can\'t update USG 1 and USG 2 at the same time', 'updatePerkawinan Service');
-            }else if(value.usg_1 == false && value.usg_2 == true){
-                newError(400, 'Can\'t update USG 2 before USG 1', 'updatePerkawinan Service');
-            }
-
+            
             // Check data perkawinan
             const dataPerkawinan = await this.db.Perkawinan.findOne({
                 attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'status'],
@@ -231,6 +224,13 @@ class _perkawinan {
                 }
             });
             if(!dataPerkawinan) newError(404, 'Data Perkawinan not found', 'updatePerkawinan Service');
+
+            // Check USG
+            if(value.usg_1 == false && value.usg_2 == true){
+                newError(400, 'Can\'t update USG 2 before USG 1', 'updatePerkawinan Service');
+            }else if(dataPerkawinan.dataValues.usg_1 == false && value.usg_1 == true && value.usg_2 == true){
+                newError(400, 'Can\'t update USG 1 and USG 2 at the same time', 'updatePerkawinan Service');
+            }
 
             // Update perkawinan
             const updatePerkawinan = await this.db.Perkawinan.update({
@@ -352,7 +352,34 @@ class _perkawinan {
             await t.rollback();
             return errorHandler(error);
         }
+
     }
+
+    // // Get ternak in Perkawinan
+    // getTernakInPerkawinan = async (req) => {
+    //     try{
+    //         // Get i
+    //         // Get data ternak in Perkawinan
+    //         const dataTernakInPerkawinan = await this.db.Fase.findOne({
+    //             attributes: ['id_fase', 'fase'],
+    //             where: {
+    //                 fase: 'Perkawinan'
+    //             },
+    //             include: [
+    //                 {
+    //                     model: this.db.Ternak,
+    //                     as: 'ternak',
+    //                     attributes: ['id_ternak', 'jenis_kelamin'],
+    //                     include: [
+    //                         {
+    //                             model: this.db.Perkawinan,
+    //                             as: 'perkawinan',
+    //                             attributes: []
+    //                 }
+    //     }catch(error){
+    //         return errorHandler(error);
+    //     }
+    // }
 }
 
 module.exports = (db) => new _perkawinan(db);
