@@ -230,6 +230,10 @@ class _perkawinan {
                 newError(400, 'Can\'t update USG 2 before USG 1', 'updatePerkawinan Service');
             }else if(dataPerkawinan.dataValues.usg_1 == false && value.usg_1 == true && value.usg_2 == true){
                 newError(400, 'Can\'t update USG 1 and USG 2 at the same time', 'updatePerkawinan Service');
+            }else if(value.usg_1 == false && value.usg_2 == false){
+                newError(400, 'USG 1 is required', 'updatePerkawinan Service');
+            }else if(dataPerkawinan.dataValues.usg_1 == true && value.usg_1 == true && value.usg_2 == false){
+                newError(400, 'USG 2 is required', 'updatePerkawinan Service');
             }
 
             // Update perkawinan
@@ -289,7 +293,7 @@ class _perkawinan {
                 
                 // Get data fase kebuntingan
                 const dataFaseKebuntingan = await this.db.Fase.findOne({  
-                    attributes: ['id_fase', 'fase'],
+                    attributes: ['id_fp', 'fase'],
                     where: {
                         fase: 'Kebuntingan'
                     }
@@ -298,7 +302,7 @@ class _perkawinan {
 
                 // Get data fase waiting list perkawinan
                 const dataFaseWaitingListPerkawinan = await this.db.Fase.findOne({
-                    attributes: ['id_fase', 'fase'],
+                    attributes: ['id_fp', 'fase'],
                     where: {
                         fase: 'Waiting List Perkawinan'
                     }
@@ -307,10 +311,10 @@ class _perkawinan {
 
                 // Update Fase Indukan
                 const updateFaseIndukan = await this.db.Ternak.update({
-                    id_fp: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fase : dataFaseWaitingListPerkawinan.dataValues.id_fase
+                    id_fp: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fp : dataFaseWaitingListPerkawinan.dataValues.id_fp
                 },{
                     where: {
-                        id_indukan: dataPerkawinan.dataValues.id_indukan,
+                        id_ternak: dataPerkawinan.dataValues.id_indukan,
                         id_peternakan: req.dataAuth.id_peternakan
                     },
                     transaction: t
@@ -321,7 +325,7 @@ class _perkawinan {
                 const historyFaseIndukan = await this.db.RiwayatFase.create({
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_ternak: dataPerkawinan.dataValues.id_indukan,
-                    id_fase: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fase : dataFaseWaitingListPerkawinan.dataValues.id_fase,
+                    id_fp: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fp : dataFaseWaitingListPerkawinan.dataValues.id_fp,
                     tanggal: new Date()
                 },{transaction: t});
                 if(!historyFaseIndukan) newError(500, 'Failed to create Riwayat Fase Indukan', 'updatePerkawinan Service');
@@ -331,14 +335,15 @@ class _perkawinan {
                     where: {
                         id_perkawinan: value.id_perkawinan,
                         id_peternakan: req.dataAuth.id_peternakan
-                    }
-                },{transaction: t});
+                    },
+                    transaction: t
+                });
                 if(deletePerkawinan <= 0) newError(500, 'Failed to delete Perkawinan', 'updatePerkawinan Service');
 
                 // Commit transaction
                 await t.commit();
                 return {
-                    status: 200,
+                    code: 200,
                     data: {
                         message: 'Success update Perkawinan',
                         updatedAt: new Date()
@@ -369,7 +374,7 @@ class _perkawinan {
     //                 {
     //                     model: this.db.Ternak,
     //                     as: 'ternak',
-    //                     attributes: ['id_ternak', 'jenis_kelamin'],
+    //                     attributes: ['id_ternak', 'jenis_kelamin'],id_fase
     //                     include: [
     //                         {
     //                             model: this.db.Perkawinan,
