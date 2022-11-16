@@ -408,7 +408,20 @@ class _perkawinan {
 
             let data = dataTernakInPerkawinan.dataValues.ternak;
             let totalByKandang = {};
+            let totalPopulasi = {
+                total: data.length,
+                jantan: 0,
+                betina: 0
+            };
             for(let i = 0; i < data.length; i++){
+                // total by jenis kelamin
+                if(data[i].dataValues.jenis_kelamin == 'Jantan'){
+                    totalPopulasi.jantan += 1;
+                }else{
+                    totalPopulasi.betina += 1;
+                }
+
+                // total riwayat perkawinan
                 const riwayatPerkawinan = dataRiwayatPerkawinan.filter((value) => {
                     return value.dataValues.id_indukan == data[i].dataValues.id_ternak || value.dataValues.id_pejantan == data[i].dataValues.id_ternak;
                 });
@@ -431,6 +444,7 @@ class _perkawinan {
             return {
                 code: 200,
                 data: {
+                    populasi: totalPopulasi,
                     kandang: {
                         total: Object.keys(totalByKandang).length,
                         list: totalByKandang
