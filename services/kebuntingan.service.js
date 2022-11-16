@@ -168,9 +168,23 @@ class _kebuntingan{
             });
             if(!ternak) newError(404, 'Data Ternak not found in fase kebuntingan', 'setTernakAbortus Service');
 
+            // get data riwayat fase
+            const riwayatFase = await this.db.RiwayatFase.findAll({
+                attributes: ['id_riwayat_fase', 'tanggal'],
+                where: {
+                    id_ternak: value.id_ternak,
+                    id_fp: faseKebuntingan.dataValues.id_fp
+                },
+                order: [
+                    ['tanggal', 'DESC']
+                ],
+                limit: 1
+            });
+            if(riwayatFase.length <= 0) newError(404, 'Data Riwayat Fase not found', 'setTernakAbortus Service');
+
             // Get riwayat perkawinan
             const latestRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
-                attributes: ['id_riwayat_perkawinan'],
+                attributes: ['id_riwayat_perkawinan', 'tanggal_perkawinan', 'id_pejantan'],
                 where: {
                     id_indukan: value.id_ternak,
                     id_peternakan: req.dataAuth.id_peternakan
@@ -203,17 +217,17 @@ class _kebuntingan{
             },{transaction: t});
             if(!historyFase) newError(500, 'Failed to create riwayat fase', 'setTernakAbortus Service');
 
-            // Update riwayat perkawinan
-            const updateRiwayatPerkawinan = await this.db.RiwayatPerkawinan.update({
-                status: 'Abortus'
-            },{
-                where: {
-                    id_riwayat_perkawinan: latestRiwayatPerkawinan[0].dataValues.id_riwayat_perkawinan,
-                    id_peternakan: req.dataAuth.id_peternakan
-                },
-                transaction: t
-            });
-            if(updateRiwayatPerkawinan <= 0) newError(500, 'Failed to update riwayat perkawinan', 'setTernakAbortus Service');
+            // Create riwayat kebuntingan
+            const historyKebuntingan = await this.db.RiwayatKebuntingan.create({
+                id_riwayat_perkawinan: latestRiwayatPerkawinan[0].dataValues.id_riwayat_perkawinan,
+                id_indukan: value.id_ternak,
+                id_pejantan: latestRiwayatPerkawinan[0].dataValues.id_pejantan,
+                id_peternakan: req.dataAuth.id_peternakan,
+                status: 'Abortus',
+                tanggal_perkawinan: latestRiwayatPerkawinan[0].dataValues.tanggal_perkawinan,
+                tanggal_kebuntingan: riwayatFase[0].dataValues.tanggal
+            },{transaction: t});
+            if(!historyKebuntingan) newError(500, 'Failed to create riwayat kebuntingan', 'setTernakAbortus Service');
 
             await t.commit();
             return{
