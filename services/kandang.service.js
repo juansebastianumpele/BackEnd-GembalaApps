@@ -2,6 +2,7 @@
 const joi = require('joi');
 const date = require('date-and-time');
 const {newError, errorHandler} = require('../utils/errorHandler');
+const {Op} = require('sequelize');
 class _kandang{
     constructor(db){
         this.db = db;
@@ -21,6 +22,8 @@ class _kandang{
                         attributes: [
                             'id_ternak',
                             'rf_id',
+                            'status_keluar',
+                            'tanggal_keluar',
                         ],
                         include: [
                             {
@@ -53,12 +56,15 @@ class _kandang{
                 where : req.query
             });
             for (let i = 0; i < list.length; i++) {
-                list[i].dataValues.populasi = list[i].dataValues.ternak.length;
-                // const berat_total = list[i].dataValues.ternak.reduce((a, b) => a + b.dataValues.timbangan[b.dataValues.timbangan.length - 1].berat, 0);
-                const berat_total = list[i].dataValues.ternak.reduce((a, b) => a + (b.dataValues.timbangan.length > 0 ? b.dataValues.timbangan[b.dataValues.timbangan.length - 1].berat : 0), 0);
-                const berat_rata = berat_total / list[i].dataValues.ternak.length;
-                list[i].dataValues.berat_rata = (!berat_rata) ? 0 : berat_rata;
+                const populasi = list[i].dataValues.ternak.filter((item) => {
+                    return item.dataValues.status_keluar == null && item.dataValues.tanggal_keluar == null
+                });
+                list[i].dataValues.populasi = populasi.length;
+                const berat_total = list[i].dataValues.ternak.reduce((a, b) => a + ((b.dataValues.timbangan.length > 0 && b.dataValues.status_keluar == null && b.dataValues.tanggal_keluar == null)
+                    ? b.dataValues.timbangan[b.dataValues.timbangan.length - 1].berat 
+                    : 0), 0);
                 list[i].dataValues.berat_total = berat_total;
+                list[i].dataValues.berat_rata = berat_total / populasi.length;
                 list[i].dataValues.kebutuhan_pakan = berat_total * (list[i].dataValues.persentase_kebutuhan_pakan/100);
                 delete list[i].dataValues.ternak;
             }
