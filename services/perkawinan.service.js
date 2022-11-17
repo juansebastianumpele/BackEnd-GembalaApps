@@ -250,6 +250,18 @@ class _perkawinan {
             });
             if(updatePerkawinan <= 0) newError(500, 'Failed to update Perkawinan', 'updatePerkawinan Service');
 
+            // Update kandang indukan
+            const updateKandangInsukan = await this.db.Ternak.update({
+                id_kandang: value.id_kandang
+            },{
+                where: {
+                    id_ternak: dataPerkawinan.dataValues.id_indukan,
+                    id_peternakan: req.dataAuth.id_peternakan
+                },
+                transaction: t
+            });
+            if(updateKandangInsukan <= 0) newError(500, 'Failed to update kandang indukan', 'updatePerkawinan Service');
+
             // Create Riwayat Fase usg1
             if(value.usg_1 == true && dataPerkawinan.dataValues.usg_1 == false){
                 // Create riwayat perkawinan
