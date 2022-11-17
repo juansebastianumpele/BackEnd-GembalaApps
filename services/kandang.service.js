@@ -200,8 +200,21 @@ class _kandang{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan
                 },
-                attributes: ['id_kandang', 'kode_kandang']
+                attributes: ['id_kandang', 'kode_kandang'],
+                include: [
+                    {
+                        model: this.db.JenisKandang,
+                        as: 'jenis_kandang',
+                        attributes: ['jenis_kandang']
+                    }
+                ]
             });
+
+            for(let i = 0; i < list.length; i++){
+                list[i].dataValues.kode_kandang = list[i].dataValues.jenis_kandang ? `${list[i].dataValues.kode_kandang} - ${list[i].dataValues.jenis_kandang.jenis_kandang}` : `${list[i].dataValues.kode_kandang} - null`  
+                delete list[i].dataValues.jenis_kandang
+            }
+
             if(list.length <= 0) newError(404, 'Data Kandang not found', 'getKodeKandang Service');
 
             return {

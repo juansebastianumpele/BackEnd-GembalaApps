@@ -104,8 +104,19 @@ class _formInput{
                     jenis_kelamin: 'jantan',
                     id_status_ternak: statusPejantan.dataValues.id_status_ternak,
                     id_fp: fasePerkawinan.dataValues.id_fp
-                }
+                },
+                include: [
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['kode_kandang']
+                    }
+                ]
             });
+            for(let i = 0; i < pejantanInPerkawinan.length; i++){
+                pejantanInPerkawinan[i].dataValues.text = pejantanInPerkawinan[i].dataValues.kandang ? `${pejantanInPerkawinan[i].dataValues.id_ternak} - ${pejantanInPerkawinan[i].dataValues.kandang.kode_kandang}` : `${pejantanInPerkawinan[i].dataValues.id_ternak} - null`
+                delete pejantanInPerkawinan[i].dataValues.kandang;
+            }
 
             return {
                 code: 200,
