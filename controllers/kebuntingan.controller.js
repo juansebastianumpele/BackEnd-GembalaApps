@@ -33,6 +33,14 @@ const kebuntinganController = (db) => {
         response.sendResponse(res, list);
     });
 
+    /**
+     * Get ternak kebuntingan
+     */
+    KebuntinganController.get('/all-ternak', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$kebuntingan.getTernakKebuntingan(req);
+        response.sendResponse(res, list);
+    });
+
     return KebuntinganController;
 }
 

@@ -22,6 +22,7 @@ const formInputController = require("../controllers/form_input.controller")
 const loggingController = require("../controllers/logging.controller");
 const kebuntinganController = require("../controllers/kebuntingan.controller");
 const riwayatPerkawinanController = require("../controllers/riwayat_perkawinan.controller");
+const riwayatKebuntinganController = require("../controllers/riwayat_kebuntingan.controller");
 
 // Define url API in here
 const _routes = [
@@ -48,7 +49,8 @@ const _routes = [
     ['/form-input', formInputController],
     ['/logging', loggingController],
     ['/kebuntingan', kebuntinganController],
-    ['/riwayat-perkawinan', riwayatPerkawinanController]
+    ['/riwayat-perkawinan', riwayatPerkawinanController],
+    ['/riwayat-kebuntingan', riwayatKebuntinganController],
 ];
 
 const routes = (app, db) => {

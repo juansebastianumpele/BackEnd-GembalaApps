@@ -242,6 +242,91 @@ class _kebuntingan{
             return errorHandler(error);
         }
     }
+
+    // Get data ternak kebuntingan
+    getTernakKebuntingan = async (req) => {
+        try{
+            // Get data fase kebuntingan
+            const faseKebuntingan = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: 'Kebuntingan'
+                }
+            });
+            if(!faseKebuntingan) newError(404, 'Fase Kebuntingan not found', 'getTernakKebuntingan Service');
+
+            // Get data ternak
+            const ternak = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'rf_id', 'jenis_kelamin'],
+                include: [
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang']
+                    },
+                    {
+                        model: this.db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa']
+                    },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['berat', 'suhu']
+                    },
+                    {
+                        model: this.db.RiwayatKebuntingan,
+                        as: 'riwayat_kebuntingan',
+                        attributes: ['status'],
+                    }
+                ],
+                where: {
+                    id_fp: faseKebuntingan.dataValues.id_fp,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+
+            // Get total ternak by kandang
+            let totalTernakByKandang = [];
+
+            for(let i = 0; i < ternak.length; i++){
+                // Get data berat & suhu
+                ternak[i].dataValues.berat = ternak[i].dataValues.timbangan.length > 0 ? ternak[i].dataValues.timbangan[ternak[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
+                ternak[i].dataValues.suhu = ternak[i].dataValues.timbangan.length > 0 ? ternak[i].dataValues.timbangan[ternak[i].dataValues.timbangan.length - 1].dataValues.suhu : 0;
+                delete ternak[i].dataValues.timbangan;
+
+                // Get total abortus
+                ternak[i].dataValues.totalAbortus = ternak[i].dataValues.riwayat_kebuntingan.filter((item) => item.dataValues.status.toLowerCase() === 'abortus').length;
+
+                // Get total kebuntingan
+                ternak[i].dataValues.totalKebuntingan = ternak[i].dataValues.riwayat_kebuntingan.length;
+                delete ternak[i].dataValues.riwayat_kebuntingan;
+
+                // Get total ternak by kandang
+                const index = totalTernakByKandang.findIndex((item) => item.id_kandang === ternak[i].dataValues.kandang.dataValues.id_kandang);
+                if(index < 0){
+                    totalTernakByKandang.push({
+                        id_kandang: ternak[i].dataValues.kandang.dataValues.id_kandang,
+                        kode_kandang: ternak[i].dataValues.kandang.dataValues.kode_kandang,
+                        total: 1
+                    });
+                }else{
+                    totalTernakByKandang[index].total += 1;
+                }
+            }
+
+            return{
+                code: 200,
+                data: {
+                    kandang: totalTernakByKandang,
+                    total: ternak.length,
+                    list: ternak
+                }
+            }
+        }catch(error){
+            return errorHandler(error);
+        }
+    }
 }
 
 module.exports = (db) => new _kebuntingan(db);
