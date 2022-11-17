@@ -192,6 +192,29 @@ class _kandang{
             return errorHandler(error);
         }
     }
+
+    // Get kode kandang
+    getKodeKandang = async (req) => {
+        try {
+            const list = await this.db.Kandang.findAll({
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan
+                },
+                attributes: ['id_kandang', 'kode_kandang']
+            });
+            if(list.length <= 0) newError(404, 'Data Kandang not found', 'getKodeKandang Service');
+
+            return {
+                code : 200,
+                data: {
+                    total: list.length,
+                    list
+                },
+            };
+        }catch (error){
+            return errorHandler(error);
+        }
+    }
 }
 
 module.exports = (db) => new _kandang(db);

@@ -51,6 +51,14 @@ const kandangController = (db) => {
         response.sendResponse(res, del);
     });
 
+    /**
+     * Get kode kandang
+     */
+    KandangController.get('/kode-kandang', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$kandang.getKodeKandang(req);
+        response.sendResponse(res, list);
+    });
+
     return KandangController;
 }
 
