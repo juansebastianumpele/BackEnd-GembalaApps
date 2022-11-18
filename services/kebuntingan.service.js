@@ -131,7 +131,6 @@ class _kebuntingan{
     setTernakAbortus = async (req) => {
         const t = await this.db.sequelize.transaction();
         try{
-            
             // Validate data
             const schema = joi.object({
                 id_ternak: joi.number().required()
@@ -196,9 +195,17 @@ class _kebuntingan{
             });
             if(latestRiwayatPerkawinan.length <= 0) newError(404, 'Data Riwayat Perkawinan not found', 'setTernakAbortus Service');
 
+            // Check total abortus
+            const totalAbortus = await this.db.RiwayatKebuntingan.count({
+                where: {
+                    id_indukan: value.id_ternak,
+                    status: 'Abortus'
+                }
+            });
+
             // Update fase ternak
             const updateFaseTernak = await this.db.Ternak.update({
-                id_fp: faseWaitingList.dataValues.id_fp
+                id_fp: totalAbortus >= 2 ? faseWaitingList.dataValues.id_fp : null
             },{
                 where: {
                     id_ternak: value.id_ternak,
@@ -299,7 +306,7 @@ class _kebuntingan{
                 ternak[i].dataValues.totalAbortus = ternak[i].dataValues.riwayat_kebuntingan.filter((item) => item.dataValues.status.toLowerCase() === 'abortus').length;
 
                 // Get total kebuntingan
-                ternak[i].dataValues.totalKebuntingan = ternak[i].dataValues.riwayat_kebuntingan.length;
+                ternak[i].dataValues.totalKebuntingan = ternak[i].dataValues.riwayat_kebuntingan.length - ternak[i].dataValues.totalAbortus;
                 delete ternak[i].dataValues.riwayat_kebuntingan;
 
                 // Get total ternak by kandang
