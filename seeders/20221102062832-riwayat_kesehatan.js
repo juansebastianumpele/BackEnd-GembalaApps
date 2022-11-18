@@ -6,7 +6,7 @@ module.exports = {
     await queryInterface.bulkInsert('d_riwayat_kesehatan', [{
       id_peternakan: 1,
       id_ternak: 1,
-      id_penyakit: 1,
+      penyakit: "penyakit",
       tanggal_sakit: "2022-09-02",
       tanggal_sembuh: "2022-10-02",
       gejala: "Gejala 1",
@@ -15,7 +15,7 @@ module.exports = {
     {
       id_peternakan: 1,
       id_ternak: 4,
-      id_penyakit: 2,
+      penyakit: "penyakit",
       tanggal_sakit: "2022-10-02",
       tanggal_sembuh: "2022-10-15",
       gejala: "Gejala 2",
@@ -24,7 +24,7 @@ module.exports = {
     {
       id_peternakan: 1,
       id_ternak: 4,
-      id_penyakit: 3,
+      penyakit: "penyakit",
       tanggal_sakit: "2022-11-02",
       tanggal_sembuh: null,
       gejala: "Gejala 3",

@@ -52,19 +52,21 @@ class _ternak{
                         ]
                     },
                     {
-                        model: this.db.RiwayatKesehatan,
-                        as: 'riwayat_kesehatan',
-                        attributes: ['id_riwayat_kesehatan', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
+                        model: this.db.Kesehatan,
+                        as: 'kesehatan',
+                        attributes: ['id_kesehatan'],
+                        include: [
+                            {
+                                model: this.db.Penyakit,
+                                as: 'penyakit',
+                                attributes: ['nama_penyakit']
+                            }
+                        ]
                     },
                     {
                         model: this.db.Fase,
                         as: 'fase',
                         attributes: ['id_fp', 'fase']
-                    },
-                    {
-                        model: this.db.StatusTernak,
-                        as: 'status_ternak',
-                        attributes: ['id_status_ternak', 'status_ternak']
                     },
                     {
                         model: this.db.StatusTernak,
@@ -84,7 +86,7 @@ class _ternak{
             if(list.length <= 0) newError(404, 'Data Ternak not found', 'getTernak Service');
             
             for(let i = 0; i < list.length; i++){
-                list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
+                list[i].dataValues.penyakit = list[i].dataValues.kesehatan.map((item) => item.dataValues.penyakit.dataValues.nama_penyakit);
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
                     ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
@@ -95,7 +97,7 @@ class _ternak{
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
                 list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.suhu : 0;
-                delete list[i].dataValues.riwayat_kesehatan;
+                delete list[i].dataValues.kesehatan;
                 delete list[i].dataValues.timbangan;
             }
 
@@ -379,9 +381,16 @@ class _ternak{
                         ]
                     },
                     {
-                        model: this.db.RiwayatKesehatan,
-                        as: 'riwayat_kesehatan',
-                        attributes: ['id_riwayat_kesehatan', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
+                        model: this.db.Kesehatan,
+                        as: 'kesehatan',
+                        attributes: ['id_kesehatan'],
+                        include: [
+                            {
+                                model: this.db.Penyakit,
+                                as: 'penyakit',
+                                attributes: ['nama_penyakit']
+                            }
+                        ]
                     },
                     {
                         model: this.db.Fase,
@@ -409,7 +418,7 @@ class _ternak{
             if(list.length <= 0) newError(404, 'Data Ternak Indukan not found', 'getDataIndukan Service');
             
             for(let i = 0; i < list.length; i++){
-                list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
+                list[i].dataValues.penyakit = list[i].dataValues.kesehatan.map((item) => item.dataValues.penyakit.dataValues.nama_penyakit);
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
                     ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
@@ -420,7 +429,7 @@ class _ternak{
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
                 list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.suhu : 0;
-                delete list[i].dataValues.riwayat_kesehatan;
+                delete list[i].dataValues.kesehatan;
                 delete list[i].dataValues.timbangan;
             }
 
@@ -485,9 +494,16 @@ class _ternak{
                         ]
                     },
                     {
-                        model: this.db.RiwayatKesehatan,
-                        as: 'riwayat_kesehatan',
-                        attributes: ['id_riwayat_kesehatan', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
+                        model: this.db.Kesehatan,
+                        as: 'kesehatan',
+                        attributes: ['id_kesehatan'],
+                        include: [
+                            {
+                                model: this.db.Penyakit,
+                                as: 'penyakit',
+                                attributes: ['nama_penyakit']
+                            }
+                        ]
                     },
                     {
                         model: this.db.Fase,
@@ -515,7 +531,7 @@ class _ternak{
             if(list.length <= 0) newError(404, 'Data Ternak Pejantan not found', 'getDataPejantan Service');
             
             for(let i = 0; i < list.length; i++){
-                list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
+                list[i].dataValues.penyakit = list[i].dataValues.kesehatan.map((item) => item.dataValues.penyakit.dataValues.nama_penyakit);
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
                     ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
@@ -526,7 +542,7 @@ class _ternak{
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
                 list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.suhu : 0;
-                delete list[i].dataValues.riwayat_kesehatan;
+                delete list[i].dataValues.kesehatan;
                 delete list[i].dataValues.timbangan;
             }
 
@@ -583,9 +599,16 @@ class _ternak{
                         ]
                     },
                     {
-                        model: this.db.RiwayatKesehatan,
-                        as: 'riwayat_kesehatan',
-                        attributes: ['id_riwayat_kesehatan', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
+                        model: this.db.Kesehatan,
+                        as: 'kesehatan',
+                        attributes: ['id_kesehatan'],
+                        include: [
+                            {
+                                model: this.db.Penyakit,
+                                as: 'penyakit',
+                                attributes: ['nama_penyakit']
+                            }
+                        ]
                     },
                     {
                         model: this.db.Fase,
@@ -618,7 +641,7 @@ class _ternak{
             if(list.length <= 0) newError(404, 'Data Ternak keluar not found', 'getTernakKeluar Service');
             
             for(let i = 0; i < list.length; i++){
-                list[i].dataValues.penyakit = (list[i].riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
+                list[i].dataValues.penyakit = list[i].dataValues.kesehatan.map((item) => item.dataValues.penyakit.dataValues.nama_penyakit);
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
                 list[i].dataValues.kebutuhan_pakan = ((list[i].dataValues.timbangan.length > 0 
                     ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat 
@@ -629,7 +652,7 @@ class _ternak{
                 list[i].dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
                 list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
                 list[i].dataValues.suhu = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.suhu : 0;
-                delete list[i].dataValues.riwayat_kesehatan;
+                delete list[i].dataValues.kesehatan;
                 delete list[i].dataValues.timbangan;
             }
 

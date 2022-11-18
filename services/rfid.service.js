@@ -147,9 +147,16 @@ class _rfid{
                         ]
                     },
                     {
-                        model: this.db.RiwayatKesehatan,
-                        as: 'riwayat_kesehatan',
-                        attributes: ['id_riwayat_kesehatan', 'id_penyakit', 'tanggal_sakit', 'tanggal_sembuh'],
+                        model: this.db.Kesehatan,
+                        as: 'kesehatan',
+                        attributes: ['id_kesehatan'],
+                        include: [
+                            {
+                                model: this.db.Penyakit,
+                                as: 'penyakit',
+                                attributes: ['nama_penyakit']
+                            }
+                        ]
                     },
                     {
                         model: this.db.Fase,
@@ -174,9 +181,8 @@ class _rfid{
             
             if(!list) newError(404, 'Data Ternak not found', 'rfid Service');
             
-            list.dataValues.penyakit = (list.riwayat_kesehatan.filter(item => item.tanggal_sembuh == null))
+            list.dataValues.penyakit = list.dataValues.kesehatan.map((item) => item.dataValues.penyakit.dataValues.nama_penyakit);
             list.dataValues.status_kesehatan = list.dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
-            list.dataValues.umur = Math.round(list.dataValues.umur / 30);
             list.dataValues.kebutuhan_pakan = ((list.dataValues.timbangan.length > 0 
                 ? list.dataValues.timbangan[list.dataValues.timbangan.length - 1].dataValues.berat 
                 : 0) * ((list.dataValues.kandang && list.dataValues.kandang.persentase_kebutuhan_pakan 
@@ -184,7 +190,7 @@ class _rfid{
                     : 0)/100)).toFixed(2);
             const umurHari =  list.dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list.dataValues.tanggal_lahir))/(1000*60*60*24)) : 0;
             list.dataValues.umur = `${Math.floor(umurHari/30)} bulan ${umurHari%30} hari`;
-            delete list.dataValues.riwayat_kesehatan;
+            delete list.dataValues.kesehatan;
             delete list.dataValues.timbangan;
 
             return {

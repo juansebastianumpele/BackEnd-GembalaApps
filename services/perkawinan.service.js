@@ -168,37 +168,6 @@ class _perkawinan {
         }
     }
 
-    // Get Process Perkawinan
-    getPerkawinan = async (req) => {
-        try{
-            // Add where condition
-            req.query.id_peternakan = req.dataAuth.id_peternakan;
-            // get data perkawinan
-            const dataPerkawinan = await this.db.Perkawinan.findAll({
-                attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'status'],
-                include: [
-                    {
-                        model: this.db.Kandang,
-                        as: 'kandang',
-                        attributes: ['id_kandang', 'kode_kandang']
-                    }
-                ],
-                where: req.query
-            });
-            if(dataPerkawinan.length <= 0) newError(404, 'Data Perkawinan not found', 'getPerkawinan Service');
-
-            return {
-                code: 200,
-                data: {
-                    total: dataPerkawinan.length,
-                    data: dataPerkawinan
-                }
-            }
-        }catch(error){
-            return errorHandler(error);
-        }
-    }
-
     // Update Process Perkawinan
     updatePerkawinan = async (req) => {
         const t = await this.db.sequelize.transaction();
@@ -370,10 +339,90 @@ class _perkawinan {
         }
     }
 
+    // Get Process Perkawinan
+    getPerkawinan = async (req) => {
+        try{
+            // Add where condition
+            req.query.id_peternakan = req.dataAuth.id_peternakan;
+            // get data perkawinan
+            const dataPerkawinan = await this.db.Perkawinan.findAll({
+                attributes: ['id_perkawinan', 'id_indukan', 'id_pejantan', 'id_peternakan', 'id_kandang', 'tanggal_perkawinan', 'usg_1', 'usg_2', 'status'],
+                include: [
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang']
+                    }
+                ],
+                where: req.query
+            });
+            if(dataPerkawinan.length <= 0) newError(404, 'Data Perkawinan not found', 'getPerkawinan Service');
+
+            return {
+                code: 200,
+                data: {
+                    total: dataPerkawinan.length,
+                    data: dataPerkawinan
+                }
+            }
+        }catch(error){
+            return errorHandler(error);
+        }
+    }
+
+    // Get kandang perkawinan
+    getKandangPerkawinan = async (req) => {
+        try{
+            // Get data kandang
+            const dataKandang = await this.db.Kandang.findAll({
+                attributes: ['id_kandang', 'kode_kandang'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(dataKandang.length <= 0) newError(404, 'Data Kandang not found', 'getKandangPerkawinan Service');
+
+            // Get data fase perkawinan
+            const dataFasePerkawinan = await this.db.Fase.findOne({
+                attributes: ['id_fp', 'fase'],
+                where: {
+                    fase: 'Perkawinan'
+                }
+            });
+            if(!dataFasePerkawinan) newError(404, 'Data Fase Perkawinan not found', 'getKandangPerkawinan Service');
+
+            // Get data ternak in fase perkawinan
+            const dataTernakInFasePerkawinan = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'id_kandang'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: dataFasePerkawinan.dataValues.id_fp
+                }
+            });
+
+            // Total ternak in fase perkawinan by kandang
+            for(let i = 0; i < dataKandang.length; i++){
+                const totalTernak = dataTernakInFasePerkawinan.filter((item) => item.dataValues.id_kandang == dataKandang[i].dataValues.id_kandang).length;
+                dataKandang[i].dataValues.total_ternak = totalTernak;
+            }
+
+            return {
+                code: 200,
+                data: {
+                    total: dataKandang.length,
+                    list: dataKandang
+                }
+            }
+        }catch(error){
+            return errorHandler(error);
+        }
+    }
+            
     // Get ternak in Perkawinan
     getTernakInPerkawinan = async (req) => {
         try{
-            // Get i
+            // Add Params
+            req.query.id_peternakan = req.dataAuth.id_peternakan;
             // Get data ternak in Perkawinan
             const dataTernakInPerkawinan = await this.db.Fase.findOne({
                 attributes: ['id_fp', 'fase'],
@@ -402,9 +451,7 @@ class _perkawinan {
                                 attributes: ['id_bangsa', 'bangsa']
                             }
                         ],
-                        where: {
-                            id_peternakan: req.dataAuth.id_peternakan
-                        }
+                        where: req.query
                     }
                 ]
             });

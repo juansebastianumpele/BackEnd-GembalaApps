@@ -45,32 +45,24 @@ class _mobileDash{
             });
 
             // Get total ternak sakit
-            const ternakSakit = await this.db.RiwayatKesehatan.findAll({
+            const ternakSakit = await this.db.Kesehatan.count({
                 attributes: [
-                    [this.db.Sequelize.fn('DISTINCT', this.db.Sequelize.col('id_ternak')), 'id_ternak']
+                    [this.db.sequelize.fn('DISTINCT', this.db.sequelize.col('id_ternak')), 'id_ternak']
                 ],
                 where: {
-                    tanggal_sembuh: null
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            let totalTernakSakit = 0;
-            for(let i = 0; i < ternak.length; i++){
-                for(let j = 0; j < ternakSakit.length; j++){
-                    if(ternak[i].id_ternak == ternakSakit[j].id_ternak){
-                        totalTernakSakit++;
-                    }
-                }
-            }
 
             // Get total ternak sehat
-            const totalTernakSehat = totalTernak - totalTernakSakit;
+            const totalTernakSehat = totalTernak - ternakSakit;
 
             return {
                 code: 200,
                 data: {
                     total_ternak: totalTernak,
                     total_kandang: totalKandang,
-                    total_ternak_sakit: totalTernakSakit,
+                    total_ternak_sakit: ternakSakit,
                     total_ternak_sehat: totalTernakSehat
                 }
             }

@@ -3,8 +3,8 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('d_riwayat_kesehatan', { 
-      id_riwayat_kesehatan:{
+    await queryInterface.createTable('d_kesehatan', { 
+      id_kesehatan:{
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -30,17 +30,19 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      penyakit:{
-        type: Sequelize.STRING,
-        allowNull: false
+      id_penyakit:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'd_penyakit',
+          key: 'id_penyakit'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       tanggal_sakit:{
         type: Sequelize.DATE,
         allowNull: false
-      },
-      tanggal_sembuh:{
-        type: Sequelize.DATE,
-        allowNull: true
       },
       gejala:{
         type: Sequelize.STRING,
@@ -64,7 +66,7 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('d_riwayat_kesehatan');
+    await queryInterface.dropTable('d_kesehatan');
   }
 };
 

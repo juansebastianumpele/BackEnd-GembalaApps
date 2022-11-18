@@ -55,6 +55,14 @@ const perkawinanController = (db) => {
         response.sendResponse(res, list);
     });
 
+    /**
+     * Get kandang perkawinan
+     */
+    PerkawinanController.get('/kandang', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$perkawinan.getKandangPerkawinan(req);
+        response.sendResponse(res, list);
+    });
+
     return PerkawinanController;
 }
 

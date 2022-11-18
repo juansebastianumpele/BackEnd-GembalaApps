@@ -1,6 +1,6 @@
 module.exports = (Sequelize, DataTypes) => {
-    const RiwayatKesehatan = Sequelize.define("RiwayatKesehatan", {
-          id_riwayat_kesehatan:{
+    const Kesehatan = Sequelize.define("Kesehatan", {
+          id_kesehatan:{
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
@@ -14,17 +14,13 @@ module.exports = (Sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
           },
-          penyakit: {
-            type: DataTypes.STRING,
-            allowNull: false
+          id_penyakit:{
+            type: DataTypes.INTEGER,
+            allowNull: false,
           },
           tanggal_sakit:{
             type: DataTypes.DATE,
             allowNull: false
-          },
-          tanggal_sembuh:{
-            type: DataTypes.DATE,
-            allowNull: true
           },
           gejala:{
             type: DataTypes.STRING,
@@ -43,19 +39,23 @@ module.exports = (Sequelize, DataTypes) => {
             allowNull: false
           }
     }, {
-        tableName: "d_riwayat_kesehatan",
+        tableName: "d_kesehatan",
     });
 
-    RiwayatKesehatan.associate = function (models) {
-        RiwayatKesehatan.belongsTo(models.Ternak, {
+    Kesehatan.associate = function (models) {
+        Kesehatan.belongsTo(models.Penyakit, {
+            foreignKey: 'id_penyakit',
+            as: 'penyakit'
+        });
+        Kesehatan.belongsTo(models.Ternak, {
             foreignKey: 'id_ternak',
             as: 'ternak'
         });
-        RiwayatKesehatan.belongsTo(models.Peternakan, {
+        Kesehatan.belongsTo(models.Peternakan, {
             foreignKey: 'id_peternakan',
             as: 'peternakan'
         });
     }
 
-    return RiwayatKesehatan;
+    return Kesehatan;
 }

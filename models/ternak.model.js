@@ -107,6 +107,10 @@ module.exports = (Sequelize, DataTypes) => {
           foreignKey: 'id_ternak',
           as: 'riwayat_kesehatan'
       });
+      Ternak.hasMany(models.Kesehatan, {
+          foreignKey: 'id_ternak',
+          as: 'kesehatan'
+      });
       Ternak.belongsTo(models.Peternakan, {
           foreignKey: 'id_peternakan',
           as: 'peternakan'
