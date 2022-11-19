@@ -1,8 +1,7 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const { log_error } = require('../utils/logging');
-const createHistoryFase = require('./riwayat_fase.service');
 const { newError, errorHandler } = require('../utils/errorHandler');
+const {Op} = require('sequelize');
 
 class _perkawinan {
     constructor(db) {
@@ -519,6 +518,63 @@ class _perkawinan {
             return errorHandler(error);
         }
     }
+
+    // Get indukan perkawinan
+    getIndukanPerkawinan = async (req) => {
+        try{
+            const getIndukanInRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
+                attributes: [
+                    [this.db.Sequelize.fn('DISTINCT', this.db.Sequelize.col('id_indukan')), 'id_indukan']
+                ],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    usg: 2
+                }
+            });
+            if(getIndukanInRiwayatPerkawinan.length <= 0) newError(404, 'Indukan not found', 'getIndukanPerkawinan Service');
+    
+            for(let i = 0; i < getIndukanInRiwayatPerkawinan.length; i++){
+                const dataIndukan = await this.db.Ternak.findOne({
+                    attributes: ['id_ternak', 'id_bangsa'],
+                    include: [
+                        {
+                            model: this.db.Bangsa,
+                            as: 'bangsa',
+                            attributes: ['id_bangsa', 'bangsa']
+                        }
+                    ],
+                    where: {
+                        id_ternak: getIndukanInRiwayatPerkawinan[i].dataValues.id_indukan
+                    }
+                });
+                const dataRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
+                    attributes: ['tanggal_perkawinan'],
+                    where: {
+                        id_peternakan: req.dataAuth.id_peternakan,
+                        usg: 2,
+                        id_indukan: getIndukanInRiwayatPerkawinan[i].dataValues.id_indukan
+                    },
+                    order: [
+                        ['tanggal_perkawinan', 'DESC']
+                    ],
+                    limit: 1
+                });
+                getIndukanInRiwayatPerkawinan[i].dataValues.bangsa = dataIndukan && dataIndukan.dataValues.bangsa ? dataIndukan.dataValues.bangsa.dataValues.bangsa : null;
+                getIndukanInRiwayatPerkawinan[i].dataValues.tanggal_perkawinan = dataRiwayatPerkawinan.length > 0 ? dataRiwayatPerkawinan[0].dataValues.tanggal_perkawinan : null;
+            }
+    
+            return {
+                code: 200,
+                data: {
+                    total: getIndukanInRiwayatPerkawinan.length,
+                    list: getIndukanInRiwayatPerkawinan
+                }
+            }
+        }catch(error){
+            return errorHandler(error);
+        }
+    }
+
 }
 
 module.exports = (db) => new _perkawinan(db);
