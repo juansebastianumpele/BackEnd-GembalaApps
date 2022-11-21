@@ -19,11 +19,11 @@ class _riwayatPerkawinan {
                         as: 'kandang',
                         attributes: ['id_kandang', 'kode_kandang']
                     },
-                    {
-                        model: this.db.RiwayatKebuntingan,
-                        as: 'riwayat_kebuntingan',
-                        attributes: ['status'],
-                    }
+                    // {
+                    //     model: this.db.RiwayatKebuntingan,
+                    //     as: 'riwayat_kebuntingan',
+                    //     attributes: ['status'],
+                    // }
                 ],
             });
 
@@ -32,6 +32,8 @@ class _riwayatPerkawinan {
             for(let i = 0; i < list.length; i++) {
                 list[i].dataValues.id_cempe = ternak.filter(ternak => ternak.dataValues.id_sire === list[i].dataValues.id_pejantan && ternak.dataValues.id_dam === list[i].dataValues.id_indukan).map(ternak => ternak.dataValues.id_ternak);
             }
+
+            if(list.length <= 0) newError(404, 'Data Riwatar Perkawinan not found', 'getRiwayatPerkawinan Service');
 
             return {
                 code: 200,

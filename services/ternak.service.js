@@ -419,9 +419,16 @@ class _ternak {
                 },
                 order: [['createdAt', 'DESC']]
             });
-
             if (list.length <= 0) newError(404, 'Data Ternak Indukan not found', 'getDataIndukan Service');
 
+            // Get data riwayat perkawinan
+            const perkawinan = await this.db.RiwayatPerkawinan.findAll({
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    usg: 2
+                }
+            });
+            
             for (let i = 0; i < list.length; i++) {
                 list[i].dataValues.penyakit = list[i].dataValues.kesehatan.map((item) => item.dataValues.penyakit.dataValues.nama_penyakit);
                 list[i].dataValues.status_kesehatan = list[i].dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";
@@ -445,12 +452,7 @@ class _ternak {
                 delete list[i].dataValues.riwayat_kebuntingan;
 
                 // Get total perkawinan
-                const perkawinan = await this.db.RiwayatPerkawinan.findAll({
-                    where: {
-                        id_indukan: list[i].dataValues.id_ternak
-                    }
-                });
-                list[i].dataValues.totalPerkawinan = perkawinan.length;
+                list[i].dataValues.totalPerkawinan = perkawinan.filter((item) => item.dataValues.id_dam === list[i].dataValues.id_ternak).length;
 
                 // Get total tidak bunting
                 list[i].dataValues.totalTidakBunting = perkawinan.filter((item) => item.dataValues.status.toLowerCase() === 'tidak bunting').length;
