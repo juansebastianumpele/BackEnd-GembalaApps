@@ -30,7 +30,7 @@ class _riwayatPerkawinan {
             // Get data ternak
             const ternak = await this.db.Ternak.findAll({where: {id_peternakan: req.dataAuth.id_peternakan}})
             for(let i = 0; i < list.length; i++) {
-                list[i].dataValues.id_cempe = ternak.length > 0 ? ternak.filter(ternak => ternak.dataValues.id_sire === list[i].dataValues.id_pejantan && ternak.dataValues.id_dam === list[i].dataValues.id_indukan).map(ternak => ternak.dataValues.id_ternak) : null
+                list[i].dataValues.id_cempe = ternak.filter(ternak => ternak.dataValues.id_sire === list[i].dataValues.id_pejantan && ternak.dataValues.id_dam === list[i].dataValues.id_indukan).map(ternak => ternak.dataValues.id_ternak);
             }
 
             return {
