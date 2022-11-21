@@ -2,12 +2,16 @@ const {log_error} = require('./logging');
 class _response {
     sendResponse(res, data) {
         try{
-            res.status(data.code == 200 ? 200 : data.code ? data.code : 500)
+            // res.status(data.code == 200 ? 200 : data.code ? data.code : 500)
+            res.status(data.code ? data.code : 500)
 
             let status
             switch (data.code) {
                 case 200:
                     status = 'OK'
+                    break;
+                case 201:
+                    status = 'Created'
                     break;
                 case 400:
                     status = 'BAD_REQUEST'
@@ -29,16 +33,16 @@ class _response {
                     break;
             }
 
-            if(data.code == 200){
+            if(data.code >= 200 && data.code < 400){
                 res.send({
-                    code : data.code ? data.code : 500,
-                    status,
+                    code : data.code,
+                    status: status ? status : 'OK',
                     data : data.data ? data.data : null,
                 })
             }else{
                 res.send({
                     code : data.code ? data.code : 500,
-                    status,
+                    status: status ? status : 'INTERNAL_SERVER_ERROR',
                     error : data.error ? data.error : null,
                 })
             }

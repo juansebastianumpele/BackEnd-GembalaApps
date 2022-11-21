@@ -1,13 +1,14 @@
 // Helper databse yang dibuat
 const {log_error, log_info} = require('../utils/logging');
-const {Op} = require('sequelize')
+const {Op} = require('sequelize');
+const { newError } = require('../utils/errorHandler');
 
 class _dashboard{
     constructor(db){
         this.db = db;
     }
 
-    /// Get Data total ternak by sttaus ternak
+    /// Get Data total ternak by status ternak
     getTotalTernakByStatus = async (req) => {
         try{
             // Get total ternak
@@ -176,6 +177,15 @@ class _dashboard{
     // Get total ternak
     getTotalTernak = async (req) => {
         try{
+            // Get data fase pemasukan
+            const fasePemasukan = await this.db.Fase.findOne({
+                attributes: ['id_fase'],
+                where: {
+                    fase: 'Pemasukan'
+                }
+            });
+            if(!fasePemasukan) newError(404, 'Fase Pemasukan not found', 'getTotalTernak Service');
+
             const totalTernak = await this.db.Ternak.count({
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
@@ -184,6 +194,9 @@ class _dashboard{
                     },
                     jenis_kelamin: {
                         [Op.not]: null
+                    },
+                    id_fp: {
+                        [Op.not]: fasePemasukan.dataValues.id_fase
                     },
                     status_keluar: null
                 }

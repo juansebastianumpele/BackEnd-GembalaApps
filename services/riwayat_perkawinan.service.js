@@ -29,19 +29,25 @@ class _riwayatPerkawinan {
             });
 
             // Get cempe dari dam (bapak) dan sire (ibu) dari riwayat perkawinan
-            for (let i = 0; i < list.length; i++) {
-                const cempe = await this.db.Ternak.findAll({
-                    attributes: ['id_ternak'],
-                    where: {
-                        id_sire: list[i].dataValues.id_pejantan,
-                        id_dam: list[i].dataValues.id_indukan
-                    }
-                })
+            // for (let i = 0; i < list.length; i++) {
+            //     const cempe = await this.db.Ternak.findAll({
+            //         attributes: ['id_ternak'],
+            //         where: {
+            //             id_sire: list[i].dataValues.id_pejantan,
+            //             id_dam: list[i].dataValues.id_indukan
+            //         }
+            //     })
 
-                list[i].dataValues.id_cempe = cempe.length ? cempe.map(cempe => cempe.dataValues.id_ternak) : null;
+            //     list[i].dataValues.id_cempe = cempe.length ? cempe.map(cempe => cempe.dataValues.id_ternak) : null;
+            // }
+
+            // if (list.length <= 0) newError(404, 'Data Riwayat Perkawinan not found', 'getRiwayatPerkawinan Service');
+
+            // Get data ternak
+            const ternak = await this.db.Ternak.findAll({where: {id_peternakan: req.dataAuth.id_peternakan}})
+            for(let i = 0; i < list.length; i++) {
+                list[i].dataValues.id_cempe = ternak.length > 0 ? ternak.filter(ternak => ternak.dataValues.id_sire === list[i].dataValues.id_pejantan && ternak.dataValues.id_dam === list[i].dataValues.id_indukan).map(ternak => ternak.dataValues.id_ternak) : null
             }
-
-            if (list.length <= 0) newError(404, 'Data Riwayat Perkawinan not found', 'getRiwayatPerkawinan Service');
 
             return {
                 code: 200,

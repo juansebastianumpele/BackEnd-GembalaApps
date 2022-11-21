@@ -268,7 +268,6 @@ class _perkawinan {
                     usg: 2
                 },{transaction: t});
                 if(!riwayatPerkawinanUsg2) newError(500, 'Failed to create Riwayat Perkawinan USG 2', 'updatePerkawinan Service');
-
                 
                 // Get data fase kebuntingan
                 const dataFaseKebuntingan = await this.db.Fase.findOne({  
@@ -288,26 +287,47 @@ class _perkawinan {
                 });
                 if(!dataFaseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan not found', 'updatePerkawinan Service');
 
-                // Update Fase Indukan
-                const updateFaseIndukan = await this.db.Ternak.update({
-                    id_fp: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fp : dataFaseWaitingListPerkawinan.dataValues.id_fp
-                },{
-                    where: {
-                        id_ternak: dataPerkawinan.dataValues.id_indukan,
-                        id_peternakan: req.dataAuth.id_peternakan
-                    },
-                    transaction: t
-                });
-                if(updateFaseIndukan <= 0) newError(500, 'Failed to update Fase Indukan', 'updatePerkawinan Service');
+                // Get satus afkir
+                const statusAfkir = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak', 'status_ternak'], where: {status_ternak: 'Afkir'}});
+                if(!statusAfkir) newError(404, 'Data Status Afkir not found', 'updatePerkawinan Service');
 
-                // Create Riwayat Fase Indukan
-                const historyFaseIndukan = await this.db.RiwayatFase.create({
-                    id_peternakan: req.dataAuth.id_peternakan,
-                    id_ternak: dataPerkawinan.dataValues.id_indukan,
-                    id_fp: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fp : dataFaseWaitingListPerkawinan.dataValues.id_fp,
-                    tanggal: new Date()
-                },{transaction: t});
-                if(!historyFaseIndukan) newError(500, 'Failed to create Riwayat Fase Indukan', 'updatePerkawinan Service');
+                // Check ternak afkir
+                const totaTidakBunting = await this.db.RiwayatPerkawinan.count({where: {id_indukan: dataPerkawinan.dataValues.id_indukan, status: 'Tidak Bunting'}});
+                if(totaTidakBunting >= 2 && value.status == 'Tidak Bunting'){
+                    // Update Fase Indukan
+                    const updateFaseIndukan = await this.db.Ternak.update({
+                        id_fp: null,
+                        id_status_ternak: statusAfkir.dataValues.id_status_ternak
+                    },{
+                        where: {
+                            id_ternak: dataPerkawinan.dataValues.id_indukan,
+                            id_peternakan: req.dataAuth.id_peternakan
+                        },
+                        transaction: t
+                    });
+                    if(updateFaseIndukan <= 0) newError(500, 'Failed to update Fase Indukan', 'updatePerkawinan Service');
+                }else{
+                    // Update Fase Indukan
+                    const updateFaseIndukan = await this.db.Ternak.update({
+                        id_fp: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fp : dataFaseWaitingListPerkawinan.dataValues.id_fp
+                    },{
+                        where: {
+                            id_ternak: dataPerkawinan.dataValues.id_indukan,
+                            id_peternakan: req.dataAuth.id_peternakan
+                        },
+                        transaction: t
+                    });
+                    if(updateFaseIndukan <= 0) newError(500, 'Failed to update Fase Indukan', 'updatePerkawinan Service');
+
+                    // Create Riwayat Fase Indukan
+                    const historyFaseIndukan = await this.db.RiwayatFase.create({
+                        id_peternakan: req.dataAuth.id_peternakan,
+                        id_ternak: dataPerkawinan.dataValues.id_indukan,
+                        id_fp: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fp : dataFaseWaitingListPerkawinan.dataValues.id_fp,
+                        tanggal: new Date()
+                    },{transaction: t});
+                    if(!historyFaseIndukan) newError(500, 'Failed to create Riwayat Fase Indukan', 'updatePerkawinan Service');
+                }
 
                 // Delete Perkawinan
                 const deletePerkawinan = await this.db.Perkawinan.destroy({

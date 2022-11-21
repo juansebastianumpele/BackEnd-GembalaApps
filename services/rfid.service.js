@@ -1,7 +1,6 @@
 // Helper databse yang dibuat
 const joi = require('joi');
 const {log_error, log_info} = require('../utils/logging')
-const createRiwayatFase = require('./riwayat_fase.service');
 const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _rfid{
@@ -19,6 +18,9 @@ class _rfid{
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'rfid Service');
+
+            // Check jenis ternak baru
+            if (req.body.jenis_ternak_baru.toLowerCase() != "ternak baru" || req.body.jenis_ternak_baru.toLowerCase() != "kelahiran") newError(400, "Jenis Ternak Baru must be 'Ternak Baru' or 'Kelahiran'", 'rfid Service');
 
             // Get data status ternak cempe
             const statusTernakCempe = await this.db.StatusTernak.findOne({
@@ -46,7 +48,6 @@ class _rfid{
                 }
             }
 
-            
             // Get data fase pemasukan
             const idFasePemasukan = await this.db.Fase.findOne({
                 attributes: ['id_fp'],
@@ -55,37 +56,26 @@ class _rfid{
                 }
             });
             if(!idFasePemasukan) newError(404, 'Data Fase Pemasukan not found', 'rfid Service');
-
-            // Get data fase Kelahiran
-            const idFaseKelahiran = await this.db.Fase.findOne({
-                attributes: ['id_fp'],
-                where: {
-                    fase: "Kelahiran"
-                }
-            });
-            if(!idFaseKelahiran){
-                return{
-                    code: 500,
-                    error: "Something went wrong, data fase not found"
-                }
-            }
             
             // Add New Ternak
             const addTernak = await this.db.Ternak.create({
                 rf_id: value.rf_id,
                 id_peternakan: value.id_peternakan,
                 id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (statusTernakCempe ? statusTernakCempe.dataValues.id_status_ternak : null) : null,
-                id_fp: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? idFaseKelahiran.dataValues.id_fp : idFasePemasukan.dataValues.id_fp,
+                id_fp: value.jenis_ternak_baru.toLowerCase() == "ternak baru" ? idFasePemasukan.dataValues.id_fp : null
             })
             if(!addTernak) newError(500, 'Failed to create new data ternak', 'rfid Service');
 
             // Create riwayat fase
-            const riwayatFase = await createRiwayatFase(this.db, req, {
-                id_ternak: addTernak.id_ternak,
-                id_fp: addTernak.id_fp,
-                id_peternakan: value.id_peternakan
-            });
-            if(!riwayatFase) newError(500, 'Failed to create new data riwayat fase', 'rfid Service');
+            if(addTernak.dataValues.id_fp){
+                const addRiwayatFase = await this.db.RiwayatFase.create({
+                    id_peternakan: value.id_peternakan,
+                    id_ternak: addTernak.dataValues.id_ternak,
+                    id_fp: addTernak.dataValues.id_fp,
+                    tanggal: new Date()
+                })
+                if(!addRiwayatFase) newError(500, 'Failed to create new data riwayat fase', 'rfid Service');
+            }
 
             return{
                 code: 200,
@@ -94,8 +84,6 @@ class _rfid{
                     id_ternak: addTernak.id_ternak
                 }
             }
-
-
         } catch (error) {
             return errorHandler(error);
         }

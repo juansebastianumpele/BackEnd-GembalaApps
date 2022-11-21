@@ -1,6 +1,5 @@
 // Helper databse yang dibuat
 const joi = require('joi');
-const createHistoryFase = require('./riwayat_fase.service');
 const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _lkPemasukan{
@@ -25,42 +24,7 @@ class _lkPemasukan{
 
             // Get data ternak masuk
             const list = await this.db.Ternak.findAll({
-                attributes: ['id_ternak', 'rf_id', 'image'],
-                include: [
-                    {
-                        model: this.db.Bangsa,
-                        as: 'bangsa',
-                        attributes: ['id_bangsa', 'bangsa']
-                    },
-                    {
-                        model: this.db.Kandang,
-                        as: 'kandang',
-                        attributes: ['id_kandang', 'kode_kandang'],
-                        include: [
-                            {
-                                model: this.db.JenisKandang,
-                                as: 'jenis_kandang',
-                                attributes: ['id_jenis_kandang', 'jenis_kandang']
-                            }
-                        ]
-                    },
-                    {
-                        model: this.db.Fase,
-                        as: 'fase',
-                        attributes: ['id_fp', 'fase']
-                    },
-                    {
-                        model: this.db.Ternak,
-                        as: 'dam',
-                        attributes: ['id_ternak', 'rf_id']
-                    },
-                    {
-                        model: this.db.Ternak,
-                        as: 'sire',
-                        attributes: ['id_ternak', 'rf_id']
-                    }
-                ],
-
+                attributes: ['id_ternak', 'rf_id'],
                 where: req.query,
                 order: [
                     ['createdAt', 'DESC']
@@ -82,11 +46,12 @@ class _lkPemasukan{
 
     // Create LK Pemasukan
     createLKPemasukan = async (req) => {
+        const t = await this.db.sequelize.transaction();
         try{
             // Validate request
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                rf_id: joi.string().required(),
+                tanggal_masuk: joi.date().allow(null),
                 id_bangsa: joi.number().required(),
                 jenis_kelamin: joi.string().required(),
                 cek_poel: joi.number().required(),
@@ -102,27 +67,23 @@ class _lkPemasukan{
             const {error, value} = schema.validate(req.body);
             if(error) newError(400, error.message, 'createLKPemasukan Service');
 
+            // Get data ternak
+            const dataTernak = await this.db.Ternak.findOne({attributes: ['rf_id'], where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan}});
+            if(!dataTernak) newError(404, 'Data Ternak not found', 'createLKPemasukan Service');
+
             // Check Ternak in LK Pemasukan
-            const ternak = await this.db.LKPemasukan.findOne({
-                where: {
-                    id_ternak: value.id_ternak,
-                    id_peternakan: req.dataAuth.id_peternakan
-                }
-            });
+            const ternak = await this.db.LKPemasukan.findOne({where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan}});
             if(ternak) newError(400, 'Ternak already in LK Pemasukan', 'createLKPemasukan Service');
 
             // get data fase
-            const fase = await this.db.Fase.findOne({
-                where: {
-                    fase: 'adaptasi 1'
-                }
-            });
+            const fase = await this.db.Fase.findOne({where: {fase: 'adaptasi 1'}});
             if(!fase) newError(404, 'Data Fase not found', 'createLKPemasukan Service');
 
             // Update Data ternak
             const date = new Date();
             const update = await this.db.Ternak.update({
                 id_bangsa: value.id_bangsa,
+                tanggal_masuk: value.tanggal_masuk || date,
                 jenis_kelamin: value.jenis_kelamin,
                 id_kandang: value.id_kandang,
                 id_fp: fase.dataValues.id_fp,
@@ -132,21 +93,24 @@ class _lkPemasukan{
                 where: {
                     id_ternak: value.id_ternak,
                     id_peternakan: req.dataAuth.id_peternakan,
-                }
+                },
+                transaction: t
             });
             if(update <= 0) newError(400, 'Failed update data ternak', 'createLKPemasukan Service');
 
             // Create riwayat fase
-            const createRiwayatFase = await createHistoryFase(this.db, req, {
+            const riwayatFase = await this.db.RiwayatFase.create({
                 id_ternak: value.id_ternak,
-                id_fp: fase.dataValues.id_fp
-            });
-            if(!createRiwayatFase) newError(400, 'Failed create riwayat fase', 'createLKPemasukan Service');
+                id_fp: fase.dataValues.id_fp,
+                tanggal: date,
+                id_peternakan: req.dataAuth.id_peternakan
+            },{ transaction: t });
+            if(!riwayatFase) newError(400, 'Failed create riwayat fase', 'createLKPemasukan Service');
 
             // Create LK Pemasukan
             const lkPemasukan = await this.db.LKPemasukan.create({
                 id_ternak: value.id_ternak,
-                rf_id: value.rf_id,
+                rf_id: dataTernak.dataValues.rf_id,
                 id_bangsa: value.id_bangsa,
                 jenis_kelamin: value.jenis_kelamin,
                 cek_poel: value.cek_poel,
@@ -159,8 +123,11 @@ class _lkPemasukan{
                 status_kesehatan: value.status_kesehatan,
                 id_kandang: value.id_kandang,
                 id_peternakan: req.dataAuth.id_peternakan,
-            });
+            },{ transaction: t });
             if(!lkPemasukan) newError(400, 'Failed create LK Pemasukan', 'createLKPemasukan Service');
+
+            // Commit transaction
+            await t.commit();
 
             return {
                 code: 200,
@@ -172,6 +139,7 @@ class _lkPemasukan{
                 }
             };
         }catch (error){
+            await t.rollback();
             return errorHandler(error);
         }
     }

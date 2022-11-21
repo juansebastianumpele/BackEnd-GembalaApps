@@ -139,44 +139,22 @@ class _kebuntingan{
             if(error) newError(400, error.details[0].message, 'setTernakAbortus Service');
 
             // Get data fase kebuntingan
-            const faseKebuntingan = await this.db.Fase.findOne({
-                attributes: ['id_fp'],
-                where: {
-                    fase: 'Kebuntingan'
-                }
-            });
+            const faseKebuntingan = await this.db.Fase.findOne({attributes: ['id_fp'], where: {fase: 'Kebuntingan'}});
             if(!faseKebuntingan) newError(404, 'Fase Kebuntingan not found', 'setTernakAbortus Service');
 
             // Get data fase waiting list
-            const faseWaitingList = await this.db.Fase.findOne({
-                attributes: ['id_fp'],
-                where: {
-                    fase: 'Waiting List Perkawinan'
-                }
-            });
+            const faseWaitingList = await this.db.Fase.findOne({attributes: ['id_fp'], where: {fase: 'Waiting List Perkawinan'}});
             if(!faseWaitingList) newError(404, 'Fase Waiting List not found', 'setTernakAbortus Service');
 
             // Get data ternak
-            const ternak = await this.db.Ternak.findOne({
-                attributes: ['id_ternak'],
-                where: {
-                    id_ternak: value.id_ternak,
-                    id_fp: faseKebuntingan.dataValues.id_fp,
-                    id_peternakan: req.dataAuth.id_peternakan
-                }
-            });
+            const ternak = await this.db.Ternak.findOne({attributes: ['id_ternak'], where: {id_ternak: value.id_ternak, id_fp: faseKebuntingan.dataValues.id_fp, id_peternakan: req.dataAuth.id_peternakan}});
             if(!ternak) newError(404, 'Data Ternak not found in fase kebuntingan', 'setTernakAbortus Service');
 
             // get data riwayat fase
             const riwayatFase = await this.db.RiwayatFase.findAll({
                 attributes: ['id_riwayat_fase', 'tanggal'],
-                where: {
-                    id_ternak: value.id_ternak,
-                    id_fp: faseKebuntingan.dataValues.id_fp
-                },
-                order: [
-                    ['tanggal', 'DESC']
-                ],
+                where: {id_ternak: value.id_ternak, id_fp: faseKebuntingan.dataValues.id_fp},
+                order: [['tanggal', 'DESC']],
                 limit: 1
             });
             if(riwayatFase.length <= 0) newError(404, 'Data Riwayat Fase not found', 'setTernakAbortus Service');
@@ -184,45 +162,49 @@ class _kebuntingan{
             // Get riwayat perkawinan
             const latestRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
                 attributes: ['id_riwayat_perkawinan', 'tanggal_perkawinan', 'id_pejantan'],
-                where: {
-                    id_indukan: value.id_ternak,
-                    id_peternakan: req.dataAuth.id_peternakan
-                },
-                order: [
-                    ['createdAt', 'DESC']
-                ],
+                where: {id_indukan: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan},
+                order: [['createdAt', 'DESC']],
                 limit: 1
             });
             if(latestRiwayatPerkawinan.length <= 0) newError(404, 'Data Riwayat Perkawinan not found', 'setTernakAbortus Service');
 
             // Check total abortus
-            const totalAbortus = await this.db.RiwayatKebuntingan.count({
-                where: {
-                    id_indukan: value.id_ternak,
-                    status: 'Abortus'
-                }
-            });
+            const totalAbortus = await this.db.RiwayatKebuntingan.count({where: {id_indukan: value.id_ternak, status: 'Abortus'}});
 
-            // Update fase ternak
-            const updateFaseTernak = await this.db.Ternak.update({
-                id_fp: totalAbortus >= 2 ? faseWaitingList.dataValues.id_fp : null
-            },{
-                where: {
+            // Get status afkir
+            const statusAfkir = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status: 'Afkir'}});
+            if(!statusAfkir) newError(404, 'Status Afkir not found', 'setTernakAbortus Service');
+
+            // Check ternak if ternak afkir
+            if(totalAbortus >= 2){
+                // Update status ternak
+                const updateStatusTernak = await this.db.Ternak.update({
+                    id_status_ternak: statusAfkir.dataValues.id_status_ternak,
+                    id_fp: null
+                },{
+                    where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan},
+                    transaction: t
+                });
+                if(updateStatusTernak <= 0) newError(500, 'Failed to update status ternak', 'setTernakAbortus Service');
+            }else{
+                // Update status ternak
+                const updateStatusTernak = await this.db.Ternak.update({
+                    id_fp: faseWaitingList.dataValues.id_fp
+                },{
+                    where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan},
+                    transaction: t
+                });
+                if(updateStatusTernak <= 0) newError(500, 'Failed to update status ternak', 'setTernakAbortus Service');
+
+                // Create riwayat fase
+                const historyFase = await this.db.RiwayatFase.create({
                     id_ternak: value.id_ternak,
+                    id_fp: faseWaitingList.dataValues.id_fp,
                     id_peternakan: req.dataAuth.id_peternakan,
-                },
-                transaction: t
-            });
-            if(updateFaseTernak <= 0) newError(500, 'Failed to update fase ternak', 'setTernakAbortus Service');
-
-            // Create riwayat fase
-            const historyFase = await this.db.RiwayatFase.create({
-                id_ternak: value.id_ternak,
-                id_fp: faseWaitingList.dataValues.id_fp,
-                id_peternakan: req.dataAuth.id_peternakan,
-                tanggal: new Date()
-            },{transaction: t});
-            if(!historyFase) newError(500, 'Failed to create riwayat fase', 'setTernakAbortus Service');
+                    tanggal: new Date()
+                },{transaction: t});
+                if(!historyFase) newError(500, 'Failed to create riwayat fase', 'setTernakAbortus Service');
+            }
 
             // Create riwayat kebuntingan
             const historyKebuntingan = await this.db.RiwayatKebuntingan.create({
