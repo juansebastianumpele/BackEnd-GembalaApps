@@ -452,7 +452,7 @@ class _ternak {
                 delete list[i].dataValues.riwayat_kebuntingan;
 
                 // Get total perkawinan
-                list[i].dataValues.totalPerkawinan = perkawinan.filter((item) => item.dataValues.id_dam === list[i].dataValues.id_ternak).length;
+                list[i].dataValues.totalPerkawinan = perkawinan.filter((item) => item.dataValues.id_indukan === list[i].dataValues.id_ternak).length;
 
                 // Get total tidak bunting
                 list[i].dataValues.totalTidakBunting = perkawinan.filter((item) => item.dataValues.status.toLowerCase() === 'tidak bunting').length;
