@@ -136,6 +136,33 @@ class _kelahiran {
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'createKelahiran Service');
 
+            // Check sire & dam
+            if (value.id_sire && value.id_sire == value.id_dam) newError(400, 'Sire & Dam cannot be the same', 'createKelahiran Service');
+
+            // Check sire
+            if (value.id_sire) {
+                const sire = await this.db.Ternak.findOne({
+                    attributes: ['id_ternak', 'jenis_kelamin'],
+                    where: {
+                        id_ternak: value.id_sire,
+                        id_peternakan: req.dataAuth.id_peternakan
+                    }
+                });
+                if (!sire) newError(404, 'Data Sire not found', 'createKelahiran Service');
+                if (sire.dataValues.jenis_kelamin.toLowerCase() != 'jantan') newError(400, 'Sire must be Jantan', 'createKelahiran Service');
+            }
+
+            // Check dam
+            const dam = await this.db.Ternak.findOne({
+                attributes: ['id_ternak', 'jenis_kelamin'],
+                where: {
+                    id_ternak: value.id_dam,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if (!dam) newError(404, 'Data Dam not found', 'createKelahiran Service');
+            if (dam.dataValues.jenis_kelamin.toLowerCase() != 'betina') newError(400, 'Dam must be Betina', 'createKelahiran Service');
+
             // Get data bangsa
             const bangsa = await this.db.Bangsa.findOne({ where: { id_bangsa: value.id_bangsa } });
             if (!bangsa) newError(404, 'Data Bangsa not found', 'createKelahiran Service');
@@ -151,8 +178,6 @@ class _kelahiran {
             // Check ternak
             const checkTernak = await this.db.Ternak.findOne({where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan}});
             if (!checkTernak) newError(404, 'Data Ternak not found', 'createKelahiran Service');
-            console.log(checkTernak.dataValues.id_fp);
-            console.log(faseKelahiran.dataValues.id_fp);
             if (checkTernak.dataValues.id_fp === faseKelahiran.dataValues.id_fp) newError(400, 'Ternak already in Kelahiran', 'createKelahiran Service');
 
             // Update ternak
