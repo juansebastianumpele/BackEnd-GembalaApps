@@ -118,6 +118,24 @@ class _formInput{
                 delete pejantanInPerkawinan[i].dataValues.kandang;
             }
 
+            // Get ternak jantan
+            const ternakJantan = await this.db.Ternak.findAll({
+                attributes: ['id_ternak','rf_id'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    jenis_kelamin: 'Jantan'
+                }
+            });
+
+            // Get ternak betina
+            const ternakBetina = await this.db.Ternak.findAll({
+                attributes: ['id_ternak','rf_id'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    jenis_kelamin: 'Betina'
+                }
+            });
+
             return {
                 code: 200,
                 data: {
@@ -129,7 +147,9 @@ class _formInput{
                     bangsa: bangsa,
                     indukan: indukan,
                     pejantan: pejantan,
-                    pejantan_perkawinan: pejantanInPerkawinan
+                    pejantan_perkawinan: pejantanInPerkawinan,
+                    ternak_jantan: ternakJantan,
+                    ternak_betina: ternakBetina
                 }
             }
 
