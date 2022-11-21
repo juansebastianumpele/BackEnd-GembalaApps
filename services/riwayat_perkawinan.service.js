@@ -25,6 +25,7 @@ class _riwayatPerkawinan {
                     //     attributes: ['status'],
                     // }
                 ],
+                where: req.query,
             });
 
             // Get data ternak
