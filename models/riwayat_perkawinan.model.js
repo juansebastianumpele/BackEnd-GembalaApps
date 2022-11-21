@@ -63,6 +63,10 @@ module.exports = (Sequelize, DataTypes) => {
             foreignKey: 'id_kandang',
             as: 'kandang'
         });
+        RiwayatPerkawinan.hasOne(models.RiwayatKebuntingan, {
+            foreignKey: 'id_riwayat_perkawinan',
+            as: 'riwayat_kebuntingan'
+        });
     };
 
     return RiwayatPerkawinan;
