@@ -179,7 +179,7 @@ class _dashboard{
         try{
             // Get data fase pemasukan
             const fasePemasukan = await this.db.Fase.findOne({
-                attributes: ['id_fase'],
+                attributes: ['id_fp'],
                 where: {
                     fase: 'Pemasukan'
                 }
@@ -196,7 +196,7 @@ class _dashboard{
                         [Op.not]: null
                     },
                     id_fp: {
-                        [Op.not]: fasePemasukan.dataValues.id_fase
+                        [Op.not]: fasePemasukan.dataValues.id_fp
                     },
                     status_keluar: null
                 }
