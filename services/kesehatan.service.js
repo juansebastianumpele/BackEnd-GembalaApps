@@ -227,16 +227,40 @@ class _kesehatan{
     }
 
     // Get ternak sakit
-    getTernakSakitByPenyakit = async (req) => {
+    getTernakSakit = async (req) => {
         try{
             // add params
             req.query.id_peternakan = req.dataAuth.id_peternakan;
             const ternakSakit = await this.db.Kesehatan.findAll({
+                attributes: ['id_kesehatan', 'id_ternak', 'tanggal_sakit', 'gejala', 'penanganan'],
+                include: [
+                    {
+                        model: this.db.Ternak,
+                        as: 'ternak',
+                        attributes: ['id_ternak'],
+                        include: [
+                            {
+                                model: this.db.Kandang,
+                                as: 'kandang',
+                                attributes: ['id_kandang', 'kode_kandang']
+                            }
+                        ]
+                    },
+                    {
+                        model: this.db.Penyakit,
+                        as: 'penyakit',
+                        attributes: ['id_penyakit', 'nama_penyakit']
+                    }
+                ],
                 where: req.query,
                 order: [
                     ['id_kesehatan', 'DESC']
                 ]
             });
+            for(let i = 0; i < ternakSakit.length; i++){
+                ternakSakit[i].dataValues.kandang = ternakSakit[i].dataValues.ternak.dataValues.kandang;
+                delete ternakSakit[i].dataValues.ternak;
+            }
             if(ternakSakit.length <= 0) newError(404, 'Data ternak sakit not found', 'getTernakSakit Service');
     
             return {

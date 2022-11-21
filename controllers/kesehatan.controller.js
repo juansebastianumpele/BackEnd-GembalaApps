@@ -15,8 +15,8 @@ const kesehatanController = (db) => {
     });
 
     // Get ternak sakit by penyakit
-    KesehatanController.get('/ternak-sakit-by-penyakit', authentication, adminMiddleware, async (req, res, next) => {
-        const detail = await s$kesehatan.getTernakSakitByPenyakit(req);
+    KesehatanController.get('/ternak-sakit', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$kesehatan.getTernakSakit(req);
         response.sendResponse(res, detail);
     });
 
