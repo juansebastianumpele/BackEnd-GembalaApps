@@ -25,19 +25,18 @@ class _riwayatPerkawinan {
                         attributes: ['status'],
                     }
                 ],
-                where: req.query
             });
 
             // Get cempe dari dam (bapak) dan sire (ibu) dari riwayat perkawinan
-            for (let i = 0; i < list.length; i++) {
-                const cempe = await this.db.Ternak.findAll({
-                    attributes: ['id_ternak'],
-                    where: {
-                        id_sire: list[i].dataValues.id_pejantan,
-                        id_dam: list[i].dataValues.id_indukan
-                    }
-                })
+            const ternak = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'id_sire', 'id_dam'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan
+                },
+            });
 
+            for (let i = 0; i < list.length; i++) {
+                const cempe = ternak.filter(ternak => ternak.id_sire == list[i].id_pejantan && ternak.id_dam == list[i].id_indukan);
                 list[i].dataValues.id_cempe = cempe.length ? cempe.map(cempe => cempe.dataValues.id_ternak) : null;
             }
 
