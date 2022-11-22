@@ -26,6 +26,7 @@ const riwayatKebuntinganController = require("../controllers/riwayat_kebuntingan
 const kesehatanController = require('../controllers/kesehatan.controller');
 const kelahiranController = require("../controllers/kelahiran.controller");
 const riwayatKelahiranController = require("../controllers/riwayat_kelahiran.controller");
+const lepasSapihController = require("../controllers/lepas_sapih.controller");
 
 // Define url API in here
 const _routes = [
@@ -57,6 +58,7 @@ const _routes = [
     ['/kesehatan', kesehatanController],
     ['/kelahiran', kelahiranController],
     ['/riwayat-kelahiran', riwayatKelahiranController],
+    ['/lepas-sapih', lepasSapihController]
 ];
 
 const routes = (app, db) => {

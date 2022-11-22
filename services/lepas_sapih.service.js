@@ -20,11 +20,11 @@ class _lepasSapih{
             if(error) newError(400, error.message, 'createLepasSapih Service');
 
             // Get data fase kelahiran
-            const faseKelahiran = await this.db.Fase.findOne({where: {id_ternak: value.id_ternak, fase: 'Kelahiran'}});
+            const faseKelahiran = await this.db.Fase.findOne({where: {fase: 'Kelahiran'}});
             if(!faseKelahiran) newError(404, 'Data Fase Kelahiran not found', 'createLepasSapih Service');
 
             // Get data fase lepas sapih
-            const faseLepasSapih = await this.db.Fase.findOne({where: {id_ternak: value.id_ternak, fase: 'Lepas Sapih'}});
+            const faseLepasSapih = await this.db.Fase.findOne({where: {fase: 'Lepas Sapih'}});
             if(!faseLepasSapih) newError(404, 'Data Fase Lepas Sapih not found', 'createLepasSapih Service');
 
             // Check ternak
@@ -51,6 +51,7 @@ class _lepasSapih{
 
             // Create riwayat fase cempe
             const createRiwayatFase = await this.db.RiwayatFase.create({
+                id_peternakan: req.dataAuth.id_peternakan,
                 id_ternak: value.id_ternak,
                 id_fp: faseLepasSapih.dataValues.id_fp,
                 tanggal: value.tanggal_lepas_sapih || new Date()
@@ -101,7 +102,7 @@ class _lepasSapih{
             await t.commit();
 
             return {
-                status: 201,
+                code: 201,
                 data: {
                     id_ternak: value.id_ternak,
                     createdAt: createRiwayatFase.dataValues.createdAt
@@ -123,6 +124,7 @@ class _lepasSapih{
             // Add params
             req.query.id_peternakan = req.dataAuth.id_peternakan;
             req.query.id_fp = dataLepasSapih.dataValues.id_fp;
+            req.query.status_keluar = null;
 
             // Get ternak
             const ternak = await this.db.Ternak.findAll({
@@ -150,10 +152,19 @@ class _lepasSapih{
                 ]
             });
             for(let i = 0; i < ternak.length; i++){
-                ternak[i].dataValues.tanggal = ternak[i].dataValues.RiwayatFases.length > 0 ? ternak[i].dataValues.RiwayatFases[0].dataValues.tanggal : null;
-                delete ternak[i].dataValues.RiwayatFases;
+                ternak[i].dataValues.tanggal = ternak[i].dataValues.riwayat_fase.length > 0 ? ternak[i].dataValues.riwayat_fase[0].dataValues.tanggal : null;
+                delete ternak[i].dataValues.riwayat_fase;
             }
 
+            if(ternak.length <= 0) newError(404, 'Data Lepas Sapih not found', 'getLepasSapih Service');
+
+            return {
+                code: 200,
+                data: {
+                    total: ternak.length,
+                    list: ternak
+                }
+            }
         }catch(error){
             return errorHandler(error);
         }
@@ -172,25 +183,51 @@ class _lepasSapih{
             if(error) newError(400, error.details[0].message, 'seleksiLepasSapih Service');
 
             // Check status
-            if(value.status.toLowerCase() !== 'pejantan' || value.status.toLowerCase() !== 'betina' || value.status.toLowerCase() !== 'bakalan') newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
+            if(value.status.toLowerCase() !== 'pejantan' && value.status.toLowerCase() !== 'betina' && value.status.toLowerCase() !== 'bakalan') newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
+
+            // Get data fase lepas sapih
+            const dataLepasSapih = await this.db.Fase.findOne({where: {fase: 'Lepas Sapih'}});
+            if(!dataLepasSapih) newError(404, 'Data Fase Lepas Sapih not found', 'seleksiLepasSapih Service');
+
+            // Check ternak
+            const ternak = await this.db.Ternak.findOne({
+                where: {
+                    id_ternak: value.id_ternak,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if(!ternak) newError(404, 'Ternak not found', 'seleksiLepasSapih Service');
+            if(ternak.dataValues.id_fp !== dataLepasSapih.dataValues.id_fp) newError(400, 'Ternak not in Lepas Sapih fase', 'seleksiLepasSapih Service');
 
             // Get data status
             const dataStatus = await this.db.StatusTernak.findOne({where: {status_ternak: value.status}});
             if(!dataStatus) newError(404, `Data Status ${value.status} not found`, 'seleksiLepasSapih Service');
 
-            // Get fase waiting list perkawinan
-            const faseWaitingListPerkawinan = await this.db.Fase.findOne({where: {fase: 'Waiting List Perkawinan'}});
-            if(!faseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan not found', 'seleksiLepasSapih Service');
+            // // Get fase waiting list perkawinan
+            // const faseWaitingListPerkawinan = await this.db.Fase.findOne({where: {fase: 'Waiting List Perkawinan'}});
+            // if(!faseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan not found', 'seleksiLepasSapih Service');
 
-            // Get fase perkawinan
-            const fasePerkawinan = await this.db.Fase.findOne({where: {fase: 'Perkawinan'}});
-            if(!fasePerkawinan) newError(404, 'Data Fase Perkawinan not found', 'seleksiLepasSapih Service');
+            // // Get fase perkawinan
+            // const fasePerkawinan = await this.db.Fase.findOne({where: {fase: 'Perkawinan'}});
+            // if(!fasePerkawinan) newError(404, 'Data Fase Perkawinan not found', 'seleksiLepasSapih Service');
 
+            // Get data fase adaptasi 1
+            const faseAdaptasi1 = await this.db.Fase.findOne({where: {fase: 'Adaptasi 1'}});
+            if(!faseAdaptasi1) newError(404, 'Data Fase Adaptasi 1 not found', 'seleksiLepasSapih Service');
+
+            // let faseSeleksi;
+            // if(value.status.toLowerCase() === 'pejantan'){
+            //     faseSeleksi = fasePerkawinan.dataValues.id_fp;
+            // }else if(value.status.toLowerCase() === 'betina'){
+            //     faseSeleksi = faseWaitingListPerkawinan.dataValues.id_fp;
+            // }else if(value.status.toLowerCase() === 'bakalan'){
+            //     faseSeleksi = null
+            // }else{
+            //     newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
+            // }
             let faseSeleksi;
-            if(value.status.toLowerCase() === 'pejantan'){
-                faseSeleksi = fasePerkawinan.dataValues.id_fp;
-            }else if(value.status.toLowerCase() === 'betina'){
-                faseSeleksi = faseWaitingListPerkawinan.dataValues.id_fp;
+            if(value.status.toLowerCase() === 'pejantan' && value.status.toLowerCase() === 'betina'){
+                faseSeleksi = faseAdaptasi1.dataValues.id_fp;
             }else if(value.status.toLowerCase() === 'bakalan'){
                 faseSeleksi = null
             }else{
@@ -223,8 +260,54 @@ class _lepasSapih{
             // Commit
             await t.commit();
 
+            return {
+                code: 201,
+                data: {
+                    id_ternak: value.id_ternak,
+                    status: value.status,
+                    updatedAt: new Date()
+                }
+            }
         }catch(error){
             await t.rollback();
+            return errorHandler(error);
+        }
+    }
+
+    // Get ternak lepas sapih for dashboard monitoring
+    getLepasSapihDashboard = async (req) => {
+        try{
+            // Get data fase lepas sapih
+            const dataLepasSapih = await this.db.Fase.findOne({where: {fase: 'Lepas Sapih'}});
+            if(!dataLepasSapih) newError(404, 'Data Fase Lepas Sapih not found', 'getLepasSapihDashboard Service');
+
+            // Get ternak
+            const ternak = await this.db.Ternak.findAll({
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: dataLepasSapih.dataValues.id_fp
+                },
+                include: [
+                    {
+                        model: this.db.RiwayatFase,
+                        as: 'riwayat_fase',
+                        attributes: ['id_riwayat_fase', 'tanggal']
+                    }
+                ],
+                order: [
+                    ['id_ternak', 'ASC']
+                ]
+            });
+            if(ternak.length <= 0) newError(404, 'Data Lepas Sapih not found', 'getLepasSapihDashboard Service');
+
+            return {
+                code: 200,
+                data: {
+                    total: ternak.length,
+                    list: ternak
+                }
+            }
+        }catch(error){
             return errorHandler(error);
         }
     }
