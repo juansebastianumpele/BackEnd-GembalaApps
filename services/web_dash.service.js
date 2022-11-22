@@ -229,46 +229,54 @@ class _dashboard{
                 }
             }
 
+            // Get data ternak
+            const ternak = await this.db.Ternak.findAll({
+                include: [
+                    {
+                        model: this.db.Fase,
+                        as: 'fase',
+                        attributes: ['fase']
+                    }
+                ],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: {
+                        [Op.not]: null
+                    },
+                    status_keluar: null
+                }
+            });
+
             // Get total ternak by fase
             let totalTernakByFase = [];
-            totalTernakByFase.push({
-                fase: 'Pemasukan',
-                total_ternak: 0
-            })
             totalTernakByFase.push({
                 fase: 'Adaptasi',
                 total_ternak: 0
             });
-            totalTernakByFase.push({
-                fase: 'Perkawinan',
-                total_ternak: 0
-            });
             for(let i = 0; i < fase.length; i++){
-                const totalTernak = await this.db.Ternak.count({
-                    where: {
-                        id_peternakan: req.dataAuth.id_peternakan,
-                        id_fp: fase[i].dataValues.id_fp,
-                        id_status_ternak: {
-                            [Op.not]: null
-                        },
-                        jenis_kelamin: {
-                            [Op.not]: null
-                        },
-                        status_keluar: null
-                    }
+                if(fase[i].dataValues.fase.toLowerCase().startsWith('adaptasi')
+                || fase[i].dataValues.fase.toLowerCase() == 'laktasi' 
+                || fase[i].dataValues.fase.toLowerCase() == 'waiting list perkawinan') continue;
+                totalTernakByFase.push({
+                    fase: fase[i].dataValues.fase,
+                    total_ternak: 0
                 });
+            }
 
-                if(fase[i].dataValues.fase.toLowerCase() == 'pemasukan'){
-                    totalTernakByFase[0].total_ternak += totalTernak;
-                }else if(fase[i].dataValues.fase.toLowerCase().startsWith('adaptasi')){
-                    totalTernakByFase[1].total_ternak += totalTernak;
-                }else if(fase[i].dataValues.fase.toLowerCase().includes('perkawinan')){
-                    totalTernakByFase[2].total_ternak += totalTernak;
+            // Count total ternak by fase
+            for(let i = 0; i < ternak.length; i++){
+                if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase().startsWith('adaptasi')){
+                    totalTernakByFase[0].total_ternak += 1;
+                    continue;
+                }else if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase() == 'laktasi' || ternak[i].dataValues.fase.dataValues.fase.toLowerCase() == 'waiting list perkawinan'){
+                    continue;
                 }else{
-                    totalTernakByFase.push({
-                        fase: fase[i].dataValues.fase,
-                        total_ternak: totalTernak
-                    });
+                    for(let j = 0; j < totalTernakByFase.length; j++){
+                        if(ternak[i].dataValues.fase.dataValues.fase == totalTernakByFase[j].fase){
+                            totalTernakByFase[j].total_ternak += 1;
+                            break;
+                        }
+                    }
                 }
             }
 
