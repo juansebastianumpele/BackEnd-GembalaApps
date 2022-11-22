@@ -235,7 +235,7 @@ class _lepasSapih{
             //     newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
             // }
             let faseSeleksi;
-            if(value.status.toLowerCase() === 'pejantan' && value.status.toLowerCase() === 'betina'){
+            if(value.status.toLowerCase() === 'pejantan' || value.status.toLowerCase() === 'betina'){
                 faseSeleksi = faseAdaptasi1.dataValues.id_fp;
             }else if(value.status.toLowerCase() === 'bakalan'){
                 faseSeleksi = null
