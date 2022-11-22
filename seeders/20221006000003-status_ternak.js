@@ -15,6 +15,9 @@ module.exports = {
       },
       {
         status_ternak: "Afkir"
+      },
+      {
+        status_ternak: "Bakalan"
       }
     ], {});
   },
