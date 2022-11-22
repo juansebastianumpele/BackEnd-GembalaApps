@@ -5,8 +5,6 @@ class _response {
             // res.status(data.code == 200 ? 200 : data.code ? data.code : 500)
             res.status(data.code ? data.code : 500)
 
-            console.log(data)
-
             let status
             switch (data.code) {
                 case 200:
