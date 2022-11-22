@@ -153,9 +153,6 @@ class _ternak {
                 if(req.query.id_fp){
                     if(req.query.id_fp == fase_laktasi.dataValues.id_fp){
                         const lactationAge = list[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(list[i].dataValues.riwayat_fase[0].dataValues.tanggal)) / (1000 * 60 * 60 * 24)) : 0;
-                        console.log(list[i].dataValues.riwayat_fase[list[i].dataValues.riwayat_fase.length - 1].dataValues.tanggal)
-                        console.log(`lactationAge: ${lactationAge}`)
-                        console.log(list[i].dataValues.riwayat_fase)
                         if (lactationAge < start_filter || lactationAge > end_filter) {
                             list.splice(i, 1);
                             i--;
@@ -163,8 +160,6 @@ class _ternak {
                         }
                     }else if(req.query.id_fp == fase_kebuntingan.dataValues.id_fp){
                         const gestationalAge = list[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(list[i].dataValues.riwayat_fase[0].dataValues.tanggal)) / (1000 * 60 * 60 * 24)) : 0;
-                        console.log(`gestationalAge: ${gestationalAge}`)
-                        console.log(list[i].dataValues.riwayat_fase[0].dataValues.tanggal)
                         if (gestationalAge < start_filter || gestationalAge > end_filter) {
                             list.splice(i, 1);
                             i--;
@@ -322,7 +317,7 @@ class _ternak {
         try {
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                rf_id: joi.string().required(),
+                rf_id: joi.string().allow(null),
                 image: joi.string().allow(null),
                 jenis_kelamin: joi.string().allow(null),
                 id_bangsa: joi.number().allow(null),
@@ -342,24 +337,24 @@ class _ternak {
             if (error) newError(400, error.details[0].message, 'updateTernak Service');
 
             // Check if Ternak exist
-            const ternak = await this.db.Ternak.findOne({where: {id_ternak: value.id_ternak}});
+            const ternak = await this.db.Ternak.findOne({where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan}});
             if (!ternak) newError(404, 'Ternak not found', 'updateTernak Service');
 
             // Update Ternak
             const update = await this.db.Ternak.update({
-                rf_id: value.rf_id,
-                image: value.image,
-                jenis_kelamin: value.jenis_kelamin,
-                id_bangsa: value.id_bangsa,
-                tanggal_lahir: value.tanggal_lahir,
-                tanggal_masuk: value.tanggal_masuk,
-                tanggal_keluar: value.tanggal_keluar,
-                status_keluar: value.status_keluar,
-                id_dam: value.id_dam,
-                id_sire: value.id_sire,
-                id_fp: value.id_fp,
-                id_status_ternak: value.id_status_ternak,
-                id_kandang: value.id_kandang
+                rf_id: value.rf_id || ternak.dataValues.rf_id,
+                image: value.image || ternak.dataValues.image,
+                jenis_kelamin: value.jenis_kelamin || ternak.dataValues.jenis_kelamin,
+                id_bangsa: value.id_bangsa || ternak.dataValues.id_bangsa,
+                tanggal_lahir: value.tanggal_lahir || ternak.dataValues.tanggal_lahir,
+                tanggal_masuk: value.tanggal_masuk || ternak.dataValues.tanggal_masuk,
+                tanggal_keluar: value.tanggal_keluar || ternak.dataValues.tanggal_keluar,
+                status_keluar: value.status_keluar || ternak.dataValues.status_keluar,
+                id_dam: value.id_dam || ternak.dataValues.id_dam,
+                id_sire: value.id_sire || ternak.dataValues.id_sire,
+                id_fp: value.id_fp || ternak.dataValues.id_fp,
+                id_status_ternak: value.id_status_ternak || ternak.dataValues.id_status_ternak,
+                id_kandang: value.id_kandang || ternak.dataValues.id_kandang
             }, {
                 where: {
                     id_ternak: value.id_ternak,
@@ -369,28 +364,17 @@ class _ternak {
             });
             if (update <= 0) newError(500, 'Failed to update Ternak', 'updateTernak Service');
 
-            // Get data Timbangan
-            const timbangan = await this.db.Timbangan.findAll({
-                where: {
-                    id_ternak: value.id_ternak
-                },
-                order: [
-                    ['createdAt', 'DESC']
-                ],
-                limit: 1
-            });
-            if (timbangan.length > 0) {
-                // Update Timbangan
-                const updateTimbangan = await this.db.Timbangan.update({
-                    berat: value.berat ? value.berat : timbangan[0].dataValues.berat,
-                    suhu: value.suhu ? value.suhu : timbangan[0].dataValues.suhu,
-                }, {
-                    where: {
-                        id_timbangan: timbangan[0].dataValues.id_timbangan
-                    },
-                    transaction: t
-                });
-                if (updateTimbangan <= 0) newError(500, 'Failed to update Timbangan', 'updateTernak Service');
+            // Create timbangan
+            if (value.berat || value.suhu) {
+                // Add Timbangan
+                const timbangan = await this.db.Timbangan.create({
+                    id_ternak: ternak.dataValues.id_ternak,
+                    rf_id: value.rf_id || ternak.dataValues.rf_id,
+                    berat: value.berat ? value.berat : 0,
+                    suhu: value.suhu ? value.suhu : 0,
+                    tanggal_timbang: new Date(),
+                }, {transaction: t});
+                if (!timbangan) newError(500, 'Failed to create Timbangan', 'updateTernak Service');
             }
 
             // Create riwayat fase
