@@ -292,6 +292,9 @@ class _kelahiran {
                 if (updateStatus[0] <= 0) newError(500, 'Failed to update data Indukan', 'createKelahiran Service');
             }
 
+            // Commit transaction
+            await t.commit();
+
             return{
                 code: 200,
                 data: {
