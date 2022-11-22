@@ -19,8 +19,6 @@ class _rfid{
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'rfid Service');
 
-            console.log(value.jenis_ternak_baru.toLowerCase() !== "ternak baru" && value.jenis_ternak_baru.toLowerCase() !== "kelahiran");
-
             // Check jenis ternak baru
             if (value.jenis_ternak_baru.toLowerCase() !== "ternak baru" && value.jenis_ternak_baru.toLowerCase() !== "kelahiran") newError(400, "Jenis Ternak Baru must be 'Ternak Baru' or 'Kelahiran'", 'rfid Service');
 
@@ -117,7 +115,8 @@ class _rfid{
                     {
                         model: this.db.Bangsa,
                         as: 'bangsa',
-                        attributes: ['id_bangsa', 'bangsa']
+                        attributes: ['id_bangsa', 'bangsa'],
+                        required: false
                     },
                     {
                         model: this.db.Kandang,
@@ -127,14 +126,17 @@ class _rfid{
                             {
                                 model: this.db.JenisKandang,
                                 as: 'jenis_kandang',
-                                attributes: ['id_jenis_kandang', 'jenis_kandang']
+                                attributes: ['id_jenis_kandang', 'jenis_kandang'],
+                                required: false
                             },
                             {
                                 model: this.db.JenisPakan,
                                 as: 'jenis_pakan',
-                                attributes: ['id_jenis_pakan', 'jenis_pakan']
+                                attributes: ['id_jenis_pakan', 'jenis_pakan'],
+                                required: false
                             }
-                        ]
+                        ],
+                        required: false
                     },
                     {
                         model: this.db.Kesehatan,
@@ -144,24 +146,29 @@ class _rfid{
                             {
                                 model: this.db.Penyakit,
                                 as: 'penyakit',
-                                attributes: ['nama_penyakit']
+                                attributes: ['nama_penyakit'],
+                                required: false
                             }
-                        ]
+                        ],
+                        required: false
                     },
                     {
                         model: this.db.Fase,
                         as: 'fase',
-                        attributes: ['id_fp', 'fase']
+                        attributes: ['id_fp', 'fase'],
+                        required: false
                     },
                     {
                         model: this.db.StatusTernak,
                         as: 'status_ternak',
-                        attributes: ['id_status_ternak', 'status_ternak']
+                        attributes: ['id_status_ternak', 'status_ternak'],
+                        required: false
                     },
                     {
                         model: this.db.Timbangan,
                         as: 'timbangan',
-                        attributes: ['id_timbangan', 'berat']
+                        attributes: ['id_timbangan', 'berat'],
+                        required: false
                     },
                 ],
                 where : {
