@@ -49,6 +49,15 @@ class _lepasSapih{
             });
             if(updateTernak[0] <= 0) newError(400, 'Update ternak to lepas sapih fase failed', 'createLepasSapih Service');
 
+            // Create riwayat lepas sapih
+            const createRiwayatLepasSapih = await this.db.RiwayatLepasSapih.create({
+                id_peternakan: req.dataAuth.id_peternakan,
+                id_ternak: value.id_ternak,
+                tanggal_lepas_sapih: value.tanggal_lepas_sapih || new Date(),
+                kode_kandang: kandang.dataValues.kode_kandang
+            }, {transaction: t});
+            if(!createRiwayatLepasSapih) newError(400, 'Create riwayat lepas sapih failed', 'createLepasSapih Service');
+
             // Create riwayat fase cempe
             const createRiwayatFase = await this.db.RiwayatFase.create({
                 id_peternakan: req.dataAuth.id_peternakan,
@@ -283,28 +292,76 @@ class _lepasSapih{
 
             // Get ternak
             const ternak = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'jenis_kelamin', 'tanggal_lahir'],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_fp: dataLepasSapih.dataValues.id_fp
                 },
                 include: [
                     {
-                        model: this.db.RiwayatFase,
-                        as: 'riwayat_fase',
-                        attributes: ['id_riwayat_fase', 'tanggal']
+                        model: this.db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa']
+                    },
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang']
+                    },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['berat', 'suhu']
                     }
                 ],
                 order: [
-                    ['id_ternak', 'ASC']
+                    ['createdAt', 'DESC']
                 ]
             });
+
+            let totalBetina = 0;
+            let totalJantan = 0;
+            let totalByKandang = {};
+            for(let i = 0; i < ternak.length; i++){
+                // Check total by jenis kelamin
+                if(ternak[i].dataValues.jenis_kelamin.toLowerCase() === 'betina'){
+                    totalBetina++;
+                }else if(ternak[i].dataValues.jenis_kelamin.toLowerCase() === 'jantan'){
+                    totalJantan++;
+                }
+
+                // count ternak by kandang
+                if(ternak[i].dataValues.kandang){
+                    if(totalByKandang[ternak[i].dataValues.kandang.dataValues.kode_kandang]){
+                        totalByKandang[ternak[i].dataValues.kandang.dataValues.kode_kandang] += 1
+                    }else{
+                        totalByKandang[ternak[i].dataValues.kandang.dataValues.kode_kandang] = 1
+                    }
+                }
+
+                const umurHari = ternak[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(ternak[i].dataValues.tanggal_lahir)) / (1000 * 60 * 60 * 24)) : 0;
+                ternak[i].dataValues.umur = `${Math.floor(umurHari / 30)} bulan ${umurHari % 30} hari`;
+                delete ternak[i].dataValues.tanggal_lahir;
+
+                ternak[i].dataValues.berat = ternak[i].dataValues.timbangan.length > 0 ? ternak[i].dataValues.timbangan[ternak[i].dataValues.timbangan.length - 1].dataValues.berat : null;
+                ternak[i].dataValues.suhu = ternak[i].dataValues.timbangan.length > 0 ? ternak[i].dataValues.timbangan[ternak[i].dataValues.timbangan.length - 1].dataValues.suhu : null;
+                delete ternak[i].dataValues.timbangan;
+            }
             if(ternak.length <= 0) newError(404, 'Data Lepas Sapih not found', 'getLepasSapihDashboard Service');
 
             return {
                 code: 200,
                 data: {
-                    total: ternak.length,
-                    list: ternak
+                    kandang:{
+                        total: Object.keys(totalByKandang).length,
+                        list: totalByKandang
+                    },
+                    ternak:{
+                        total_betina: totalBetina,
+                        total_jantan: totalJantan,
+                        total: ternak.length,
+                        list: ternak
+                    }
                 }
             }
         }catch(error){

@@ -37,6 +37,14 @@ const lepasSapihController = (db) => {
         response.sendResponse(res, detail);
     });
 
+    /**
+     * Get data ternal lepas sapih dashboard web
+     */
+     LepasSapihController.get('/ternak-dash', authentication, adminMiddleware, async (req, res) => {
+        const detail = await s$lepasSapih.getLepasSapihDashboard(req);
+        response.sendResponse(res, detail);
+    });    
+
     return LepasSapihController;
 }
 
