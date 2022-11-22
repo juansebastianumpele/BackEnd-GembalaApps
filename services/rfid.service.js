@@ -19,8 +19,10 @@ class _rfid{
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'rfid Service');
 
+            console.log(value.jenis_ternak_baru.toLowerCase() !== "ternak baru" && value.jenis_ternak_baru.toLowerCase() !== "kelahiran");
+
             // Check jenis ternak baru
-            if (req.body.jenis_ternak_baru.toLowerCase() != "ternak baru" || req.body.jenis_ternak_baru.toLowerCase() != "kelahiran") newError(400, "Jenis Ternak Baru must be 'Ternak Baru' or 'Kelahiran'", 'rfid Service');
+            if (value.jenis_ternak_baru.toLowerCase() !== "ternak baru" && value.jenis_ternak_baru.toLowerCase() !== "kelahiran") newError(400, "Jenis Ternak Baru must be 'Ternak Baru' or 'Kelahiran'", 'rfid Service');
 
             // Get data status ternak cempe
             const statusTernakCempe = await this.db.StatusTernak.findOne({
