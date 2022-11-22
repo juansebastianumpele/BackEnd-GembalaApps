@@ -45,7 +45,7 @@ class _pemeliharaan{
                 }
             };
         }catch (error){
-            errorHandler(error);
+            return errorHandler(error);
         }
     }
 
@@ -79,7 +79,7 @@ class _pemeliharaan{
                 }
             };
         }catch (error){
-            errorHandler(error);
+            return errorHandler(error);
         }
     }
 
@@ -122,7 +122,7 @@ class _pemeliharaan{
                 }
             }
         } catch (error) {
-            errorHandler(error);
+            return errorHandler(error);
         }
     }
 }
