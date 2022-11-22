@@ -230,14 +230,23 @@ class _kelahiran {
                         model: this.db.Fase,
                         as: 'fase',
                         attributes: ['fase'],
+                    },
+                    {
+                        model: this.db.RiwayatKebuntingan,
+                        as: 'riwayat_kebuntingan',
+                        attributes: ['tanggal_kebuntingan'],
+                        where: {
+                            status: "Partus"
+                        },
+                        required: false
                     }
                 ],
                 where: {id_ternak: value.id_dam, id_peternakan: req.dataAuth.id_peternakan},
             });
             if (!indukan) newError(404, 'Data Indukan not found', 'createKelahiran Service');
 
+            // If Indukan not in Laktasi fase, Move to Laktasi
             if (indukan.dataValues.fase.dataValues.fase.toLowerCase() !== 'laktasi') {
-
                 // Get fase laktasi
                 const faseLaktasi = await this.db.Fase.findOne({ where: { fase: 'Laktasi' } });
                 if (!faseLaktasi) newError(404, 'Data Fase Laktasi not found', 'createKelahiran Service');
@@ -264,11 +273,27 @@ class _kelahiran {
                 if (!riwayatFaseIndukan) newError(500, 'Failed to create data Riwayat Fase Indukan', 'createKelahiran Service');
             }
 
-            // Commit transaction
-            await t.commit();
+            // If Indukan Bunting 4x, Set status to Afkir
+            if(indukan.dataValues.riwayat_kebuntingan.length >= 3) {
+                // Get status afkir
+                const statusAfkir = await this.db.StatusTernak.findOne({ where: { status: 'Afkir' } });
+                if (!statusAfkir) newError(404, 'Data Status Afkir not found', 'createKelahiran Service');
 
-            return {
-                code: 201,
+                // Update status ternak
+                const updateStatus = await this.db.Ternak.update({
+                    id_status_ternak: statusAfkir.dataValues.id_status_ternak,
+                }, {
+                    where: {
+                        id_ternak: value.id_dam,
+                        id_peternakan: req.dataAuth.id_peternakan,
+                    },
+                    transaction: t,
+                });
+                if (updateStatus[0] <= 0) newError(500, 'Failed to update data Indukan', 'createKelahiran Service');
+            }
+
+            return{
+                code: 200,
                 data: {
                     id_kelahiran: kelahiran.dataValues.id_kelahiran,
                     id_ternak: kelahiran.dataValues.id_ternak,
