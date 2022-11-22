@@ -46,7 +46,7 @@ module.exports = {
       },
       jenis_kelamin: {
         type: Sequelize.ENUM,
-        values: ['jantan', 'betina'],
+        values: ['Jantan', 'Betina'],
         allowNull: false
       },
       cek_poel: {
