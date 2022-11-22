@@ -172,7 +172,7 @@ class _kebuntingan{
             const totalAbortus = await this.db.RiwayatKebuntingan.count({where: {id_indukan: value.id_ternak, status: 'Abortus'}});
 
             // Get status afkir
-            const statusAfkir = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status: 'Afkir'}});
+            const statusAfkir = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Afkir'}});
             if(!statusAfkir) newError(404, 'Status Afkir not found', 'setTernakAbortus Service');
 
             // Check ternak if ternak afkir
