@@ -192,7 +192,7 @@ class _lepasSapih{
             if(error) newError(400, error.details[0].message, 'seleksiLepasSapih Service');
 
             // Check status
-            if(value.status.toLowerCase() !== 'pejantan' && value.status.toLowerCase() !== 'betina' && value.status.toLowerCase() !== 'bakalan') newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
+            if(value.status.toLowerCase() !== 'pejantan' && value.status.toLowerCase() !== 'indukan' && value.status.toLowerCase() !== 'bakalan') newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
 
             // Get data fase lepas sapih
             const dataLepasSapih = await this.db.Fase.findOne({where: {fase: 'Lepas Sapih'}});
