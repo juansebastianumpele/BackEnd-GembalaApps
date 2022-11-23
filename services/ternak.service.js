@@ -235,28 +235,51 @@ class _ternak {
     // Get Data Ternak mobile
     getTernakMobile = async (req) => {
         try {
+            // Filter jenis
+            if(req.query.jenis_ternak){
+                let status_cempe;
+                if(req.query.jenis_ternak.includes('cempe')){
+                    status_cempe = await this.db.StatusTernak.findOne({where: {status_ternak: 'Cempe'}});
+                    if(!status_cempe) newError(404, 'Status Ternak cempe not found', 'getTernakMobile Service');
+                }
+
+                if(req.query.jenis_ternak == 'jantan'){
+                    req.query.jenis_kelamin = 'Jantan';
+                }else if(req.query.jenis_ternak == 'betina'){
+                    req.query.jenis_kelamin = 'Betina';
+                }else if(req.query.jenis_ternak == 'cempe-jantan'){
+                    req.query.id_status_ternak = status_cempe.dataValues.id_status_ternak;
+                    req.query.jenis_kelamin = 'Jantan';
+                }else if(req.query.jenis_ternak == 'cempe-betina'){
+                    req.query.id_status_ternak = status_cempe.dataValues.id_status_ternak;
+                    req.query.jenis_kelamin = 'Betina';
+                }else if(req.query.jenis_ternak == 'indukan'){
+                    const status_indukan = await this.db.StatusTernak.findOne({where: {status_ternak: 'Indukan'}});
+                    if(!status_indukan) newError(404, 'Status Ternak indukan not found', 'getTernakMobile Service');
+                    req.query.id_status_ternak = status_indukan.dataValues.id_status_ternak;
+                }else if(req.query.jenis_ternak == 'pejantan'){
+                    const status_pejantan = await this.db.StatusTernak.findOne({where: {status_ternak: 'Pejantan'}});
+                    if(!status_pejantan) newError(404, 'Status Ternak pejantan not found', 'getTernakMobile Service');
+                    req.query.id_status_ternak = status_pejantan.dataValues.id_status_ternak;
+                }else if(req.query.jenis_ternak == 'kebuntingan'){
+                    const fase_kebuntingan = await this.db.Fase.findOne({where: {fase: 'Kebuntingan'}});
+                    if(!fase_kebuntingan) newError(404, 'Fase kebuntingan not found', 'getTernakMobile Service');
+                    req.query.id_fp = fase_kebuntingan.dataValues.id_fp;
+                }else if(req.query.jenis_ternak == 'laktasi'){
+                    const fase_laktasi = await this.db.Fase.findOne({where: {fase: 'Laktasi'}});
+                    if(!fase_laktasi) newError(404, 'Fase laktasi not found', 'getTernakMobile Service');
+                    req.query.id_fp = fase_laktasi.dataValues.id_fp;
+                }else{
+                    newError(400, 'Jenis Ternak not found', 'getTernakMobile Service');
+                }
+
+                delete req.query.jenis_ternak;
+            }
             // Filter variable
-            // singel parameter
             let start_filter = req.query.age ? (parseInt(req.query.age) - (parseInt(req.query.age) % 10)) : -99999
             let end_filter = req.query.age ? ((parseInt(req.query.age) + (10 - (parseInt(req.query.age) % 10))))-1 : 99999;
             let age = req.query.age ? req.query.age : null
             delete req.query.age;
-
-            log_info('getTernak Service',`start_filter: ${start_filter}, end_filter: ${end_filter}, input_age: ${age}`);
-
-            // multiple parameter
-            let start_age = req.query.start_age || -999999;
-            delete req.query.start_age;
-            let end_age = req.query.end_age || 999999;
-            delete req.query.end_age;
-            let gestational_age_start = req.query.gestational_age_start || -999999;
-            delete req.query.gestational_age_start;
-            let gestational_age_end = req.query.gestational_age_end || 999999;
-            delete req.query.gestational_age_end;
-            let lactation_age_start = req.query.lactation_age_start || -999999;
-            delete req.query.lactation_age_start;
-            let lactation_age_end = req.query.lactation_age_end || 999999;
-            delete req.query.lactation_age_end;
 
             // Add id_peternakan to params
             req.query.id_peternakan = req.dataAuth.id_peternakan
@@ -307,7 +330,6 @@ class _ternak {
                 // Calculate umur
                 const umurHari = list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir)) / (1000 * 60 * 60 * 24)) : 0;
 
-
                 // check age single parameter
                 if (age && !req.query.id_fp) {
                     if (umurHari < start_filter || umurHari > end_filter) {
@@ -333,32 +355,7 @@ class _ternak {
                         }
                     }
                 }
-
-                // Check umur ternak multiple parameter
-                if ((umurHari < start_age || umurHari > end_age)) {
-                    list.splice(i, 1);
-                    i--;
-                    continue;
-                }
-                // Check lactation age
-                if (list[i].dataValues.fase && list[i].dataValues.fase.dataValues.fase === 'Laktasi') {
-                    const lactationAge = list[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(list[i].dataValues.riwayat_fase[list[i].dataValues.riwayat_fase.length - 1].dataValues.tanggal)) / (1000 * 60 * 60 * 24)) : 0;
-                    if (lactationAge < lactation_age_start || lactationAge > lactation_age_end) {
-                        list.splice(i, 1);
-                        i--;
-                        continue;
-                    }
-                }
-                // Check gestational age
-                if (list[i].dataValues.fase && list[i].dataValues.fase.dataValues.fase === 'Kebuntingan') {
-                    const gestationalAge = list[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(list[i].dataValues.riwayat_fase[list[i].dataValues.riwayat_fase.length - 1].dataValues.tanggal)) / (1000 * 60 * 60 * 24)) : 0;
-                    if (gestationalAge < gestational_age_start || gestationalAge > gestational_age_end) {
-                        list.splice(i, 1);
-                        i--;
-                        continue;
-                    }
-                }
-                        
+   
                 // Get berat
                 list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
 
