@@ -34,7 +34,7 @@ class _riwayatPerkawinan {
                 list[i].dataValues.id_cempe = ternak.filter(ternak => ternak.dataValues.id_sire === list[i].dataValues.id_pejantan && ternak.dataValues.id_dam === list[i].dataValues.id_indukan).map(ternak => ternak.dataValues.id_ternak);
             }
 
-            if(list.length <= 0) newError(404, 'Data Riwatar Perkawinan not found', 'getRiwayatPerkawinan Service');
+            if(list.length <= 0) newError(404, 'Data Riwayat Perkawinan not found', 'getRiwayatPerkawinan Service');
 
             return {
                 code: 200,
