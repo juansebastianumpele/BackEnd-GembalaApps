@@ -37,10 +37,18 @@ const adaptasiController = (db) => {
     });
 
     /**
-     * Get all riwayat adaptasi
+     * Get all riwayat adaptasi complete data
      */
-    AdaptasiController.get('/', authentication, adminMiddleware, async (req, res, next) => {
-        const list = await s$adaptasi.getAdaptasi(req);
+    AdaptasiController.get('/complete', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$adaptasi.getAdaptasiComplete(req);
+        response.sendResponse(res, list);
+    });
+     
+    /**
+     * Get all riwayat adaptasi main data
+     */
+    AdaptasiController.get('/main', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$adaptasi.getAdaptasiMain(req);
         response.sendResponse(res, list);
     });
 
