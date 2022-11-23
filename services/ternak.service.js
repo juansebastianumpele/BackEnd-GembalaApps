@@ -232,6 +232,159 @@ class _ternak {
         }
     }
 
+    // Get Data Ternak mobile
+    getTernakMobile = async (req) => {
+        try {
+            // Filter variable
+            // singel parameter
+            let start_filter = req.query.age ? (parseInt(req.query.age) - (parseInt(req.query.age) % 10)) : -99999
+            let end_filter = req.query.age ? ((parseInt(req.query.age) + (10 - (parseInt(req.query.age) % 10))))-1 : 99999;
+            let age = req.query.age ? req.query.age : null
+            delete req.query.age;
+
+            log_info('getTernak Service',`start_filter: ${start_filter}, end_filter: ${end_filter}, input_age: ${age}`);
+
+            // multiple parameter
+            let start_age = req.query.start_age || -999999;
+            delete req.query.start_age;
+            let end_age = req.query.end_age || 999999;
+            delete req.query.end_age;
+            let gestational_age_start = req.query.gestational_age_start || -999999;
+            delete req.query.gestational_age_start;
+            let gestational_age_end = req.query.gestational_age_end || 999999;
+            delete req.query.gestational_age_end;
+            let lactation_age_start = req.query.lactation_age_start || -999999;
+            delete req.query.lactation_age_start;
+            let lactation_age_end = req.query.lactation_age_end || 999999;
+            delete req.query.lactation_age_end;
+
+            // Add id_peternakan to params
+            req.query.id_peternakan = req.dataAuth.id_peternakan
+            req.query.status_keluar = null
+            // Query data
+            const list = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'tanggal_lahir'],
+                include: [
+                    {
+                        model: this.db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa'],
+                        required: false
+                    },
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['id_timbangan', 'berat', 'suhu'],
+                        required: false
+                    },
+                    {
+                        model: this.db.RiwayatFase,
+                        as: 'riwayat_fase',
+                        attributes: ['tanggal', 'id_fp'],
+                        required: true,
+                        order: [['tanggal', 'ASC']],
+                        limit: 1,
+                    }
+                ],
+                where: req.query,
+                order: [['updatedAt', 'ASC']],
+            });
+
+            let fase_kebuntingan;
+            let fase_laktasi;
+            if(req.query.id_fp){
+                // Get data fase kebuntingan
+                fase_kebuntingan = await this.db.Fase.findOne({where: {fase: 'Kebuntingan'}})
+                if(!fase_kebuntingan) newError(404, 'Fase kebuntingan not found', 'getTernak Service')
+
+                // Get data fase Laktasi
+                fase_laktasi = await this.db.Fase.findOne({where: {fase: 'Laktasi'}})
+                if(!fase_laktasi) newError(404, 'Fase laktasi not found', 'getTernak Service')
+            }
+
+            // Filter data
+            for (let i = 0; i < list.length; i++) {
+                // Calculate umur
+                const umurHari = list[i].dataValues.tanggal_lahir ? Math.round((new Date() - new Date(list[i].dataValues.tanggal_lahir)) / (1000 * 60 * 60 * 24)) : 0;
+
+
+                // check age single parameter
+                if (age && !req.query.id_fp) {
+                    if (umurHari < start_filter || umurHari > end_filter) {
+                        list.splice(i, 1);
+                        i--;
+                        continue;
+                    }
+                }
+                if(req.query.id_fp){
+                    if(req.query.id_fp == fase_laktasi.dataValues.id_fp){
+                        const lactationAge = list[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(list[i].dataValues.riwayat_fase[0].dataValues.tanggal)) / (1000 * 60 * 60 * 24)) : 0;
+                        if (lactationAge < start_filter || lactationAge > end_filter) {
+                            list.splice(i, 1);
+                            i--;
+                            continue;
+                        }
+                    }else if(req.query.id_fp == fase_kebuntingan.dataValues.id_fp){
+                        const gestationalAge = list[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(list[i].dataValues.riwayat_fase[0].dataValues.tanggal)) / (1000 * 60 * 60 * 24)) : 0;
+                        if (gestationalAge < start_filter || gestationalAge > end_filter) {
+                            list.splice(i, 1);
+                            i--;
+                            continue;
+                        }
+                    }
+                }
+
+                // Check umur ternak multiple parameter
+                if ((umurHari < start_age || umurHari > end_age)) {
+                    list.splice(i, 1);
+                    i--;
+                    continue;
+                }
+                // Check lactation age
+                if (list[i].dataValues.fase && list[i].dataValues.fase.dataValues.fase === 'Laktasi') {
+                    const lactationAge = list[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(list[i].dataValues.riwayat_fase[list[i].dataValues.riwayat_fase.length - 1].dataValues.tanggal)) / (1000 * 60 * 60 * 24)) : 0;
+                    if (lactationAge < lactation_age_start || lactationAge > lactation_age_end) {
+                        list.splice(i, 1);
+                        i--;
+                        continue;
+                    }
+                }
+                // Check gestational age
+                if (list[i].dataValues.fase && list[i].dataValues.fase.dataValues.fase === 'Kebuntingan') {
+                    const gestationalAge = list[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(list[i].dataValues.riwayat_fase[list[i].dataValues.riwayat_fase.length - 1].dataValues.tanggal)) / (1000 * 60 * 60 * 24)) : 0;
+                    if (gestationalAge < gestational_age_start || gestationalAge > gestational_age_end) {
+                        list.splice(i, 1);
+                        i--;
+                        continue;
+                    }
+                }
+                        
+                // Get berat
+                list[i].dataValues.berat = list[i].dataValues.timbangan.length > 0 ? list[i].dataValues.timbangan[list[i].dataValues.timbangan.length - 1].dataValues.berat : 0;
+
+                // Get bangsa
+                list[i].dataValues.bangsa = list[i].dataValues.bangsa ? list[i].dataValues.bangsa.dataValues.bangsa : null;
+
+                // Delete unused data
+                delete list[i].dataValues.tanggal_lahir;
+                delete list[i].dataValues.timbangan;
+                delete list[i].dataValues.riwayat_fase;
+            }
+
+            if (list.length <= 0) newError(404, 'Data Ternak not found', 'getTernak Service');
+
+            return {
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
+            };
+        } catch (error) {
+            return errorHandler(error);
+        }
+    }
+
     // Create new Ternak
     createTernak = async (req) => {
         try {
