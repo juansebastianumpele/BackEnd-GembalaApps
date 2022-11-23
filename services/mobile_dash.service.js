@@ -252,8 +252,10 @@ class _mobileDash{
             for(let i = 0; i < fase.length; i++){
                 if(fase[i].dataValues.fase.toLowerCase().startsWith('adaptasi')){
                     list['adaptasi'] = 0;
-                }else if(fase[i].dataValues.fase.toLowerCase().includes('perkawinan')){
-                    list['perkawinan'] = 0;
+                }else if(fase[i].dataValues.fase.toLowerCase() == 'waiting list perkawinan'){
+                    continue;
+                }else if(fase[i].dataValues.fase.toLowerCase() == 'kelahiran' || fase[i].dataValues.fase.toLowerCase() == 'laktasi'){
+                    list['kelahiran/laktasi'] = 0;
                 }else{
                     list[fase[i].dataValues.fase.toLowerCase()] = 0;
                 }
@@ -263,8 +265,10 @@ class _mobileDash{
             for(let i = 0; i < ternak.length; i++){
                 if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase().startsWith('adaptasi')){
                     list['adaptasi']++;
-                }else if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase().includes('perkawinan')){
-                    list['perkawinan']++;
+                }else if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase() == 'waiting list perkawinan'){
+                    continue;
+                }else if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase() == 'kelahiran' || ternak[i].dataValues.fase.dataValues.fase.toLowerCase() == 'laktasi'){
+                    list['kelahiran/laktasi']++;
                 }else{
                     list[ternak[i].dataValues.fase.dataValues.fase.toLowerCase()]++;
                 }
