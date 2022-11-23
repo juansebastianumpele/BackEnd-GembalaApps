@@ -11,6 +11,6 @@ module.exports = {
     email: "test.gembala@gmail.com",
     password: "gembalapp1",
     password_app: "owoawahhflzhwkcf",
-    url_redirect_verify: "gembala.sembadafarm.com/verify/success-verify"
+    url_redirect_verify: "http://gembala.sembadafarm.com/verify/success-verify"
   }
 }
