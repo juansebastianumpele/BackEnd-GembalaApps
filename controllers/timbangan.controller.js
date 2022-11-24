@@ -1,58 +1,58 @@
 const { Router } = require('express');
-const s$timbangan = require('../services/timbangan.service');
+const timbanganService = require('../services/timbangan.service');
 const response = require('../utils/response');
-const authMiddleware = require('../middlewares/auth.middleware');
+const authentication = require('../middlewares/authentication');
+const { adminMiddleware } = require('../middlewares/authorization');
 
+const timbanganController = (db) => {
+    const s$timbangan = timbanganService(db);
+    const TimbanganController = Router();
 
-const TimbanganController = Router();
+    /**
+     * Get data timbangan
+    */
+    TimbanganController.get('/', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$timbangan.getDataTimbangan(req);
+        response.sendResponse(res, detail);
+    } );
 
+    /**
+     * Create new data timbangan
+     * @param {number} id_ternak
+     * @param {string} rf_id
+     * @param {number} berat_berkala
+     * @param {number} suhu_berkala
+     * @param {string} tanggal
+     */
+    TimbanganController.post('/',  async (req, res, next) => {
+        const add = await s$timbangan.createDataTimbangan(req);
+        response.sendResponse(res, add);
+    });
 
-/**
- * Get data timbangan
-*/
+    /**
+     * Update data timbangan
+     * @param {number} id_timbangan
+     * @param {number} id_ternak
+     * @param {string} rf_id
+     * @param {number} berat_berkala
+     * @param {number} suhu_berkala
+     * @param {string} tanggal
+    */
+    TimbanganController.put('/', authentication, adminMiddleware, async (req, res, next) => {
+        const edit = await s$timbangan.updateDataTimbangan(req);
+        response.sendResponse(res, edit);
+    });
 
-TimbanganController.get('/', authMiddleware, async (req, res, next) => {
-    const detail = await s$timbangan.getDataTimbangan(req);
-    response.sendResponse(res, detail);
-} );
+    /**
+     * Delete data timbangan
+     * @param {number} id_timbangan
+    */
+    TimbanganController.delete('/', authentication, adminMiddleware, async (req, res, next) => {
+        const del = await s$timbangan.deleteDataTimbangan(req);
+        response.sendResponse(res, del);
+    });
 
-/**
- * Create new data timbangan
- * @param {number} id_ternak
- * @param {string} rf_id
- * @param {number} berat_berkala
- * @param {number} suhu_berkala
- * @param {string} tanggal
- */
+    return TimbanganController;
+}
 
-TimbanganController.post('/', authMiddleware, async (req, res, next) => {
-    const add = await s$timbangan.createDataTimbangan(req);
-    response.sendResponse(res, add);
-});
-
-/**
- * Update data timbangan
- * @param {number} id_timbangan
- * @param {number} id_ternak
- * @param {string} rf_id
- * @param {number} berat_berkala
- * @param {number} suhu_berkala
- * @param {string} tanggal
-*/
-
-TimbanganController.put('/', authMiddleware, async (req, res, next) => {
-    const edit = await s$timbangan.updateDataTimbangan(req);
-    response.sendResponse(res, edit);
-});
-
-/**
- * Delete data timbangan
- * @param {number} id_timbangan
-*/
-
-TimbanganController.delete('/', authMiddleware, async (req, res, next) => {
-    const del = await s$timbangan.deleteDataTimbangan(req);
-    response.sendResponse(res, del);
-});
-
-module.exports = TimbanganController;
+module.exports = timbanganController;

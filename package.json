@@ -6,20 +6,34 @@
   "scripts": {
     "dev": "nodemon app.js",
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "set": "npm install && npm run migrate",
+    "setdev": "npm install && npm run migrate && npm run dev",
+    "migrate": "npx sequelize db:migrate && npx sequelize db:seed:all",
+    "drop": "npx sequelize db:migrate:undo:all",
+    "resetdb": "npm run drop && npm run migrate",
+    "pushdev": "git push origin dev && git push backup dev",
+    "pulldev": "git pull origin dev"
   },
   "author": "Sembada Farm",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "chalk": "^4.1.2",
+    "child_process": "^1.0.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "date-and-time": "^2.4.1",
-    "dotenv": "^16.0.2",
+    "dotenv": "^16.0.3",
     "express": "^4.18.1",
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "mariadb": "^3.0.1",
-    "nodemon": "^2.0.20"
+    "nodemailer": "^6.8.0",
+    "nodemon": "^2.0.20",
+    "randomstring": "^1.2.2",
+    "sequelize": "^6.23.2"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.5.1"
   }
 }

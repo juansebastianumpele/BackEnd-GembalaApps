@@ -1,89 +1,124 @@
 const { Router } = require('express');
-const s$ternak = require('../services/ternak.service');
+const ternakService = require('../services/ternak.service');
 const response = require('../utils/response');
-const authMiddleware = require('../middlewares/auth.middleware');
+const authentication = require('../middlewares/authentication');
+const { adminMiddleware } = require('../middlewares/authorization');
 
+const ternakController = (db) => {
+    const s$ternak = ternakService(db);
+    // Router
+    const TernakController = Router();
 
-const TernakController = Router();
+    /**
+     * Get List Ternak
+    */
+    TernakController.get('/', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$ternak.getTernak(req);
+        response.sendResponse(res, detail);
+    });
 
+    /**
+     * Get list ternak for mobile app
+     */
+    TernakController.get('/mobile', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$ternak.getTernakMobile(req);
+        response.sendResponse(res, detail);
+    });
 
-/**
- * Get List Ternak
-*/
+    /**
+     * Get List Ternak
+    */
+    TernakController.get('/indukan', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$ternak.getDataIndukan(req);
+        response.sendResponse(res, detail);
+    });
 
-TernakController.get('/', async (req, res, next) => {
-    const detail = await s$ternak.getTernak(req);
-    response.sendResponse(res, detail);
-});
+    /**
+     * Get List Ternak
+    */
+    TernakController.get('/pejantan', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$ternak.getDataPejantan(req);
+        response.sendResponse(res, detail);
+    });
 
-/**
- * Get List My ternak
-*/
+    /**
+     * Create new data ternak
+     * @param {string} rf_id
+     * @param {number} id_varietas
+     * @param {number} id_induk
+     * @param {number} id_pejantan
+     * @param {number} fase_pemeliharaan
+     * @param {number} id_pakan
+     * @param {number} id_kandang
+     * @param {string} foto
+     * @param {string} jenis_kelamin
+     * @param {number} berat
+     * @param {number} suhu
+     * @param {string} status_sehat
+     * @param {string} tanggal_lahir
+     * @param {string} tanggal_masuk
+     * @param {string} tanggal_keluar
+     * @param {number} status_keluar
+     */
+    TernakController.post('/', authentication, adminMiddleware, async (req, res, next) => {
+        const add = await s$ternak.createTernak(req);
+        response.sendResponse(res, add);
+    });
 
-TernakController.get('/myternak', authMiddleware, async (req, res, next) => {
-    const detail = await s$ternak.getMyTernak(req);
-    response.sendResponse(res, detail);
-});
+    /**
+     * Update data ternak
+     * @param {number} id_ternak
+     * @param {string} rf_id
+     * @param {number} id_varietas
+     * @param {number} id_induk
+     * @param {number} id_pejantan
+     * @param {number} fase_pemeliharaan
+     * @param {number} id_pakan
+     * @param {number} id_kandang
+     * @param {string} foto
+     * @param {string} jenis_kelamin
+     * @param {number} berat
+     * @param {number} suhu
+     * @param {string} status_sehat
+     * @param {string} tanggal_lahir
+     * @param {string} tanggal_masuk
+     * @param {string} tanggal_keluar
+     * @param {number} status_keluar
+     */
+    TernakController.put('/', authentication, adminMiddleware, async (req, res, next) => {
+        const edit = await s$ternak.updateTernak(req);
+        response.sendResponse(res, edit);
+    });
 
-/**
- * Create new data ternak
- * @param {string} rf_id
- * @param {number} id_varietas
- * @param {number} id_induk
- * @param {number} id_pejantan
- * @param {number} fase_pemeliharaan
- * @param {number} id_pakan
- * @param {number} id_kandang
- * @param {string} foto
- * @param {string} jenis_kelamin
- * @param {number} berat
- * @param {number} suhu
- * @param {string} status_sehat
- * @param {string} tanggal_lahir
- * @param {string} tanggal_masuk
- * @param {string} tanggal_keluar
- * @param {number} status_keluar
- */
+    /**
+     * Delete data ternak
+     * @param {number} id_ternak
+    */
+    TernakController.delete('/', authentication, adminMiddleware, async (req, res, next) => {
+        const del = await s$ternak.deleteTernak(req);
+        response.sendResponse(res, del);
+    });
 
-TernakController.post('/', authMiddleware, async (req, res, next) => {
-    const add = await s$ternak.createTernak(req);
-    response.sendResponse(res, add);
-});
+    /**
+     * Ternak keluar
+     * @param {number} id_ternak
+     * @param {string} tanggal_keluar
+     * @param {string} status_keluar
+     */
+    TernakController.put('/keluar', authentication, adminMiddleware, async (req, res, next) => {
+        const edit = await s$ternak.ternakKeluar(req);
+        response.sendResponse(res, edit);
+    });
 
-/**
- * Update data ternak
- * @param {number} id_ternak
- * @param {string} rf_id
- * @param {number} id_varietas
- * @param {number} id_induk
- * @param {number} id_pejantan
- * @param {number} fase_pemeliharaan
- * @param {number} id_pakan
- * @param {number} id_kandang
- * @param {string} foto
- * @param {string} jenis_kelamin
- * @param {number} berat
- * @param {number} suhu
- * @param {string} status_sehat
- * @param {string} tanggal_lahir
- * @param {string} tanggal_masuk
- * @param {string} tanggal_keluar
- * @param {number} status_keluar
- */
+    /**
+     * Get ternak keluar
+     */
+    TernakController.get('/keluar', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$ternak.getTernakKeluar(req);
+        response.sendResponse(res, detail);
+    });
 
-TernakController.put('/', authMiddleware, async (req, res, next) => {
-    const edit = await s$ternak.updateTernak(req);
-    response.sendResponse(res, edit);
-});
+    return TernakController;
+}
 
-/**
- * Delete data ternak
- * @param {number} id_ternak
-*/
-
-TernakController.delete('/', authMiddleware, async (req, res, next) => {
-    const del = await s$ternak.deleteTernak(req);
-    response.sendResponse(res, del);
-});
-
-module.exports = TernakController;
+module.exports = ternakController;

@@ -1,281 +1,426 @@
 const joi = require('joi');
-const mysql = require('../utils/database');
 const {generateToken, comparePassword, hashPassword} = require('../utils/auth');
 const date = require('date-and-time');
-
+const config = require('../config/app.config');
+const jwt = require('jsonwebtoken');
+const {verifyNewAccount, verifyEmailForgotPassword, bodEmailRegister} = require('../utils/email_verify');
+const randomstring = require("randomstring");
+const {newError, errorHandler} = require('../utils/errorHandler');
 class _auth{
+    constructor(db){
+        this.db = db;
+    }
+    /// Login Service
     login = async (data) => {
-        // Validate data
-        const schema = joi.object({
-            username: joi.string().required(),
-            password: joi.string().required()
-        });
-        const validate = schema.validate(data);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message);
-            return {
-                status: false,
-                code: 400,
-                error: errorDetails
-            }
-        }
+        try{
+            // Validate data
+            const schema = joi.object({
+                email: joi.string().email().required(),
+                kata_sandi: joi.string().required()
+            });
+            const {error, value} = schema.validate(data);
+            if (error) newError(400, error.details[0].message, 'Login Service');
 
-        // Check if user exist
-        const checkUsername = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [data.username]);
-        if (checkUsername.length <= 0) {
-            return {
-                status: false,
-                code: 404,
-                message: 'Sorry, user not found'
-            }
-        }
+            // Check if user exist
+            const checkUsername = await this.db.AuthUser.findOne({where : {email: value.email}});
+            if (!checkUsername) newError(400, 'Email tidak terdaftar', 'Login Service');
 
-        // Compare password
-        const isMatch = await comparePassword(data.password, checkUsername[0].password);
-        if (!isMatch) {
-            return {
-                status: false,
-                code: 404,
-                message: 'Sorry, password not match'
+            // Check status users
+            if(checkUsername.status == 'inactive'){
+                verifyNewAccount(checkUsername);
+                newError(400, 'Sorry, your account is not verified, please check your email', 'Login Service');
             }
-        }
 
-        // Generate token
-        const token = generateToken({ username: data.username, id: checkUsername[0].id_users, role: checkUsername[0].level[0] });
-        if (!token) {
+            // Compare password
+            const isMatch = await comparePassword(value.kata_sandi, checkUsername.kata_sandi);
+            if (!isMatch) newError(400, 'Password not match', 'Login Service');
+
+            // Generate token
+            const token = generateToken({ 
+                id_user: checkUsername.id_user, 
+                nama_pengguna: checkUsername.nama_pengguna, 
+                role: checkUsername.role,
+                status: checkUsername.status,
+                id_peternakan: checkUsername.id_peternakan
+            });
+            if (!token) newError(400, 'Failed to generate token', 'Login Service');
+
             return {
-                status: false,
-                code: 500,
-                message: 'Sorry, something went wrong'
+                code : 200,
+                data: {
+                    token,
+                    expiresAt: date.format(date.addSeconds(new Date(), config.jwt.expiresIn), 'YYYY-MM-DD HH:mm:ss')
+                },
             }
-        }
-
-        return {
-            status: true,
-            message: 'Login successful',
-            data: {
-                token,
-                expiresAt: date.format(date.addSeconds(new Date(), 3600), 'YYYY-MM-DD HH:mm:ss')
-            },
+        }catch(err){
+            return errorHandler(err);
         }
     }
 
+    /// Register Service
     register = async (data) => {
-        // Validate data
-        const schema = joi.object({
-            nama_mitra: joi.string().required(),
-            username: joi.string().alphanum().min(4).max(30).required(),
-            email: joi.string().email().required(),
-            no_hp: joi.string().required(),
-            alamat: joi.string().required(),
-            password: joi.string().min(8).required(),
-            repeat_password: joi.ref('password')
-        });
-        const validate = schema.validate(data);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message).join(', ');
-            return {
-                status: false,
-                code: 400,
-                error: errorDetails
-            }
-        }
+        try{
+            // Validate data
+            const schema = joi.object({
+                nama_pengguna: joi.string().alphanum().min(4).max(30).required(),
+                email: joi.string().email().required(),
+                nomor_telepon: joi.string().required(),
+                alamat: joi.string().required(),
+                nama_peternakan: joi.string().required(),
+                kata_sandi: joi.string().min(8).required(),
+                ulangi_kata_sandi: joi.ref('kata_sandi')
+            });
+            const {error, value} = schema.validate(data);
+            if (error) newError(400, error.details[0].message, 'Register Service');
+            // Check if user exist
+            const checkUsername = await this.db.AuthUser.findOne({
+                where : {
+                    nama_pengguna: value.nama_pengguna
+                }
+            });
+            if (checkUsername) newError(400, 'Username already exist', 'Register Service');
 
-        // Check if user exist
-        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE username = ?', [data.username]);
-        if (checkUser.length > 0) {
-            return {
-                status: false,
-                code: 400,
-                message: 'Sorry, username already exist'
-            }
-        }
+            // check if email exist
+            const checkEmail = await this.db.AuthUser.findOne({
+                where : {
+                    email: value.email
+                }
+            });
+            if (checkEmail) newError(400, 'Email already exist', 'Register Service');
 
-        // Hash password
-        data.password = await hashPassword(data.password);
-        
-        // Insert data
-        const register = await mysql.query(
-            'INSERT INTO auth_users (nama_mitra, username, email, no_hp, alamat, password) VALUES (?, ?, ?, ?, ?, ?)',
-            [data.nama_mitra, data.username, data.email, data.no_hp, data.alamat, data.password]);
-        if (register.affectedRows <= 0) {
-            return {
-                status: false,
-                code: 500,
-                message: 'Sorry, something went wrong'
-            }
-        }
+            // add peternakan
+            const addPeternakan = await this.db.Peternakan.create({
+                nama_peternakan: value.nama_peternakan,
+                alamat: value.alamat
+            });
+            if(!addPeternakan) newError(400, 'Failed to add peternakan', 'Register Service');
 
-        return {
-            status: true,
-            message: 'Register successful',
+            // Hash password
+            value.kata_sandi = await hashPassword(value.kata_sandi);
+            
+            // Insert data
+            const register = await this.db.AuthUser.create({
+                nama_pengguna: value.nama_pengguna,
+                email: value.email,
+                role: 'admin',
+                status: 'inactive',
+                id_peternakan: addPeternakan.id_peternakan,
+                nomor_telepon: value.nomor_telepon,
+                kata_sandi: value.kata_sandi
+            });
+            if (!register) newError(400, 'Failed to register', 'Register Service');
+
+            verifyNewAccount(register);
+
+            return {
+                code: 200,
+                data: {
+                    message: 'Email has been sent'
+                }
+            };
+        }catch (error){
+            return errorHandler(error);
         }
     }
 
+    /// Logout Service
     logout = async (req, res) => {
-        res.clearCookie('token');
-        console.log(req.dataAuth);
-        const update = await mysql.query(`UPDATE auth_users SET userLastAccess = ? WHERE id_users = ?`, [new Date(), req.dataAuth.id_users]);
-        if (update.affectedRows <= 0) {
+        try{
+            const update = await this.db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
+            if (update <= 0) newError(400, 'Failed to logout', 'Logout Service');
             return {
-                status: false,
-                code: 500,
-                message: 'Sorry, something went wrong'
+                code: 200,
+                data: {
+                    id_user: req.dataAuth.id_user,
+                    nama_pengguna: req.dataAuth.nama_pengguna,
+                    logoutAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
             }
-        }
-        return {
-            status: true,
-            message: 'Logout successful',
+        }catch(err){
+            return errorHandler(err);
         }
     }
 
-    deleteAccount = async (req) => {
-
-        // Validate data
-        const schema = joi.object({
-            password: joi.string().required()
-        });
-        const validate = schema.validate(req.body);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message);
+    /// Get Profile Service
+    getProfile = async (req) => {
+        try{
+            // Query Data
+            const list = await this.db.AuthUser.findOne({ 
+                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status',  'createdAt', 'updatedAt'],
+                include: [
+                    {
+                        model: this.db.Peternakan,
+                        as: 'peternakan',
+                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'createdAt', 'updatedAt']
+                    }
+                ],
+                where : {
+                    id_user: req.dataAuth.id_user
+                }
+             });
+            if(!list) newError(400, 'Failed to get profile', 'Get Profile Service');
 
             return {
-                status: false,
-                code: 400,
-                error: errorDetails
-            }
-        }
-
-        // Check if user exist
-        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
-        if (checkUser.length <= 0) {
-            return {
-                status: false,
-                code: 404,
-                message: 'Sorry, user not found'
-            }
-        }
-
-        // Compare password
-        const isMatch = await comparePassword(req.body.password, checkUser[0].password);
-        if (!isMatch) {
-            return {
-                status: false,
-                code: 404,
-                message: 'Sorry, password not match'
-            }
-        }
-
-        // Delete data
-        const deletedAccount = await mysql.query('DELETE FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
-        if (deletedAccount.affectedRows <= 0) {
-            return {
-                status: false,
-                code: 500,
-                message: `Sorry, delete account failed, Error: ${deletedAccount.error}`
-            }
-        }
-
-        return {
-            status: true,
-            message: 'Delete account successful',
+                code: 200,
+                data: list
+            };
+        }catch (error){
+            return errorHandler(error);
         }
     }
     
-    updateAccount = async (req) => {
+    /// Delete Account Service
+    deleteAccount = async (req) => {
+        try{
+            // Validate data
+            const schema = joi.object({
+                kata_sandi: joi.string().required()
+            });
+            const {error, value} = schema.validate(req.body);
+            if (error) newError(400, error.details[0].message, 'DeleteAccount Service');
 
+            // Check if user exist
+            const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+            if (!checkUser) newError(400, 'User not found', 'DeleteAccount Service');
+
+            // Compare password
+            const isMatch = await comparePassword(value.kata_sandi, checkUser.kata_sandi);
+            if (!isMatch) newError(400, 'Password not match', 'DeleteAccount Service');
+
+            // Delete data
+            const deletedAccount = await this.db.AuthUser.destroy({where: {id_user: req.dataAuth.id_user}});
+            if (deletedAccount <= 0) newError(400, 'Failed to delete account', 'DeleteAccount Service');
+
+            return {
+                code: 200,
+                data: {
+                    id_user: req.dataAuth.id_user,
+                    nama_pengguna: req.dataAuth.nama_pengguna,
+                    deletedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
+            }
+        }catch(err){
+            return errorHandler(err);
+        }
+    }
+    
+    /// Update Account Service
+    updateAccount = async (req) => {
         // Validate data
         const schema = joi.object({
-            nama_mitra: joi.string().required(),
-            username: joi.string().required(),
-            email: joi.string().required(),
-            no_hp: joi.string().required(),
-            alamat: joi.string().required()
+            nama_pengguna: joi.string().required(),
+            nomor_telepon: joi.string().required(),
+            alamat: joi.string().required(),
+            nama_peternakan: joi.string().required(),
         });
-        const validate = schema.validate(req.body);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message).join(', ');
-            return {
-                status: false,
-                code: 400,
-                error: errorDetails
-            }
-        }
+        const {error, value} = schema.validate(req.body);
+        if (error) newError(400, error.details[0].message, 'UpdateAccount Service');
 
         // Update data
-        const updatedAccount = await mysql.query(
-            'UPDATE auth_users SET nama_mitra = ?, username = ?, email = ?, no_hp = ?, alamat = ?  WHERE id_users = ?', 
-            [req.body.nama_mitra, req.body.username, req.body.email, req.body.no_hp, req.body.alamat, req.dataAuth.id_users]);
-        if (updatedAccount.affectedRows <= 0) {
-            return {
-                status: false,
-                code: 500,
-                message: `Sorry, update account failed, Error: ${updatedAccount.error}`
+        const updatedAccount = await this.db.AuthUser.update({
+            nama_pengguna: value.nama_pengguna,
+            nomor_telepon: value.nomor_telepon,
+        }, {
+            where: {
+                id_user: req.dataAuth.id_user
             }
-        }
+        });
+        if (updatedAccount <= 0) newError(500, 'Failed to update account', 'UpdateAccount Service');
+        
+        // Update peternakan
+        const updatedPeternakan = await this.db.Peternakan.update({
+            nama_peternakan: value.nama_peternakan,
+            alamat: value.alamat,
+        }, {
+            where: {
+                id_peternakan: req.dataAuth.id_peternakan
+            }
+        });
+        if (updatedPeternakan <= 0) newError(500, 'Failed to update peternakan', 'UpdateAccount Service');
 
         return {
-            status: true,
-            message: 'Update account successful',
+            code : 200,
+            data : {
+                id_user: req.dataAuth.id_user,
+                nama_pengguna: value.nama_pengguna,
+                updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+            }
         }
     }
 
+    /// Update PAssword Service 
     updatePassword = async (req) => {
-
         // Validate Data
         const schema = joi.object({
-            password: joi.string().required(),
-            new_password: joi.string().required()
+            kata_sandi: joi.string().required(),
+            kata_sandi_baru: joi.string().required(),
+            ulangi_kata_sandi_baru: joi.ref('kata_sandi_baru')
         });
-        const validate = schema.validate(req.body);
-        if (validate.error) {
-            const errorDetails = validate.error.details.map(detail => detail.message).join(', ');
-            return {
-                status: false,
-                code: 400,
-                error: errorDetails
-            }
-        }
+        const {error, value} = schema.validate(req.body);
+        if (error) newError(400, error.details[0].message, 'UpdatePassword Service');
 
         // Check if user exist
-        const checkUser = await mysql.query('SELECT * FROM auth_users WHERE id_users = ?', [req.dataAuth.id_users]);
-        if (checkUser.length <= 0) {
-            return {
-                status: false,
-                code: 404,
-                message: 'Sorry, user not found'
-            }
-        }
+        const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+        if (!checkUser) newError(400, 'User not found', 'UpdatePassword Service');
 
         // Compare password
-        const isMatch = await comparePassword(req.body.password, checkUser[0].password);
-        if (!isMatch) {
-            return {
-                status: false,
-                code: 404,
-                message: 'Sorry, password not match'
-            }
-        }
+        const isMatch = await comparePassword(value.kata_sandi, checkUser.kata_sandi);
+        if (!isMatch) newError(400, 'Password not match', 'UpdatePassword Service');
 
         // Hash password
-        const newPassword = await hashPassword(req.body.new_password);
+        const newPassword = await hashPassword(value.kata_sandi_baru);
 
         // Update data
-        const updatedPassword = await mysql.query('UPDATE auth_users SET password = ? WHERE id_users = ?', [newPassword, req.dataAuth.id_users]);
-        if (updatedPassword.affectedRows <= 0) {
-            return {
-                status: false,
-                code: 500,
-                message: `Sorry, update password failed, Error: ${updatedPassword.error}`
-            }
-        }
+        const updatedPassword = await this.db.AuthUser.update({kata_sandi: newPassword}, {where: {id_user: req.dataAuth.id_user}});
+        if (updatedPassword <= 0) newError(500, 'Failed to update password', 'UpdatePassword Service');
 
         return {
-            status: true,
-            message: 'Update password successful',
+            code : 200,
+            data : {
+                id_user: req.dataAuth.id_user,
+                nama_pengguna: checkUser.nama_pengguna,
+                updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+            }
+        }
+    }  
+
+    /// Verify token
+    verify = async (req) => {
+        try{
+            const user = await this.db.AuthUser.findOne({
+                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status', 'lastAccess', 'createdAt', 'updatedAt'],
+                include: [{
+                    model: this.db.Peternakan,
+                    as: 'peternakan'
+                }],
+                where : {
+                    id_user: req.dataAuth.id_user
+                }
+            });
+            if (!user) newError(400, 'User not found', 'Verify Service');
+
+            user.dataValues.iat = req.dataAuth.iat;
+            user.dataValues.exp = req.dataAuth.exp;
+            user.dataValues.time = new Date()
+            return {
+                code: 200,
+                data: user
+            };
+        }catch (error){
+            return errorHandler(error);
         }
     }
-        
+
+    /// verify Account
+    verifyAccount = async (token) => {
+        try{
+            const decoded = jwt.verify(token, config.jwt.secret)
+            
+            if(decoded.message == 'verification'){
+                const activateAccount = await this.db.AuthUser.update({status: 'active'}, {where: {id_user: decoded.id_user}});
+                if (activateAccount <= 0) newError(500, 'Failed to activate account', 'VerifyAccount Service');
+            }else{
+                newError(400, 'Invalid token', 'VerifyAccount Service');
+            }
+            
+            return {
+                code: 200,
+                data: {
+                    message: 'Account has been activated'
+                }
+            };
+        }catch(error){
+            return errorHandler(error);
+        }
+    }
+
+    /// Forgot Password
+    forgotPassword = async (req) => {
+        try{
+            // Validate data
+            const schema = joi.object({
+                email: joi.string().email().required(),
+            });
+            const {error, value} = schema.validate(req.body);
+            if (error) newError(400, error.details[0].message, 'ForgotPassword Service');
+            // Check if user exist
+            const checkUser = await this.db.AuthUser.findOne({where : {email: value.email}});
+            if (!checkUser) newError(400, 'User not found', 'ForgotPassword Service');
+
+            // updatedTempPassword
+            const tempPassword = randomstring.generate(8);
+            const tempPasswordHash = await hashPassword(tempPassword);
+            const updatedTempPassword = await this.db.AuthUser.update({kata_sandi: tempPasswordHash}, {where: {id_user: checkUser.id_user}});
+            if (updatedTempPassword <= 0) newError(500, 'Failed to update temp password', 'ForgotPassword Service');
+
+            verifyEmailForgotPassword(checkUser, tempPassword);
+
+            return {   
+                code: 200,
+                data: {
+                    message: 'Email has been sent'
+                }
+            };
+        }catch (error){
+            return errorHandler(error);
+        }
+    }
+
+    /// Register bod
+    registerBod = async (req) => {
+        try{
+            // Validate data
+            const schema = joi.object({
+                email: joi.string().email().required(),
+            });
+            const {error, value} = schema.validate(req.body);
+            if (error) newError(400, error.details[0].message, 'RegisterBod Service');
+
+            // Check if user exist
+            const checkUser = await this.db.AuthUser.findOne({where : {email: value.email}});
+            if (checkUser) newError(400, 'User already exist', 'RegisterBod Service');
+
+            // Generate random nama_pengguna
+            let isUnique = false;
+            while(!isUnique){
+                const randomUsername = randomstring.generate(10);
+                const checkUsername = await this.db.AuthUser.findOne({where : {nama_pengguna: randomUsername}});
+                if (checkUsername == null) {
+                    isUnique = true;
+                    value.nama_pengguna = randomUsername;
+                }
+            }
+
+            // Generate Random password
+            const randomPassword = randomstring.generate(8);
+            const kata_sandi = await hashPassword(randomPassword);
+
+            // Create user
+            const user = await this.db.AuthUser.create({
+                nama_pengguna: value.nama_pengguna,
+                email: value.email,
+                status: 'active',
+                role: 'bod',
+                id_peternakan: req.dataAuth.id_peternakan,
+                kata_sandi
+            });
+            if (!user) newError(500, 'Failed to create user', 'RegisterBod Service');
+
+            bodEmailRegister(value.email, randomPassword);
+
+            return {
+                code: 200,
+                data: {
+                    message: 'Email has been sent',
+                    id_user: user.id_user,
+                    email: user.email,
+                    createdAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
+            };
+        }catch (error){
+            return errorHandler(error);
+        }
+    }
 }
 
-module.exports = new _auth();
+module.exports = (db) => new _auth(db);

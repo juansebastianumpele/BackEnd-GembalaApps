@@ -1,36 +1,35 @@
-// Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _timbangan{
-
+    constructor(db){
+        this.db = db;
+    }
     // get Data Timbangan
     getDataTimbangan = async (req) => {
         try{
             // Query data
-            let query = `SELECT id_timbangan, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal FROM d_timbangan WHERE id_users = ?`;
-            for (let i = 0; i < Object.keys(req.query).length; i++) {
-                query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
-            }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
-            if(list.length <= 0){
-                return{
-                    status: false,
-                    code: 404,
-                    message: `Data timbangan tidak ditemukan`
-                }
-            }
+            const list = await this.db.Timbangan.findAll({
+                attributes : ['id_timbangan', 'berat', 'suhu', 'tanggal_timbang', 'createdAt', 'updatedAt'],
+                include: [
+                    {
+                        model: this.db.Ternak,
+                        as: 'ternak',
+                        attributes: ['id_ternak', 'rf_id']
+                    }
+                ],
+                where : req.query
+            });
+            if(list.length <= 0) newError(404, 'Data Timbangan not found', 'getDataTimbangan Service');
             return {
-                status: true,
-                total: list.length,
-                data: list,
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
             };
         }catch (error){
-            console.error('getTimbangan timbangan service Error: ', error);
-            return {
-                status: false,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -39,44 +38,44 @@ class _timbangan{
         try {
             // Validate data
             const schema = joi.object({
-                id_ternak: joi.number().required(),
                 rf_id: joi.string().required(),
-                berat_berkala: joi.number().required(),
-                suhu_berkala: joi.number().required(),
-                tanggal: joi.date().required()
+                berat: joi.number().required(),
+                suhu: joi.number().required()
             });
 
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    status: false,
-                    code: 400,
-                    error: errorDetails,
+            if (error) newError(400, error.details[0].message, 'createDataTimbangan Service');
+
+            // Query data ternak
+            const ternak = await this.db.Ternak.findOne({
+                attributes: ['id_ternak', 'rf_id'],
+                where: {
+                    rf_id: value.rf_id
                 }
-            }
+            });
+            if(!ternak) newError(404, 'Data Ternak not found', 'createDataTimbangan Service');
 
             // Query data
-            const add = await mysql.query(`INSERT INTO d_timbangan (id_users, id_ternak, rf_id, berat_berkala, suhu_berkala, tanggal) VALUES (?, ?, ?, ?, ?, ?)`, [req.dataAuth.id_users, req.body.id_ternak, req.body.rf_id, req.body.berat_berkala, req.body.suhu_berkala, req.body.tanggal]);
-            if(add.affectedRows <= 0){
-                return{
-                    status: false,
-                    code: 400,
-                    message: `Data timbangan gagal ditambahkan`
-                }
-            }
+            const add = await this.db.Timbangan.create({
+                id_ternak: ternak.id_ternak,
+                rf_id : value.rf_id,
+                berat: value.berat,
+                suhu: value.suhu
+            });
+            if(!add) newError(500, 'Failed to create Data Timbangan', 'createDataTimbangan Service');
 
             return {
-                status: true,
-                message: 'Data Timbangan berhasil ditambahkan',
+                code: 200,
+                data: {
+                    id_timbangan: add.id_timbangan,
+                    id_ternak: add.id_ternak,
+                    rf_id: add.rf_id,
+                    createdAt: new Date()
+                }
             };
         }
         catch (error) {
-            console.error('createDataTimbangan timbangan service Error: ', error);
-            return {
-                status: false,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -86,44 +85,33 @@ class _timbangan{
             // Validate data
             const schema = joi.object({
                 id_timbangan: joi.number().required(),
-                id_ternak: joi.number().required(),
-                rf_id: joi.string().required(),
-                berat_berkala: joi.number().required(),
-                suhu_berkala: joi.number().required(),
-                tanggal: joi.date().required()
+                berat: joi.number().required(),
+                suhu: joi.number().required()
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    status: false,
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updateDataTimbangan Service');
 
             // Query data
-            const update = await mysql.query(`UPDATE d_timbangan SET id_ternak = ?, rf_id = ?, berat_berkala = ?, suhu_berkala = ?, tanggal = ? WHERE id_timbangan = ? AND id_users = ?`, [req.body.id_ternak, req.body.rf_id, req.body.berat_berkala, req.body.suhu_berkala, req.body.tanggal, req.body.id_timbangan, req.dataAuth.id_users]);
-            if(update.affectedRows <= 0){
-                return{
-                    status: false,
-                    code: 400,
-                    message: `Data timbangan gagal diubah`
+            const update = await this.db.Timbangan.update({
+                berat: value.berat,
+                suhu: value.suhu,
+            }, {
+                where: {
+                    id_timbangan: value.id_timbangan
                 }
-            }
+            });
+            if(update <= 0) newError(500, 'Failed to update Data Timbangan', 'updateDataTimbangan Service');
 
             return {
-                status: true,
-                message: 'Data Timbangan berhasil diupdate',
+                code: 200,
+                data: {
+                    id_timbangan: value.id_timbangan,
+                    updatedAt: new Date()
+                }
             };
         }
         catch (error) {
-            console.error('updateDataTimbangan timbangan service Error: ', error);
-            return {
-                status: false,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -134,40 +122,29 @@ class _timbangan{
             const schema = joi.object({
                 id_timbangan: joi.number().required()
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    status: false,
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'deleteDataTimbangan Service');
 
             // Query data
-            const del = await mysql.query(`DELETE FROM d_timbangan WHERE id_timbangan = ? AND id_users = ?`, [req.body.id_timbangan, req.dataAuth.id_users]);
-            if(del.affectedRows <= 0){
-                return{
-                    status: false,
-                    code: 400,
-                    message: `Data timbangan gagal dihapus`
+            const del = await this.db.Timbangan.destroy({
+                where: {
+                    id_timbangan: value.id_timbangan
                 }
-            }
+            });
+            if(del <= 0) newError(500, 'Failed to delete Data Timbangan', 'deleteDataTimbangan Service');
             
             return {
-                status: true,
-                message: 'Data Timbangan berhasil dihapus',
+                code: 200,
+                data: {
+                    id_timbangan: value.id_timbangan,
+                    deletedAt: new Date()
+                }
             };
         }
         catch (error) {
-            console.error('deleteDataTimbangan timbangan service Error: ', error);
-            return {
-                status: false,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }
 
-module.exports = new _timbangan();
+module.exports = (db) => new _timbangan(db);

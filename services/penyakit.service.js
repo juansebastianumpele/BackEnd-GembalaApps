@@ -1,39 +1,27 @@
 // Helper databse yang dibuat
-const mysql = require('../utils/database');
 const joi = require('joi');
+const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _penyakit{
+    constructor(db){
+        this.db = db;
+    }
     // Get Data Penyakit
     getPenyakit = async (req) => {
         try{
-            // Query data
-            let query = 'SELECT id_penyakit, nama_penyakit, deskripsi, ciri_penyakit, pengobatan FROM d_penyakit WHERE id_users = ?';
-            for (let i = 0; i < Object.keys(req.query).length; i++) {
-                if(Object.keys(req.query)[i] == 'id_penyakit'){
-                    query += ` AND ${Object.keys(req.query)[i]} = '${Object.values(req.query)[i]}'`
-                }else{
-                    query += ` AND ${Object.keys(req.query)[i]} LIKE '%${Object.values(req.query)[i]}%'`
-                }   
-            }
-            const list = await mysql.query(query, [req.dataAuth.id_users]);
-            if(list.length <= 0){
-                return{
-                    status: false,
-                    code: 404,
-                    message: 'Data penyakit tidak ditemukan'
-                }
-            }
+            // Get data penyakit
+            const list = await this.db.Penyakit.findAll({ where : req.query });
+            if(list.length <= 0) newError(404, 'Data Penyakit not found', 'getPenyakit Service');
+
             return {
-                status: true,
-                total: list.length,
-                data: list,
+                code : 200,
+                data: {
+                    total: list.length,
+                    list
+                },
             };
         }catch (error){
-            console.error('getPenyakit penyakit service Error: ', error);
-            return {
-                status: false,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -43,41 +31,31 @@ class _penyakit{
             // Validate data
             const schema = joi.object({
                 nama_penyakit: joi.string().required(),
-                deskripsi: joi.string().required(),
-                ciri_penyakit: joi.string().required(),
-                pengobatan: joi.string().required(),
+                gejala: joi.string().required(),
+                penanganan: joi.string().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    status: false,
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'createPenyakit Service');
 
-            // Query data
-            const add = await mysql.query('INSERT INTO d_penyakit (id_users, nama_penyakit, deskripsi, ciri_penyakit, pengobatan) VALUES (?, ?, ?, ?, ?)', [req.dataAuth.id_users, req.body.nama_penyakit, req.body.deskripsi, req.body.ciri_penyakit, req.body.pengobatan]);
-            if(add.affectedRows <= 0){
-                return{
-                    status: false,
-                    code: 400,
-                    message: `Gagal menambahkan data penyakit`
-                }
-            }
+            // Create new penyakit
+            const add = await this.db.Penyakit.create({
+                nama_penyakit: value.nama_penyakit,
+                gejala: value.gejala,
+                penanganan: value.penanganan,
+            });
+            if(!add) newError(500, 'Failed to create new data penyakit', 'createPenyakit Service');
+
             return {
-                status: true,
-                message: 'Data penyakit berhasil ditambahkan',
+                code: 200,
+                data: {
+                    id_penyakit: add.id_penyakit,
+                    nama_penyakit: add.nama_penyakit,
+                    createdAt: add.createdAt
+                }
             };
         }
         catch (error) {
-            console.error('createPenyakit penyakit service Error: ', error);
-            return {
-                status: false,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -88,42 +66,35 @@ class _penyakit{
             const schema = joi.object({
                 id_penyakit: joi.number().required(),
                 nama_penyakit: joi.string().required(),
-                deskripsi: joi.string().required(),
-                ciri_penyakit: joi.string().required(),
-                pengobatan: joi.string().required()
+                gejala: joi.string().required(),
+                penanganan: joi.string().required()
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    status: false,
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'updatePenyakit Service');
 
-            // Query data
-            const update = await mysql.query('UPDATE d_penyakit SET nama_penyakit = ?, deskripsi = ?, ciri_penyakit = ?, pengobatan = ? WHERE id_penyakit = ? AND id_users = ?', [req.body.nama_penyakit, req.body.deskripsi, req.body.ciri_penyakit, req.body.pengobatan, req.body.id_penyakit, req.dataAuth.id_users]);
-            if(update.affectedRows <= 0){
-                return{
-                    status: false,
-                    code: 400,
-                    message: `Gagal mengubah data penyakit`
+            // Update penyakit
+            const update = await this.db.Penyakit.update({
+                nama_penyakit: value.nama_penyakit,
+                deskripsi: value.deskripsi,
+                gejala: value.gejala,
+                penanganan: value.penanganan,
+            }, {
+                where: {
+                    id_penyakit: value.id_penyakit
                 }
-            }
+            });
+            if(update <= 0) newError(500, 'Failed to update data penyakit', 'updatePenyakit Service');
 
             return {
-                status: true,
-                message: 'Data penyakit berhasil diupdate',
+                code: 200,
+                data: {
+                    id_penyakit: value.id_penyakit,
+                    updatedAt: new Date()
+                }
             };
         }
         catch (error) {
-            console.error('updatePenyakit penyakit service Error: ', error);
-            return {
-                status: false,
-                error
-            }
+            return errorHandler(error);
         }
     }
 
@@ -134,40 +105,29 @@ class _penyakit{
             const schema = joi.object({
                 id_penyakit: joi.number().required(),
             });
-
             const { error, value } = schema.validate(req.body);
-            if (error) {
-                const errorDetails = error.details.map((detail) => detail.message).join(', ');
-                return {
-                    status: false,
-                    code: 400,
-                    error: errorDetails,
-                }
-            }
+            if (error) newError(400, error.details[0].message, 'deletePenyakit Service');
 
             // Query data
-            const del = await mysql.query('DELETE FROM d_penyakit WHERE id_penyakit = ? AND id_users = ?', [req.body.id_penyakit, req.dataAuth.id_users]);
-            if(del.affectedRows <= 0){
-                return{
-                    status: false,
-                    code: 400,
-                    message: `Gagal menghapus data penyakit`
+            const del = await this.db.Penyakit.destroy({
+                where: {
+                    id_penyakit: value.id_penyakit
                 }
-            }
+            });
+            if(del <= 0) newError(500, 'Failed to delete data penyakit', 'deletePenyakit Service');
             
             return {
-                status: true,
-                message: 'Data penyakit berhasil dihapus',
+                code: 200,
+                data: {
+                    id_penyakit: value.id_penyakit,
+                    deletedAt: new Date()
+                }
             };
         }
         catch (error) {
-            console.error('deletePenyakit penyakit service Error: ', error);
-            return {
-                status: false,
-                error
-            }
+            return errorHandler(error);
         }
     }
 }
 
-module.exports = new _penyakit();
+module.exports = (db) => new _penyakit(db);
