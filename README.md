@@ -33,6 +33,15 @@ https://documenter.getpostman.com/view/16756766/2s83eyrcXr
 
 # TODO
 
+## General 
+
+- [x] Login
+- [x] Register
+- [x] Verify Account
+- [x] Forgot Password
+- [x] Update Profile
+- [x] Change Password
+
 ## Mobile
 
 - [x] Dashboard aplikasi
@@ -83,3 +92,40 @@ https://documenter.getpostman.com/view/16756766/2s83eyrcXr
         - [x] ternak selection
 
 ## Dashboard 
+
+- [x] Dashboard summary
+    - [x] Grafik population, ternak masuk, ternak keluar
+    - [x] Diagram total ternak by jenis ternak (status, jenis kelamin)
+    - [x] Total kandang
+    - [x] Total ternak
+    - [x] Total ternak by fase
+    - [x] Grafik ADG cempe
+    - [x] Total ternak by status keluar (Trejual, Disembelih, Mati)
+    - [x] Total populasi ternak by kandang
+- [x] Monitoring
+    - [x] Ternak
+        - [x] List Ternak
+        - [x] Detail ternak
+        - [x] Create ternak
+        - [x] Update Ternak
+    - [x] Perkawinan
+    - [x] Kesehatan
+        - [x] Master data penyakit
+        - [x] List ternak sakit
+        - [x] Detail ternak sakit
+    - [x] Pakan
+        - [x] Managemen pakan ternak
+        - [x] Managemen bahan pakan
+    - [x] Kandang
+        - [x] List kandang
+        - [x] List ternak by kandang
+- [x] Monitoring Fase
+    - [x] Pemasukan
+    - [x] Adaptasi
+    - [x] Perkawinan
+    - [x] Kebuntingan
+    - [x] Kelahiran
+    - [x] Lepas Sapih
+- [x] Lembar Kerja
+    - [x] Pemeliharaan
+    - [x] Penanganan Penyakit
