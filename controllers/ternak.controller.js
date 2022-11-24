@@ -18,6 +18,14 @@ const ternakController = (db) => {
     });
 
     /**
+     * Get list ternak for mobile app
+     */
+    TernakController.get('/mobile', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$ternak.getTernakMobile(req);
+        response.sendResponse(res, detail);
+    });
+
+    /**
      * Get List Ternak
     */
     TernakController.get('/indukan', authentication, adminMiddleware, async (req, res, next) => {

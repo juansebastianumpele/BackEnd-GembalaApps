@@ -83,7 +83,6 @@ class _perkawinan {
 
             // Get data ternak indukan
             const dataIndukan = await this.db.Ternak.findOne({
-                attributes: ['id_ternak','id_fp'],
                 where: {
                     id_ternak: value.id_indukan,
                     id_peternakan: req.dataAuth.id_peternakan
@@ -97,7 +96,6 @@ class _perkawinan {
 
             // Get data ternak pejantan
             const dataPejantan = await this.db.Ternak.findOne({
-                attributes: ['id_ternak','id_fp', 'id_kandang'],
                 where: {
                     id_ternak: value.id_pejantan,
                     id_peternakan: req.dataAuth.id_peternakan
@@ -109,6 +107,11 @@ class _perkawinan {
                 newError(400, 'Ternak Pejantan not in fase perkawinan', 'createPerkawinan Service');
             }
 
+            console.log(`dataIndukan: ${dataIndukan.dataValues.id_ternak == dataPejantan.dataValues.id_dam}`);
+            console.log(dataIndukan.dataValues.id_ternak)
+            console.log(dataPejantan.dataValues.id_ternak)
+            console.log(dataPejantan.dataValues.id_dam)
+            console.log(dataIndukan.dataValues)
             // Check ternak indukan and pejantan
             if(dataIndukan.dataValues.id_ternak == dataPejantan.dataValues.id_dam){
                 newError(400, `Perkawinan tidak bisa dilakukan, ternak ${dataIndukan.dataValues.id_ternak} adalah 'Dam' ternak ${dataPejantan.dataValues.id_ternak}`, 'createPerkawinan Service');

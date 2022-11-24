@@ -8,8 +8,8 @@ class _adaptasi{
     constructor(db){
         this.db = db;
     }
-    /// Get Data adaptasi 
-    getAdaptasi = async (req) => {
+    /// Get Data adaptasi complete data
+    getAdaptasiComplete = async (req) => {
         try{
             // add id_peternakan, id_ternak to query
             req.query.id_peternakan = req.dataAuth.id_peternakan;
@@ -32,6 +32,40 @@ class _adaptasi{
             if(list.length <= 0){
                 newError(404, 'Data Adaptasi not found', 'getAdaptasi');
             }
+            return {
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
+            };
+        }catch(error){
+            return errorHandler(error);
+        }
+    }
+
+    /// Get Data adaptasi main data
+    getAdaptasiMain = async (req) => {
+        try{
+            // add id_peternakan, id_ternak to query
+            req.query.id_peternakan = req.dataAuth.id_peternakan;
+            // Query Data
+            const list = await this.db.Adaptasi.findAll({ 
+                attributes: ['tanggal_adaptasi'],
+                include: [
+                    {
+                        model: this.db.Treatment,
+                        as: 'treatment',
+                        attributes: ['id_treatment', 'step', 'treatment']
+                    }
+                ],
+                where : req.query 
+            });
+            for(let i = 0; i < list.length; i++){
+                list[i].dataValues.treatment = list[i].dataValues.treatment.dataValues.treatment;
+            }
+            if(list.length <= 0){newError(404, 'Data Adaptasi not found', 'getAdaptasi')}
+
             return {
                 code: 200,
                 data: {

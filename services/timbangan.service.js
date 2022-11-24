@@ -64,18 +64,6 @@ class _timbangan{
             });
             if(!add) newError(500, 'Failed to create Data Timbangan', 'createDataTimbangan Service');
 
-            // Update data ternak
-            const update = await this.db.Ternak.update({
-                berat: value.berat,
-                suhu: value.suhu
-            },{
-                where: {
-                    rf_id: value.rf_id,
-                    id_ternak: ternak.id_ternak
-                }
-            });
-            if(update <= 0) newError(500, 'Failed to update Data Ternak', 'createDataTimbangan Service');
-
             return {
                 code: 200,
                 data: {

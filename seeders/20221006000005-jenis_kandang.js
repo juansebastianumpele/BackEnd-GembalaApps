@@ -16,6 +16,12 @@ module.exports = {
     {
       jenis_kandang: 'Kandang Isolasi',
     },
+    {
+      jenis_kandang: 'Kandang Kebuntingan'
+    },
+    {
+      jenis_kandang: 'Kandang Lepas Sapih'
+    }
   ], {});
   },
 

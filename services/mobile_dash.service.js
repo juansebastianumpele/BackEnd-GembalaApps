@@ -165,6 +165,42 @@ class _mobileDash{
                 }
             });
 
+            // Get data fase kebuntingan
+            const idFaseKebuntingan = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: 'Kebuntingan'
+                }
+            });
+            if(!idFaseKebuntingan) newError(404, 'Fase Kebuntingan not found');
+
+            // Get total ternak kebuntingan
+            const totalTernakKebuntingan = await this.db.Ternak.count({
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: idFaseKebuntingan.dataValues.id_fp,
+                    status_keluar: null
+                }
+            });
+
+            // Get data fase laktasi
+            const idFaseLaktasi = await this.db.Fase.findOne({
+                attributes: ['id_fp'],
+                where: {
+                    fase: 'Laktasi'
+                }
+            });
+            if(!idFaseLaktasi) newError(404, 'Fase Laktasi not found');
+
+            // Get total ternak laktasi
+            const totalTernakLaktasi = await this.db.Ternak.count({
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: idFaseLaktasi.dataValues.id_fp,
+                    status_keluar: null
+                }
+            });
+
             return {
                 code: 200,
                 data: {
@@ -174,7 +210,9 @@ class _mobileDash{
                     total_ternak_indukan: totalTernakIndukan,
                     total_ternak_betina: totalTernakBetina,
                     total_ternak_cempe_jantan: totalTernakCempeJantan,
-                    total_ternak_cempe_betina: totalTernakCempeBetina
+                    total_ternak_cempe_betina: totalTernakCempeBetina,
+                    total_ternak_kebuntingan: totalTernakKebuntingan,
+                    total_ternak_laktasi: totalTernakLaktasi
                 }
             }
         }catch(error){
@@ -214,8 +252,10 @@ class _mobileDash{
             for(let i = 0; i < fase.length; i++){
                 if(fase[i].dataValues.fase.toLowerCase().startsWith('adaptasi')){
                     list['adaptasi'] = 0;
-                }else if(fase[i].dataValues.fase.toLowerCase().includes('perkawinan')){
-                    list['perkawinan'] = 0;
+                }else if(fase[i].dataValues.fase.toLowerCase() == 'waiting list perkawinan'){
+                    continue;
+                }else if(fase[i].dataValues.fase.toLowerCase() == 'kelahiran' || fase[i].dataValues.fase.toLowerCase() == 'laktasi'){
+                    list['kelahiran/laktasi'] = 0;
                 }else{
                     list[fase[i].dataValues.fase.toLowerCase()] = 0;
                 }
@@ -225,8 +265,10 @@ class _mobileDash{
             for(let i = 0; i < ternak.length; i++){
                 if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase().startsWith('adaptasi')){
                     list['adaptasi']++;
-                }else if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase().includes('perkawinan')){
-                    list['perkawinan']++;
+                }else if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase() == 'waiting list perkawinan'){
+                    continue;
+                }else if(ternak[i].dataValues.fase.dataValues.fase.toLowerCase() == 'kelahiran' || ternak[i].dataValues.fase.dataValues.fase.toLowerCase() == 'laktasi'){
+                    list['kelahiran/laktasi']++;
                 }else{
                     list[ternak[i].dataValues.fase.dataValues.fase.toLowerCase()]++;
                 }

@@ -2,19 +2,21 @@ const { Router } = require('express');
 const authentication = require('../middlewares/authentication');
 const { adminMiddleware } = require('../middlewares/authorization');
 const webDashService = require('../services/web_dash.service');
+const populasiService = require('../services/populasi.service');
 const response = require('../utils/response');
 
 const webDashController = (db) => {
     const s$webDash = webDashService(db);
+    const s$populasi = populasiService(db);
     const WebDashController = Router();
 
-    // /**
-    //  * Get Populasi
-    //  */
-    // WebDashController.get('/populasi', authentication, adminMiddleware, async (req, res, next) => {
-    //     const list = await s$webDash.getPopulasi(req);
-    //     response.sendResponse(res, list);
-    // });
+    /**
+     * Get Populasi
+     */
+    WebDashController.get('/populasi', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$populasi.getPopulasi(req);
+        response.sendResponse(res, list);
+    });
     // s$webDash.createPopulasi();
 
     // /**

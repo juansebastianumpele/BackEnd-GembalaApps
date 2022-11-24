@@ -136,6 +136,33 @@ class _kelahiran {
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'createKelahiran Service');
 
+            // Check sire & dam
+            if (value.id_sire && value.id_sire == value.id_dam) newError(400, 'Sire & Dam cannot be the same', 'createKelahiran Service');
+
+            // Check sire
+            if (value.id_sire) {
+                const sire = await this.db.Ternak.findOne({
+                    attributes: ['id_ternak', 'jenis_kelamin'],
+                    where: {
+                        id_ternak: value.id_sire,
+                        id_peternakan: req.dataAuth.id_peternakan
+                    }
+                });
+                if (!sire) newError(404, 'Data Sire not found', 'createKelahiran Service');
+                if (sire.dataValues.jenis_kelamin.toLowerCase() != 'jantan') newError(400, 'Sire must be Jantan', 'createKelahiran Service');
+            }
+
+            // Check dam
+            const dam = await this.db.Ternak.findOne({
+                attributes: ['id_ternak', 'jenis_kelamin'],
+                where: {
+                    id_ternak: value.id_dam,
+                    id_peternakan: req.dataAuth.id_peternakan
+                }
+            });
+            if (!dam) newError(404, 'Data Dam not found', 'createKelahiran Service');
+            if (dam.dataValues.jenis_kelamin.toLowerCase() != 'betina') newError(400, 'Dam must be Betina', 'createKelahiran Service');
+
             // Get data bangsa
             const bangsa = await this.db.Bangsa.findOne({ where: { id_bangsa: value.id_bangsa } });
             if (!bangsa) newError(404, 'Data Bangsa not found', 'createKelahiran Service');
@@ -151,8 +178,6 @@ class _kelahiran {
             // Check ternak
             const checkTernak = await this.db.Ternak.findOne({where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan}});
             if (!checkTernak) newError(404, 'Data Ternak not found', 'createKelahiran Service');
-            console.log(checkTernak.dataValues.id_fp);
-            console.log(faseKelahiran.dataValues.id_fp);
             if (checkTernak.dataValues.id_fp === faseKelahiran.dataValues.id_fp) newError(400, 'Ternak already in Kelahiran', 'createKelahiran Service');
 
             // Update ternak
@@ -205,14 +230,23 @@ class _kelahiran {
                         model: this.db.Fase,
                         as: 'fase',
                         attributes: ['fase'],
+                    },
+                    {
+                        model: this.db.RiwayatKebuntingan,
+                        as: 'riwayat_kebuntingan',
+                        attributes: ['tanggal_kebuntingan'],
+                        where: {
+                            status: "Partus"
+                        },
+                        required: false
                     }
                 ],
                 where: {id_ternak: value.id_dam, id_peternakan: req.dataAuth.id_peternakan},
             });
             if (!indukan) newError(404, 'Data Indukan not found', 'createKelahiran Service');
 
+            // If Indukan not in Laktasi fase, Move to Laktasi
             if (indukan.dataValues.fase.dataValues.fase.toLowerCase() !== 'laktasi') {
-
                 // Get fase laktasi
                 const faseLaktasi = await this.db.Fase.findOne({ where: { fase: 'Laktasi' } });
                 if (!faseLaktasi) newError(404, 'Data Fase Laktasi not found', 'createKelahiran Service');
@@ -239,11 +273,64 @@ class _kelahiran {
                 if (!riwayatFaseIndukan) newError(500, 'Failed to create data Riwayat Fase Indukan', 'createKelahiran Service');
             }
 
+            // If Indukan Bunting 4x, Set status to Afkir
+            if(indukan.dataValues.riwayat_kebuntingan.length >= 3) {
+                // Get status afkir
+                const statusAfkir = await this.db.StatusTernak.findOne({ where: { status: 'Afkir' } });
+                if (!statusAfkir) newError(404, 'Data Status Afkir not found', 'createKelahiran Service');
+
+                // Update status ternak
+                const updateStatus = await this.db.Ternak.update({
+                    id_status_ternak: statusAfkir.dataValues.id_status_ternak,
+                }, {
+                    where: {
+                        id_ternak: value.id_dam,
+                        id_peternakan: req.dataAuth.id_peternakan,
+                    },
+                    transaction: t,
+                });
+                if (updateStatus[0] <= 0) newError(500, 'Failed to update data Indukan', 'createKelahiran Service');
+            }
+
+            // Get riwayat perkawinan indukan
+            const latestRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
+                attributes: ['id_riwayat_perkawinan', 'tanggal_perkawinan', 'id_pejantan'],
+                where: {id_indukan: indukan.dataValues.id_ternak, id_peternakan: req.dataAuth.id_peternakan},
+                order: [['createdAt', 'DESC']],
+                limit: 1
+            });
+            if(latestRiwayatPerkawinan.length <= 0) newError(404, 'Data Riwayat Perkawinan not found', 'createKelahiran Service');
+
+            // Get fase kebuntingan
+            const faseKebuntingan = await this.db.Fase.findOne({ where: { fase: 'Kebuntingan' } });
+            if (!faseKebuntingan) newError(404, 'Data Fase Kebuntingan not found', 'createKelahiran Service');
+
+            // Get riwayat fase kebuntingan indukan
+            const latestRiwayatFaseKebuntingan = await this.db.RiwayatFase.findAll({
+                attributes: ['id_riwayat_fase', 'tanggal'],
+                where: {id_ternak: indukan.dataValues.id_ternak, id_fp: faseKebuntingan.dataValues.id_fp, id_peternakan: req.dataAuth.id_peternakan},
+                order: [['createdAt', 'DESC']],
+                limit: 1
+            });
+            if(latestRiwayatFaseKebuntingan.length <= 0) newError(404, 'Data Riwayat Fase Kebuntingan not found', 'createKelahiran Service');
+            
+            // Create riwayat kebuntingan indukan
+            const historyKebuntingan = await this.db.RiwayatKebuntingan.create({
+                id_riwayat_perkawinan: latestRiwayatPerkawinan[0].dataValues.id_riwayat_perkawinan,
+                id_indukan: indukan.dataValues.id_ternak,
+                id_pejantan: latestRiwayatPerkawinan[0].dataValues.id_pejantan,
+                id_peternakan: req.dataAuth.id_peternakan,
+                status: 'Partus',
+                tanggal_perkawinan: latestRiwayatPerkawinan[0].dataValues.tanggal_perkawinan,
+                tanggal_kebuntingan: latestRiwayatFaseKebuntingan[0].dataValues.tanggal
+            },{transaction: t});
+            if(!historyKebuntingan) newError(500, 'Failed to create riwayat kebuntingan', 'createKelahiran Service');
+
             // Commit transaction
             await t.commit();
 
-            return {
-                code: 201,
+            return{
+                code: 200,
                 data: {
                     id_kelahiran: kelahiran.dataValues.id_kelahiran,
                     id_ternak: kelahiran.dataValues.id_ternak,

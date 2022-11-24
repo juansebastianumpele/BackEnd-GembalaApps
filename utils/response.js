@@ -50,7 +50,8 @@ class _response {
         }catch (error){
             log_error('Response Utils', error)
             res.status(500).send({
-                status: false,
+                code: 500,
+                status: "INTERNAL_SERVER_ERROR",
                 error
             })
             return
@@ -61,14 +62,16 @@ class _response {
         if (err.name === 'UnauthorizedError') {
             // Error jwt
             return res.status(401).send({
-                status: false,
+                code: 401,
+                status: "UNAUTHORIZED",
                 error: 'Invalid Token'
             });
         }
 
         // Default error handling
         res.status(500).send({
-            status: false,
+            code: 500,
+            status: "INTERNAL_SERVER_ERROR wjsbdwj",
             error: err.message
         });
 

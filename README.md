@@ -1,16 +1,31 @@
 # STRUCTURE CODE
 ![](structure-code.png)
 
-##
 
 # INSTALASI
 
-- npm i
-- buat database baru dengan nama sembadafarm_db
-- npm run migrate
-- npm run dev
+- ```.env``` setup
+```
+    APP_NAME = Gembala App
+    VERSION = 1.0.0
 
-##
+    DB_USERNAME = root
+    DB_PASSWORD = 
+    DB_HOSTNAME = localhost
+    DB_NAME = sembadafarm_db
+    DB_DIALECT = mariadb
+
+    NODE_ENV = development
+
+    URL = http://localhost:51009
+
+    APP_PORT = 51009
+```
+- install dependency ``` npm i ```
+- create new database 
+- migrate database ``` npm run migrate ```
+- run app ``` npm run dev ```
+
 
 # DOC API POSTMAN
 
@@ -18,64 +33,99 @@ https://documenter.getpostman.com/view/16756766/2s83eyrcXr
 
 # TODO
 
-## Migration
+## General 
 
-- [x] Auth Note
-- [x] Kandang
-- [x] Fase
-- [x] Bangsa
-- [x] Penyakit
-- [x] Jenis Bahan Pakan
-- [x] Bahan Pakan
-- [x] Jenis Pakan
-- [x] Pakan
-- [x] Ternak - `Note: onProgress`
-- [x] Riwayat Kesehatan - `Note: onProgress`
-- [x] Timbangan
-- [ ] Kawin - `Note: onProgress`
-- [ ] Populasi - `Note: onProgress`
-- [ ] Riwayat Perkawinan - `Note: Pending`
-- [x] Jenis Kandang
-- [x] Status Ternak
-- [x] LK Pemasukan  
+- [x] Login
+- [x] Register
+- [x] Verify Account
+- [x] Forgot Password
+- [x] Update Profile
+- [x] Change Password
 
-## Model
+## Mobile
 
-- [x] Auth
-- [x] Kandang
-- [x] Bahan Pakan
-- [x] Bangsa
-- [x] Fase
-- [x] Jenis Bahan Pakan
-- [x] Jenis Pakan
-- [x] Kandang
-- [ ] Kawin - `Note: Pending`
-- [x] Pakan
-- [x] Penyakit
-- [ ] Populasi - `Note: Pending`  
-- [x] Riwayat Penyakit - `Note:  Pending`
-- [x] Ternak `Note: onProgress`
-- [x] Timbangan
-- [ ] Riwayat Perkawinan - `Note: Pending`
-- [x] Jenis Kandang
-- [x] Status Ternak
-- [x] LK Pemasukan  
+- [x] Dashboard aplikasi
+- [x] Feature kandang
+    - [x] Get ternak by kandang
+- [x] Feature Ternak
+    - [x] Filtering ternak
+    - [x] Category ternak
+    - [x] Detail ternak
+    - [x] Update ternak
+    - [x] Riwayat penyakit
+    - [x] Grafik ADG 
+- [x] Feature Kesehatan
+    - [x] penyakit
+    - [x] kesehatan
+- [x] Feature Pakan
+    - [x] Management bahan pakan
+    - [x] Management pakan
+- [x] Feature Perkawinan
+    - [x] data perkawinan ternak
+    - [x] riwayat perkawinan ternak
+- [x] Lembar kerja
+    - [x] Pemasukan 
+        - [x] riwayat pemasukan ternak
+        - [x] integration rfid
+    - [x] Adaptasi
+        - [x] Adaptasi 1
+        - [x] Adaptasi 2
+        - [x] Adaptasi 3
+        - [x] Adaptasi 4
+        - [x] Adaptasi 5
+        - [x] Riwayat treatment ternak
+    - [x] Perkawinan
+        - [x] Create perkawinan
+        - [x] Checking ternak perkawinan
+        - [x] record riwayat perkawinan
+        - [x] tracking status kebuntingan
+    - [x] Kebuntingan
+        - [x] record riwayat kwbuntingan ternak
+        - [x] Check indukan if afkir
+    - [x] Kelahiran
+        - [x] add cempe ternak
+        - [x] move indukan to lacatation fase
+        - [x] Check indukan if afkir
+    - [x] Lepas Sapih
+        - [x] move ternak to lepas sepih fase
+        - [x] move indukan to perkawinan fase
+        - [x] ternak selection
 
-## Service
-- [x] Auth
-- [x] Bahan Pakan
-- [x] Bangsa
-- [ ] Dashboard - `Note: onProgress`
-- [x] Fase
-- [x] Kandang
-- [ ] Kawin - `Note: Pending`
-- [x] Pakan
-- [x] Penyakit
-- [x] RFID
-- [x] Riwayat Penyakit - `Note: Pending`
-- [x] Ternak - `Note: onProgress`
-- [x] Timbangan
-- [x] User
-- [x] Jenis Kandang
-- [x] Status Ternak
-- [x] LK Pemasukan
+## Dashboard 
+
+- [x] Dashboard summary
+    - [x] Grafik population, ternak masuk, ternak keluar
+    - [x] Diagram total ternak by jenis ternak (status, jenis kelamin)
+    - [x] Total kandang
+    - [x] Total ternak
+    - [x] Total ternak by fase
+    - [x] Grafik ADG cempe
+    - [x] Total ternak by status keluar (Trejual, Disembelih, Mati)
+    - [x] Total populasi ternak by kandang
+- [x] Monitoring
+    - [x] Ternak
+        - [x] List Ternak
+        - [x] Detail ternak
+        - [x] Create ternak
+        - [x] Update Ternak
+    - [x] Perkawinan
+    - [x] Kesehatan
+        - [x] Master data penyakit
+        - [x] List ternak sakit
+        - [x] Detail ternak sakit
+    - [x] Pakan
+        - [x] Managemen pakan ternak
+        - [x] Managemen bahan pakan
+    - [x] Kandang
+        - [x] List kandang
+        - [x] List ternak by kandang
+- [x] Monitoring Fase
+    - [x] Pemasukan
+    - [x] Adaptasi
+    - [x] Perkawinan
+    - [x] Kebuntingan
+    - [x] Kelahiran
+    - [x] Lepas Sapih
+- [x] Lembar Kerja
+    - [x] Pemeliharaan
+    - [x] Penanganan Penyakit
