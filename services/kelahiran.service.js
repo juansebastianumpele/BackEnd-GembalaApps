@@ -292,6 +292,40 @@ class _kelahiran {
                 if (updateStatus[0] <= 0) newError(500, 'Failed to update data Indukan', 'createKelahiran Service');
             }
 
+            // Get riwayat perkawinan indukan
+            const latestRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
+                attributes: ['id_riwayat_perkawinan', 'tanggal_perkawinan', 'id_pejantan'],
+                where: {id_indukan: indukan.dataValues.id_ternak, id_peternakan: req.dataAuth.id_peternakan},
+                order: [['createdAt', 'DESC']],
+                limit: 1
+            });
+            if(latestRiwayatPerkawinan.length <= 0) newError(404, 'Data Riwayat Perkawinan not found', 'createKelahiran Service');
+
+            // Get fase kebuntingan
+            const faseKebuntingan = await this.db.Fase.findOne({ where: { fase: 'Kebuntingan' } });
+            if (!faseKebuntingan) newError(404, 'Data Fase Kebuntingan not found', 'createKelahiran Service');
+
+            // Get riwayat fase kebuntingan indukan
+            const latestRiwayatFaseKebuntingan = await this.db.RiwayatFase.findAll({
+                attributes: ['id_riwayat_fase', 'tanggal'],
+                where: {id_ternak: indukan.dataValues.id_ternak, id_fp: faseKebuntingan.dataValues.id_fp, id_peternakan: req.dataAuth.id_peternakan},
+                order: [['createdAt', 'DESC']],
+                limit: 1
+            });
+            if(latestRiwayatFaseKebuntingan.length <= 0) newError(404, 'Data Riwayat Fase Kebuntingan not found', 'createKelahiran Service');
+            
+            // Create riwayat kebuntingan indukan
+            const historyKebuntingan = await this.db.RiwayatKebuntingan.create({
+                id_riwayat_perkawinan: latestRiwayatPerkawinan[0].dataValues.id_riwayat_perkawinan,
+                id_indukan: indukan.dataValues.id_ternak,
+                id_pejantan: latestRiwayatPerkawinan[0].dataValues.id_pejantan,
+                id_peternakan: req.dataAuth.id_peternakan,
+                status: 'Partus',
+                tanggal_perkawinan: latestRiwayatPerkawinan[0].dataValues.tanggal_perkawinan,
+                tanggal_kebuntingan: latestRiwayatFaseKebuntingan[0].dataValues.tanggal
+            },{transaction: t});
+            if(!historyKebuntingan) newError(500, 'Failed to create riwayat kebuntingan', 'createKelahiran Service');
+
             // Commit transaction
             await t.commit();
 
