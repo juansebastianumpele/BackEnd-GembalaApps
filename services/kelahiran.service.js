@@ -276,7 +276,7 @@ class _kelahiran {
             // If Indukan Bunting 4x, Set status to Afkir
             if(indukan.dataValues.riwayat_kebuntingan.length >= 3) {
                 // Get status afkir
-                const statusAfkir = await this.db.StatusTernak.findOne({ where: { status: 'Afkir' } });
+                const statusAfkir = await this.db.StatusTernak.findOne({ where: { status_ternak: 'Afkir' } });
                 if (!statusAfkir) newError(404, 'Data Status Afkir not found', 'createKelahiran Service');
 
                 // Update status ternak
