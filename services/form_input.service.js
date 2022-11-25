@@ -53,19 +53,11 @@ class _formInput{
             });
             
             // Get status ternak indukan
-            const statusIndukan = await this.db.StatusTernak.findOne({
-                where: {
-                    status_ternak: 'Indukan'
-                }
-            });
+            const statusIndukan = await this.db.StatusTernak.findOne({where: {status_ternak: 'Indukan'}});
             if(!statusIndukan) newError(404, 'Data Status Ternak Indukan not found', 'getDataFormInput Service');
 
             // Get status ternak pejantan
-            const statusPejantan = await this.db.StatusTernak.findOne({
-                where: {
-                    status_ternak: 'Pejantan'
-                }
-            });
+            const statusPejantan = await this.db.StatusTernak.findOne({where: {status_ternak: 'Pejantan'}});
             if(!statusPejantan) newError(404, 'Data Status Ternak Pejantan not found', 'getDataFormInput Service');
 
             // Get data indukan
@@ -74,7 +66,9 @@ class _formInput{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     jenis_kelamin: 'betina',
-                    id_status_ternak: statusIndukan.dataValues.id_status_ternak
+                    id_status_ternak: statusIndukan.dataValues.id_status_ternak,
+                    status_keluar: null,
+                    tanggal_keluar: null
                 }
             });
 
@@ -84,17 +78,15 @@ class _formInput{
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     jenis_kelamin: 'jantan',
-                    id_status_ternak: statusPejantan.dataValues.id_status_ternak
+                    id_status_ternak: statusPejantan.dataValues.id_status_ternak,
+                    status_keluar: null,
+                    tanggal_keluar: null
                 }
             });
 
             // Get fase perkawinan
-            const fasePerkawinan = await this.db.Fase.findOne({
-                where: {
-                    fase: 'Perkawinan'
-                }
-            });
-            if(!fasePerkawinan) newError(500, 'Data Fase Perkawinan not found', 'getDataFormInput Service');
+            const fasePerkawinan = await this.db.Fase.findOne({where: {fase: 'Perkawinan'}});
+            if(!fasePerkawinan) newError(404, 'Data Fase Perkawinan not found', 'getDataFormInput Service');
 
             // Get Pejantan in perkawinan
             const pejantanInPerkawinan = await this.db.Ternak.findAll({
@@ -103,7 +95,9 @@ class _formInput{
                     id_peternakan: req.dataAuth.id_peternakan,
                     jenis_kelamin: 'jantan',
                     id_status_ternak: statusPejantan.dataValues.id_status_ternak,
-                    id_fp: fasePerkawinan.dataValues.id_fp
+                    id_fp: fasePerkawinan.dataValues.id_fp,
+                    status_keluar: null,
+                    tanggal_keluar: null
                 },
                 include: [
                     {
@@ -123,7 +117,9 @@ class _formInput{
                 attributes: ['id_ternak','rf_id'],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    jenis_kelamin: 'Jantan'
+                    jenis_kelamin: 'Jantan',
+                    status_keluar: null,
+                    tanggal_keluar: null
                 }
             });
 
@@ -132,9 +128,26 @@ class _formInput{
                 attributes: ['id_ternak','rf_id'],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    jenis_kelamin: 'Betina'
+                    jenis_kelamin: 'Betina',
+                    status_keluar: null,
+                    tanggal_keluar: null
                 }
             });
+
+            // Get fase kelahiran
+            const faseKelahiran = await this.db.Fase.findOne({where: {fase: 'Kelahiran'}})
+            if(!faseKelahiran) newError(404, 'Data fase kelahiran not found', 'getDataFormInput Service')
+
+            // Get ternak fase kelahiran
+            const ternakKelahiran = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'rf_id'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    id_fp: faseKelahiran.dataValues.id_fp,
+                    status_keluar: null,
+                    tanggal_keluar: null
+                }
+            })
 
             return {
                 code: 200,
@@ -149,7 +162,8 @@ class _formInput{
                     pejantan: pejantan,
                     pejantan_perkawinan: pejantanInPerkawinan,
                     ternak_jantan: ternakJantan,
-                    ternak_betina: ternakBetina
+                    ternak_betina: ternakBetina,
+                    cempe_kelahiran: ternakKelahiran
                 }
             }
 
