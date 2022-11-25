@@ -16,7 +16,7 @@ const errorHandler = (error) => {
     const point = error.point || 'Unknown';
 
     // Create log
-    fs.appendFile('error.log', `${new Date()} - ${statusCode} - ${`[${point}]`} ${message} \r`, (err) => {
+    fs.appendFile('error.log', `${new Date()} - ${statusCode} - ${`[${point}]`} ${message} \r ${error.stack} \r`, (err) => {
         if (err) throw err;
     });
     
