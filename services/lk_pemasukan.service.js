@@ -85,7 +85,7 @@ class _lkPemasukan{
             const date = new Date();
             const update = await this.db.Ternak.update({
                 id_bangsa: value.id_bangsa,
-                tanggal_masuk: value.tanggal_masuk || date,
+                tanggal_masuk: value.tanggal_masuk || new Date(),
                 jenis_kelamin: value.jenis_kelamin,
                 id_kandang: value.id_kandang,
                 id_fp: fase.dataValues.id_fp,
