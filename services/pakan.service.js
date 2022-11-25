@@ -1,5 +1,6 @@
-// Helper databse yang dibuat
-const joi = require('joi');
+const DateExtension = require('@joi/date')
+const Joi = require('joi');
+const joi = Joi.extend(DateExtension);
 const date = require('date-and-time');
 const {newError, errorHandler} = require('../utils/errorHandler');
 
@@ -327,8 +328,8 @@ class _pakan{
             // Validate data
             const schema = joi.object({
                 id_pakan: joi.number().required(),
-                tanggal_pembuatan: joi.date().allow(null),
-                tanggal_konsumsi: joi.date().allow(null),
+                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'fillPakan Service');
@@ -384,8 +385,8 @@ class _pakan{
             // Validate data
             const schema = joi.object({
                 id_pakan: joi.number().required(),
-                tanggal_pembuatan: joi.date().allow(null),
-                tanggal_konsumsi: joi.date().allow(null),
+                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'updateFillPakan Service');

@@ -1,5 +1,7 @@
 // Helper databse yang dibuat
-const joi = require('joi');
+const DateExtension = require('@joi/date')
+const Joi = require('joi');
+const joi = Joi.extend(DateExtension);
 const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _lkPemasukan{
@@ -51,7 +53,7 @@ class _lkPemasukan{
             // Validate request
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                tanggal_masuk: joi.date().allow(null),
+                tanggal_masuk: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
                 id_bangsa: joi.number().required(),
                 jenis_kelamin: joi.string().required(),
                 cek_poel: joi.number().required(),
@@ -83,7 +85,7 @@ class _lkPemasukan{
             const date = new Date();
             const update = await this.db.Ternak.update({
                 id_bangsa: value.id_bangsa,
-                tanggal_masuk: value.tanggal_masuk || date,
+                tanggal_masuk: value.tanggal_masuk || new Date(),
                 jenis_kelamin: value.jenis_kelamin,
                 id_kandang: value.id_kandang,
                 id_fp: fase.dataValues.id_fp,

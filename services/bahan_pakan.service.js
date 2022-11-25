@@ -1,5 +1,7 @@
 // Helper databse yang dibuat
-const joi = require('joi');
+const DateExtension = require('@joi/date')
+const Joi = require('joi');
+const joi = Joi.extend(DateExtension);
 const date = require('date-and-time');
 const {newError, errorHandler} = require('../utils/errorHandler');
 
@@ -172,7 +174,7 @@ class _bahanPakan{
             // Validate data
             const schema = joi.object({
                 id_jenis_bahan_pakan: joi.number().required(),
-                tanggal: joi.date().allow(null),
+                tanggal: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
                 jumlah: joi.number().required(),
                 keterangan: joi.string().required(),
             });
