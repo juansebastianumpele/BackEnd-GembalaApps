@@ -1,5 +1,7 @@
 const { newError, errorHandler } = require('../utils/errorHandler');
-const joi = require('joi');
+const DateExtension = require('@joi/date')
+const Joi = require('joi');
+const joi = Joi.extend(DateExtension);
 
 class _kelahiran {
     constructor(db) {
@@ -125,8 +127,8 @@ class _kelahiran {
             // Validate data
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                tanggal_masuk: joi.date().allow(null),
-                tanggal_lahir: joi.date().allow(null),
+                tanggal_masuk: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_lahir: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
                 id_sire: joi.number().allow(null),
                 id_dam: joi.number().required(),
                 jenis_kelamin: joi.string().required(),

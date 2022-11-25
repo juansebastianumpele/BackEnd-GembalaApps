@@ -1,5 +1,7 @@
 // Helper databse yang dibuat
-const joi = require('joi');
+const DateExtension = require('@joi/date')
+const Joi = require('joi');
+const joi = Joi.extend(DateExtension);
 const {newError, errorHandler} = require('../utils/errorHandler');
 const {Op} = require('sequelize');
 
@@ -15,11 +17,14 @@ class _kesehatan{
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 id_penyakit: joi.number().required(),
-                tanggal_sakit: joi.date().allow(null),
+                tanggal_sakit: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
                 id_kandang: joi.number().allow(null)
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'createKesehatan Service');
+
+            console.log(value.tanggal_sakit)
+            console.log(req.body.tanggal_sakit)
 
             // Get data penyakit
             const penyakit = await this.db.Penyakit.findOne({  
@@ -80,8 +85,8 @@ class _kesehatan{
             // Validate data
             const schema = joi.object({
                 id_kesehatan: joi.number().required(),
-                tanggal_sakit: joi.date().allow(null),
-                tanggal_sembuh: joi.date().allow(null),
+                tanggal_sakit: joi.date().format(['YYYY/MM/DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_sembuh: joi.date().format(['YYYY/MM/DD', 'DD-MM-YYYY']).allow(null),
                 id_kandang: joi.number().allow(null),
                 gejala: joi.string().allow(null),
                 penanganan: joi.string().allow(null)

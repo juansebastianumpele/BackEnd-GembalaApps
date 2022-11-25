@@ -1,5 +1,7 @@
 const {newError, errorHandler} = require('../utils/errorHandler');
-const joi = require('joi');
+const DateExtension = require('@joi/date')
+const Joi = require('joi');
+const joi = Joi.extend(DateExtension);
 const {sequelize} = require('../models');
 
 class _lepasSapih{
@@ -13,7 +15,7 @@ class _lepasSapih{
             // Validate data
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                tanggal_lepas_sapih: joi.date().allow(null).required(),
+                tanggal_lepas_sapih: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null).required(),
                 id_kandang: joi.number().required()
             });
             const {error, value} = schema.validate(req.body);
