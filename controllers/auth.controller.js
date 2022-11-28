@@ -55,6 +55,14 @@ const authController = (db) =>{
     });
 
     /**
+     * Upload photo profile
+     */
+    AuthController.post('/photo-profile', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$auth.uploadImage(req, res, next);
+        response.sendResponse(res, detail);
+    });
+
+    /**
      * Delete Account
      * @param {string} password
      */

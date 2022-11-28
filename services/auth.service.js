@@ -6,6 +6,9 @@ const jwt = require('jsonwebtoken');
 const {verifyNewAccount, verifyEmailForgotPassword, bodEmailRegister} = require('../utils/email_verify');
 const randomstring = require("randomstring");
 const {newError, errorHandler} = require('../utils/errorHandler');
+const upload = require('../utils/upload');
+const fs = require('fs');
+
 class _auth{
     constructor(db){
         this.db = db;
@@ -418,6 +421,38 @@ class _auth{
                 }
             };
         }catch (error){
+            return errorHandler(error);
+        }
+    }
+
+    // Update photo profile
+    uploadImage = async (req, res, next) => {
+        try {
+            // Remove old image
+            const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+            if (!checkUser) newError(400, 'User not found', 'UploadImage Service');
+            if (checkUser.dataValues.image != null) {
+                const path = __basedir + '/public/static/images/' + checkUser.dataValues.image;
+                if (fs.existsSync(path)) {
+                    fs.unlinkSync(path);
+                }
+            }
+
+            await upload.single('avatar')(req, res, async (err) => {
+                if (err) newError(400, err.message, 'UploadImage Service');
+
+                const image = req.file.filename;
+                const updatedImage = await this.db.AuthUser.update({image}, {where: {id_user: req.dataAuth.id_user}});
+                if (updatedImage <= 0) newError(500, 'Failed to update image', 'UploadImage Service');
+            })
+            return {
+                code: 200,
+                data: {
+                    id_user: req.dataAuth.id_user,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
+            };
+        } catch (error) {
             return errorHandler(error);
         }
     }
