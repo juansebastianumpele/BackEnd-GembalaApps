@@ -237,14 +237,13 @@ class _lepasSapih{
             //     newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
             // }
 
-            // TODO: Fixing validate ternak
             let faseSeleksi;
-            if(value.status.toLowerCase() === 'pejantan' || value.status.toLowerCase() === 'betina'){
+            if(value.status.toLowerCase() === 'pejantan' || value.status.toLowerCase() === 'indukan'){
                 faseSeleksi = faseAdaptasi1.dataValues.id_fp;
             }else if(value.status.toLowerCase() === 'bakalan'){
                 faseSeleksi = null
             }else{
-                newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
+                newError(400, 'Status must be pejantan, indukan, or bakalan', 'seleksiLepasSapih Service');
             }
             // Update status ternak
             const updateStatusTernak = await this.db.Ternak.update({
