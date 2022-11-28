@@ -12,17 +12,14 @@ class _lkPemasukan{
     getTernakMasuk = async (req) => {
         try{
             // Get data fase
-            const dataFase = await this.db.Fase.findOne({
-                attributes: ['id_fp'],
-                where: {
-                    fase: "Pemasukan"
-                }
-            });
+            const dataFase = await this.db.Fase.findOne({attributes: ['id_fp'], where: {fase: "Pemasukan"}});
             if(!dataFase) newError(404, 'Data Fase not found', 'getTernakMasuk Service');
 
             // Add id_user to query
             req.query.id_peternakan = req.dataAuth.id_peternakan;
             req.query.id_fp = dataFase.dataValues.id_fp;
+            req.query.status_keluar = null;
+            req.query.tanggal_keluar = null;
 
             // Get data ternak masuk
             const list = await this.db.Ternak.findAll({
