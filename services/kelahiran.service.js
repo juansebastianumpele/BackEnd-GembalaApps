@@ -18,8 +18,8 @@ class _kelahiran {
             req.query.id_peternakan = req.dataAuth.id_peternakan
             req.query.id_fp = null
             req.query.id_dam = null
-            req.query.id_status_ternak = statusTernak.dataValues.id_status_ternak,
-            req.query.status_keluar = null,
+            req.query.id_status_ternak = statusTernak.dataValues.id_status_ternak
+            req.query.status_keluar = null
             req.query.tanggal_keluar = null
             // Get data new ternak kelahiran
             const list = await this.db.Ternak.findAll({attributes: ['id_ternak', 'rf_id'], where: req.query});
