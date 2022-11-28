@@ -11,23 +11,18 @@ class _kelahiran {
     getNewTernakKelahiran = async (req) => {
         try {
             // Get data status ternak
-            const statusTernak = await this.db.StatusTernak.findOne({
-                where: {
-                    status_ternak: "Cempe"
-                }
-            });
+            const statusTernak = await this.db.StatusTernak.findOne({where: {status_ternak: "Cempe"}});
             if (!statusTernak) newError(404, 'Data Status Ternak Cempe not found', 'getNewTernakKelahiran Service');
             
             // Add params
             req.query.id_peternakan = req.dataAuth.id_peternakan
             req.query.id_fp = null
             req.query.id_dam = null
-            req.query.id_status_ternak = statusTernak.dataValues.id_status_ternak
+            req.query.id_status_ternak = statusTernak.dataValues.id_status_ternak,
+            req.query.status_keluar = null,
+            req.query.tanggal_keluar = null
             // Get data new ternak kelahiran
-            const list = await this.db.Ternak.findAll({
-                attributes: ['id_ternak', 'rf_id'],
-                where: req.query
-            });
+            const list = await this.db.Ternak.findAll({attributes: ['id_ternak', 'rf_id'], where: req.query});
             if (list.length <= 0) newError(404, 'Data New Ternak Kelahiran not found', 'getNewTernakKelahiran Service');
 
             return {
