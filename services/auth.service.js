@@ -163,6 +163,7 @@ class _auth{
              });
             if(!list) newError(400, 'Failed to get profile', 'Get Profile Service');
 
+            list.dataValues.image = `${req.get('host')}/avatar/${list.image}`;
             return {
                 code: 200,
                 data: list
@@ -302,6 +303,7 @@ class _auth{
             });
             if (!user) newError(400, 'User not found', 'Verify Service');
 
+            user.dataValues.image = `${req.get('host')}/avatar/${user.image}`;
             user.dataValues.iat = req.dataAuth.iat;
             user.dataValues.exp = req.dataAuth.exp;
             user.dataValues.time = new Date()
@@ -431,12 +433,6 @@ class _auth{
             // Remove old image
             const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
             if (!checkUser) newError(400, 'User not found', 'UploadImage Service');
-            if (checkUser.dataValues.image != null) {
-                const path = __basedir + '/public/static/images/' + checkUser.dataValues.image;
-                if (fs.existsSync(path)) {
-                    fs.unlinkSync(path);
-                }
-            }
 
             await upload.single('avatar')(req, res, async (err) => {
                 if (err) newError(400, err.message, 'UploadImage Service');
@@ -445,6 +441,13 @@ class _auth{
                 const updatedImage = await this.db.AuthUser.update({image}, {where: {id_user: req.dataAuth.id_user}});
                 if (updatedImage <= 0) newError(500, 'Failed to update image', 'UploadImage Service');
             })
+
+            if (checkUser.dataValues.image != null) {
+                const path = __basedir + '/public/static/images/' + checkUser.dataValues.image;
+                if (fs.existsSync(path)) {
+                    fs.unlinkSync(path);
+                }
+            }
             return {
                 code: 200,
                 data: {
