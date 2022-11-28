@@ -53,7 +53,7 @@ class _lkPemasukan{
             // Validate request
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                tanggal_masuk: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_masuk: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 id_bangsa: joi.number().required(),
                 jenis_kelamin: joi.string().required(),
                 cek_poel: joi.number().required(),

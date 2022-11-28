@@ -174,7 +174,7 @@ class _bahanPakan{
             // Validate data
             const schema = joi.object({
                 id_jenis_bahan_pakan: joi.number().required(),
-                tanggal: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 jumlah: joi.number().required(),
                 keterangan: joi.string().required(),
             });

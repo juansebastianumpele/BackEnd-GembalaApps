@@ -127,8 +127,8 @@ class _kelahiran {
             // Validate data
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                tanggal_masuk: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
-                tanggal_lahir: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_masuk: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_lahir: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 id_sire: joi.number().allow(null),
                 id_dam: joi.number().required(),
                 jenis_kelamin: joi.string().required(),

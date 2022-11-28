@@ -1,6 +1,7 @@
 // Helper databse yang dibuat
-const joi = require('joi');
-const {log_error} = require('../utils/logging');
+const DateExtension = require('@joi/date')
+const Joi = require('joi');
+const joi = Joi.extend(DateExtension);
 const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _pemeliharaan{
@@ -89,7 +90,7 @@ class _pemeliharaan{
             // Validate data
             const schema = joi.object({
                 id_kandang: joi.number().required(),
-                tanggal_pemeliharaan: joi.date().allow(null),
+                tanggal_pemeliharaan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 jenis_pakan: joi.string().required(),
                 jumlah_pakan: joi.number().required(),
                 pembersihan_kandang: joi.boolean().required(),

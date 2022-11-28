@@ -15,7 +15,7 @@ class _lepasSapih{
             // Validate data
             const schema = joi.object({
                 id_ternak: joi.number().required(),
-                tanggal_lepas_sapih: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null).required(),
+                tanggal_lepas_sapih: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null).required(),
                 id_kandang: joi.number().required()
             });
             const {error, value} = schema.validate(req.body);
@@ -236,6 +236,8 @@ class _lepasSapih{
             // }else{
             //     newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
             // }
+
+            // TODO: Fixing validate ternak
             let faseSeleksi;
             if(value.status.toLowerCase() === 'pejantan' || value.status.toLowerCase() === 'betina'){
                 faseSeleksi = faseAdaptasi1.dataValues.id_fp;

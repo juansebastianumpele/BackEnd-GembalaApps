@@ -328,8 +328,8 @@ class _pakan{
             // Validate data
             const schema = joi.object({
                 id_pakan: joi.number().required(),
-                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
-                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'fillPakan Service');
@@ -385,8 +385,8 @@ class _pakan{
             // Validate data
             const schema = joi.object({
                 id_pakan: joi.number().required(),
-                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
-                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'updateFillPakan Service');

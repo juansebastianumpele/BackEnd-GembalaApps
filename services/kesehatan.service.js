@@ -17,7 +17,7 @@ class _kesehatan {
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 id_penyakit: joi.number().required(),
-                tanggal_sakit: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_sakit: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 id_kandang: joi.number().allow(null)
             });
             const { error, value } = schema.validate(req.body);
@@ -85,8 +85,8 @@ class _kesehatan {
             // Validate data
             const schema = joi.object({
                 id_kesehatan: joi.number().required(),
-                tanggal_sakit: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
-                tanggal_sembuh: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_sakit: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_sembuh: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 id_kandang: joi.number().allow(null),
                 gejala: joi.string().allow(null),
                 penanganan: joi.string().allow(null)
