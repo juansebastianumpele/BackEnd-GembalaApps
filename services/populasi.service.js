@@ -47,14 +47,16 @@ class _populasi{
                     where: {
                         tanggal_masuk: {
                             [Op.between]: [new Date(thisYear, i-1, 0), new Date(thisYear, i, 1)]
-                        }
+                        },
+                        id_peternakan: req.dataAuth.id_peternakan
                     }
                 });
                 data[`${thisYear}-${i}`].keluar = await this.db.Ternak.count({
                     where: {
                         tanggal_keluar: {
                             [Op.between]: [new Date(thisYear, i-1, 0), new Date(thisYear, i, 1)]
-                        }
+                        },
+                        id_peternakan: req.dataAuth.id_peternakan
                     }
                 });
                 data[`${thisYear}-${i}`].populasi = (data[`${thisYear}-${i}`].masuk - data[`${thisYear}-${i}`].keluar) + (data[`${thisYear}-${i-1}`] ? data[`${thisYear}-${i-1}`].populasi : 0);
