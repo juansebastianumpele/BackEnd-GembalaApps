@@ -163,7 +163,7 @@ class _auth{
              });
             if(!list) newError(400, 'Failed to get profile', 'Get Profile Service');
 
-            list.dataValues.image = `${req.get('host')}/avatar/${list.image}`;
+            list.dataValues.image = `${req.protocol}://${req.get('host')}/avatar/${list.image}`;
             return {
                 code: 200,
                 data: list
@@ -303,7 +303,7 @@ class _auth{
             });
             if (!user) newError(400, 'User not found', 'Verify Service');
 
-            user.dataValues.image = `${req.get('host')}/avatar/${user.image}`;
+            user.dataValues.image = `${req.protocol}://${req.get('host')}/avatar/${user.image}`;
             user.dataValues.iat = req.dataAuth.iat;
             user.dataValues.exp = req.dataAuth.exp;
             user.dataValues.time = new Date()
