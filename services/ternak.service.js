@@ -1,9 +1,11 @@
 // Helper databse yang dibuat
-const joi = require('joi');
+const DateExtension = require('@joi/date')
+const Joi = require('joi');
+const joi = Joi.extend(DateExtension);
 const { newError, errorHandler } = require('../utils/errorHandler');
 const { Op } = require('sequelize');
-const { query } = require('express');
 const { log_info } = require('../utils/logging');
+const premium_user_check = require('../utils/premium_farm_checker')
 
 class _ternak {
     constructor(db) {
@@ -393,9 +395,9 @@ class _ternak {
                 id_bangsa: joi.number().allow(null),
                 berat: joi.number().allow(null),
                 suhu: joi.number().allow(null),
-                tanggal_lahir: joi.date().allow(null),
-                tanggal_masuk: joi.date().allow(null),
-                tanggal_keluar: joi.date().allow(null),
+                tanggal_lahir: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_masuk: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_keluar: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 status_keluar: joi.string().allow(null),
                 id_dam: joi.number().allow(null),
                 id_sire: joi.number().allow(null),
@@ -405,6 +407,10 @@ class _ternak {
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'createTernak Service');
+
+            // Check is premium user
+            const {err} = await premium_user_check(this.db, req);
+            if(err) newError(403, err, 'createTernak Service');
 
             // Validate tanggal_lahir
             if (value.tanggal_lahir && new Date(value.tanggal_lahir) > new Date()) newError(400, 'Tanggal lahir must be less than today', 'createTernak Service');
@@ -418,6 +424,7 @@ class _ternak {
 
             // Add id_user to params
             value.id_peternakan = req.dataAuth.id_peternakan
+            
             // Create new Ternak
             const add = await this.db.Ternak.create(value);
             if (!add) newError(500, 'Failed to create Ternak', 'createTernak Service');
@@ -473,9 +480,9 @@ class _ternak {
                 id_bangsa: joi.number().allow(null),
                 berat: joi.number().allow(null),
                 suhu: joi.number().allow(null),
-                tanggal_lahir: joi.date().allow(null),
-                tanggal_masuk: joi.date().allow(null),
-                tanggal_keluar: joi.date().allow(null),
+                tanggal_lahir: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_masuk: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_keluar: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 status_keluar: joi.string().allow(null),
                 id_dam: joi.number().allow(null),
                 id_sire: joi.number().allow(null),
@@ -596,7 +603,7 @@ class _ternak {
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 status_keluar: joi.string().required(),
-                tanggal_keluar: joi.date().allow(null),
+                tanggal_keluar: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'ternakKeluar Service');

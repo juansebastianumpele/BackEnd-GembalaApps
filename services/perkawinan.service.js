@@ -443,40 +443,35 @@ class _perkawinan {
     // Get ternak in Perkawinan
     getTernakInPerkawinan = async (req) => {
         try{
-            // Add Params
+            // Get fase perkawinan
+            const dataFasePerkawinan = await this.db.Fase.findOne({attributes: ['id_fp', 'fase'], where: {fase: 'Perkawinan'}});
+            if(!dataFasePerkawinan) newError(404, 'Data Fase Perkawinan not found', 'getTernakInPerkawinan Service');
+
+            // Get ternak in fase perkawinan
             req.query.id_peternakan = req.dataAuth.id_peternakan;
-            // Get data ternak in Perkawinan
-            const dataTernakInPerkawinan = await this.db.Fase.findOne({
-                attributes: ['id_fp', 'fase'],
-                where: {
-                    fase: 'Perkawinan'
-                },
+            req.query.id_fp = dataFasePerkawinan.dataValues.id_fp;
+            const dataTernakInPerkawinan = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'jenis_kelamin'],
                 include: [
                     {
-                        model: this.db.Ternak,
-                        as: 'ternak',
-                        attributes: ['id_ternak', 'jenis_kelamin'],
-                        include: [
-                            {
-                                model: this.db.RiwayatFase,
-                                as: 'riwayat_fase',
-                                attributes: ['tanggal']
-                            },
-                            {
-                                model: this.db.Kandang,
-                                as: 'kandang',
-                                attributes: ['id_kandang', 'kode_kandang']
-                            },
-                            {
-                                model: this.db.Bangsa,
-                                as: 'bangsa',
-                                attributes: ['id_bangsa', 'bangsa']
-                            }
-                        ],
-                        where: req.query
+                        model: this.db.RiwayatFase,
+                        as: 'riwayat_fase',
+                        attributes: ['tanggal']
+                    },
+                    {
+                        model: this.db.Kandang,
+                        as: 'kandang',
+                        attributes: ['id_kandang', 'kode_kandang']
+                    },
+                    {
+                        model: this.db.Bangsa,
+                        as: 'bangsa',
+                        attributes: ['id_bangsa', 'bangsa']
                     }
-                ]
+                ],
+                where: req.query
             });
+            if(dataTernakInPerkawinan.length <= 0) newError(404, 'Data Ternak in Perkawinan not found', 'getTernakInPerkawinan Service');
 
             // Get riwayat perkawinan
             const dataRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
