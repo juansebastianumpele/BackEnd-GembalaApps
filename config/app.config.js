@@ -12,5 +12,14 @@ module.exports = {
     password: "gembalapp1",
     password_app: "owoawahhflzhwkcf",
     url_redirect_verify: "http://gembala.sembadafarm.com/verify/success-verify"
+  },
+  premiumFarm:{
+    limitTernak: 20
+  },
+  geocode:{
+    base_url: "http://geocode.xyz",
+    auth: "456468407355067343971x122723",
+    region: "ID",
+    geoit: "JSON"
   }
 }

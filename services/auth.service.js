@@ -8,6 +8,8 @@ const randomstring = require("randomstring");
 const {newError, errorHandler} = require('../utils/errorHandler');
 const upload = require('../utils/upload');
 const fs = require('fs');
+const axios = require('axios');
+
 
 class _auth{
     constructor(db){
@@ -62,6 +64,7 @@ class _auth{
 
     /// Register Service
     register = async (data) => {
+        const t = await this.db.sequelize.transaction();
         try{
             // Validate data
             const schema = joi.object({
@@ -69,33 +72,46 @@ class _auth{
                 email: joi.string().email().required(),
                 nomor_telepon: joi.string().required(),
                 alamat: joi.string().required(),
+                postcode: joi.string().required(),
                 nama_peternakan: joi.string().required(),
                 kata_sandi: joi.string().min(8).required(),
                 ulangi_kata_sandi: joi.ref('kata_sandi')
             });
             const {error, value} = schema.validate(data);
             if (error) newError(400, error.details[0].message, 'Register Service');
+
             // Check if user exist
-            const checkUsername = await this.db.AuthUser.findOne({
-                where : {
-                    nama_pengguna: value.nama_pengguna
-                }
-            });
+            const checkUsername = await this.db.AuthUser.findOne({where : {nama_pengguna: value.nama_pengguna}});
             if (checkUsername) newError(400, 'Username already exist', 'Register Service');
 
             // check if email exist
-            const checkEmail = await this.db.AuthUser.findOne({
-                where : {
-                    email: value.email
-                }
-            });
+            const checkEmail = await this.db.AuthUser.findOne({where : {email: value.email}});
             if (checkEmail) newError(400, 'Email already exist', 'Register Service');
+
+            // Get longtitude, latitude and alamat_postcode external API
+            const geocode = await axios.get(config.geocode.base_url, {
+                params: {
+                    auth: config.geocode.auth,
+                    locate: value.postcode,
+                    geoit: config.geocode.geoit,
+                    region: config.geocode.region
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept-Encoding': 'application/json',
+                }
+            })
+            if(!geocode) newError(400, 'Failed to get geocode', 'Register Service');
 
             // add peternakan
             const addPeternakan = await this.db.Peternakan.create({
                 nama_peternakan: value.nama_peternakan,
-                alamat: value.alamat
-            });
+                alamat: value.alamat,
+                postcode: value.postcode,
+                longitude: geocode.data.longt,
+                latitude: geocode.data.latt,
+                alamat_postcode: geocode.data.standard.city + ', ' + geocode.data.standard.statename + ', ' + geocode.data.standard.countryname + ', ' + geocode.data.standard.postal
+            }, {transaction: t});
             if(!addPeternakan) newError(400, 'Failed to add peternakan', 'Register Service');
 
             // Hash password
@@ -110,10 +126,14 @@ class _auth{
                 id_peternakan: addPeternakan.id_peternakan,
                 nomor_telepon: value.nomor_telepon,
                 kata_sandi: value.kata_sandi
-            });
+            }, {transaction: t});
             if (!register) newError(400, 'Failed to register', 'Register Service');
 
+            // Send email verification
             verifyNewAccount(register);
+
+            // Commit transaction
+            await t.commit();
 
             return {
                 code: 200,
@@ -122,6 +142,7 @@ class _auth{
                 }
             };
         }catch (error){
+            await t.rollback();
             return errorHandler(error);
         }
     }
@@ -215,30 +236,58 @@ class _auth{
             nama_pengguna: joi.string().required(),
             nomor_telepon: joi.string().required(),
             alamat: joi.string().required(),
+            postcode: joi.string().required(),
             nama_peternakan: joi.string().required(),
         });
         const {error, value} = schema.validate(req.body);
         if (error) newError(400, error.details[0].message, 'UpdateAccount Service');
+        
+        // Check user account
+        const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+        if (!checkUser) newError(400, 'User not found', 'UpdateAccount Service');
+
+        // Check peternakan
+        const checkPeternakan = await this.db.Peternakan.findOne({where : {id_peternakan: checkUser.id_peternakan}});
+        if (!checkPeternakan) newError(400, 'Peternakan not found', 'UpdateAccount Service');
+
+        // if postcode is changed
+        let geocode;
+        if(value.postcode && value.postcode !== checkPeternakan.dataValues.postcode){
+            // Get longtitude, latitude and alamat_postcode external API
+            geocode = await axios.get(config.geocode.base_url, {
+                params: {
+                    auth: config.geocode.auth,
+                    locate: value.postcode,
+                    geoit: config.geocode.geoit,
+                    region: config.geocode.region
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept-Encoding': 'application/json',
+                }
+            })
+            if(!geocode) newError(400, 'Failed to get geocode', 'Register Service');
+        }
 
         // Update data
         const updatedAccount = await this.db.AuthUser.update({
-            nama_pengguna: value.nama_pengguna,
-            nomor_telepon: value.nomor_telepon,
+            nama_pengguna: value.nama_pengguna || checkUser.dataValues.nama_pengguna,
+            nomor_telepon: value.nomor_telepon || checkUser.dataValues.nomor_telepon,
         }, {
-            where: {
-                id_user: req.dataAuth.id_user
-            }
+            where: {id_user: req.dataAuth.id_user}
         });
         if (updatedAccount <= 0) newError(500, 'Failed to update account', 'UpdateAccount Service');
         
         // Update peternakan
         const updatedPeternakan = await this.db.Peternakan.update({
-            nama_peternakan: value.nama_peternakan,
-            alamat: value.alamat,
+            nama_peternakan: value.nama_peternakan || checkPeternakan.dataValues.nama_peternakan,
+            alamat: value.alamat || checkPeternakan.dataValues.alamat,
+            postcode: value.postcode || checkPeternakan.dataValues.postcode,
+            latitude: (value.postcode && value.postcode !== checkPeternakan.dataValues.postcode) ? geocode.data.latt : checkPeternakan.dataValues.latitude,
+            longitude: (value.postcode && value.postcode !== checkPeternakan.dataValues.postcode) ? geocode.data.longt : checkPeternakan.dataValues.longitude,
+            alamat_postcode: (value.postcode && value.postcode !== checkPeternakan.dataValues.postcode) ? geocode.data.standard.city + ', ' + geocode.data.standard.statename + ', ' + geocode.data.standard.countryname + ', ' + geocode.data.standard.postal : checkPeternakan.dataValues.alamat_postcode,
         }, {
-            where: {
-                id_peternakan: req.dataAuth.id_peternakan
-            }
+            where: {id_peternakan: req.dataAuth.id_peternakan}
         });
         if (updatedPeternakan <= 0) newError(500, 'Failed to update peternakan', 'UpdateAccount Service');
 

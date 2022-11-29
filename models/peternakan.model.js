@@ -14,6 +14,26 @@ module.exports = (Sequelize, DataTypes) => {
           type: DataTypes.STRING,
           allowNull: false
         },
+        postcode:{
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        longitude:{
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        latitude:{
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        alamat_postcode:{
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        subscribe:{
+            type: DataTypes.DATE,
+            allowNull: true
+        },
         createdAt:{
           type: DataTypes.DATE,
           allowNull: false

@@ -419,6 +419,27 @@ class _dashboard{
         }
     }
 
+    getCoordinate = async (req) => {
+        try{
+            const peternakan = await this.db.Peternakan.findOne({where: {id_peternakan: req.dataAuth.id_peternakan}});
+            if(!peternakan) newError(404, 'Peternakan Not Found', 'getCoordinate Service');
+
+            console.log(req.dataAuth.id_peternakan);
+            console.log(peternakan)
+
+            return {
+                code: 200,
+                data: {
+                    latitude: peternakan.dataValues.latitude,
+                    longitude: peternakan.dataValues.longitude,
+                    alamat_postcode: peternakan.dataValues.alamat_postcode,
+                }
+            }
+        }catch(error){
+            return errorHandler(error);
+        }
+    }
+
 }
 
 module.exports = (db) => new _dashboard(db);
