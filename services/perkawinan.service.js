@@ -482,7 +482,6 @@ class _perkawinan {
                 }
             });
 
-            let data = dataTernakInPerkawinan.dataValues.ternak;
             let totalByKandang = {};
             let totalPopulasi = {
                 total: dataTernakInPerkawinan.length,
