@@ -170,12 +170,12 @@ class _auth{
         try{
             // Query Data
             const list = await this.db.AuthUser.findOne({ 
-                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status',  'createdAt', 'updatedAt'],
+                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status'],
                 include: [
                     {
                         model: this.db.Peternakan,
                         as: 'peternakan',
-                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'createdAt', 'updatedAt']
+                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'postcode', 'alamat_postcode']
                     }
                 ],
                 where : {
