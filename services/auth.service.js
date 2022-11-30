@@ -483,12 +483,16 @@ class _auth{
             const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
             if (!checkUser) newError(400, 'User not found', 'UploadImage Service');
 
-            await upload.single('avatar')(req, res, async (err) => {
+            upload.single('avatar')(req, res, async (err) => {
                 if (err) newError(400, err.message, 'UploadImage Service');
-
                 const image = req.file.filename;
-                const updatedImage = await this.db.AuthUser.update({image}, {where: {id_user: req.dataAuth.id_user}});
-                if (updatedImage <= 0) newError(500, 'Failed to update image', 'UploadImage Service');
+
+                if(fs.existsSync(__basedir + '/public/static/images/ ' + image)){
+                    const updatedImage = await this.db.AuthUser.update({image}, {where: {id_user: req.dataAuth.id_user}});
+                    if (updatedImage <= 0) newError(500, 'Failed to update image', 'UploadImage Service');
+                }else{
+                    newError(500, 'Failed to upload image', 'UploadImage Service');
+                }
             })
 
             if (checkUser.dataValues.image != null) {
