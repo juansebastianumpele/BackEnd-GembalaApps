@@ -486,30 +486,29 @@ class _auth{
 
             upload.single('avatar')(req, res, async (err) => {
                 if (err) newError(400, err.message, 'UploadImage Service');
+
                 const image = req.file.filename;
-                console.log(__basedir + '/public/static/images/' + image)
 
                 if(fs.existsSync(__basedir + '/public/static/images/' + image)){
                     const updatedImage = await this.db.AuthUser.update({image}, {where: {id_user: req.dataAuth.id_user}});
                     if (updatedImage <= 0) newError(500, 'Failed to update image', 'UploadImage Service');
+                    if (checkUser.dataValues.image != null) {
+                        const path = __basedir + '/public/static/images/' + checkUser.dataValues.image;
+                        if (fs.existsSync(path)) {
+                            fs.unlinkSync(path);
+                        }
+                    }
                 }else{
                     newError(500, 'Failed to upload image', 'UploadImage Service');
                 }
+                return {
+                    code: 200,
+                    data: {
+                        id_user: req.dataAuth.id_user,
+                        updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                    }
+                };
             })
-
-            if (checkUser.dataValues.image != null) {
-                const path = __basedir + '/public/static/images/' + checkUser.dataValues.image;
-                if (fs.existsSync(path)) {
-                    fs.unlinkSync(path);
-                }
-            }
-            return {
-                code: 200,
-                data: {
-                    id_user: req.dataAuth.id_user,
-                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
-                }
-            };
         } catch (error) {
             return errorHandler(error);
         }
