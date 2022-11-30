@@ -5,7 +5,7 @@ const joi = Joi.extend(DateExtension);
 const { newError, errorHandler } = require('../utils/errorHandler');
 const { Op } = require('sequelize');
 const { log_info } = require('../utils/logging');
-const premium_user_check = require('../utils/premium_farm_checker')
+const premiumFarmChecker = require('../utils/premium_farm_checker')
 
 class _ternak {
     constructor(db) {
@@ -409,7 +409,7 @@ class _ternak {
             if (error) newError(400, error.details[0].message, 'createTernak Service');
 
             // Check is premium user
-            const {err} = await premium_user_check(this.db, req);
+            const {err} = await premiumFarmChecker(this.db, req);
             if(err) newError(403, err, 'createTernak Service');
 
             // Validate tanggal_lahir

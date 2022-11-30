@@ -1,8 +1,7 @@
-// Helper databse yang dibuat
 const joi = require('joi');
 const {newError, errorHandler} = require('../utils/errorHandler');
-// const premiumFarmChecker = require('../utils/premium_farm_checker');
-// const { Op } = require("sequelize");
+const premiumFarmChecker = require('../utils/premium_farm_checker');
+const { Op } = require("sequelize");
 
 class _rfid{
     constructor(db){
@@ -20,24 +19,11 @@ class _rfid{
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'rfid Service');
 
-            // Check is premium farm
-            // const farmData = await this.db.Peternakan.findOne({ where: { id_peternakan: value.id_peternakan, subscribe: { [Op.not]: null } } });
-            // req.dataAuth = {
-            //     is_premium_farm: farmData ? true : false,
-            //     id_peternakan: value.id_peternakan
-            // }
-            // const {err} = await premiumFarmChecker(this.db, req);
-            // if(err) {return{code: 403, data: {message: err}}}
-
             // Check jenis ternak baru
             if (value.jenis_ternak_baru.toLowerCase() !== "ternak baru" && value.jenis_ternak_baru.toLowerCase() !== "kelahiran") newError(400, "Jenis Ternak Baru must be 'Ternak Baru' or 'Kelahiran'", 'rfid Service');
 
             // Get data status ternak cempe
-            const statusTernakCempe = await this.db.StatusTernak.findOne({
-                where: {
-                    status_ternak: "Cempe"
-                }
-            });
+            const statusTernakCempe = await this.db.StatusTernak.findOne({where: {status_ternak: "Cempe"}});
             if(!statusTernakCempe) newError(404, 'Data Status Ternak Cempe not found', 'rfid Service');
 
             // Check Ternak
@@ -57,6 +43,15 @@ class _rfid{
                     }
                 }
             }
+
+            // Check is premium farm
+            const farmData = await this.db.Peternakan.findOne({ where: { id_peternakan: value.id_peternakan, subscribe: { [Op.not]: null } } });
+            req.dataAuth = {
+                is_premium_farm: farmData ? true : false,
+                id_peternakan: value.id_peternakan
+            }
+            const {err} = await premiumFarmChecker(this.db, req);
+            if(err) {return{code: 403, data: {message: err}}}
 
             // Get data fase pemasukan
             const idFasePemasukan = await this.db.Fase.findOne({
