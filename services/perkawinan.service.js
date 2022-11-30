@@ -508,11 +508,13 @@ class _perkawinan {
                 delete dataTernakInPerkawinan[i].dataValues.riwayat_fase;
 
                 // Get total ternak by kandang
-                if(totalByKandang[dataTernakInPerkawinan[i].dataValues.kandang.dataValues.kode_kandang]){
-                    totalByKandang[dataTernakInPerkawinan[i].dataValues.kandang.dataValues.kode_kandang] += 1;
-                }else{
-                    totalByKandang[dataTernakInPerkawinan[i].dataValues.kandang.dataValues.kode_kandang] = 1;
-                }    
+                if(dataTernakInPerkawinan[i].dataValues.kandang){
+                    if(totalByKandang[dataTernakInPerkawinan[i].dataValues.kandang.dataValues.kode_kandang]){
+                        totalByKandang[dataTernakInPerkawinan[i].dataValues.kandang.dataValues.kode_kandang] += 1;
+                    }else{
+                        totalByKandang[dataTernakInPerkawinan[i].dataValues.kandang.dataValues.kode_kandang] = 1;
+                    }    
+                }
             }
             
             
