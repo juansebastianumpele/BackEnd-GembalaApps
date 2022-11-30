@@ -486,8 +486,9 @@ class _auth{
             upload.single('avatar')(req, res, async (err) => {
                 if (err) newError(400, err.message, 'UploadImage Service');
                 const image = req.file.filename;
+                console.log(__basedir + '/public/static/images/' + image)
 
-                if(fs.existsSync(__basedir + '/public/static/images/ ' + image)){
+                if(fs.existsSync(__basedir + '/public/static/images/' + image)){
                     const updatedImage = await this.db.AuthUser.update({image}, {where: {id_user: req.dataAuth.id_user}});
                     if (updatedImage <= 0) newError(500, 'Failed to update image', 'UploadImage Service');
                 }else{
