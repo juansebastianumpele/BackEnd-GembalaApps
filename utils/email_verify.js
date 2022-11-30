@@ -36,6 +36,7 @@ const verifyEmailForgotPassword = async (dataAuth, newPass) => {
     
     return emailVerify(dataAuth.email, 'Forgot Password', message);
 }
+
 const bodEmailRegister = async (email, pass) => {
     message = `<h1>REGISTER ACCOUNT GEMBALA</h1>
                 <h2>Hi</h2>

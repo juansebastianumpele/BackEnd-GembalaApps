@@ -1,5 +1,6 @@
 const {execFile} = require('child_process');
 
+// IGNORE THIS CODE, only for testing
 module.exports = (app) =>{
     app.post('/build-dashboard',(req,res) => {
         execFile('/home/sembadafarm/web/gembala.sembadafarm.com/pull.sh', (err, stdout, stderr) => {
@@ -13,5 +14,5 @@ module.exports = (app) =>{
         })
         res.writeHead(200)
         res.end()
-    })
+    })  
 }

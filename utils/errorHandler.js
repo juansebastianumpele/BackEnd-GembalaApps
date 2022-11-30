@@ -2,10 +2,10 @@ const fs = require('fs');
 const { log_error } = require('./logging');
 
 // Error Model
-const newError = (statusCode, message, point) => {
+const newError = (statusCode, message, tag) => {
     const error = new Error(message);
     error.statusCode = statusCode;
-    error.point = point;
+    error.tag = tag;
     throw error;
 };
 
@@ -13,14 +13,14 @@ const newError = (statusCode, message, point) => {
 const errorHandler = (error) => {
     const statusCode = error.statusCode || 500;
     const message = error.message;
-    const point = error.point || 'Unknown';
+    const tag = error.tag || 'Unknown';
 
     // Create log
-    fs.appendFile('error.log', `${new Date()} - ${statusCode} - ${`[${point}]`} ${message} \r ${error.stack} \r`, (err) => {
+    fs.appendFile('error.log', `${new Date()} - ${statusCode} - ${`[${tag}]`} ${message} \r ${error.stack} \r`, (err) => {
         if (err) throw err;
     });
     
-    log_error(point, `${error.stack}`);
+    log_error(tag, `${error.stack}`);
     return {
         code: statusCode,
         error: message

@@ -2,7 +2,6 @@ const {log_error} = require('./logging');
 class _response {
     sendResponse(res, data) {
         try{
-            // res.status(data.code == 200 ? 200 : data.code ? data.code : 500)
             res.status(data.code ? data.code : 500)
 
             let status
@@ -11,7 +10,7 @@ class _response {
                     status = 'OK'
                     break;
                 case 201:
-                    status = 'Created'
+                    status = 'CREATED'
                     break;
                 case 400:
                     status = 'BAD_REQUEST'
