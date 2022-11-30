@@ -341,10 +341,11 @@ class _auth{
     verify = async (req) => {
         try{
             const user = await this.db.AuthUser.findOne({
-                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status', 'lastAccess', 'createdAt', 'updatedAt'],
+                attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status', 'lastAccess'],
                 include: [{
                     model: this.db.Peternakan,
-                    as: 'peternakan'
+                    as: 'peternakan',
+                    attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'postcode', 'alamat_postcode']
                 }],
                 where : {
                     id_user: req.dataAuth.id_user
