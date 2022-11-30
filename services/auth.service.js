@@ -101,7 +101,7 @@ class _auth{
                     'Accept-Encoding': 'application/json',
                 }
             })
-            if(!geocode) newError(400, 'Failed to get geocode', 'Register Service');
+            if(geocode.data.error) newError(400, 'Failed to get geocode, pleace check your postcode', 'Register Service');
 
             // add peternakan
             const addPeternakan = await this.db.Peternakan.create({
