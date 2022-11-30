@@ -485,13 +485,13 @@ class _perkawinan {
             let data = dataTernakInPerkawinan.dataValues.ternak;
             let totalByKandang = {};
             let totalPopulasi = {
-                total: data.length,
+                total: dataTernakInPerkawinan.length,
                 jantan: 0,
                 betina: 0
             };
-            for(let i = 0; i < data.length; i++){
+            for(let i = 0; i < dataTernakInPerkawinan.length; i++){
                 // total by jenis kelamin
-                if(data[i].dataValues.jenis_kelamin == 'Jantan'){
+                if(dataTernakInPerkawinan[i].dataValues.jenis_kelamin == 'Jantan'){
                     totalPopulasi.jantan += 1;
                 }else{
                     totalPopulasi.betina += 1;
@@ -499,20 +499,20 @@ class _perkawinan {
 
                 // total riwayat perkawinan
                 const riwayatPerkawinan = dataRiwayatPerkawinan.filter((value) => {
-                    return value.dataValues.id_indukan == data[i].dataValues.id_ternak || value.dataValues.id_pejantan == data[i].dataValues.id_ternak;
+                    return value.dataValues.id_indukan == dataTernakInPerkawinan[i].dataValues.id_ternak || value.dataValues.id_pejantan == dataTernakInPerkawinan[i].dataValues.id_ternak;
                 });
-                data[i].dataValues.riwayat_perkawinan = `${riwayatPerkawinan.length} kali`
+                dataTernakInPerkawinan[i].dataValues.riwayat_perkawinan = `${riwayatPerkawinan.length} kali`
 
                 // Count coloni time
-                const waktuHari =  data[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(data[i].dataValues.riwayat_fase[data[i].dataValues.riwayat_fase.length -1].dataValues.tanggal))/(1000*60*60*24)) : 0;
-                data[i].dataValues.waktu_koloni = `${Math.floor(waktuHari/30)} bulan ${waktuHari%30} hari`;
-                delete data[i].dataValues.riwayat_fase;
+                const waktuHari =  dataTernakInPerkawinan[i].dataValues.riwayat_fase.length > 0 ? Math.round((new Date() - new Date(dataTernakInPerkawinan[i].dataValues.riwayat_fase[dataTernakInPerkawinan[i].dataValues.riwayat_fase.length -1].dataValues.tanggal))/(1000*60*60*24)) : 0;
+                dataTernakInPerkawinan[i].dataValues.waktu_koloni = `${Math.floor(waktuHari/30)} bulan ${waktuHari%30} hari`;
+                delete dataTernakInPerkawinan[i].dataValues.riwayat_fase;
 
                 // Get total ternak by kandang
-                if(totalByKandang[data[i].dataValues.kandang.dataValues.kode_kandang]){
-                    totalByKandang[data[i].dataValues.kandang.dataValues.kode_kandang] += 1;
+                if(totalByKandang[dataTernakInPerkawinan[i].dataValues.kandang.dataValues.kode_kandang]){
+                    totalByKandang[dataTernakInPerkawinan[i].dataValues.kandang.dataValues.kode_kandang] += 1;
                 }else{
-                    totalByKandang[data[i].dataValues.kandang.dataValues.kode_kandang] = 1;
+                    totalByKandang[dataTernakInPerkawinan[i].dataValues.kandang.dataValues.kode_kandang] = 1;
                 }    
             }
             
@@ -526,8 +526,8 @@ class _perkawinan {
                         list: totalByKandang
                     },
                     ternak:{
-                        total: data.length,
-                        list: data
+                        total: dataTernakInPerkawinan.length,
+                        list: dataTernakInPerkawinan
                     }
                 }
             }
