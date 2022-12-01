@@ -25,11 +25,11 @@ module.exports = {
         allowNull: false
       },
       berat:{
-        type: Sequelize.INTEGER,
+        type: Sequelize.FLOAT,
         allowNull: false
       },
       suhu:{
-        type: Sequelize.INTEGER,
+        type: Sequelize.FLOAT,
         allowNull: false
       },
       tanggal_timbang:{
