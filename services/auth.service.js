@@ -490,7 +490,8 @@ class _auth{
             const image = req.file.filename;
 
             if(fs.existsSync(__basedir + '/public/static/images/' + image)){
-                const updatedImage = await this.db.AuthUser.update({image}, {where: {id_user: req.dataAuth.id_user}, transaction: t});
+                const updatedImage = await this.db.AuthUser.update({image: image}, {where: {id_user: req.dataAuth.id_user}, transaction: t});
+                console.log(image)
                 if (updatedImage <= 0) {
                     fs.unlinkSync(__basedir + '/public/static/images/' + image);
                     newError(500, 'Failed to update image', 'UploadImage Service');
@@ -505,6 +506,9 @@ class _auth{
             }else{
                 newError(500, 'Failed to upload image', 'UploadImage Service');
             }
+
+            // Commit transaction
+            await t.commit();
             return {
                 code: 200,
                 data: {
