@@ -25,10 +25,13 @@ const authentication = async (req, res, next) => {
         }
 
         // Get peternakan
-        const peternakan = await db.Peternakan.findOne({where : {id_peternakan: decoded.id_peternakan}});
-        if (!peternakan) {
-          response.sendResponse(res, {code: 401, error: 'Invalid token'})
-          return
+        let dataPeternakan;
+        if(decoded.role != 'superadmin'){
+          dataPeternakan = await db.Peternakan.findOne({where : {id_peternakan: decoded.id_peternakan}});
+          if (!dataPeternakan) {
+            response.sendResponse(res, {code: 401, error: 'Invalid token'})
+            return
+          }
         }
 
         // Check status user
@@ -45,7 +48,7 @@ const authentication = async (req, res, next) => {
           role: decoded.role,
           status: decoded.status,
           id_peternakan: decoded.id_peternakan,
-          is_premium_farm: peternakan.dataValues.subscribe ? true : false,
+          is_premium_farm: decoded.role == 'superadmin' ? true : (dataPeternakan.dataValues.subscribe ? true : false),
           iat: decoded.iat,
           exp: decoded.exp
         }
