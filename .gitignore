@@ -3,3 +3,4 @@
 .env_server
 error.log
 .vscode/settings.json
+.idea
