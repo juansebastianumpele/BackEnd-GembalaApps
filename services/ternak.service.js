@@ -428,7 +428,21 @@ class _ternak {
             value.id_peternakan = req.dataAuth.id_peternakan
             
             // Create new Ternak
-            const add = await this.db.Ternak.create(value);
+            const add = await this.db.Ternak.create({
+                rf_id: value.rf_id,
+                image: value.image,
+                jenis_kelamin: value.jenis_kelamin,
+                id_bangsa: value.id_bangsa,
+                tanggal_lahir: value.tanggal_lahir,
+                tanggal_masuk: value.tanggal_masuk || new Date(),
+                tanggal_keluar: value.tanggal_keluar,
+                status_keluar: value.status_keluar,
+                id_dam: value.id_dam,
+                id_sire: value.id_sire,
+                id_fp: value.id_fp,
+                id_status_ternak: value.id_status_ternak,
+                id_kandang: value.id_kandang
+            });
             if (!add) newError(500, 'Failed to create Ternak', 'createTernak Service');
 
             // Create suhu and berat
