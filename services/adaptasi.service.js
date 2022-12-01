@@ -89,15 +89,15 @@ class _adaptasi{
             }
 
             // Get data fase
-            const fase = await this.db.Fase.findOne({
-                attributes: ['id_fp'],
-                where: {
-                    fase: req.query.step == 5 ? "Waiting List Perkawinan" : `adaptasi ${parseInt(req.query.step) + 1}`
-                }
-            });
-            if(!fase){
-                newError(404, 'Fase not found', 'getAdaptasiByStep');
-            }
+            // const fase = await this.db.Fase.findOne({
+            //     attributes: ['id_fp'],
+            //     where: {
+            //         fase: req.query.step == 5 ? "Waiting List Perkawinan" : `adaptasi ${parseInt(req.query.step) + 1}`
+            //     }
+            // });
+            // if(!fase){
+            //     newError(404, 'Fase not found', 'getAdaptasiByStep');
+            // }
 
             // Get data ternak by step adaptasi
             const ternakByStepAdaptasi = await this.db.Ternak.findAll({
@@ -126,7 +126,9 @@ class _adaptasi{
                 ],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_fp: fase.dataValues.id_fp
+                    id_fp: {
+                        [Op.not]: null
+                    }
                 }
             });
             if(ternakByStepAdaptasi.length <= 0){
@@ -142,16 +144,19 @@ class _adaptasi{
                             j--;
                         }
                     }
-                }
-            }
-
-            // Remove ternak that has no treatment
-            for(let i = 0; i < ternakByStepAdaptasi.length; i++){
-                if(ternakByStepAdaptasi[i].dataValues.adaptasi.length <= 0){
+                }else{
                     ternakByStepAdaptasi.splice(i, 1);
                     i--;
                 }
             }
+
+            // Remove ternak that has no treatment
+            // for(let i = 0; i < ternakByStepAdaptasi.length; i++){
+            //     if(ternakByStepAdaptasi[i].dataValues.adaptasi.length <= 0){
+            //         ternakByStepAdaptasi.splice(i, 1);
+            //         i--;
+            //     }
+            // }
 
             // Get treatment by step
             const treatmentByStep = await this.db.Treatment.findAll({
