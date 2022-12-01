@@ -430,6 +430,7 @@ class _ternak {
             // Create new Ternak
             const add = await this.db.Ternak.create({
                 rf_id: value.rf_id,
+                id_peternakan: req.dataAuth.id_peternakan,
                 image: value.image,
                 jenis_kelamin: value.jenis_kelamin,
                 id_bangsa: value.id_bangsa,
