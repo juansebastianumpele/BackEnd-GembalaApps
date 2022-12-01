@@ -479,37 +479,41 @@ class _auth{
 
     // Update photo profile
     uploadImage = async (req, res, next) => {
+        const t = await this.db.sequelize.transaction();
         try {
             // Remove old image
+            if(!req.file) newError(400, 'Please choose file', 'uploadImage Service')
+
             const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
             if (!checkUser) newError(400, 'User not found', 'UploadImage Service');
 
-            upload.single('avatar')(req, res, async (err) => {
-                if (err) newError(400, err.message, 'UploadImage Service');
+            const image = req.file.filename;
 
-                const image = req.file.filename;
-
-                if(fs.existsSync(__basedir + '/public/static/images/' + image)){
-                    const updatedImage = await this.db.AuthUser.update({image}, {where: {id_user: req.dataAuth.id_user}});
-                    if (updatedImage <= 0) newError(500, 'Failed to update image', 'UploadImage Service');
-                    if (checkUser.dataValues.image != null) {
-                        const path = __basedir + '/public/static/images/' + checkUser.dataValues.image;
-                        if (fs.existsSync(path)) {
-                            fs.unlinkSync(path);
-                        }
-                    }
-                }else{
-                    newError(500, 'Failed to upload image', 'UploadImage Service');
+            if(fs.existsSync(__basedir + '/public/static/images/' + image)){
+                const updatedImage = await this.db.AuthUser.update({image}, {where: {id_user: req.dataAuth.id_user}, transaction: t});
+                if (updatedImage <= 0) {
+                    fs.unlinkSync(__basedir + '/public/static/images/' + image);
+                    newError(500, 'Failed to update image', 'UploadImage Service');
                 }
-                return {
-                    code: 200,
-                    data: {
-                        id_user: req.dataAuth.id_user,
-                        updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+
+                if (checkUser.dataValues.image != null) {
+                    const path = __basedir + '/public/static/images/' + checkUser.dataValues.image;
+                    if (fs.existsSync(path)) {
+                        fs.unlinkSync(path);
                     }
-                };
-            })
+                }
+            }else{
+                newError(500, 'Failed to upload image', 'UploadImage Service');
+            }
+            return {
+                code: 200,
+                data: {
+                    id_user: req.dataAuth.id_user,
+                    updatedAt: date.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+                }
+            };
         } catch (error) {
+            await t.rollback();
             return errorHandler(error);
         }
     }
