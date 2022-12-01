@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const {verifyNewAccount, verifyEmailForgotPassword, bodEmailRegister} = require('../utils/email_verify');
 const randomstring = require("randomstring");
 const {newError, errorHandler} = require('../utils/errorHandler');
-const upload = require('../utils/upload');
 const fs = require('fs');
 const axios = require('axios');
 
@@ -49,6 +48,10 @@ class _auth{
                 id_peternakan: checkUsername.id_peternakan
             });
             if (!token) newError(400, 'Failed to generate token', 'Login Service');
+
+            // Update lastAccess
+            const updateLastAccess = await this.db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: checkUsername.dataValues.id_user}});
+            if (!updateLastAccess) newError(500, 'Failed to update last access', 'Login Service');
 
             return {
                 code : 200,
