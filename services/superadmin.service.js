@@ -23,11 +23,39 @@ class _superAdmin{
                     {
                         model: this.db.Peternakan,
                         as: 'peternakan',
-                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat'],
+                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'subscribe', 'postcode', 'longitude', 'latitude', 'alamat_postcode'],
                     }
                 ],
                 where : req.query });
             if(list.length <= 0) newError(404, 'Data Users not found', 'getUsers Service');
+
+            return {
+                code: 200,
+                data: {
+                    total: list.length,
+                    list
+                }
+            };
+        }catch (error){
+            return errorHandler(error);
+        }
+    }
+
+    // Get Peternakan
+    getPeternakan = async (req) => {
+        try{
+            // Get data peternakan
+            const list = await this.db.Peternakan.findAll({
+                attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'subscribe', 'postcode', 'longitude', 'latitude', 'alamat_postcode'],
+                include: [
+                    {
+                        model: this.db.AuthUser,
+                        as: 'user',
+                        attributes: ['id_user', 'image', 'nama_pengguna', 'email', 'nomor_telepon', 'role', 'status'],
+                    }
+                ],
+                where : req.query });
+            if(list.length <= 0) newError(404, 'Data Peternakan not found', 'getPeternakan Service');
 
             return {
                 code: 200,

@@ -11,8 +11,16 @@ const superAdminController = (db) => {
     /**
      * List User
      */
-    SuperAdminController.get('/', authentication, superAdminMiddleware, async (req, res, next) => {
+    SuperAdminController.get('/users', authentication, superAdminMiddleware, async (req, res, next) => {
         const list = await s$superAdmin.getUsers(req);
+        response.sendResponse(res, list);
+    });
+
+    /**
+     * Get Peternakan
+     */
+    SuperAdminController.get('/peternakan', authentication, superAdminMiddleware, async (req, res, next) => {
+        const list = await s$superAdmin.getPeternakan(req);
         response.sendResponse(res, list);
     });
 
