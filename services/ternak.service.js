@@ -39,7 +39,8 @@ class _ternak {
 
             // Add id_peternakan to params
             req.query.id_peternakan = req.dataAuth.id_peternakan
-            req.query.status_keluar = null
+            req.query.status_keluar = null,
+            req.query.tanggal_keluar = null
             // Query data
             const list = await this.db.Ternak.findAll({
                 attributes: ['id_ternak',
@@ -285,7 +286,8 @@ class _ternak {
 
             // Add id_peternakan to params
             req.query.id_peternakan = req.dataAuth.id_peternakan
-            req.query.status_keluar = null
+            req.query.status_keluar = null,
+            req.query.tanggal_keluar = null
             // Query data
             const list = await this.db.Ternak.findAll({
                 attributes: ['id_ternak', 'tanggal_lahir'],
@@ -718,7 +720,9 @@ class _ternak {
                 ],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: statusTernak.dataValues.id_status_ternak
+                    id_status_ternak: statusTernak.dataValues.id_status_ternak,
+                    status_keluar: null,
+                    tanggal_keluar: null
                 },
                 order: [['createdAt', 'DESC']]
             });
@@ -851,7 +855,9 @@ class _ternak {
                 ],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_status_ternak: statusTernak.dataValues.id_status_ternak
+                    id_status_ternak: statusTernak.dataValues.id_status_ternak,
+                    status_keluar: null,
+                    tanggal_keluar: null
                 },
                 order: [['createdAt', 'DESC']]
             });
