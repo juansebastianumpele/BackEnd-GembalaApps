@@ -178,7 +178,7 @@ class _auth{
                     {
                         model: this.db.Peternakan,
                         as: 'peternakan',
-                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'postcode', 'alamat_postcode']
+                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'postcode', 'alamat_postcode', 'longitude', 'latitude']
                     }
                 ],
                 where : {
