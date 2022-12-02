@@ -455,7 +455,7 @@ class _auth{
             let isUnique = false;
             let countRandom = 0;
             while(!isUnique){
-                const username = email.split('@')[0] + (countRandom <= 0 ? '' : randomstring.generate(countRandom));
+                const username = value.email.split('@')[0] + (countRandom <= 0 ? '' : randomstring.generate(countRandom));
                 const checkUsername = await this.db.AuthUser.findOne({where : {nama_pengguna: username}});
                 if (checkUsername == null) {
                     isUnique = true;
