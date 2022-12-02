@@ -20,6 +20,14 @@ module.exports = {
       role: 'admin',
       status: 'active',
       kata_sandi: await hashPassword('12345678')
+    },{
+      nama_pengguna: 'admin2',
+      email: 'admin2@email.com',
+      nomor_telepon: '081315372232',
+      id_peternakan: 2,
+      role: 'admin',
+      status: 'active',
+      kata_sandi: await hashPassword('12345678')
     }], {});
   },
 

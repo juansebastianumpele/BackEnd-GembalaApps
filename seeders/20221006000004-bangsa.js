@@ -11,6 +11,9 @@ module.exports = {
         bangsa: 'Texel'
       },
       {
+        bangsa: 'Taxel Cross'
+      },
+      {
         bangsa: 'Dorper'
       },
       {
