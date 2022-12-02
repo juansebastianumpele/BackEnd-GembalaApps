@@ -62,6 +62,15 @@ const authController = (db) =>{
         const detail = await s$auth.uploadImage(req, res, next);
         response.sendResponse(res, detail);
     });
+
+    /**
+     * Delete photo profile
+     */
+    AuthController.delete('/photo-profile', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$auth.deleteImage(req, res, next);
+        response.sendResponse(res, detail);
+    });
+
     // /**
     //  * Upload photo profile
     //  */

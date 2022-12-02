@@ -539,6 +539,40 @@ class _auth{
             return errorHandler(error);
         }
     }
+
+    deleteImage = async (req, res, next) => {
+        const t = await this.db.sequelize.transaction();
+        try {
+            const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
+            if (!checkUser) newError(400, 'User not found', 'DeleteImage Service');
+
+            if (checkUser.dataValues.image != null) {
+                const updatedImage = await this.db.AuthUser.update({image: null}, {where: {id_user: req.dataAuth.id_user}, transaction: t});
+                if (updatedImage <= 0) newError(500, 'Failed to delete image', 'DeleteImage Service');
+
+                const path = __basedir + '/public/static/images/' + checkUser.dataValues.image;
+                if (fs.existsSync(path)) {
+                    fs.unlinkSync(path);
+                }
+
+                // Commit transaction
+                await t.commit();
+                return {
+                    code: 200,
+                    data: {
+                        id_user: req.dataAuth.id_user,
+                        updatedAt: new Date()
+                    }
+                }
+            }else{
+                newError(400, 'Image not found', 'DeleteImage Service');
+            }
+        } catch (error) {
+            await t.rollback();
+            return errorHandler(error);
+        }
+    }
+
 }
 
 module.exports = (db) => new _auth(db);
