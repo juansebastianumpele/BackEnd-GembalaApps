@@ -453,13 +453,15 @@ class _auth{
 
             // Generate random nama_pengguna
             let isUnique = false;
+            let countRandom = 0;
             while(!isUnique){
-                const randomUsername = randomstring.generate(10);
-                const checkUsername = await this.db.AuthUser.findOne({where : {nama_pengguna: randomUsername}});
+                const username = email.split('@')[0] + (countRandom <= 0 ? '' : randomstring.generate(countRandom));
+                const checkUsername = await this.db.AuthUser.findOne({where : {nama_pengguna: username}});
                 if (checkUsername == null) {
                     isUnique = true;
-                    value.nama_pengguna = randomUsername;
+                    value.nama_pengguna = username;
                 }
+                countRandom++;
             }
 
             // Generate Random password
