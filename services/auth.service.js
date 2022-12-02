@@ -188,6 +188,19 @@ class _auth{
             if(!list) newError(400, 'Failed to get profile', 'Get Profile Service');
 
             list.dataValues.image = list.dataValues.image ? `${req.protocol}://${req.get('host')}/avatar/${list.image}` : null;
+
+            // Return peternakan based on token for superadmin
+            if(req.dataAuth.role === 'superadmin') {
+                const peternakan = await this.db.Peternakan.findOne({
+                    attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'postcode', 'alamat_postcode', 'longitude', 'latitude'],
+                    where: {
+                        id_peternakan: req.dataAuth.id_peternakan
+                    }
+                });
+                if(!peternakan) newError(400, 'Failed to get peternakan', 'Get Profile Service');
+                list.dataValues.peternakan = peternakan;
+            }
+
             return {
                 code: 200,
                 data: list
