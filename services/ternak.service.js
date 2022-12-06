@@ -415,6 +415,7 @@ class _ternak {
             if(req.dataAuth && !req.dataAuth.is_premium_farm){
                 // Check ternak count
                 const ternakCount = await this.db.Ternak.count({where: {id_peternakan: req.dataAuth.id_peternakan}});
+                console.log(ternakCount)
                 if(ternakCount >= config.premiumFarm.limitTernak) {
                     newError(403, `Max ternak is ${config.premiumFarm.limitTernak}, please upgrade your account to premium`, 'createTernak Service');
                 }
