@@ -13,9 +13,9 @@ module.exports = {
 
   // configuration verification email
   auth:{
-    email: "test.gembala@gmail.com",
-    password: "gembalaapp1",
-    password_app: "owoawahhflzhwkcf",
+    email: "cs.gembala@gmail.com",
+    password: "CS.Gembala",
+    password_app: "rvdkurrjeliffqwj",
     url_redirect_verify: "http://gembala.sembadafarm.com/verify/success-verify"
   },
 

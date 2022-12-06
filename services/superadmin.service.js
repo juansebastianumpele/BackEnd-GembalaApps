@@ -23,7 +23,7 @@ class _superAdmin{
                     {
                         model: this.db.Peternakan,
                         as: 'peternakan',
-                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'subscribe', 'postcode', 'longitude', 'latitude', 'alamat_postcode'],
+                        attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'subscribe', 'postcode', 'longitude', 'latitude', 'alamat_postcode', 'token'],
                     }
                 ],
                 where : req.query });
@@ -46,7 +46,7 @@ class _superAdmin{
         try{
             // Get data peternakan
             const list = await this.db.Peternakan.findAll({
-                attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'subscribe', 'postcode', 'longitude', 'latitude', 'alamat_postcode'],
+                attributes: ['id_peternakan', 'nama_peternakan', 'alamat', 'subscribe', 'postcode', 'longitude', 'latitude', 'alamat_postcode', 'token'],
                 include: [
                     {
                         model: this.db.AuthUser,
