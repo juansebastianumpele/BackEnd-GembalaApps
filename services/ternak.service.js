@@ -6,6 +6,7 @@ const { newError, errorHandler } = require('../utils/errorHandler');
 const { Op } = require('sequelize');
 const { log_info } = require('../utils/logging');
 const premiumFarmChecker = require('../utils/premium_farm_checker')
+const config = require('../config/app.config')
 
 class _ternak {
     constructor(db) {
@@ -411,8 +412,13 @@ class _ternak {
             if (error) newError(400, error.details[0].message, 'createTernak Service');
 
             // Check is premium user
-            const {err} = await premiumFarmChecker(this.db, req);
-            if(err) newError(403, err, 'createTernak Service');
+            if(req.dataAuth && !req.dataAuth.is_premium_farm){
+                // Check ternak count
+                const ternakCount = await this.db.Ternak.count({where: {id_peternakan: req.dataAuth.id_peternakan}});
+                if(ternakCount >= config.premiumFarm.limitTernak) {
+                    newError(403, `Max ternak is ${config.premiumFarm.limitTernak}, please upgrade your account to premium`, 'createTernak Service');
+                }
+            } 
 
             // Validate tanggal_lahir
             if (value.tanggal_lahir && new Date(value.tanggal_lahir) > new Date()) newError(400, 'Tanggal lahir must be less than today', 'createTernak Service');
