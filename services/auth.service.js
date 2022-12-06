@@ -8,6 +8,7 @@ const randomstring = require("randomstring");
 const {newError, errorHandler} = require('../utils/errorHandler');
 const fs = require('fs');
 const axios = require('axios');
+const { Op } = require("sequelize");
 
 
 class _auth{
@@ -71,7 +72,7 @@ class _auth{
         try{
             // Validate data
             const schema = joi.object({
-                nama_pengguna: joi.string().alphanum().min(4).max(30).required(),
+                nama_pengguna: joi.string().min(4).max(30).required(),
                 email: joi.string().email().required(),
                 nomor_telepon: joi.string().required(),
                 alamat: joi.string().required(),
@@ -86,6 +87,10 @@ class _auth{
             // Check if user exist
             const checkUsername = await this.db.AuthUser.findOne({where : {nama_pengguna: value.nama_pengguna}});
             if (checkUsername) newError(400, 'Username already exist', 'Register Service');
+
+            // check nomor telepon
+            const checkNomorTelepon = await this.db.AuthUser.findOne({where : {nomor_telepon: value.nomor_telepon}});
+            if (checkNomorTelepon) newError(400, 'Phone number already exist', 'Register Service');
 
             // check if email exist
             const checkEmail = await this.db.AuthUser.findOne({where : {email: value.email}});
@@ -249,7 +254,7 @@ class _auth{
     updateAccount = async (req) => {
         // Validate data
         const schema = joi.object({
-            nama_pengguna: joi.string().required(),
+            nama_pengguna: joi.string().min(4).max(30).required(),
             nomor_telepon: joi.string().required(),
             alamat: joi.string().required(),
             postcode: joi.string().required(),
@@ -265,6 +270,24 @@ class _auth{
         // Check peternakan
         const checkPeternakan = await this.db.Peternakan.findOne({where : {id_peternakan: checkUser.id_peternakan}});
         if (!checkPeternakan) newError(400, 'Peternakan not found', 'UpdateAccount Service');
+
+        // Check nomor telepon
+        const checkNomorTelepon = await this.db.AuthUser.findOne({where : {
+            nomor_telepon: value.nomor_telepon,
+            id_user: {
+                [Op.ne]: req.dataAuth.id_user
+            }
+        }});
+        if (checkNomorTelepon) newError(400, 'Nomor telepon already exist', 'UpdateAccount Service');
+
+        // check username
+        const checkUsername = await this.db.AuthUser.findOne({where : {
+            nama_pengguna: value.nama_pengguna,
+            id_user: {
+                [Op.ne]: req.dataAuth.id_user
+            }
+        }});
+        if (checkUsername) newError(400, 'Username already exist', 'UpdateAccount Service');
 
         // if postcode is changed
         let geocode;
