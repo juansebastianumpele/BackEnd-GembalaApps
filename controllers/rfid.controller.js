@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const rfidAuth = require('../middlewares/rfid_auth');
 const rfidService = require('../services/rfid.service');
 const response = require('../utils/response');
 
@@ -12,7 +13,7 @@ const rfidController = (db) => {
      * @param {number} id_peternakan
      * @param {string} jenis_ternak_baru
     */
-    RfidController.post('/add-data', async (req, res, next) => {
+    RfidController.post('/add-data', rfidAuth, async (req, res, next) => {
         const detail = await s$rfid.rfid(req);
         response.sendResponse(res, detail);
     } );

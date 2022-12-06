@@ -388,12 +388,30 @@ class _auth{
             const decoded = jwt.verify(token, config.jwt.secret)
             
             if(decoded.message == 'verification'){
+                const user = await this.db.AuthUser.findOne({where : {id_user: decoded.id_user}});
+                if (!user) newError(400, 'User not found', 'VerifyAccount Service');
+                if(user.dataValues.status == 'active') newError(400, 'User already verified', 'VerifyAccount Service');
+
                 const activateAccount = await this.db.AuthUser.update({status: 'active'}, {where: {id_user: decoded.id_user}});
                 if (activateAccount <= 0) newError(500, 'Failed to activate account', 'VerifyAccount Service');
             }else{
                 newError(400, 'Invalid token', 'VerifyAccount Service');
             }
-            
+
+            console.log(decoded)
+
+            // Generate token for peternakan
+            const tokenPeternakan = jwt.sign({
+                id_peternakan: decoded.id_peternakan
+            }, config.jwt.secret);
+
+            const createFarmToken = await this.db.Peternakan.update({
+                token: tokenPeternakan
+            }, {
+                where: {id_peternakan: decoded.id_peternakan}
+            });
+            if (createFarmToken <= 0) newError(500, 'Failed to create token', 'VerifyAccount Service');
+
             return {
                 code: 200,
                 data: {

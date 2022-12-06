@@ -2,6 +2,7 @@ const joi = require('joi');
 const {newError, errorHandler} = require('../utils/errorHandler');
 const premiumFarmChecker = require('../utils/premium_farm_checker');
 const { Op } = require("sequelize");
+const config = require('../config/app.config');
 
 class _rfid{
     constructor(db){
@@ -12,12 +13,15 @@ class _rfid{
         try {
             // Validate data
             const schema = joi.object({
+                token: joi.string().required(),
                 rf_id: joi.string().required(),
-                id_peternakan: joi.number().required(),
                 jenis_ternak_baru: joi.string().required(),
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'rfid Service');
+
+            // Check auth rfid
+            if(!req.dataAuth) newError(401, 'Not authorized, no token', 'rfid Service');
 
             // Check jenis ternak baru
             if (value.jenis_ternak_baru.toLowerCase() !== "ternak baru" && value.jenis_ternak_baru.toLowerCase() !== "kelahiran") newError(400, "Jenis Ternak Baru must be 'Ternak Baru' or 'Kelahiran'", 'rfid Service');
@@ -31,7 +35,7 @@ class _rfid{
                 attributes: ['id_ternak'],
                 where: {
                     rf_id: value.rf_id,
-                    id_peternakan: value.id_peternakan
+                    id_peternakan: req.dataAuth.id_peternakan
                 }
             })
             if(checkTernak.length > 0){
@@ -45,13 +49,13 @@ class _rfid{
             }
 
             // Check is premium farm
-            const farmData = await this.db.Peternakan.findOne({ where: { id_peternakan: value.id_peternakan, subscribe: { [Op.not]: null } } });
-            req.dataAuth = {
-                is_premium_farm: farmData ? true : false,
-                id_peternakan: value.id_peternakan
-            }
-            const {err} = await premiumFarmChecker(this.db, req);
-            if(err) {return{code: 403, data: {message: err}}}
+            if(req.dataAuth && !req.dataAuth.is_premium_farm){
+                // Check ternak count
+                const ternakCount = await this.db.Ternak.count({where: {id_peternakan: req.dataAuth.id_peternakan}});
+                if(ternakCount >= config.premiumFarm.limitTernak) {
+                    newError(403, `Max ternak is ${config.premiumFarm.limitTernak}, please upgrade your account to premium`, 'rfid Service');
+                }
+            } 
 
             // Get data fase pemasukan
             const idFasePemasukan = await this.db.Fase.findOne({
@@ -65,7 +69,7 @@ class _rfid{
             // Add New Ternak
             const addTernak = await this.db.Ternak.create({
                 rf_id: value.rf_id,
-                id_peternakan: value.id_peternakan,
+                id_peternakan: req.dataAuth.id_peternakan,
                 id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (statusTernakCempe ? statusTernakCempe.dataValues.id_status_ternak : null) : null,
                 id_fp: value.jenis_ternak_baru.toLowerCase() == "ternak baru" ? idFasePemasukan.dataValues.id_fp : null
             })
@@ -74,7 +78,7 @@ class _rfid{
             // Create riwayat fase
             if(addTernak.dataValues.id_fp){
                 const addRiwayatFase = await this.db.RiwayatFase.create({
-                    id_peternakan: value.id_peternakan,
+                    id_peternakan: req.dataAuth.id_peternakan,
                     id_ternak: addTernak.dataValues.id_ternak,
                     id_fp: addTernak.dataValues.id_fp,
                     tanggal: new Date()

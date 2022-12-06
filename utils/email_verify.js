@@ -8,6 +8,7 @@ const verifyNewAccount = async (dataAuth) => {
         {
             id_user: dataAuth.id_user,
             nama_pengguna: dataAuth.nama_pengguna,
+            id_peternakan: dataAuth.id_peternakan,
             message: 'verification'
         }, config.jwt.secret, {expiresIn: '1h'});
 
