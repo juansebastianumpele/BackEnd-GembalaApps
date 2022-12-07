@@ -58,7 +58,7 @@ class _lkPemasukan{
                 cek_telinga: joi.string().required(),
                 cek_kuku_kaki: joi.string().required(),
                 cek_kondisi_fisik_lain: joi.string().required(),
-                cek_bcs: joi.number().required(),
+                cek_bcs: joi.number().integer().min(1).max(5).required(),
                 id_status_ternak: joi.number().required(),
                 status_kesehatan: joi.string().required(),
                 id_kandang: joi.number().required(),
