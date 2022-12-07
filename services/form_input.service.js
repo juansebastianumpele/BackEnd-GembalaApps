@@ -1,5 +1,6 @@
 // Helper databse yang dibuat
 const {newError, errorHandler} = require('../utils/errorHandler');
+const { Op } = require('sequelize')
 
 class _formInput{
     constructor(db){
