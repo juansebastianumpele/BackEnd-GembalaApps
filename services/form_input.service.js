@@ -172,6 +172,16 @@ class _formInput{
                     tanggal_keluar: null
                 }
             })
+
+            // Get ternak
+            const ternak = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'rf_id'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    status_keluar: null,
+                    tanggal_keluar: null
+                }
+            })
                 
             return {
                 code: 200,
@@ -188,7 +198,8 @@ class _formInput{
                     ternak_jantan: ternakJantan,
                     ternak_betina: ternakBetina,
                     cempe_kelahiran: ternakKelahiran,
-                    dam_kelahiran: damKelahiran
+                    dam_kelahiran: damKelahiran,
+                    ternak: ternak
                 }
             }
 
