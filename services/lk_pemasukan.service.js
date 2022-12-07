@@ -53,7 +53,7 @@ class _lkPemasukan{
                 tanggal_masuk: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 id_bangsa: joi.number().required(),
                 jenis_kelamin: joi.string().required(),
-                cek_poel: joi.number().required(),
+                cek_poel: joi.number().integer().min(0).max(6).required(),
                 cek_mulut: joi.string().required(),
                 cek_telinga: joi.string().required(),
                 cek_kuku_kaki: joi.string().required(),
@@ -87,7 +87,7 @@ class _lkPemasukan{
                 id_kandang: value.id_kandang,
                 id_fp: fase.dataValues.id_fp,
                 id_status_ternak: value.id_status_ternak,
-                tanggal_lahir: date.setDate(date.getDate() - (value.cek_poel * 365)),
+                tanggal_lahir: value.cek_poel > 0 ? date.setDate(date.getDate() - (value.cek_poel * 365)) : new Date(),
             },{
                 where: {
                     id_ternak: value.id_ternak,
