@@ -88,17 +88,6 @@ class _adaptasi{
                 newError(400, 'Step must be between 1 and 5', 'getAdaptasiByStep');
             }
 
-            // Get data fase
-            // const fase = await this.db.Fase.findOne({
-            //     attributes: ['id_fp'],
-            //     where: {
-            //         fase: req.query.step == 5 ? "Waiting List Perkawinan" : `adaptasi ${parseInt(req.query.step) + 1}`
-            //     }
-            // });
-            // if(!fase){
-            //     newError(404, 'Fase not found', 'getAdaptasiByStep');
-            // }
-
             // Get data ternak by step adaptasi
             const ternakByStepAdaptasi = await this.db.Ternak.findAll({
                 attributes: ['id_ternak', 'rf_id'],
@@ -144,19 +133,12 @@ class _adaptasi{
                             j--;
                         }
                     }
-                }else{
+                }
+                if(ternakByStepAdaptasi[i].dataValues.adaptasi.length <= 0){
                     ternakByStepAdaptasi.splice(i, 1);
                     i--;
                 }
             }
-
-            // Remove ternak that has no treatment
-            // for(let i = 0; i < ternakByStepAdaptasi.length; i++){
-            //     if(ternakByStepAdaptasi[i].dataValues.adaptasi.length <= 0){
-            //         ternakByStepAdaptasi.splice(i, 1);
-            //         i--;
-            //     }
-            // }
 
             // Get treatment by step
             const treatmentByStep = await this.db.Treatment.findAll({
@@ -430,7 +412,7 @@ class _adaptasi{
                 list[i].dataValues.tanggal = list[i].dataValues.riwayat_fase.length > 0 ? list[i].dataValues.riwayat_fase[0].dataValues.tanggal : null;
                 delete list[i].dataValues.riwayat_fase
             }
-            
+
             return {
                 code: 200,
                 data: {
