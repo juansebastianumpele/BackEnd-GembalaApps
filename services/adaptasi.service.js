@@ -375,12 +375,9 @@ class _adaptasi{
     /// Get ternak by fase adaptasi
     getTernakByStep = async (req) => {
         try{
-            if(!req.query.step){
-                newError(400, 'Step is required', 'getTernakByStep');
-            }
-            if(req.query.step < 1 || req.query.step > 5){
-                newError(400, 'Step is not valid', 'getTernakByStep');
-            }
+            if(!req.query.step){newError(400, 'Step is required', 'getTernakByStep')};
+            if(req.query.step < 1 || req.query.step > 5){newError(400, 'Step is not valid', 'getTernakByStep')};
+
             // get data fase
             const fase = await this.db.Fase.findOne({
                 attributes: ['id_fp'],
@@ -388,9 +385,8 @@ class _adaptasi{
                     fase: `Adaptasi ${req.query.step}`
                 }
             });
-            if(!fase){
-                newError(404, 'Fase not found', 'getTernakByStep');
-            }
+            if(!fase){newError(404, 'Fase not found', 'getTernakByStep')};
+
             // Query Data
             const list = await this.db.Ternak.findAll({ 
                 attributes: ['id_ternak', 'rf_id'],
@@ -410,9 +406,7 @@ class _adaptasi{
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_fp: fase.dataValues.id_fp
                 } });
-            if(list.length <= 0){
-                newError(404, 'Data not found', 'getTernakByStep');
-            }
+            if(list.length <= 0){newError(404, 'Data not found', 'getTernakByStep')};
 
             // Get fase adaptasi 1
             const faseAdaptasi1 = await this.db.Fase.findOne({
@@ -421,10 +415,9 @@ class _adaptasi{
                     fase: 'Adaptasi 1'
                 }
             });
-            if(!faseAdaptasi1){
-                newError(404, 'Fase Adaptasi 1 not found', 'getTernakByStep');
-            }
+            if(!faseAdaptasi1){newError(404, 'Fase Adaptasi 1 not found', 'getTernakByStep')};
 
+            // Ambil riwayat fase pertama kali
             for(let i = 0; i < list.length; i++){
                 // filter data riwayat fase adaptasi 1
                 list[i].dataValues.riwayat_fase = list[i].dataValues.riwayat_fase.length > 0 
@@ -437,7 +430,7 @@ class _adaptasi{
                 list[i].dataValues.tanggal = list[i].dataValues.riwayat_fase.length > 0 ? list[i].dataValues.riwayat_fase[0].dataValues.tanggal : null;
                 delete list[i].dataValues.riwayat_fase
             }
-
+            
             return {
                 code: 200,
                 data: {

@@ -101,7 +101,7 @@ class _lkPemasukan{
             const riwayatFase = await this.db.RiwayatFase.create({
                 id_ternak: value.id_ternak,
                 id_fp: fase.dataValues.id_fp,
-                tanggal: date,
+                tanggal: value.tanggal_masuk || new Date(),
                 id_peternakan: req.dataAuth.id_peternakan
             },{ transaction: t });
             if(!riwayatFase) newError(400, 'Failed create riwayat fase', 'createLKPemasukan Service');
