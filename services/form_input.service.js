@@ -149,6 +149,29 @@ class _formInput{
                 }
             })
 
+            // Get fase kebuntingan
+            const faseKebuntingan = await this.db.Fase.findOne({where: {fase: 'Kebuntingan'}})
+            if(!faseKebuntingan) newError(404, 'Data fase kebuntingan not found', 'getDataFormInput Service')
+
+            // Get fase laktasi
+            const faseLaktasi = await this.db.Fase.findOne({where: {fase: 'Laktasi'}})
+            if(!faseLaktasi) newError(404, 'Data fase laktasi not found', 'getDataFormInput Service')
+
+            // Get indukan in faSE kebuntingan and laktasi
+            const damKelahiran = await this.db.Ternak.findAll({
+                attributes: ['id_ternak', 'rf_id'],
+                where: {
+                    id_peternakan: req.dataAuth.id_peternakan,
+                    jenis_kelamin: 'Betina',
+                    id_fp: {
+                        [Op.or]: [faseKebuntingan.dataValues.id_fp, faseLaktasi.dataValues.id_fp]
+                    },
+                    id_status_ternak: statusIndukan.dataValues.id_status_ternak,
+                    status_keluar: null,
+                    tanggal_keluar: null
+                }
+            })
+                
             return {
                 code: 200,
                 data: {
@@ -163,7 +186,8 @@ class _formInput{
                     pejantan_perkawinan: pejantanInPerkawinan,
                     ternak_jantan: ternakJantan,
                     ternak_betina: ternakBetina,
-                    cempe_kelahiran: ternakKelahiran
+                    cempe_kelahiran: ternakKelahiran,
+                    dam_kelahiran: damKelahiran
                 }
             }
 
