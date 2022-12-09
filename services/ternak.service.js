@@ -428,7 +428,7 @@ class _ternak {
             if (value.tanggal_masuk && new Date(value.tanggal_masuk) > new Date()) newError(400, 'Tanggal masuk must be less than today', 'createTernak Service');
 
             // Validate fase
-            if(value.jenis_kelamin.toLowerCase() == 'jantan' && value.id_fp){
+            if(value.jenis_kelamin && value.jenis_kelamin.toLowerCase() == 'jantan' && value.id_fp){
                 if(value.id_fp == 7){
                     newError(400, 'Jantan cannot be in fase Waiting List Perkawinan', 'createTernak Service')
                 }else if(value.id_fp == 9){
@@ -535,7 +535,7 @@ class _ternak {
             if (value.tanggal_masuk && new Date(value.tanggal_masuk) > new Date()) newError(400, 'Tanggal masuk must be less than today', 'createTernak Service');
 
             // Validate fase
-            if(value.jenis_kelamin.toLowerCase() == 'jantan' && value.id_fp){
+            if(value.jenis_kelamin && value.jenis_kelamin.toLowerCase() == 'jantan' && value.id_fp){
                 if(value.id_fp == 7){
                     newError(400, 'Jantan cannot be in fase Waiting List Perkawinan', 'createTernak Service')
                 }else if(value.id_fp == 9){
