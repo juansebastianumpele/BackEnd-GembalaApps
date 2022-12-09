@@ -427,6 +427,17 @@ class _ternak {
             // Validate tanggal_masuk
             if (value.tanggal_masuk && new Date(value.tanggal_masuk) > new Date()) newError(400, 'Tanggal masuk must be less than today', 'createTernak Service');
 
+            // Validate fase
+            if(value.jenis_kelamin.toLowerCase() == 'jantan' && value.id_fp){
+                if(value.id_fp == 7){
+                    newError(400, 'Jantan cannot be in fase Waiting List Perkawinan', 'createTernak Service')
+                }else if(value.id_fp == 9){
+                    newError(400, 'Jantan cannot be in fase Kebuntingan', 'createTernak Service')
+                }else if(value.id_fp == 10){
+                    newError(400, 'Jantan cannot be in fase Laktasi', 'createTernak Service')
+                }
+            }
+
             // Check if Ternak already exist
             const ternak = await this.db.Ternak.findOne({where: {rf_id: value.rf_id}});
             if (ternak) newError(400, 'RFID Ternak already exist', 'createTernak Service');
@@ -517,6 +528,23 @@ class _ternak {
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'updateTernak Service');
 
+            // Validate tanggal_lahir
+            if (value.tanggal_lahir && new Date(value.tanggal_lahir) > new Date()) newError(400, 'Tanggal lahir must be less than today', 'createTernak Service');
+
+            // Validate tanggal_masuk
+            if (value.tanggal_masuk && new Date(value.tanggal_masuk) > new Date()) newError(400, 'Tanggal masuk must be less than today', 'createTernak Service');
+
+            // Validate fase
+            if(value.jenis_kelamin.toLowerCase() == 'jantan' && value.id_fp){
+                if(value.id_fp == 7){
+                    newError(400, 'Jantan cannot be in fase Waiting List Perkawinan', 'createTernak Service')
+                }else if(value.id_fp == 9){
+                    newError(400, 'Jantan cannot be in fase Kebuntingan', 'createTernak Service')
+                }else if(value.id_fp == 10){
+                    newError(400, 'Jantan cannot be in fase Laktasi', 'createTernak Service')
+                }
+            }
+
             // Check if Ternak exist
             const ternak = await this.db.Ternak.findOne({where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan}});
             if (!ternak) newError(404, 'Ternak not found', 'updateTernak Service');
@@ -547,12 +575,23 @@ class _ternak {
 
             // Create timbangan
             if (value.berat || value.suhu) {
+                // Get latest timbangan
+                const latest_timbangan = await this.db.Timbangan.findOne({
+                    where: {
+                        id_ternak: ternak.dataValues.id_ternak
+                    },
+                    order: [
+                        ['tanggal_timbang', 'DESC']
+                    ],
+                    limit: 1
+                });
+
                 // Add Timbangan
                 const timbangan = await this.db.Timbangan.create({
                     id_ternak: ternak.dataValues.id_ternak,
                     rf_id: value.rf_id || ternak.dataValues.rf_id,
-                    berat: value.berat ? value.berat : 0,
-                    suhu: value.suhu ? value.suhu : 0,
+                    berat: value.berat || (latest_timbangan && latest_timbangan.dataValues.berat ? latest_timbangan.dataValues.berat : 0),
+                    suhu: value.suhu || (latest_timbangan && latest_timbangan.dataValues.suhu ? latest_timbangan.dataValues.suhu : 0),
                     tanggal_timbang: new Date(),
                 }, {transaction: t});
                 if (!timbangan) newError(500, 'Failed to create Timbangan', 'updateTernak Service');

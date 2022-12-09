@@ -182,6 +182,19 @@ class _formInput{
                     tanggal_keluar: null
                 }
             })
+
+            // Get fase
+            const fase = await this.db.Fase.findAll({
+                attributes: ['id_fp', 'fase']
+            })
+            for(let i = 0; i < fase.length; i++){
+                if(fase[i].dataValues.fase.toLowerCase() === "adaptasi 1"){
+                    fase[i].dataValues.fase = "Adaptasi"
+                }else if(fase[i].dataValues.fase.toLowerCase() !== "adaptasi 1" && fase[i].dataValues.fase.toLowerCase().startsWith("adaptasi")){
+                    fase.splice(i, 1)
+                    i--
+                }
+            }
                 
             return {
                 code: 200,
@@ -199,7 +212,8 @@ class _formInput{
                     ternak_betina: ternakBetina,
                     cempe_kelahiran: ternakKelahiran,
                     dam_kelahiran: damKelahiran,
-                    ternak: ternak
+                    ternak: ternak,
+                    fase: fase
                 }
             }
 
