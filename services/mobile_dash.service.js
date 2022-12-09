@@ -19,7 +19,7 @@ class _mobileDash{
 
             // Get total ternak
             const ternak = await this.db.Ternak.findAll({
-                attributes: ['id_ternak'],
+                attributes: ['id_ternak', 'jenis_kelamin'],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_fp: {
