@@ -57,10 +57,23 @@ class _mobileDash{
             // Get total ternak sehat
             const totalTernakSehat = totalTernak - ternakSakit;
 
+            // Get total jantan and betina
+            let totalJantan = 0;
+            let totalBetina = 0;
+            for(let i = 0; i < ternak.length; i++){
+                if(ternak[i].dataValues.jenis_kelamin.toLowerCase() === 'jantan'){
+                    totalJantan++;
+                }else if(ternak[i].dataValues.jenis_kelamin.toLowerCase() === 'betina')
+                    totalBetina++;
+            }
+
+
             return {
                 code: 200,
                 data: {
                     total_ternak: totalTernak,
+                    total_ternak_jantan: totalJantan,
+                    total_ternak_betina: totalBetina,
                     total_kandang: totalKandang,
                     total_ternak_sakit: ternakSakit,
                     total_ternak_sehat: totalTernakSehat
