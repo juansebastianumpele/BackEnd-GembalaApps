@@ -8,30 +8,6 @@ class _populasi{
     // Get data populasi
     getPopulasi = async (req) => {
         try {
-            // let ternakMasuk = {};
-            // let ternakKeluar = {};
-            // let populasi = {};
-            // const thisYear = new Date().getFullYear();
-            // for(let i = 1; i <= 12; i++){
-            //     ternakMasuk[`${thisYear}-${i}`] = await this.db.Ternak.count({
-            //         attributes: ['tanggal_masuk'],
-            //         where: {
-            //             tanggal_masuk: {
-            //                 [Op.between]: [new Date(thisYear, i-1, 0), new Date(thisYear, i, 1)]
-            //             }
-            //         }
-            //     });
-            //     ternakKeluar[`${thisYear}-${i}`] = await this.db.Ternak.count({
-            //         where: {
-            //             tanggal_keluar: {
-            //                 [Op.between]: [new Date(thisYear, i-1, 0), new Date(thisYear, i, 1)]
-            //             }
-            //         }
-            //     });
-            //     populasi[`${thisYear}-${i}`] = (ternakMasuk[`${thisYear}-${i}`] - ternakKeluar[`${thisYear}-${i}`]) + (populasi[`${thisYear}-${i-1}`] || 0);
-            //     console.log(populasi[`${thisYear}-${i}`]);
-            // }
-
             const thisYear = new Date().getFullYear();
             let data = {};
             for(let i = 1; i <= 12; i++){
@@ -47,36 +23,20 @@ class _populasi{
                     where: {
                         tanggal_masuk: {
                             [Op.between]: [new Date(thisYear, i-1, 0), new Date(thisYear, i, 1)]
-                        }
+                        },
+                        id_peternakan: req.dataAuth.id_peternakan
                     }
                 });
                 data[`${thisYear}-${i}`].keluar = await this.db.Ternak.count({
                     where: {
                         tanggal_keluar: {
                             [Op.between]: [new Date(thisYear, i-1, 0), new Date(thisYear, i, 1)]
-                        }
+                        },
+                        id_peternakan: req.dataAuth.id_peternakan
                     }
                 });
                 data[`${thisYear}-${i}`].populasi = (data[`${thisYear}-${i}`].masuk - data[`${thisYear}-${i}`].keluar) + (data[`${thisYear}-${i-1}`] ? data[`${thisYear}-${i-1}`].populasi : 0);
             }
-
-            // return{
-            //     code: 200,
-            //     data: {
-            //         ternak_masuk: {
-            //             total: Object.keys(ternakMasuk).length,
-            //             list: Object.keys(ternakMasuk).length > 0 ? ternakMasuk : null
-            //         },
-            //         ternak_keluar: {
-            //             total: Object.keys(ternakKeluar).length,
-            //             list: Object.keys(ternakKeluar).length > 0 ? ternakKeluar : null
-            //         },
-            //         populasi: {
-            //             total: Object.keys(populasi).length,
-            //             list: Object.keys(populasi).length > 0 ? populasi : null
-            //         }
-            //     }
-            // }
             return{
                 code: 200,
                 data: {

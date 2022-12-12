@@ -8,6 +8,7 @@ const verifyNewAccount = async (dataAuth) => {
         {
             id_user: dataAuth.id_user,
             nama_pengguna: dataAuth.nama_pengguna,
+            id_peternakan: dataAuth.id_peternakan,
             message: 'verification'
         }, config.jwt.secret, {expiresIn: '1h'});
 
@@ -36,6 +37,7 @@ const verifyEmailForgotPassword = async (dataAuth, newPass) => {
     
     return emailVerify(dataAuth.email, 'Forgot Password', message);
 }
+
 const bodEmailRegister = async (email, pass) => {
     message = `<h1>REGISTER ACCOUNT GEMBALA</h1>
                 <h2>Hi</h2>

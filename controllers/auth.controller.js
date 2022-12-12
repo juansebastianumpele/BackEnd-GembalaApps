@@ -4,6 +4,7 @@ const authentication = require('../middlewares/authentication');
 const {adminMiddleware, superAdminMiddleware} = require('../middlewares/authorization');
 const authService = require('../services/auth.service');
 const { auth } = require('../config/app.config');
+const upload = require('../utils/upload');
 
 const authController = (db) =>{
     const s$auth = authService(db);
@@ -53,6 +54,30 @@ const authController = (db) =>{
         const detail = await s$auth.getProfile(req);
         response.sendResponse(res, detail);
     });
+
+    /**
+     * Upload photo profile
+     */
+    AuthController.post('/photo-profile', authentication, adminMiddleware, upload.single('avatar'), async (req, res, next) => {
+        const detail = await s$auth.uploadImage(req, res, next);
+        response.sendResponse(res, detail);
+    });
+
+    /**
+     * Delete photo profile
+     */
+    AuthController.delete('/photo-profile', authentication, adminMiddleware, async (req, res, next) => {
+        const detail = await s$auth.deleteImage(req, res, next);
+        response.sendResponse(res, detail);
+    });
+
+    // /**
+    //  * Upload photo profile
+    //  */
+    // AuthController.post('/photo-profile', authentication, adminMiddleware, async (req, res, next) => {
+    //     const detail = await s$auth.uploadImage(req, res, next);
+    //     response.sendResponse(res, detail);
+    // });
 
     /**
      * Delete Account

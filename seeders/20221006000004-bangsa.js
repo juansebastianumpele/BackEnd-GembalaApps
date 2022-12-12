@@ -11,6 +11,9 @@ module.exports = {
         bangsa: 'Texel'
       },
       {
+        bangsa: 'Texel Cross'
+      },
+      {
         bangsa: 'Dorper'
       },
       {
@@ -63,10 +66,7 @@ module.exports = {
       },
       {
         bangsa: 'Merino'
-      },
-      {
-        bangsa: 'Lainnya'
-      },
+      }
     ], {});
   },
 

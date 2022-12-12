@@ -18,7 +18,7 @@ class _kebuntingan{
                     fase: 'Kebuntingan'
                 }
             });
-            if(!faseKebuntingan) newError(404, 'Fase Kebuntingan not found', 'getKandangKebuntingan Service');
+            if(!faseKebuntingan) newError(404, 'Fase Kebuntingan tidak ditemukan', 'getKandangKebuntingan Service');
 
             // Get ternak in fase kebuntingan
             const ternak = await this.db.Ternak.findAll({
@@ -33,7 +33,7 @@ class _kebuntingan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(ternak.length <= 0) newError(404, 'Data Ternak not found', 'getKandangKebuntingan Service');
+            if(ternak.length <= 0) newError(404, 'Data Ternak tidak ditemukan', 'getKandangKebuntingan Service');
             
             // Get kandang
             const kandang = await this.db.Kandang.findAll({
@@ -42,7 +42,7 @@ class _kebuntingan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(kandang.length <= 0) newError(404, 'Data Kandang not found', 'getKandangKebuntingan Service');
+            if(kandang.length <= 0) newError(404, 'Data Kandang tidak ditemukan', 'getKandangKebuntingan Service');
             
             // Get data ternak in kandang
             let dataKandang  = [];
@@ -85,7 +85,7 @@ class _kebuntingan{
                     fase: 'Kebuntingan'
                 }
             });
-            if(!faseKebuntingan) newError(404, 'Fase Kebuntingan not found', 'getDataTernakInKandang Service');
+            if(!faseKebuntingan) newError(404, 'Fase Kebuntingan tidak ditemukan', 'getDataTernakInKandang Service');
 
             // Add params
             req.query.id_fp = faseKebuntingan.dataValues.id_fp;
@@ -107,7 +107,7 @@ class _kebuntingan{
                 ],
                 where: req.query
             });
-            if(ternak.length <= 0) newError(404, 'Data Ternak not found', 'getDataTernakInKandang Service');
+            if(ternak.length <= 0) newError(404, 'Data Ternak tidak ditemukan', 'getDataTernakInKandang Service');
 
             for(let i = 0; i < ternak.length; i++){
                 ternak[i].dataValues.tanggal = ternak[i].dataValues.riwayat_fase.length > 0 ? ternak[i].dataValues.riwayat_fase[0].tanggal : null;
@@ -140,15 +140,15 @@ class _kebuntingan{
 
             // Get data fase kebuntingan
             const faseKebuntingan = await this.db.Fase.findOne({attributes: ['id_fp'], where: {fase: 'Kebuntingan'}});
-            if(!faseKebuntingan) newError(404, 'Fase Kebuntingan not found', 'setTernakAbortus Service');
+            if(!faseKebuntingan) newError(404, 'Fase Kebuntingan tidak ditemukan', 'setTernakAbortus Service');
 
             // Get data fase waiting list
             const faseWaitingList = await this.db.Fase.findOne({attributes: ['id_fp'], where: {fase: 'Waiting List Perkawinan'}});
-            if(!faseWaitingList) newError(404, 'Fase Waiting List not found', 'setTernakAbortus Service');
+            if(!faseWaitingList) newError(404, 'Fase Waiting List tidak ditemukan', 'setTernakAbortus Service');
 
             // Get data ternak
             const ternak = await this.db.Ternak.findOne({attributes: ['id_ternak'], where: {id_ternak: value.id_ternak, id_fp: faseKebuntingan.dataValues.id_fp, id_peternakan: req.dataAuth.id_peternakan}});
-            if(!ternak) newError(404, 'Data Ternak not found in fase kebuntingan', 'setTernakAbortus Service');
+            if(!ternak) newError(404, 'Data Ternak tidak ditemukan di fase kebuntingan', 'setTernakAbortus Service');
 
             // get data riwayat fase
             const riwayatFase = await this.db.RiwayatFase.findAll({
@@ -157,7 +157,7 @@ class _kebuntingan{
                 order: [['tanggal', 'DESC']],
                 limit: 1
             });
-            if(riwayatFase.length <= 0) newError(404, 'Data Riwayat Fase not found', 'setTernakAbortus Service');
+            if(riwayatFase.length <= 0) newError(404, 'Data Riwayat Fase tidak ditemukan', 'setTernakAbortus Service');
 
             // Get riwayat perkawinan
             const latestRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
@@ -166,14 +166,14 @@ class _kebuntingan{
                 order: [['createdAt', 'DESC']],
                 limit: 1
             });
-            if(latestRiwayatPerkawinan.length <= 0) newError(404, 'Data Riwayat Perkawinan not found', 'setTernakAbortus Service');
+            if(latestRiwayatPerkawinan.length <= 0) newError(404, 'Data Riwayat Perkawinan tidak ditemukan', 'setTernakAbortus Service');
 
             // Check total abortus
             const totalAbortus = await this.db.RiwayatKebuntingan.count({where: {id_indukan: value.id_ternak, status: 'Abortus'}});
 
             // Get status afkir
             const statusAfkir = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Afkir'}});
-            if(!statusAfkir) newError(404, 'Status Afkir not found', 'setTernakAbortus Service');
+            if(!statusAfkir) newError(404, 'Status Afkir tidak ditemukan', 'setTernakAbortus Service');
 
             // Check ternak if ternak afkir
             if(totalAbortus >= 2){
@@ -185,7 +185,7 @@ class _kebuntingan{
                     where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan},
                     transaction: t
                 });
-                if(updateStatusTernak <= 0) newError(500, 'Failed to update status ternak', 'setTernakAbortus Service');
+                if(updateStatusTernak <= 0) newError(500, 'Gagal mengubah status ternak', 'setTernakAbortus Service');
             }else{
                 // Update status ternak
                 const updateStatusTernak = await this.db.Ternak.update({
@@ -194,7 +194,7 @@ class _kebuntingan{
                     where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan},
                     transaction: t
                 });
-                if(updateStatusTernak <= 0) newError(500, 'Failed to update status ternak', 'setTernakAbortus Service');
+                if(updateStatusTernak <= 0) newError(500, 'Gagal mengubah status ternak', 'setTernakAbortus Service');
 
                 // Create riwayat fase
                 const historyFase = await this.db.RiwayatFase.create({
@@ -203,7 +203,7 @@ class _kebuntingan{
                     id_peternakan: req.dataAuth.id_peternakan,
                     tanggal: new Date()
                 },{transaction: t});
-                if(!historyFase) newError(500, 'Failed to create riwayat fase', 'setTernakAbortus Service');
+                if(!historyFase) newError(500, 'Gagal membuat riwayat fase', 'setTernakAbortus Service');
             }
 
             // Create riwayat kebuntingan
@@ -216,7 +216,7 @@ class _kebuntingan{
                 tanggal_perkawinan: latestRiwayatPerkawinan[0].dataValues.tanggal_perkawinan,
                 tanggal_kebuntingan: riwayatFase[0].dataValues.tanggal
             },{transaction: t});
-            if(!historyKebuntingan) newError(500, 'Failed to create riwayat kebuntingan', 'setTernakAbortus Service');
+            if(!historyKebuntingan) newError(500, 'Gagal membuat riwayat kebuntingan', 'setTernakAbortus Service');
 
             await t.commit();
             return{
@@ -242,8 +242,7 @@ class _kebuntingan{
                     fase: 'Kebuntingan'
                 }
             });
-            if(!faseKebuntingan) newError(404, 'Fase Kebuntingan not found', 'getTernakKebuntingan Service');
-
+            if(!faseKebuntingan) newError(404, 'Fase Kebuntingan tidak ditemukan', 'getTernakKebuntingan Service');
             // Get data ternak
             const ternak = await this.db.Ternak.findAll({
                 attributes: ['id_ternak', 'rf_id', 'jenis_kelamin'],

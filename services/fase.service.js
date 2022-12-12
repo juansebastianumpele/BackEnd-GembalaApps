@@ -40,7 +40,7 @@ class _fase{
                 }
             }
 
-            if(list.length <= 0) newError(404, 'Data Fase not found', 'getFase Service');
+            if(list.length <= 0) newError(404, 'Data Fase tidak ditemukan', 'getFase Service');
             
             return {
                 code : 200,
@@ -68,7 +68,7 @@ class _fase{
             const add = await this.db.Fase.create({
                 fase: value.fase
             });
-            if(!add) newError(500, 'Failed to create new data', 'createFase Service');
+            if(!add) newError(500, 'Gagal menambahkan data fase', 'createFase Service');
 
             return {
                 code : 200,
@@ -102,7 +102,7 @@ class _fase{
                     id_fp: value.id_fp
                 }
             });
-            if(update <= 0) newError(500, 'Failed to update data', 'updateFase Service');
+            if(update <= 0) newError(500, 'Gagal mengubah data fase', 'updateFase Service');
 
             return {
                 code: 200,
@@ -133,7 +133,7 @@ class _fase{
                     id_fp: value.id_fp
                 }
             });
-            if(del <= 0) newError(500, 'Failed to delete data', 'deleteFase Service');
+            if(del <= 0) newError(500, 'Gagal menghapus data fase', 'deleteFase Service');
 
             return {
                 code: 200,

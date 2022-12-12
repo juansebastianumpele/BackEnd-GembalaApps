@@ -18,7 +18,7 @@ class _pakan{
             const list = await this.db.JenisPakan.findAll({
                 where : req.query
             });
-            if(list.length <= 0) newError(404, 'Jenis pakan not found', 'getJenisPakan Service');
+            if(list.length <= 0) newError(404, 'Jenis pakan tidak ditemukan', 'getJenisPakan Service');
 
             // Get data Pakan
             const data = await this.db.Pakan.findAll({
@@ -33,7 +33,7 @@ class _pakan{
                 list[i].dataValues.stok_belum_dibuat = data.length > 0 ? data.filter((item) => item.dataValues.id_jenis_pakan == list[i].dataValues.id_jenis_pakan && item.dataValues.tanggal_pembuatan == null).length : 0;
             }
 
-            if(list.length <= 0) newError(404, 'Jenis pakan not found');
+            if(list.length <= 0) newError(404, 'Jenis pakan tidak ditemukan');
     
             return {
                 code : 200,
@@ -70,7 +70,7 @@ class _pakan{
                 komposisi: value.komposisi,
                 nutrien: value.nutrien,
             });
-            if(!add) newError(500, 'Failed to create jenis pakan', 'createJenisPakan Service');
+            if(!add) newError(500, 'Gagal menambah jenis pakan', 'createJenisPakan Service');
 
             return {
                 code: 200,
@@ -114,7 +114,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0) newError(500, 'Failed to update jenis pakan', 'updateJenisPakan Service');
+            if(update <= 0) newError(500, 'Gagal update jenis pakan', 'updateJenisPakan Service');
 
             return {
                 code: 200,
@@ -146,7 +146,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(del <= 0) newError(500, 'Failed to delete jenis pakan', 'deleteJenisPakan Service');
+            if(del <= 0) newError(500, 'Gagal menghapus jenis pakan', 'deleteJenisPakan Service');
 
             return {
                 code: 200,
@@ -176,7 +176,7 @@ class _pakan{
                 }],
                 where: req.query,
             });
-            if(list.length <= 0) newError(404, 'Pakan not found');
+            if(list.length <= 0) newError(404, 'Pakan tidak ditemukan');
 
             for(let i = 0; i < list.length; i++){
                 if(list[i].dataValues.tanggal_konsumsi != null){
@@ -217,7 +217,7 @@ class _pakan{
                     id_jenis_pakan: value.id_jenis_pakan,
                 }
             });
-            if(jenis_pakan) newError(400, 'ID already exist', 'createPakan Service');
+            if(jenis_pakan) newError(400, 'ID jenis pakan sudah ada', 'createPakan Service');
 
             // add data pakan
             const add = await this.db.Pakan.create({
@@ -225,7 +225,7 @@ class _pakan{
                 id_jenis_pakan: value.id_jenis_pakan,
                 id: value.id,
             });
-            if(!add) newError(500, 'Failed to add pakan', 'createPakan Service');
+            if(!add) newError(500, 'Gagal menambahkan pakan', 'createPakan Service');
 
             return {
                 code: 200,
@@ -261,7 +261,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(jenis_pakan) newError(400, 'ID already exist', 'updatePakan Service');
+            if(jenis_pakan) newError(400, 'ID jenis pakan sudah ada', 'updatePakan Service');
 
             // update data pakan
             const update = await this.db.Pakan.update({
@@ -273,7 +273,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0) newError(500, 'Failed to update pakan', 'updatePakan Service');
+            if(update <= 0) newError(500, 'Gagal mengubah pakan', 'updatePakan Service');
 
             return {
                 code: 200,
@@ -307,7 +307,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(del <= 0) newError(500, 'Failed to delete pakan', 'deletePakan Service');
+            if(del <= 0) newError(500, 'Gagal menghapus pakan', 'deletePakan Service');
 
             return {
                 code: 200,
@@ -328,8 +328,8 @@ class _pakan{
             // Validate data
             const schema = joi.object({
                 id_pakan: joi.number().required(),
-                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
-                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'fillPakan Service');
@@ -341,7 +341,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!pakan) newError(404, 'Pakan not found', 'fillPakan Service');
+            if(!pakan) newError(404, 'Pakan tidak ditemukan', 'fillPakan Service');
 
             // Get data jenis pakan
             const jenisPakan = await this.db.JenisPakan.findOne({
@@ -350,7 +350,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!jenisPakan) newError(404, 'Jenis pakan not found', 'fillPakan Service');
+            if(!jenisPakan) newError(404, 'Jenis pakan tidak ditemukan', 'fillPakan Service');
 
             // Query data
             const update = await this.db.Pakan.update({
@@ -362,7 +362,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0) newError(500, 'Failed to fill pakan', 'fillPakan Service');
+            if(update <= 0) newError(500, 'Gagal mengisi pakan', 'fillPakan Service');
 
             return {
                 code: 200,
@@ -385,8 +385,8 @@ class _pakan{
             // Validate data
             const schema = joi.object({
                 id_pakan: joi.number().required(),
-                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
-                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_pembuatan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_konsumsi: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
             });
             const { error, value } = schema.validate(req.body);
             if (error) newError(400, error.details[0].message, 'updateFillPakan Service');
@@ -398,7 +398,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!pakan) newError(404, 'Pakan not found', 'updateFillPakan Service');
+            if(!pakan) newError(404, 'Pakan tidak ditemukan', 'updateFillPakan Service');
 
             // Get data jenis pakan
             const jenisPakan = await this.db.JenisPakan.findOne({
@@ -407,7 +407,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!jenisPakan) newError(404, 'Jenis pakan not found', 'updateFillPakan Service');
+            if(!jenisPakan) newError(404, 'Jenis pakan tidak ditemukan', 'updateFillPakan Service');
 
             // Query data
             const update = await this.db.Pakan.update({
@@ -419,7 +419,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0) newError(500, 'Failed to update fill pakan', 'updateFillPakan Service');
+            if(update <= 0) newError(500, 'Gagal mengubah isi pakan', 'updateFillPakan Service');
 
             return {
                 code: 200,
@@ -456,7 +456,7 @@ class _pakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0) newError(500, 'Failed to empty pakan', 'emptyPakan Service');
+            if(update <= 0) newError(500, 'Gagal mengosongkan pakan', 'emptyPakan Service');
 
             return {
                 code: 200,

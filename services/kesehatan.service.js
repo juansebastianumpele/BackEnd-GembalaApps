@@ -17,7 +17,7 @@ class _kesehatan {
             const schema = joi.object({
                 id_ternak: joi.number().required(),
                 id_penyakit: joi.number().required(),
-                tanggal_sakit: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_sakit: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 id_kandang: joi.number().allow(null)
             });
             const { error, value } = schema.validate(req.body);
@@ -32,7 +32,7 @@ class _kesehatan {
                     id_penyakit: value.id_penyakit
                 }
             });
-            if (!penyakit) newError(404, 'Data penyakit not found', 'createKesehatan Service');
+            if (!penyakit) newError(404, 'Data penyakit tidak ditemukan', 'createKesehatan Service');
 
             // Create Kesehatan
             const add = await this.db.Kesehatan.create({
@@ -43,7 +43,7 @@ class _kesehatan {
                 penanganan: penyakit.dataValues.penanganan,
                 id_peternakan: req.dataAuth.id_peternakan
             }, { transaction: t });
-            if (!add) newError(500, 'Failed to create data  penyakit', 'createKesehatan Service');
+            if (!add) newError(500, 'Gagal menambah data penyakit', 'createKesehatan Service');
 
             // Update kandang ternak
             if (value.id_kandang != null) {
@@ -56,7 +56,7 @@ class _kesehatan {
                     },
                     transaction: t
                 });
-                if (update <= 0) newError(500, 'Failed to update data ternak', 'createKesehatan Service');
+                if (update <= 0) newError(500, 'Gagal mengubah data ternak', 'createKesehatan Service');
             }
 
             // Commit
@@ -85,8 +85,8 @@ class _kesehatan {
             // Validate data
             const schema = joi.object({
                 id_kesehatan: joi.number().required(),
-                tanggal_sakit: joi.date().format(['YYYY/MM/DD', 'DD-MM-YYYY']).allow(null),
-                tanggal_sembuh: joi.date().format(['YYYY/MM/DD', 'DD-MM-YYYY']).allow(null),
+                tanggal_sakit: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
+                tanggal_sembuh: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 id_kandang: joi.number().allow(null),
                 gejala: joi.string().allow(null),
                 penanganan: joi.string().allow(null)
@@ -108,7 +108,7 @@ class _kesehatan {
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if (!check) newError(404, 'Data kesehatan not found', 'updateKesehatan Service');
+            if (!check) newError(404, 'Data kesehatan tidak ditemukan', 'updateKesehatan Service');
 
             // Update Kesehatan
             const update = await this.db.Kesehatan.update({
@@ -122,7 +122,7 @@ class _kesehatan {
                 },
                 transaction: t
             });
-            if (update <= 0) newError(500, 'Failed to update data kesehatan', 'updateKesehatan Service');
+            if (update <= 0) newError(500, 'Gagal mengubah data kesehatan', 'updateKesehatan Service');
 
             if (value.tanggal_sembuh != null) {
                 // Delete data kesehatan
@@ -133,7 +133,7 @@ class _kesehatan {
                     },
                     transaction: t
                 });
-                if (del <= 0) newError(500, 'Failed to delete data kesehatan', 'updateKesehatan Service');
+                if (del <= 0) newError(500, 'Gagal menghapus data kesehatan', 'updateKesehatan Service');
 
                 // Create riwayat kesehatan
                 const add = await this.db.RiwayatKesehatan.create({
@@ -145,7 +145,7 @@ class _kesehatan {
                     id_ternak: check.dataValues.id_ternak,
                     id_peternakan: req.dataAuth.id_peternakan
                 }, { transaction: t });
-                if (!add) newError(500, 'Failed to create data riwayat kesehatan', 'updateKesehatan Service');
+                if (!add) newError(500, 'Gagal menambah data riwayat kesehatan', 'updateKesehatan Service');
             }
 
             // Update kandang ternak
@@ -159,7 +159,7 @@ class _kesehatan {
                     },
                     transaction: t
                 });
-                if (update <= 0) newError(500, 'Failed to update data ternak', 'updateKesehatan Service');
+                if (update <= 0) newError(500, 'Gagal mengubah data ternak', 'updateKesehatan Service');
             }
 
             // Commit
@@ -193,7 +193,7 @@ class _kesehatan {
                     }
                 ]
             });
-            if (penyakit.length <= 0) newError(404, 'Data penyakit not found', 'getTotalTernakSakitByPenyakit Service');
+            if (penyakit.length <= 0) newError(404, 'Data penyakit tidak ditemukan', 'getTotalTernakSakitByPenyakit Service');
 
             // Get data kesehatan
             const kesehatan = await this.db.Kesehatan.findAll({
@@ -268,7 +268,7 @@ class _kesehatan {
                 ternakSakit[i].dataValues.kandang = ternakSakit[i].dataValues.ternak.dataValues.kandang;
                 delete ternakSakit[i].dataValues.ternak;
             }
-            if (ternakSakit.length <= 0) newError(404, 'Data ternak sakit not found', 'getTernakSakit Service');
+            if (ternakSakit.length <= 0) newError(404, 'Data ternak sakit tidak ditemukan', 'getTernakSakit Service');
 
             return {
                 code: 200,

@@ -83,6 +83,14 @@ const webDashController = (db) => {
         response.sendResponse(res, list);
     });
 
+    /**
+     * Get Coordinate
+     */
+    WebDashController.get('/coordinate', authentication, adminMiddleware, async (req, res, next) => {
+        const list = await s$webDash.getCoordinate(req);
+        response.sendResponse(res, list);
+    });
+
     return WebDashController;
 }
 

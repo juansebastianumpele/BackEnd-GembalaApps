@@ -14,7 +14,7 @@ class _jenisKandang{
             const list = await this.db.JenisKandang.findAll({
                 where: req.query
             });
-            if(list.length <= 0) newError(404, 'Data Jenis Kandang not found', 'getJenisKandang Service');
+            if(list.length <= 0) newError(404, 'Data Jenis Kandang tidak ditemukan', 'getJenisKandang Service');
             return {
                 code: 200,
                 data: {
@@ -39,7 +39,7 @@ class _jenisKandang{
 
             // Create new jenis kandang
             const jenisKandang = await this.db.JenisKandang.create(value);
-            if(!jenisKandang) newError(500, 'Failed to create new data jenis kandang', 'createJenisKandang Service');
+            if(!jenisKandang) newError(500, 'Gagal menambahkan data jenis kandang', 'createJenisKandang Service');
 
             return {
                 code: 200,
@@ -73,7 +73,7 @@ class _jenisKandang{
                     id_jenis_kandang: value.id_jenis_kandang
                 }
             });
-            if(jenisKandang <= 0) newError(500, 'Failed to update data jenis kandang', 'updateJenisKandang Service');
+            if(jenisKandang <= 0) newError(500, 'Gagal mengubah data jenis kandang', 'updateJenisKandang Service');
 
             return {
                 code: 200,
@@ -104,7 +104,7 @@ class _jenisKandang{
                     id_jenis_kandang: value.id_jenis_kandang
                 }
             });
-            if(jenisKandang <= 0) newError(500, 'Failed to delete data jenis kandang', 'deleteJenisKandang Service');
+            if(jenisKandang <= 0) newError(500, 'Gagal menghapus data jenis kandang', 'deleteJenisKandang Service');
 
             return {
                 code: 200,

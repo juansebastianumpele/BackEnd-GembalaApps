@@ -20,7 +20,7 @@ class _timbangan{
                 ],
                 where : req.query
             });
-            if(list.length <= 0) newError(404, 'Data Timbangan not found', 'getDataTimbangan Service');
+            if(list.length <= 0) newError(404, 'Data Timbangan tidak ditemukan', 'getDataTimbangan Service');
             return {
                 code: 200,
                 data: {
@@ -53,7 +53,7 @@ class _timbangan{
                     rf_id: value.rf_id
                 }
             });
-            if(!ternak) newError(404, 'Data Ternak not found', 'createDataTimbangan Service');
+            if(!ternak) newError(404, 'Data Ternak tidak ditemukan', 'createDataTimbangan Service');
 
             // Query data
             const add = await this.db.Timbangan.create({
@@ -62,7 +62,7 @@ class _timbangan{
                 berat: value.berat,
                 suhu: value.suhu
             });
-            if(!add) newError(500, 'Failed to create Data Timbangan', 'createDataTimbangan Service');
+            if(!add) newError(500, 'Gagal menambahkan Data Timbangan', 'createDataTimbangan Service');
 
             return {
                 code: 200,
@@ -100,7 +100,7 @@ class _timbangan{
                     id_timbangan: value.id_timbangan
                 }
             });
-            if(update <= 0) newError(500, 'Failed to update Data Timbangan', 'updateDataTimbangan Service');
+            if(update <= 0) newError(500, 'Gagal mengubah Data Timbangan', 'updateDataTimbangan Service');
 
             return {
                 code: 200,
@@ -131,7 +131,7 @@ class _timbangan{
                     id_timbangan: value.id_timbangan
                 }
             });
-            if(del <= 0) newError(500, 'Failed to delete Data Timbangan', 'deleteDataTimbangan Service');
+            if(del <= 0) newError(500, 'Gagal menghapus Data Timbangan', 'deleteDataTimbangan Service');
             
             return {
                 code: 200,

@@ -1,7 +1,7 @@
 // Helper databse yang dibuat
 const {log_error, log_info} = require('../utils/logging');
 const {Op} = require('sequelize');
-const { newError } = require('../utils/errorHandler');
+const { newError, errorHandler } = require('../utils/errorHandler');
 
 class _dashboard{
     constructor(db){
@@ -24,46 +24,16 @@ class _dashboard{
             });
 
             // Get status id cempe
-            const statusCempe = await this.db.StatusTernak.findOne({
-                attributes: ['id_status_ternak'],
-                where: {
-                    status_ternak: 'Cempe'
-                }
-            });
-            if(!statusCempe){
-                return {
-                    code: 404,
-                    error: 'Status Ternak Cempe tidak ditemukan'
-                }
-            }
+            const statusCempe = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Cempe'}});
+            if(!statusCempe) newError(404, 'Data Status Ternak Cempe tidak ditemukan', 'getTotalTernakByStatus Service');
 
             // Get status is pejantan
-            const statusPejantan = await this.db.StatusTernak.findOne({
-                attributes: ['id_status_ternak'],
-                where: {
-                    status_ternak: 'Pejantan'
-                }
-            });
-            if(!statusPejantan){
-                return {
-                    code: 404,
-                    error: 'Status Ternak Pejantan tidak ditemukan'
-                }
-            }
+            const statusPejantan = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Pejantan'}});
+            if(!statusPejantan) newError(404, 'Data Status Ternak Pejantan tidak ditemukan', 'getTotalTernakByStatus Service');
 
             // Get status is indukan
-            const statusIndukan = await this.db.StatusTernak.findOne({
-                attributes: ['id_status_ternak'],
-                where: {
-                    status_ternak: 'Indukan'
-                }
-            });
-            if(!statusIndukan){
-                return {
-                    code: 404,
-                    error: 'Status Ternak Indukan tidak ditemukan'
-                }
-            }
+            const statusIndukan = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Indukan'}});
+            if(!statusIndukan) newError(404, 'Data Status Ternak Indukan tidak ditemukan', 'getTotalTernakByStatus Service');
 
             // Get total ternak pejantan
             const totalTernakPejantan = await this.db.Ternak.count({
@@ -142,23 +112,14 @@ class _dashboard{
                 }
             }
         }catch(error){
-            log_error(error);
-            return {
-                code: 500,
-                error: 'Internal Server Error'
-            }
+            return errorHandler(error);
         }
     }
 
     /// Get total kandang
     getTotalKandang = async (req) => {
         try{
-            const totalKandang = await this.db.Kandang.count({
-                where: {
-                    id_peternakan: req.dataAuth.id_peternakan
-                }
-            });
-
+            const totalKandang = await this.db.Kandang.count({where: {id_peternakan: req.dataAuth.id_peternakan}});
             return {
                 code: 200,
                 data: {
@@ -166,11 +127,7 @@ class _dashboard{
                 }
             }
         }catch(error){
-            log_error(error);
-            return {
-                code: 500,
-                error: 'Internal Server Error'
-            }
+            return errorHandler(error);
         }
     }
 
@@ -178,13 +135,8 @@ class _dashboard{
     getTotalTernak = async (req) => {
         try{
             // Get data fase pemasukan
-            const fasePemasukan = await this.db.Fase.findOne({
-                attributes: ['id_fp'],
-                where: {
-                    fase: 'Pemasukan'
-                }
-            });
-            if(!fasePemasukan) newError(404, 'Fase Pemasukan not found', 'getTotalTernak Service');
+            const fasePemasukan = await this.db.Fase.findOne({attributes: ['id_fp'], where: {fase: 'Pemasukan'}});
+            if(!fasePemasukan) newError(404, 'Fase Pemasukan tidak ditemukan', 'getTotalTernak Service');
 
             const totalTernak = await this.db.Ternak.count({
                 where: {
@@ -209,11 +161,7 @@ class _dashboard{
                 }
             }
         }catch(error){
-            log_error(error);
-            return {
-                code: 500,
-                error: 'Internal Server Error'
-            }
+            return errorHandler(error);
         }
     }
 
@@ -222,12 +170,7 @@ class _dashboard{
         try{
             // Get data fase
             const fase = await this.db.Fase.findAll({});
-            if(fase == null){
-                return {
-                    code: 404,
-                    error: 'Fase Ternak Not Found'
-                }
-            }
+            if(fase.length <= 0) newError(404, 'Data Fase tidak ditemukan', 'getTotalTernakByFase Service');
 
             // Get data ternak
             const ternak = await this.db.Ternak.findAll({
@@ -286,11 +229,7 @@ class _dashboard{
             }
 
         }catch(error){
-            log_error(error);
-            return {
-                code: 500,
-                error: 'Internal Server Error'
-            }
+            return errorHandler(error);
         }
     }
 
@@ -299,25 +238,11 @@ class _dashboard{
         try{
             // Get data jenis kandang
             const jenisKandang = await this.db.JenisKandang.findAll({});
-            if(jenisKandang.length <= 0){
-                return {
-                    code: 404,
-                    error: 'Jenis Kandang Not Found'
-                }
-            }
+            if(jenisKandang.length <= 0) newError(404, 'Data Jenis Kandang tidak ditemukan', 'getTotalTernakByJenisKandang Service');
 
             // Get data kandang
-            const kandang = await this.db.Kandang.findAll({
-                where: {
-                    id_peternakan: req.dataAuth.id_peternakan
-                }
-            });
-            if(kandang.length <= 0){
-                return {
-                    code: 404,
-                    error: 'Kandang Not Found'
-                }
-            }
+            const kandang = await this.db.Kandang.findAll({where: {id_peternakan: req.dataAuth.id_peternakan}});
+            if(kandang.length <= 0) newError(404, 'Data Kandang tidak ditemukan', 'getTotalTernakByJenisKandang Service');
             
             // Get data ternak
             const ternak = await this.db.Ternak.findAll({
@@ -336,12 +261,7 @@ class _dashboard{
                     status_keluar: null
                 }
             });
-            if(ternak.length <= 0){
-                return {
-                    code: 404,
-                    error: 'Ternak Not Found'
-                }
-            }
+            if(ternak.length <= 0) newError(404, 'Data Ternak tidak ditemukan', 'getTotalTernakByJenisKandang Service');
 
             // Get total ternak by jenis kandang
             let totalTernakByJenisKandang = [];
@@ -370,11 +290,7 @@ class _dashboard{
             }
 
         }catch(error){
-            log_error(error);
-            return {
-                code: 500,
-                error: 'Internal Server Error'
-            }
+            return errorHandler(error);
         }
     }
 
@@ -382,77 +298,84 @@ class _dashboard{
     getADGCempe = async (req) => {
         try{
             // Get data status ternak cempe
-            const statusTernak = await this.db.StatusTernak.findOne({
-                attributes: ['id_status_ternak'],
-                where: {
-                    status_ternak: 'Cempe'
-                }
-            });
-            if(statusTernak == null){
-                return {
-                    code: 404,
-                    error: 'Status Ternak Cempe Not Found'
-                }
-            }
+            const statusTernak = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Cempe'}});
+            if(!statusTernak){return {code: 404, error: 'Status Ternak Cempe tidak ditemukan'}}
 
             // Get data ternak cempe
             const ternakCempe = await this.db.Ternak.findAll({
                 attributes: ['id_ternak'],
+                include: [
+                    {
+                        model: this.db.Timbangan,
+                        as: 'timbangan',
+                        attributes: ['berat', 'tanggal_timbang'],
+                        order: [['tanggal_timbang', 'DESC']],
+                        limit: 1
+                    }
+                ],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_status_ternak: statusTernak.dataValues.id_status_ternak,
-                    jenis_kelamin: {
-                        [Op.not]: null
-                    },
-                    status_keluar: null
+                    status_keluar: null,
+                    tanggal_keluar: null
                 }
             });
-            if(ternakCempe.length <= 0){
-                return {
-                    code: 404,
-                    error: 'Ternak Cempe Not Found'
+            if(ternakCempe.length <= 0) newError(404, 'Ternak Cempe tidak ditemukan', 'getAdgCempe Service');
+
+            // Get data berat badan ternak cempe
+            let beratBadanTernakCempe = {};
+            // for(let i = 0; i < ternakCempe.length; i++){
+            //     const dataTimbangCempe = await this.db.Timbangan.findAll({
+            //         where: {
+            //             id_ternak: ternakCempe[i].dataValues.id_ternak
+            //         },
+            //         order: [
+            //             ['tanggal_timbang', 'ASC']
+            //         ]
+            //     });
+            //     if(dataTimbangCempe != null){
+            //         dataTimbangCempe.forEach((data) => {
+            //             const dateID = data.dataValues.tanggal_timbang.getFullYear() + '-' + (data.dataValues.tanggal_timbang.getMonth() + 1) 
+            //             if(beratBadanTernakCempe[dateID]){
+            //                 beratBadanTernakCempe[dateID] = {
+            //                     total_berat: beratBadanTernakCempe[dateID].total_berat + data.dataValues.berat,
+            //                     total_ternak: beratBadanTernakCempe[dateID].total_ternak + 1,
+            //                 } 
+            //             }else{
+            //                 beratBadanTernakCempe[dateID] = {
+            //                     total_berat: data.dataValues.berat,
+            //                     total_ternak: 1,
+            //                 }
+            //             }
+            //             beratBadanTernakCempe[dateID].average = beratBadanTernakCempe[dateID].total_berat / beratBadanTernakCempe[dateID].total_ternak;
+            //         });
+            //     }   
+            // }
+            const thisYear = new Date().getFullYear();
+            for(let i = 1; i <= 12; i++){
+                beratBadanTernakCempe[`${thisYear}-${i}`] = {
+                    total_berat: 0,
+                    total_ternak: 0,
+                    average: 0
                 }
             }
 
             // Get data berat badan ternak cempe
-            let beratBadanTernakCempe = {};
             for(let i = 0; i < ternakCempe.length; i++){
-                const dataTimbangCempe = await this.db.Timbangan.findAll({
-                    where: {
-                        id_ternak: ternakCempe[i].dataValues.id_ternak
-                    },
-                    order: [
-                        ['tanggal_timbang', 'ASC']
-                    ]
-                });
-                if(dataTimbangCempe != null){
-                    dataTimbangCempe.forEach((data) => {
-                        const dateID = data.dataValues.tanggal_timbang.getFullYear() + '-' + (data.dataValues.tanggal_timbang.getMonth() + 1) 
-                        if(beratBadanTernakCempe[dateID]){
-                            beratBadanTernakCempe[dateID] = {
-                                total_berat: beratBadanTernakCempe[dateID].total_berat + data.dataValues.berat,
-                                total_ternak: beratBadanTernakCempe[dateID].total_ternak + 1,
-                            }
-                        }else{
-                            beratBadanTernakCempe[dateID] = {
-                                total_berat: data.dataValues.berat,
-                                total_ternak: 1,
-                            }
-                        }
-                        beratBadanTernakCempe[dateID].average = beratBadanTernakCempe[dateID].total_berat / beratBadanTernakCempe[dateID].total_ternak;
-                    });
-                }   
+                if(ternakCempe[i].dataValues.timbangan.length > 0){
+                    const dateID = ternakCempe[i].dataValues.timbangan[0].dataValues.tanggal_timbang.getFullYear() + '-' + (ternakCempe[i].dataValues.timbangan[0].dataValues.tanggal_timbang.getMonth() + 1);
+                    beratBadanTernakCempe[dateID].total_berat += ternakCempe[i].dataValues.timbangan[0].dataValues.berat;
+                    beratBadanTernakCempe[dateID].total_ternak += 1;
+                    beratBadanTernakCempe[dateID].average = beratBadanTernakCempe[dateID].total_berat / beratBadanTernakCempe[dateID].total_ternak;
+                }
             }
+                                
             return{
                 code: 200,
                 data: beratBadanTernakCempe
             }
-        }catch(error){
-            log_error(error);
-            return {
-                code: 500,
-                error: 'Internal Server Error'
-            }
+        }catch(error){  
+            return errorHandler(error);
         }
     }
 
@@ -492,11 +415,28 @@ class _dashboard{
                 }
             }
         }catch(error){
-            log_error(error);
+            return errorHandler(error);
+        }
+    }
+
+    getCoordinate = async (req) => {
+        try{
+            const peternakan = await this.db.Peternakan.findOne({where: {id_peternakan: req.dataAuth.id_peternakan}});
+            if(!peternakan) newError(404, 'Peternakan tidak ditemukan', 'getCoordinate Service');
+
+            console.log(req.dataAuth.id_peternakan);
+            console.log(peternakan)
+
             return {
-                code: 500,
-                error: 'Internal Server Error'
+                code: 200,
+                data: {
+                    latitude: peternakan.dataValues.latitude,
+                    longitude: peternakan.dataValues.longitude,
+                    alamat_postcode: peternakan.dataValues.alamat_postcode,
+                }
             }
+        }catch(error){
+            return errorHandler(error);
         }
     }
 

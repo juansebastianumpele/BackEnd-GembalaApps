@@ -30,7 +30,7 @@ class _adaptasi{
                 ],
                 where : req.query });
             if(list.length <= 0){
-                newError(404, 'Data Adaptasi not found', 'getAdaptasi');
+                newError(404, 'Data Adaptasi tidak ditemukan', 'getAdaptasi');
             }
             return {
                 code: 200,
@@ -64,7 +64,7 @@ class _adaptasi{
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.treatment = list[i].dataValues.treatment.dataValues.treatment;
             }
-            if(list.length <= 0){newError(404, 'Data Adaptasi not found', 'getAdaptasi')}
+            if(list.length <= 0){newError(404, 'Data Adaptasi tidak ditemukan', 'getAdaptasi')}
 
             return {
                 code: 200,
@@ -83,20 +83,9 @@ class _adaptasi{
         try{
             // Check query params
             if(!req.query.step){
-                newError(400, 'Step is required', 'getAdaptasiByStep');
+                newError(400, 'Step tidak boleh kosong', 'getAdaptasiByStep');
             }else if(req.query.step < 1 || req.query.step > 5){
-                newError(400, 'Step must be between 1 and 5', 'getAdaptasiByStep');
-            }
-
-            // Get data fase
-            const fase = await this.db.Fase.findOne({
-                attributes: ['id_fp'],
-                where: {
-                    fase: req.query.step == 5 ? "Waiting List Perkawinan" : `adaptasi ${parseInt(req.query.step) + 1}`
-                }
-            });
-            if(!fase){
-                newError(404, 'Fase not found', 'getAdaptasiByStep');
+                newError(400, 'Step harus diantara 1 - 5', 'getAdaptasiByStep');
             }
 
             // Get data ternak by step adaptasi
@@ -126,11 +115,13 @@ class _adaptasi{
                 ],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
-                    id_fp: fase.dataValues.id_fp
+                    id_fp: {
+                        [Op.not]: null
+                    }
                 }
             });
             if(ternakByStepAdaptasi.length <= 0){
-                newError(404, 'Data Ternak not found', 'getAdaptasiByStep');
+                newError(404, 'Data Ternak tidak ditemukan', 'getAdaptasiByStep');
             }
 
             // Filter data by step
@@ -143,10 +134,6 @@ class _adaptasi{
                         }
                     }
                 }
-            }
-
-            // Remove ternak that has no treatment
-            for(let i = 0; i < ternakByStepAdaptasi.length; i++){
                 if(ternakByStepAdaptasi[i].dataValues.adaptasi.length <= 0){
                     ternakByStepAdaptasi.splice(i, 1);
                     i--;
@@ -161,7 +148,7 @@ class _adaptasi{
                 }
             });
             if(treatmentByStep.length <= 0){
-                newError(404, 'Treatment not found', 'getAdaptasiByStep');
+                newError(404, 'Treatment tidak ditemukan', 'getAdaptasiByStep');
             }
 
             // Check if ternak has treatment and add tanggal_adaptasi
@@ -180,7 +167,7 @@ class _adaptasi{
             }
 
             if(ternakByStepAdaptasi.length <= 0){
-                newError(404, 'Data Ternak not found', 'getAdaptasiByStep');
+                newError(404, 'Data Ternak tidak ditemukan', 'getAdaptasiByStep');
             }
             
             return{
@@ -213,7 +200,7 @@ class _adaptasi{
                 newError(400, error.details[0].message, 'createAdaptasi');
             }
             if(value.treatments.length <= 0){
-                newError(400, 'Treatments is required', 'createAdaptasi');
+                newError(400, 'Treatments tidak boleh kosong', 'createAdaptasi');
             }
 
             // Check data ternak
@@ -241,12 +228,12 @@ class _adaptasi{
                 }
             });
             if(!ternak){
-                newError(404, 'Data Ternak not found', 'createAdaptasi');
+                newError(404, 'Data Ternak tidak ditemukan', 'createAdaptasi');
             }
 
             // Check ternak fase
             if(!ternak.dataValues.fase.dataValues.fase.startsWith('Adaptasi')){
-                newError(400, 'Ternak is not in Adaptasi', 'createAdaptasi');
+                newError(400, 'Ternak tidak dalam fase adaptasi', 'createAdaptasi');
             }
 
             // Create treatment apllied
@@ -254,7 +241,7 @@ class _adaptasi{
             for(let i = 0; i < value.treatments.length; i++){
                 if(value.treatments[i].id_treatment != null && value.treatments[i].step != null && value.treatments[i].treatment != null){
                     if(value.treatments[i].step != parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1])){
-                        newError(400, 'Treatment step is not correct', 'createAdaptasi');
+                        newError(400, 'Treatment step tidak sesuai dengan fase ternak', 'createAdaptasi');
                     }
                     countTreatment++;
                     const createAdaptasi = await this.db.Adaptasi.create({
@@ -265,12 +252,12 @@ class _adaptasi{
                         tanggal_adaptasi: new Date()
                     });
                     if(!createAdaptasi){
-                        newError(500, 'Failed to create data', 'createAdaptasi');
+                        newError(500, 'Gagal menambahkan data adaptasi', 'createAdaptasi');
                     }
                 }
             }
             if(countTreatment <= 0){
-                newError(400, 'Treatment is required', 'createAdaptasi');
+                newError(400, 'Treatment tidak boleh kosong', 'createAdaptasi');
             }
 
             // update fase ternak
@@ -283,7 +270,7 @@ class _adaptasi{
                     }
                 });
                 if(!getIdFase){
-                    newError(404, 'Fase not found', 'createAdaptasi');
+                    newError(404, 'Fase tidak ditemukan', 'createAdaptasi');
                 }
                 const updateFase = await this.db.Ternak.update({
                     id_fp: getIdFase.dataValues.id_fp,
@@ -295,7 +282,7 @@ class _adaptasi{
                     }
                 });
                 if(!updateFase){
-                    newError(500, 'Failed to update data ternak', 'createAdaptasi');
+                    newError(500, 'Gagal mengubah fase ternak', 'createAdaptasi');
                 }
 
                 // Create History Fase
@@ -304,7 +291,7 @@ class _adaptasi{
                     id_fp: getIdFase.dataValues.id_fp
                 })
                 if(!historyFase){
-                    newError(500, 'Failed to create data riwayat fase', 'createAdaptasi');
+                    newError(500, 'Gagal membuat riwayat fase', 'createAdaptasi');
                 }
                 
             }else if(ternak.dataValues.fase && parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1]) == 5){
@@ -316,7 +303,7 @@ class _adaptasi{
                     }
                 });
                 if(!getIdFasePrePerkawinan){
-                    newError(404, 'Fase Waiting List Perkawinan not found', 'createAdaptasi');
+                    newError(404, 'Fase Waiting List Perkawinan tidak ditemukan', 'createAdaptasi');
                 }
 
                 // Get id fase perkawinan
@@ -327,7 +314,7 @@ class _adaptasi{
                     }
                 })
                 if(!getIdFasePerkawinan){
-                    newError(404, 'Fase Perkawinan not found', 'createAdaptasi');
+                    newError(404, 'Fase Perkawinan tidak ditemukan', 'createAdaptasi');
                 }
 
                 // Update fase ternak
@@ -341,7 +328,7 @@ class _adaptasi{
                     }
                 });
                 if(!updateFase){
-                    newError(500, 'Failed to update data ternak', 'createAdaptasi');
+                    newError(500, 'Gagal mengubah fase ternak', 'createAdaptasi');
                 }
 
                 // Create History Fase
@@ -350,10 +337,10 @@ class _adaptasi{
                     id_fp: ternak.dataValues.status_ternak.dataValues.status_ternak.toLowerCase() == 'indukan' ? getIdFasePrePerkawinan.dataValues.id_fp : getIdFasePerkawinan.dataValues.id_fp
                 })
                 if(!historyFase){
-                    newError(500, 'Failed to create data riwayat fase', 'createAdaptasi');
+                    newError(500, 'Gagal membuat riwayat fase', 'createAdaptasi');
                 }
             }else{
-                newError(400, 'Ternak is not in Adaptasi', 'createAdaptasi');
+                newError(400, 'Ternak tidak di fase adaptasi', 'createAdaptasi');
             }
 
             return {
@@ -370,12 +357,9 @@ class _adaptasi{
     /// Get ternak by fase adaptasi
     getTernakByStep = async (req) => {
         try{
-            if(!req.query.step){
-                newError(400, 'Step is required', 'getTernakByStep');
-            }
-            if(req.query.step < 1 || req.query.step > 5){
-                newError(400, 'Step is not valid', 'getTernakByStep');
-            }
+            if(!req.query.step){newError(400, 'Step tidak boleh kosong', 'getTernakByStep')};
+            if(req.query.step < 1 || req.query.step > 5){newError(400, 'Step tidak valid', 'getTernakByStep')};
+
             // get data fase
             const fase = await this.db.Fase.findOne({
                 attributes: ['id_fp'],
@@ -383,9 +367,8 @@ class _adaptasi{
                     fase: `Adaptasi ${req.query.step}`
                 }
             });
-            if(!fase){
-                newError(404, 'Fase not found', 'getTernakByStep');
-            }
+            if(!fase){newError(404, 'Fase tidak ditemukan', 'getTernakByStep')};
+
             // Query Data
             const list = await this.db.Ternak.findAll({ 
                 attributes: ['id_ternak', 'rf_id'],
@@ -405,9 +388,7 @@ class _adaptasi{
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_fp: fase.dataValues.id_fp
                 } });
-            if(list.length <= 0){
-                newError(404, 'Data not found', 'getTernakByStep');
-            }
+            if(list.length <= 0){newError(404, 'Data Ternak Tidak Ditemukan', 'getTernakByStep')};
 
             // Get fase adaptasi 1
             const faseAdaptasi1 = await this.db.Fase.findOne({
@@ -416,10 +397,9 @@ class _adaptasi{
                     fase: 'Adaptasi 1'
                 }
             });
-            if(!faseAdaptasi1){
-                newError(404, 'Fase Adaptasi 1 not found', 'getTernakByStep');
-            }
+            if(!faseAdaptasi1){newError(404, 'Fase Adaptasi 1 tidak ditemukan', 'getTernakByStep')};
 
+            // Ambil riwayat fase pertama kali
             for(let i = 0; i < list.length; i++){
                 // filter data riwayat fase adaptasi 1
                 list[i].dataValues.riwayat_fase = list[i].dataValues.riwayat_fase.length > 0 
@@ -481,7 +461,7 @@ class _adaptasi{
                 } 
             });
             if(list.length <= 0){
-                newError(404, 'Data Ternak not found', 'getAllTernakInAdaptasi');
+                newError(404, 'Data Ternak tidak ditemukan', 'getAllTernakInAdaptasi');
             }
 
             let totalByKandang = {}

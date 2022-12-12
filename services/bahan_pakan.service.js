@@ -18,7 +18,7 @@ class _bahanPakan{
             const list = await this.db.JenisBahanPakan.findAll({
                 where : req.query
             });
-            if(list.length <= 0) newError(404, 'Data Bahan Pakan not found', 'getJenisBahanPakan');
+            if(list.length <= 0) newError(404, 'Data Bahan Pakan tidak ditemukan', 'getJenisBahanPakan');
     
             return {
                 code : 200,
@@ -49,7 +49,7 @@ class _bahanPakan{
                 jenis_bahan_pakan: value.jenis_bahan_pakan,
                 satuan: value.satuan,
             });
-            if(!add) newError(500, 'Failed to create new data', 'createJenisBahanPakan');
+            if(!add) newError(500, 'Gagal menambahkan jenis bahan pakan', 'createJenisBahanPakan');
 
             return {
                 code: 200,
@@ -89,7 +89,7 @@ class _bahanPakan{
                 }
             });
 
-            if(update <= 0) newError(500, 'Failed update jenis bahan pakan', 'updateJenisBahanPakan');
+            if(update <= 0) newError(500, 'Gagal mengupdate jenis bahan pakan', 'updateJenisBahanPakan');
 
             return {
                 code: 200,
@@ -122,7 +122,7 @@ class _bahanPakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if (del <= 0) newError(500, 'Failed to delete jenis bahan pakan', 'deleteJenisBahanPakan');
+            if (del <= 0) newError(500, 'Gagal menghapus jenis bahan pakan', 'deleteJenisBahanPakan');
 
             return {
                 code: 200,
@@ -154,7 +154,7 @@ class _bahanPakan{
                 ],  
                 where : req.query
             });
-            if(list.length <= 0) newError(404, 'Data Bahan Pakan not found', 'getBahanPakan');
+            if(list.length <= 0) newError(404, 'Data Bahan Pakan tidak ditemukan', 'getBahanPakan');
     
             return {
                 code : 200,
@@ -174,7 +174,7 @@ class _bahanPakan{
             // Validate data
             const schema = joi.object({
                 id_jenis_bahan_pakan: joi.number().required(),
-                tanggal: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY']).allow(null),
+                tanggal: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 jumlah: joi.number().required(),
                 keterangan: joi.string().required(),
             });
@@ -189,7 +189,7 @@ class _bahanPakan{
                 jumlah: value.jumlah == '' || value.jumlah == null ? 0 : value.jumlah,
                 keterangan: value.keterangan,
             });
-            if(!add) newError(500, 'Failed to create new data bahan pakan', 'createBahanPakan');
+            if(!add) newError(500, 'Gagal menambahkan bahan pakan', 'createBahanPakan');
 
             // update stok bahan pakan
             const update = await this.db.JenisBahanPakan.update({
@@ -200,7 +200,7 @@ class _bahanPakan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0) newError(500, 'Failed to update jenis bahan pakan', 'createBahanPakan');
+            if(update <= 0) newError(500, 'Gagal mengupdate jenis bahan pakan', 'createBahanPakan');
 
             return {
                 code: 200,

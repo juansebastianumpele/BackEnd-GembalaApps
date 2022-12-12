@@ -15,11 +15,11 @@ class _mobileDash{
                     fase: 'Pemasukan'
                 }
             });
-            if(!idFasePemasukan) newError(404, 'Fase Pemasukan not found');
+            if(!idFasePemasukan) newError(404, 'Fase Pemasukan tidak ditemukan');
 
             // Get total ternak
             const ternak = await this.db.Ternak.findAll({
-                attributes: ['id_ternak'],
+                attributes: ['id_ternak', 'jenis_kelamin'],
                 where: {
                     id_peternakan: req.dataAuth.id_peternakan,
                     id_fp: {
@@ -57,10 +57,23 @@ class _mobileDash{
             // Get total ternak sehat
             const totalTernakSehat = totalTernak - ternakSakit;
 
+            // Get total jantan and betina
+            let totalJantan = 0;
+            let totalBetina = 0;
+            for(let i = 0; i < ternak.length; i++){
+                if(ternak[i].dataValues.jenis_kelamin.toLowerCase() === 'jantan'){
+                    totalJantan++;
+                }else if(ternak[i].dataValues.jenis_kelamin.toLowerCase() === 'betina')
+                    totalBetina++;
+            }
+
+
             return {
                 code: 200,
                 data: {
                     total_ternak: totalTernak,
+                    total_ternak_jantan: totalJantan,
+                    total_ternak_betina: totalBetina,
                     total_kandang: totalKandang,
                     total_ternak_sakit: ternakSakit,
                     total_ternak_sehat: totalTernakSehat
@@ -81,7 +94,7 @@ class _mobileDash{
                     status_ternak: 'Cempe'
                 }
             });
-            if(!statusCempe) newError(404, 'Status Cempe not found');
+            if(!statusCempe) newError(404, 'Status Cempe tidak ditemukan');
 
             // Get status id pejantan
             const statusPejantan = await this.db.StatusTernak.findOne({
@@ -90,7 +103,7 @@ class _mobileDash{
                     status_ternak: 'Pejantan'
                 }
             });
-            if(!statusPejantan) newError(404, 'Status Pejantan not found');
+            if(!statusPejantan) newError(404, 'Status Pejantan tidak ditemukan');
 
             // Get status id indukan
             const statusIndukan = await this.db.StatusTernak.findOne({
@@ -99,7 +112,7 @@ class _mobileDash{
                     status_ternak: 'Indukan'
                 }
             });
-            if(!statusIndukan) newError(404, 'Status Indukan not found');
+            if(!statusIndukan) newError(404, 'Status Indukan tidak ditemukan');
 
             // Get total ternak pejantan
             const totalTernakPejantan = await this.db.Ternak.count({
@@ -172,7 +185,7 @@ class _mobileDash{
                     fase: 'Kebuntingan'
                 }
             });
-            if(!idFaseKebuntingan) newError(404, 'Fase Kebuntingan not found');
+            if(!idFaseKebuntingan) newError(404, 'Fase Kebuntingan tidak ditemukan');
 
             // Get total ternak kebuntingan
             const totalTernakKebuntingan = await this.db.Ternak.count({
@@ -190,7 +203,7 @@ class _mobileDash{
                     fase: 'Laktasi'
                 }
             });
-            if(!idFaseLaktasi) newError(404, 'Fase Laktasi not found');
+            if(!idFaseLaktasi) newError(404, 'Fase Laktasi tidak ditemukan');
 
             // Get total ternak laktasi
             const totalTernakLaktasi = await this.db.Ternak.count({
@@ -245,7 +258,7 @@ class _mobileDash{
             const fase = await this.db.Fase.findAll({
                 attributes: ['id_fp', 'fase']
             });
-            if(!fase) newError(404, 'Fase not found');
+            if(!fase) newError(404, 'Fase tidak ditemukan');
 
             // Create Object Fase
             let list = {};

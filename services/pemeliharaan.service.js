@@ -1,6 +1,7 @@
 // Helper databse yang dibuat
-const joi = require('joi');
-const {log_error} = require('../utils/logging');
+const DateExtension = require('@joi/date')
+const Joi = require('joi');
+const joi = Joi.extend(DateExtension);
 const {newError, errorHandler} = require('../utils/errorHandler');
 
 class _pemeliharaan{
@@ -35,7 +36,7 @@ class _pemeliharaan{
                 item.dataValues.tanggal_pemeliharaan.getFullYear() === date.getFullYear()
             }); 
             
-            if(result.length <= 0) newError(404, 'Data Pemeliharaan not found', 'getPemeliharaan Service');
+            if(result.length <= 0) newError(404, 'Data Pemeliharaan tidak ditemukan', 'getPemeliharaan Service');
 
             return {
                 code: 200,
@@ -69,7 +70,7 @@ class _pemeliharaan{
                 ],
                 where : req.query
             });
-            if(list.length <= 0) newError(404, 'Data Pemeliharaan not found', 'getAllPemeliharaan Service');
+            if(list.length <= 0) newError(404, 'Data Pemeliharaan tidak ditemukan', 'getAllPemeliharaan Service');
 
             return {
                 code: 200,
@@ -89,7 +90,7 @@ class _pemeliharaan{
             // Validate data
             const schema = joi.object({
                 id_kandang: joi.number().required(),
-                tanggal_pemeliharaan: joi.date().allow(null),
+                tanggal_pemeliharaan: joi.date().format(['YYYY-MM-DD', 'DD-MM-YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ', 'DD-MM-YYYYTHH:mm:ss.SSSZ']).allow(null),
                 jenis_pakan: joi.string().required(),
                 jumlah_pakan: joi.number().required(),
                 pembersihan_kandang: joi.boolean().required(),
@@ -110,7 +111,7 @@ class _pemeliharaan{
                     id_peternakan: req.dataAuth.id_peternakan
                 },
             );
-            if(!pemeliharaan) newError(500, 'Failed to create Pemeliharaan', 'createPemeliharaan Service');
+            if(!pemeliharaan) newError(500, 'Gagal menambah data Pemeliharaan', 'createPemeliharaan Service');
 
             return {
                 code: 200,
