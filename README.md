@@ -22,7 +22,7 @@
     APP_PORT = 51009
 ```
 - install dependency ``` npm i ```
-- create new database 
+- create new database with the name of `sembadafarm_db`
 - migrate database ``` npm run migrate ```
 - run app ``` npm run dev ```
 
