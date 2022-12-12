@@ -13,7 +13,7 @@ class _lkPemasukan{
         try{
             // Get data fase
             const dataFase = await this.db.Fase.findOne({attributes: ['id_fp'], where: {fase: "Pemasukan"}});
-            if(!dataFase) newError(404, 'Data Fase not found', 'getTernakMasuk Service');
+            if(!dataFase) newError(404, 'Data Fase tidak ditemukan', 'getTernakMasuk Service');
 
             // Add id_user to query
             req.query.id_peternakan = req.dataAuth.id_peternakan;
@@ -29,7 +29,7 @@ class _lkPemasukan{
                     ['createdAt', 'DESC']
                 ]
             }); 
-            if(list.length <= 0) newError(404, 'Data Ternak Masuk not found', 'getTernakMasuk Service');
+            if(list.length <= 0) newError(404, 'Data Ternak Masuk tidak ditemukan', 'getTernakMasuk Service');
 
             return {
                 code: 200,
@@ -68,15 +68,15 @@ class _lkPemasukan{
 
             // Get data ternak
             const dataTernak = await this.db.Ternak.findOne({attributes: ['rf_id'], where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan}});
-            if(!dataTernak) newError(404, 'Data Ternak not found', 'createLKPemasukan Service');
+            if(!dataTernak) newError(404, 'Data Ternak tidak ditemukan', 'createLKPemasukan Service');
 
             // Check Ternak in LK Pemasukan
             const ternak = await this.db.LKPemasukan.findOne({where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan}});
-            if(ternak) newError(400, 'Ternak already in LK Pemasukan', 'createLKPemasukan Service');
+            if(ternak) newError(400, 'Ternak sudah ada di LK Pemasukan', 'createLKPemasukan Service');
 
             // get data fase
             const fase = await this.db.Fase.findOne({where: {fase: 'adaptasi 1'}});
-            if(!fase) newError(404, 'Data Fase not found', 'createLKPemasukan Service');
+            if(!fase) newError(404, 'Data Fase tidak ditemukan', 'createLKPemasukan Service');
 
             // Update Data ternak
             const date = new Date();
@@ -95,7 +95,7 @@ class _lkPemasukan{
                 },
                 transaction: t
             });
-            if(update <= 0) newError(400, 'Failed update data ternak', 'createLKPemasukan Service');
+            if(update <= 0) newError(400, 'Gagal update data ternak', 'createLKPemasukan Service');
 
             // Create riwayat fase
             const riwayatFase = await this.db.RiwayatFase.create({
@@ -104,7 +104,7 @@ class _lkPemasukan{
                 tanggal: value.tanggal_masuk || new Date(),
                 id_peternakan: req.dataAuth.id_peternakan
             },{ transaction: t });
-            if(!riwayatFase) newError(400, 'Failed create riwayat fase', 'createLKPemasukan Service');
+            if(!riwayatFase) newError(400, 'Gagal membuat riwayat fase', 'createLKPemasukan Service');
 
             // Create LK Pemasukan
             const lkPemasukan = await this.db.LKPemasukan.create({
@@ -123,7 +123,7 @@ class _lkPemasukan{
                 id_kandang: value.id_kandang,
                 id_peternakan: req.dataAuth.id_peternakan,
             },{ transaction: t });
-            if(!lkPemasukan) newError(400, 'Failed create LK Pemasukan', 'createLKPemasukan Service');
+            if(!lkPemasukan) newError(400, 'Gagal membuat LK Pemasukan', 'createLKPemasukan Service');
 
             // Commit transaction
             await t.commit();
@@ -178,7 +178,7 @@ class _lkPemasukan{
                     ['createdAt', 'DESC']
                 ]
             });
-            if(lkPemasukan.length <= 0) newError(404, 'Data LK Pemasukan not found', 'getLKPemasukan Service');
+            if(lkPemasukan.length <= 0) newError(404, 'Data LK Pemasukan tidak ditemukan', 'getLKPemasukan Service');
 
             return {
                 code: 200,
@@ -227,7 +227,7 @@ class _lkPemasukan{
                     ['createdAt', 'DESC']
                 ]
             });
-            if(lkPemasukan.length <= 0) newError(404, 'Data LK Pemasukan not found', 'getLKPemasukanThisMonth Service');
+            if(lkPemasukan.length <= 0) newError(404, 'Data LK Pemasukan tidak ditemukan', 'getLKPemasukanThisMonth Service');
 
             // Filter by this month
             const thisDate = new Date();

@@ -13,7 +13,7 @@ class _status{
                 attrbutes: ['id_status_ternak','status_ternak'],
                 where: req.query
             });
-            if(list.length <= 0) newError(404, 'Data Status not found', 'getStatus Service');
+            if(list.length <= 0) newError(404, 'Data Status tidak ditemukan', 'getStatus Service');
 
             return {
                 code: 200,
@@ -39,7 +39,7 @@ class _status{
 
             // Create new status
             const status = await this.db.StatusTernak.create(value);
-            if(!status) newError(500, 'Failed to create new data status', 'createStatus Service');
+            if(!status) newError(500, 'Gagal menambahkan data status ternak', 'createStatus Service');
 
             return {
                 code: 200,
@@ -69,7 +69,7 @@ class _status{
                     id_status_ternak: value.id_status_ternak
                 }
             });
-            if(status <= 0) newError(500, 'Failed to update data status', 'updateStatus Service');
+            if(status <= 0) newError(500, 'Gagal update data status ternak', 'updateStatus Service');
 
             return {
                 code: 200,
@@ -100,7 +100,7 @@ class _status{
                     id_status_ternak: value.id_status_ternak
                 }
             });
-            if(status <= 0) newError(500, 'Failed to delete data status', 'deleteStatus Service');
+            if(status <= 0) newError(500, 'Gagal menghapus data status ternak', 'deleteStatus Service');
 
             return {
                 code: 200,

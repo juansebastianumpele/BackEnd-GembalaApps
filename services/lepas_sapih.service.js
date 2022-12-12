@@ -23,20 +23,20 @@ class _lepasSapih{
 
             // Get data fase kelahiran
             const faseKelahiran = await this.db.Fase.findOne({where: {fase: 'Kelahiran'}});
-            if(!faseKelahiran) newError(404, 'Data Fase Kelahiran not found', 'createLepasSapih Service');
+            if(!faseKelahiran) newError(404, 'Data Fase Kelahiran tidak ditemukan', 'createLepasSapih Service');
 
             // Get data fase lepas sapih
             const faseLepasSapih = await this.db.Fase.findOne({where: {fase: 'Lepas Sapih'}});
-            if(!faseLepasSapih) newError(404, 'Data Fase Lepas Sapih not found', 'createLepasSapih Service');
+            if(!faseLepasSapih) newError(404, 'Data Fase Lepas Sapih tidak ditemukan', 'createLepasSapih Service');
 
             // Check ternak
             const ternak = await this.db.Ternak.findOne({where: {id_ternak: value.id_ternak}});
-            if(!ternak) newError(404, 'Ternak not found', 'createLepasSapih Service');
+            if(!ternak) newError(404, 'Ternak tidak ditemukan', 'createLepasSapih Service');
             if(ternak.dataValues.id_fp !== faseKelahiran.dataValues.id_fp) newError(400, 'Ternak not in fase kelahiran', 'createLepasSapih Service');
 
             // Check kandang
             const kandang = await this.db.Kandang.findOne({where: {id_kandang: value.id_kandang}});
-            if(!kandang) newError(404, 'Kandang not found', 'createLepasSapih Service');
+            if(!kandang) newError(404, 'Kandang tidak ditemukan', 'createLepasSapih Service');
 
             // Update ternak to lepas sapih fase
             const updateTernak = await this.db.Ternak.update({
@@ -49,7 +49,7 @@ class _lepasSapih{
                 }, 
                 transaction: t
             });
-            if(updateTernak[0] <= 0) newError(400, 'Update ternak to lepas sapih fase failed', 'createLepasSapih Service');
+            if(updateTernak[0] <= 0) newError(400, 'Gagal mengupdate fase ternak', 'createLepasSapih Service');
 
             // Create riwayat lepas sapih
             const createRiwayatLepasSapih = await this.db.RiwayatLepasSapih.create({
@@ -58,7 +58,7 @@ class _lepasSapih{
                 tanggal_lepas_sapih: value.tanggal_lepas_sapih || new Date(),
                 kode_kandang: kandang.dataValues.kode_kandang
             }, {transaction: t});
-            if(!createRiwayatLepasSapih) newError(400, 'Create riwayat lepas sapih failed', 'createLepasSapih Service');
+            if(!createRiwayatLepasSapih) newError(400, 'Gagal manambahkan riwayat fase', 'createLepasSapih Service');
 
             // Create riwayat fase cempe
             const createRiwayatFase = await this.db.RiwayatFase.create({
@@ -67,15 +67,15 @@ class _lepasSapih{
                 id_fp: faseLepasSapih.dataValues.id_fp,
                 tanggal: value.tanggal_lepas_sapih || new Date()
             }, {transaction: t});
-            if(!createRiwayatFase) newError(400, 'Create riwayat fase failed', 'createLepasSapih Service');
+            if(!createRiwayatFase) newError(400, 'Gagal menambah riwayat fase', 'createLepasSapih Service');
 
             // Get data fase laktasi
             const faseLaktasi = await this.db.Fase.findOne({where: {fase: 'Laktasi'}});
-            if(!faseLaktasi) newError(404, 'Data Fase Laktasi not found', 'createLepasSapih Service');
+            if(!faseLaktasi) newError(404, 'Data Fase Laktasi tidak ditemukan', 'createLepasSapih Service');
 
             // Get data fase waiting list perkawinan
             const faseWaitingListPerkawinan = await this.db.Fase.findOne({where: {fase: 'Waiting List Perkawinan'}});
-            if(!faseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan not found', 'createLepasSapih Service');
+            if(!faseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan tidak ditemukan', 'createLepasSapih Service');
 
             // Check Indukan
             const indukan = await this.db.Ternak.findOne({
@@ -83,7 +83,7 @@ class _lepasSapih{
                     id_ternak: ternak.dataValues.id_dam
                 }
             });
-            if(!indukan) newError(404, 'Indukan not found', 'createLepasSapih Service');
+            if(!indukan) newError(404, 'Indukan tidak ditemukan', 'createLepasSapih Service');
 
             // If Indukan in Laktasi fase, Move to Waiting List perkawinan
             if(indukan.dataValues.id_fp === faseLaktasi.dataValues.id_fp){
@@ -97,7 +97,7 @@ class _lepasSapih{
                     }, 
                     transaction: t
                 });
-                if(updateIndukan[0] <= 0) newError(400, 'Update ternak to waiting list perkawinan fase failed', 'createLepasSapih Service');
+                if(updateIndukan[0] <= 0) newError(400, 'Gagal update fase ternak', 'createLepasSapih Service');
 
                 // Create riwayat fase
                 const createRiwayatFase = await this.db.RiwayatFase.create({
@@ -106,7 +106,7 @@ class _lepasSapih{
                     id_fp: faseWaitingListPerkawinan.dataValues.id_fp,
                     tanggal: new Date()
                 }, {transaction: t});
-                if(!createRiwayatFase) newError(400, 'Create riwayat fase failed', 'createLepasSapih Service');
+                if(!createRiwayatFase) newError(400, 'Gagal menambah riwayat fase', 'createLepasSapih Service');
             }
                 
             // Commit transaction
@@ -130,7 +130,7 @@ class _lepasSapih{
         try{
             // Get data fase lepas sapih
             const dataLepasSapih = await this.db.Fase.findOne({where: {fase: 'Lepas Sapih'}});
-            if(!dataLepasSapih) newError(404, 'Data Fase Lepas Sapih not found', 'getLepasSapih Service');
+            if(!dataLepasSapih) newError(404, 'Data Fase Lepas Sapih tidak ditemukan', 'getLepasSapih Service');
 
             // Add params
             req.query.id_peternakan = req.dataAuth.id_peternakan;
@@ -167,7 +167,7 @@ class _lepasSapih{
                 delete ternak[i].dataValues.riwayat_fase;
             }
 
-            if(ternak.length <= 0) newError(404, 'Data Lepas Sapih not found', 'getLepasSapih Service');
+            if(ternak.length <= 0) newError(404, 'Data Lepas Sapih tidak ditemukan', 'getLepasSapih Service');
 
             return {
                 code: 200,
@@ -194,11 +194,11 @@ class _lepasSapih{
             if(error) newError(400, error.details[0].message, 'seleksiLepasSapih Service');
 
             // Check status
-            if(value.status.toLowerCase() !== 'pejantan' && value.status.toLowerCase() !== 'indukan' && value.status.toLowerCase() !== 'bakalan') newError(400, 'Status must be pejantan, betina, or bakalan', 'seleksiLepasSapih Service');
+            if(value.status.toLowerCase() !== 'pejantan' && value.status.toLowerCase() !== 'indukan' && value.status.toLowerCase() !== 'bakalan') newError(400, 'Status harus pejantan, indukan, atau bakalan', 'seleksiLepasSapih Service');
 
             // Get data fase lepas sapih
             const dataLepasSapih = await this.db.Fase.findOne({where: {fase: 'Lepas Sapih'}});
-            if(!dataLepasSapih) newError(404, 'Data Fase Lepas Sapih not found', 'seleksiLepasSapih Service');
+            if(!dataLepasSapih) newError(404, 'Data Fase Lepas Sapih tidak ditemukan', 'seleksiLepasSapih Service');
 
             // Check ternak
             const ternak = await this.db.Ternak.findOne({
@@ -207,24 +207,24 @@ class _lepasSapih{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!ternak) newError(404, 'Ternak not found', 'seleksiLepasSapih Service');
+            if(!ternak) newError(404, 'Ternak tidak ditemukan', 'seleksiLepasSapih Service');
             if(ternak.dataValues.id_fp !== dataLepasSapih.dataValues.id_fp) newError(400, 'Ternak not in Lepas Sapih fase', 'seleksiLepasSapih Service');
 
             // Get data status
             const dataStatus = await this.db.StatusTernak.findOne({where: {status_ternak: value.status}});
-            if(!dataStatus) newError(404, `Data Status ${value.status} not found`, 'seleksiLepasSapih Service');
+            if(!dataStatus) newError(404, `Data Status ${value.status} tidak ditemukan`, 'seleksiLepasSapih Service');
 
             // // Get fase waiting list perkawinan
             // const faseWaitingListPerkawinan = await this.db.Fase.findOne({where: {fase: 'Waiting List Perkawinan'}});
-            // if(!faseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan not found', 'seleksiLepasSapih Service');
+            // if(!faseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan tidak ditemukan', 'seleksiLepasSapih Service');
 
             // // Get fase perkawinan
             // const fasePerkawinan = await this.db.Fase.findOne({where: {fase: 'Perkawinan'}});
-            // if(!fasePerkawinan) newError(404, 'Data Fase Perkawinan not found', 'seleksiLepasSapih Service');
+            // if(!fasePerkawinan) newError(404, 'Data Fase Perkawinan tidak ditemukan', 'seleksiLepasSapih Service');
 
             // Get data fase adaptasi 1
             const faseAdaptasi1 = await this.db.Fase.findOne({where: {fase: 'Adaptasi 1'}});
-            if(!faseAdaptasi1) newError(404, 'Data Fase Adaptasi 1 not found', 'seleksiLepasSapih Service');
+            if(!faseAdaptasi1) newError(404, 'Data Fase Adaptasi 1 tidak ditemukan', 'seleksiLepasSapih Service');
 
             // let faseSeleksi;
             // if(value.status.toLowerCase() === 'pejantan'){
@@ -243,7 +243,7 @@ class _lepasSapih{
             }else if(value.status.toLowerCase() === 'bakalan'){
                 faseSeleksi = null
             }else{
-                newError(400, 'Status must be pejantan, indukan, or bakalan', 'seleksiLepasSapih Service');
+                newError(400, 'Status harus pejantan, indukan, atau bakalan' , 'seleksiLepasSapih Service');
             }
             // Update status ternak
             const updateStatusTernak = await this.db.Ternak.update({
@@ -256,7 +256,7 @@ class _lepasSapih{
                 },
                 transaction: t
             });
-            if(updateStatusTernak[0] <= 0) newError(400, 'Update status ternak failed', 'seleksiLepasSapih Service');
+            if(updateStatusTernak[0] <= 0) newError(400, 'Gagal update status ternak', 'seleksiLepasSapih Service');
 
             // Create riwayat fase
             if(faseSeleksi){
@@ -266,7 +266,7 @@ class _lepasSapih{
                     id_fp: faseSeleksi,
                     tanggal: new Date()
                 }, {transaction: t});
-                if(!createRiwayatFase) newError(400, 'Create riwayat fase failed', 'seleksiLepasSapih Service');
+                if(!createRiwayatFase) newError(400, 'Gagal menambah riwayat fase', 'seleksiLepasSapih Service');
             }
 
             // Commit
@@ -291,7 +291,7 @@ class _lepasSapih{
         try{
             // Get data fase lepas sapih
             const dataLepasSapih = await this.db.Fase.findOne({where: {fase: 'Lepas Sapih'}});
-            if(!dataLepasSapih) newError(404, 'Data Fase Lepas Sapih not found', 'getLepasSapihDashboard Service');
+            if(!dataLepasSapih) newError(404, 'Data Fase Lepas Sapih tidak ditemukan', 'getLepasSapihDashboard Service');
 
             // Get ternak
             const ternak = await this.db.Ternak.findAll({
@@ -350,7 +350,7 @@ class _lepasSapih{
                 ternak[i].dataValues.suhu = ternak[i].dataValues.timbangan.length > 0 ? ternak[i].dataValues.timbangan[ternak[i].dataValues.timbangan.length - 1].dataValues.suhu : null;
                 delete ternak[i].dataValues.timbangan;
             }
-            if(ternak.length <= 0) newError(404, 'Data Lepas Sapih not found', 'getLepasSapihDashboard Service');
+            if(ternak.length <= 0) newError(404, 'Data Lepas Sapih tidak ditemukan', 'getLepasSapihDashboard Service');
 
             return {
                 code: 200,

@@ -55,11 +55,11 @@ class _formInput{
             
             // Get status ternak indukan
             const statusIndukan = await this.db.StatusTernak.findOne({where: {status_ternak: 'Indukan'}});
-            if(!statusIndukan) newError(404, 'Data Status Ternak Indukan not found', 'getDataFormInput Service');
+            if(!statusIndukan) newError(404, 'Data Status Ternak Indukan tidak ditemukan', 'getDataFormInput Service');
 
             // Get status ternak pejantan
             const statusPejantan = await this.db.StatusTernak.findOne({where: {status_ternak: 'Pejantan'}});
-            if(!statusPejantan) newError(404, 'Data Status Ternak Pejantan not found', 'getDataFormInput Service');
+            if(!statusPejantan) newError(404, 'Data Status Ternak Pejantan tidak ditemukan', 'getDataFormInput Service');
 
             // Get data indukan
             const indukan = await this.db.Ternak.findAll({
@@ -87,7 +87,7 @@ class _formInput{
 
             // Get fase perkawinan
             const fasePerkawinan = await this.db.Fase.findOne({where: {fase: 'Perkawinan'}});
-            if(!fasePerkawinan) newError(404, 'Data Fase Perkawinan not found', 'getDataFormInput Service');
+            if(!fasePerkawinan) newError(404, 'Data Fase Perkawinan tidak ditemukan', 'getDataFormInput Service');
 
             // Get Pejantan in perkawinan
             const pejantanInPerkawinan = await this.db.Ternak.findAll({
@@ -137,7 +137,7 @@ class _formInput{
 
             // Get fase kelahiran
             const faseKelahiran = await this.db.Fase.findOne({where: {fase: 'Kelahiran'}})
-            if(!faseKelahiran) newError(404, 'Data fase kelahiran not found', 'getDataFormInput Service')
+            if(!faseKelahiran) newError(404, 'Data fase kelahiran tidak ditemukan', 'getDataFormInput Service')
 
             // Get ternak fase kelahiran
             const ternakKelahiran = await this.db.Ternak.findAll({
@@ -152,11 +152,11 @@ class _formInput{
 
             // Get fase kebuntingan
             const faseKebuntingan = await this.db.Fase.findOne({where: {fase: 'Kebuntingan'}})
-            if(!faseKebuntingan) newError(404, 'Data fase kebuntingan not found', 'getDataFormInput Service')
+            if(!faseKebuntingan) newError(404, 'Data fase kebuntingan tidak ditemukan', 'getDataFormInput Service')
 
             // Get fase laktasi
             const faseLaktasi = await this.db.Fase.findOne({where: {fase: 'Laktasi'}})
-            if(!faseLaktasi) newError(404, 'Data fase laktasi not found', 'getDataFormInput Service')
+            if(!faseLaktasi) newError(404, 'Data fase laktasi tidak ditemukan', 'getDataFormInput Service')
 
             // Get indukan in faSE kebuntingan and laktasi
             const damKelahiran = await this.db.Ternak.findAll({

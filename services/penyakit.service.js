@@ -11,7 +11,7 @@ class _penyakit{
         try{
             // Get data penyakit
             const list = await this.db.Penyakit.findAll({ where : req.query });
-            if(list.length <= 0) newError(404, 'Data Penyakit not found', 'getPenyakit Service');
+            if(list.length <= 0) newError(404, 'Data Penyakit tidak ditemukan', 'getPenyakit Service');
 
             return {
                 code : 200,
@@ -43,7 +43,7 @@ class _penyakit{
                 gejala: value.gejala,
                 penanganan: value.penanganan,
             });
-            if(!add) newError(500, 'Failed to create new data penyakit', 'createPenyakit Service');
+            if(!add) newError(500, 'Gagal menambah data penyakit', 'createPenyakit Service');
 
             return {
                 code: 200,
@@ -83,7 +83,7 @@ class _penyakit{
                     id_penyakit: value.id_penyakit
                 }
             });
-            if(update <= 0) newError(500, 'Failed to update data penyakit', 'updatePenyakit Service');
+            if(update <= 0) newError(500, 'Gagal mengubah data penyakit', 'updatePenyakit Service');
 
             return {
                 code: 200,
@@ -114,7 +114,7 @@ class _penyakit{
                     id_penyakit: value.id_penyakit
                 }
             });
-            if(del <= 0) newError(500, 'Failed to delete data penyakit', 'deletePenyakit Service');
+            if(del <= 0) newError(500, 'Gagal menghapus data penyakit', 'deletePenyakit Service');
             
             return {
                 code: 200,

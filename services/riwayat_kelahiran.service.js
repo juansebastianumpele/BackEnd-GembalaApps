@@ -27,7 +27,7 @@ class _riwayatKelahiran {
                     ['createdAt', 'DESC']
                 ]
             });
-            if(RiwayatKelahiran.length <= 0) newError(404, 'Data Riwayat Kelahiran not found', 'getRiwayatKelahiran Service');
+            if(RiwayatKelahiran.length <= 0) newError(404, 'Data Riwayat Kelahiran tidak ditemukan', 'getRiwayatKelahiran Service');
 
             return {
                 code: 200,

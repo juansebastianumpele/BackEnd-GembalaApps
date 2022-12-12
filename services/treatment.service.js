@@ -7,7 +7,7 @@ class _treatment{
     // Get Treatment
     getTreatment = async (req) => {
         try{
-            if(!req.query.id_ternak) newError(400, 'id_ternak is required', 'getTreatment Service');
+            if(!req.query.id_ternak) newError(400, 'id_ternak tidak boleh kosong', 'getTreatment Service');
 
             const ternak = await this.db.Ternak.findOne({
                 attributes: ['id_ternak', 'id_fp'],
@@ -23,7 +23,7 @@ class _treatment{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!ternak) newError(404, 'Data Ternak not found', 'getTreatment Service');
+            if(!ternak) newError(404, 'Data Ternak tidak ditemukan', 'getTreatment Service');
 
             if(ternak.dataValues.fase.dataValues.fase.toLowerCase().startsWith('adaptasi')){
                 const list = await this.db.Treatment.findAll({
@@ -32,7 +32,7 @@ class _treatment{
                         step: parseInt(ternak.dataValues.fase.dataValues.fase.split(' ')[1])
                     }
                 });
-                if(list.length <= 0) newError(404, 'Data Treatment not found', 'getTreatment Service');
+                if(list.length <= 0) newError(404, 'Data Treatment tidak ditemukan', 'getTreatment Service');
                 
                 return {
                     code: 200,
@@ -44,7 +44,7 @@ class _treatment{
                 };
             }
             else{
-                newError(400, 'Ternak is not in Adaptasi', 'getTreatment Service');
+                newError(400, 'Ternak tidak di fase Adaptasi', 'getTreatment Service');
             }
         }catch (error){
             return errorHandler(error);
@@ -58,7 +58,7 @@ class _treatment{
                 attributes: ['id_treatment', 'step', 'treatment'],
                 where: req.query
             });
-            if(list.length <= 0) newError(404, 'Data Treatment not found', 'getAllTreatment Service');
+            if(list.length <= 0) newError(404, 'Data Treatment tidak ditemukan', 'getAllTreatment Service');
 
             return {
                 code: 200,

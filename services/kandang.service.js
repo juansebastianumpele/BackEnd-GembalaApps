@@ -68,7 +68,7 @@ class _kandang{
                 list[i].dataValues.kebutuhan_pakan = berat_total * (list[i].dataValues.persentase_kebutuhan_pakan/100);
                 delete list[i].dataValues.ternak;
             }
-            if(list.length <= 0) newError(404, 'Data Kandang not found', 'getKandang Service');
+            if(list.length <= 0) newError(404, 'Data Kandang tidak ditemukan', 'getKandang Service');
 
             return {
                 code : 200,
@@ -103,7 +103,7 @@ class _kandang{
                 id_jenis_pakan: value.id_jenis_pakan,
                 persentase_kebutuhan_pakan: value.persentase_kebutuhan_pakan
             });
-            if(!add) newError(500, 'Failed to create new Kandang', 'createKandang Service');
+            if(!add) newError(500, 'Gagal menambahkan data kandang', 'createKandang Service');
 
             return {
                 code : 200,
@@ -146,7 +146,7 @@ class _kandang{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(update <= 0) newError(404, 'Data Kandang not found', 'updateKandang Service');
+            if(update <= 0) newError(404, 'Data Kandang tidak ditemukan', 'updateKandang Service');
 
             return {
                 code : 200,
@@ -178,7 +178,7 @@ class _kandang{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(del <= 0) newError(404, 'Data Kandang not found', 'deleteKandang Service');
+            if(del <= 0) newError(404, 'Data Kandang tidak ditemukan', 'deleteKandang Service');
             
             return {
                 code : 200,
@@ -215,7 +215,7 @@ class _kandang{
                 delete list[i].dataValues.jenis_kandang
             }
 
-            if(list.length <= 0) newError(404, 'Data Kandang not found', 'getKodeKandang Service');
+            if(list.length <= 0) newError(404, 'Data Kandang tidak ditemukan', 'getKodeKandang Service');
 
             return {
                 code : 200,

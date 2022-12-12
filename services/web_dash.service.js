@@ -25,15 +25,15 @@ class _dashboard{
 
             // Get status id cempe
             const statusCempe = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Cempe'}});
-            if(!statusCempe) newError(404, 'Data Status Ternak Cempe not found', 'getTotalTernakByStatus Service');
+            if(!statusCempe) newError(404, 'Data Status Ternak Cempe tidak ditemukan', 'getTotalTernakByStatus Service');
 
             // Get status is pejantan
             const statusPejantan = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Pejantan'}});
-            if(!statusPejantan) newError(404, 'Data Status Ternak Pejantan not found', 'getTotalTernakByStatus Service');
+            if(!statusPejantan) newError(404, 'Data Status Ternak Pejantan tidak ditemukan', 'getTotalTernakByStatus Service');
 
             // Get status is indukan
             const statusIndukan = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Indukan'}});
-            if(!statusIndukan) newError(404, 'Data Status Ternak Indukan not found', 'getTotalTernakByStatus Service');
+            if(!statusIndukan) newError(404, 'Data Status Ternak Indukan tidak ditemukan', 'getTotalTernakByStatus Service');
 
             // Get total ternak pejantan
             const totalTernakPejantan = await this.db.Ternak.count({
@@ -136,7 +136,7 @@ class _dashboard{
         try{
             // Get data fase pemasukan
             const fasePemasukan = await this.db.Fase.findOne({attributes: ['id_fp'], where: {fase: 'Pemasukan'}});
-            if(!fasePemasukan) newError(404, 'Fase Pemasukan not found', 'getTotalTernak Service');
+            if(!fasePemasukan) newError(404, 'Fase Pemasukan tidak ditemukan', 'getTotalTernak Service');
 
             const totalTernak = await this.db.Ternak.count({
                 where: {
@@ -170,7 +170,7 @@ class _dashboard{
         try{
             // Get data fase
             const fase = await this.db.Fase.findAll({});
-            if(fase.length <= 0) newError(404, 'Data Fase not found', 'getTotalTernakByFase Service');
+            if(fase.length <= 0) newError(404, 'Data Fase tidak ditemukan', 'getTotalTernakByFase Service');
 
             // Get data ternak
             const ternak = await this.db.Ternak.findAll({
@@ -238,11 +238,11 @@ class _dashboard{
         try{
             // Get data jenis kandang
             const jenisKandang = await this.db.JenisKandang.findAll({});
-            if(jenisKandang.length <= 0) newError(404, 'Data Jenis Kandang not found', 'getTotalTernakByJenisKandang Service');
+            if(jenisKandang.length <= 0) newError(404, 'Data Jenis Kandang tidak ditemukan', 'getTotalTernakByJenisKandang Service');
 
             // Get data kandang
             const kandang = await this.db.Kandang.findAll({where: {id_peternakan: req.dataAuth.id_peternakan}});
-            if(kandang.length <= 0) newError(404, 'Data Kandang not found', 'getTotalTernakByJenisKandang Service');
+            if(kandang.length <= 0) newError(404, 'Data Kandang tidak ditemukan', 'getTotalTernakByJenisKandang Service');
             
             // Get data ternak
             const ternak = await this.db.Ternak.findAll({
@@ -261,7 +261,7 @@ class _dashboard{
                     status_keluar: null
                 }
             });
-            if(ternak.length <= 0) newError(404, 'Data Ternak not found', 'getTotalTernakByJenisKandang Service');
+            if(ternak.length <= 0) newError(404, 'Data Ternak tidak ditemukan', 'getTotalTernakByJenisKandang Service');
 
             // Get total ternak by jenis kandang
             let totalTernakByJenisKandang = [];
@@ -299,7 +299,7 @@ class _dashboard{
         try{
             // Get data status ternak cempe
             const statusTernak = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak'], where: {status_ternak: 'Cempe'}});
-            if(!statusTernak){return {code: 404, error: 'Status Ternak Cempe Not Found'}}
+            if(!statusTernak){return {code: 404, error: 'Status Ternak Cempe tidak ditemukan'}}
 
             // Get data ternak cempe
             const ternakCempe = await this.db.Ternak.findAll({
@@ -320,7 +320,7 @@ class _dashboard{
                     tanggal_keluar: null
                 }
             });
-            if(ternakCempe.length <= 0) newError(404, 'Ternak Cempe Not Found', 'getAdgCempe Service');
+            if(ternakCempe.length <= 0) newError(404, 'Ternak Cempe tidak ditemukan', 'getAdgCempe Service');
 
             // Get data berat badan ternak cempe
             let beratBadanTernakCempe = {};
@@ -422,7 +422,7 @@ class _dashboard{
     getCoordinate = async (req) => {
         try{
             const peternakan = await this.db.Peternakan.findOne({where: {id_peternakan: req.dataAuth.id_peternakan}});
-            if(!peternakan) newError(404, 'Peternakan Not Found', 'getCoordinate Service');
+            if(!peternakan) newError(404, 'Peternakan tidak ditemukan', 'getCoordinate Service');
 
             console.log(req.dataAuth.id_peternakan);
             console.log(peternakan)

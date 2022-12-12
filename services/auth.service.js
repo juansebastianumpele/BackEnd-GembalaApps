@@ -33,12 +33,12 @@ class _auth{
             // Check status users
             if(checkUsername.status == 'inactive'){
                 verifyNewAccount(checkUsername);
-                newError(400, 'Sorry, your account is not verified, please check your email', 'Login Service');
+                newError(400, 'Akun anda belum aktif, silahkan cek email anda untuk aktivasi', 'Login Service');
             }
 
             // Compare password
             const isMatch = await comparePassword(value.kata_sandi, checkUsername.kata_sandi);
-            if (!isMatch) newError(400, 'Password not match', 'Login Service');
+            if (!isMatch) newError(400, 'Password salah', 'Login Service');
 
             // Generate token
             const token = generateToken({ 
@@ -48,11 +48,11 @@ class _auth{
                 status: checkUsername.status,
                 id_peternakan: checkUsername.id_peternakan
             });
-            if (!token) newError(400, 'Failed to generate token', 'Login Service');
+            if (!token) newError(400, 'Gagal generate token', 'Login Service');
 
             // Update lastAccess
             const updateLastAccess = await this.db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: checkUsername.dataValues.id_user}});
-            if (!updateLastAccess) newError(500, 'Failed to update last access', 'Login Service');
+            if (!updateLastAccess) newError(500, 'Gagal update last access', 'Login Service');
 
             return {
                 code : 200,
@@ -86,15 +86,15 @@ class _auth{
 
             // Check if user exist
             const checkUsername = await this.db.AuthUser.findOne({where : {nama_pengguna: value.nama_pengguna}});
-            if (checkUsername) newError(400, 'Username already exist', 'Register Service');
+            if (checkUsername) newError(400, 'Username sudah terdaftar', 'Register Service');
 
             // check nomor telepon
             const checkNomorTelepon = await this.db.AuthUser.findOne({where : {nomor_telepon: value.nomor_telepon}});
-            if (checkNomorTelepon) newError(400, 'Phone number already exist', 'Register Service');
+            if (checkNomorTelepon) newError(400, 'Nomor telepon sudah terdaftar', 'Register Service');
 
             // check if email exist
             const checkEmail = await this.db.AuthUser.findOne({where : {email: value.email}});
-            if (checkEmail) newError(400, 'Email already exist', 'Register Service');
+            if (checkEmail) newError(400, 'Email sudah terdaftar', 'Register Service');
 
             // Get longtitude, latitude and alamat_postcode external API
             const geocode = await axios.get(config.geocode.base_url, {
@@ -109,7 +109,7 @@ class _auth{
                     'Accept-Encoding': 'application/json',
                 }
             })
-            if(geocode.data.error) newError(400, 'Failed to get geocode, pleace check your postcode', 'Register Service');
+            if(geocode.data.error) newError(400, 'Gagal mendapatkan data geocode, silahkan periiksa kembali postcode anda', 'Register Service');
 
             // add peternakan
             const addPeternakan = await this.db.Peternakan.create({
@@ -120,7 +120,7 @@ class _auth{
                 latitude: geocode.data.latt,
                 alamat_postcode: geocode.data.standard.city + ', ' + geocode.data.standard.statename + ', ' + geocode.data.standard.countryname + ', ' + geocode.data.standard.postal
             }, {transaction: t});
-            if(!addPeternakan) newError(400, 'Failed to add peternakan', 'Register Service');
+            if(!addPeternakan) newError(400, 'Gagal menambahkan peternakan', 'Register Service');
 
             // Hash password
             value.kata_sandi = await hashPassword(value.kata_sandi);
@@ -135,7 +135,7 @@ class _auth{
                 nomor_telepon: value.nomor_telepon,
                 kata_sandi: value.kata_sandi
             }, {transaction: t});
-            if (!register) newError(400, 'Failed to register', 'Register Service');
+            if (!register) newError(400, 'Gagal registrasi', 'Register Service');
 
             // Send email verification
             verifyNewAccount(register);
@@ -159,7 +159,7 @@ class _auth{
     logout = async (req, res) => {
         try{
             const update = await this.db.AuthUser.update({lastAccess: new Date()}, {where: {id_user: req.dataAuth.id_user}});
-            if (update <= 0) newError(400, 'Failed to logout', 'Logout Service');
+            if (update <= 0) newError(400, 'Gagal logout', 'Logout Service');
             return {
                 code: 200,
                 data: {
@@ -190,7 +190,7 @@ class _auth{
                     id_user: req.dataAuth.id_user
                 }
              });
-            if(!list) newError(400, 'Failed to get profile', 'Get Profile Service');
+            if(!list) newError(400, 'Gagal mendapatkan data profile', 'Get Profile Service');
 
             list.dataValues.image = list.dataValues.image ? `${req.protocol}://${req.get('host')}/avatar/${list.image}` : null;
 
@@ -202,7 +202,7 @@ class _auth{
                         id_peternakan: req.dataAuth.id_peternakan
                     }
                 });
-                if(!peternakan) newError(400, 'Failed to get peternakan', 'Get Profile Service');
+                if(!peternakan) newError(400, 'Gagal mendapatkan data peternakan', 'Get Profile Service');
                 list.dataValues.peternakan = peternakan;
             }
 
@@ -227,15 +227,15 @@ class _auth{
 
             // Check if user exist
             const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
-            if (!checkUser) newError(400, 'User not found', 'DeleteAccount Service');
+            if (!checkUser) newError(400, 'User tidak ditemukan', 'DeleteAccount Service');
 
             // Compare password
             const isMatch = await comparePassword(value.kata_sandi, checkUser.kata_sandi);
-            if (!isMatch) newError(400, 'Password not match', 'DeleteAccount Service');
+            if (!isMatch) newError(400, 'Password salah', 'DeleteAccount Service');
 
             // Delete data
             const deletedAccount = await this.db.AuthUser.destroy({where: {id_user: req.dataAuth.id_user}});
-            if (deletedAccount <= 0) newError(400, 'Failed to delete account', 'DeleteAccount Service');
+            if (deletedAccount <= 0) newError(400, 'Gagal menghapus akun', 'DeleteAccount Service');
 
             return {
                 code: 200,
@@ -265,11 +265,11 @@ class _auth{
         
         // Check user account
         const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
-        if (!checkUser) newError(400, 'User not found', 'UpdateAccount Service');
+        if (!checkUser) newError(400, 'Pengguna tidak ditemukan', 'UpdateAccount Service');
 
         // Check peternakan
         const checkPeternakan = await this.db.Peternakan.findOne({where : {id_peternakan: checkUser.id_peternakan}});
-        if (!checkPeternakan) newError(400, 'Peternakan not found', 'UpdateAccount Service');
+        if (!checkPeternakan) newError(400, 'Peternakan tidak ditemukan', 'UpdateAccount Service');
 
         // Check nomor telepon
         const checkNomorTelepon = await this.db.AuthUser.findOne({where : {
@@ -278,7 +278,7 @@ class _auth{
                 [Op.ne]: req.dataAuth.id_user
             }
         }});
-        if (checkNomorTelepon) newError(400, 'Nomor telepon already exist', 'UpdateAccount Service');
+        if (checkNomorTelepon) newError(400, 'Nomor telepon sudah terdaftar', 'UpdateAccount Service');
 
         // check username
         const checkUsername = await this.db.AuthUser.findOne({where : {
@@ -287,8 +287,7 @@ class _auth{
                 [Op.ne]: req.dataAuth.id_user
             }
         }});
-        if (checkUsername) newError(400, 'Username already exist', 'UpdateAccount Service');
-
+        if (checkUsername) newError(400, 'Nama Pengguna sudah terdaftar', 'UpdateAccount Service');
         // if postcode is changed
         let geocode;
         if(value.postcode && value.postcode !== checkPeternakan.dataValues.postcode){
@@ -305,7 +304,7 @@ class _auth{
                     'Accept-Encoding': 'application/json',
                 }
             })
-            if(!geocode) newError(400, 'Failed to get geocode', 'Register Service');
+            if(!geocode) newError(400, 'Gagal mendapatkan data geocode, silahkan cek kembali kode pos anda', 'UpdateAccount Service');
         }
 
         // Update data
@@ -315,7 +314,7 @@ class _auth{
         }, {
             where: {id_user: req.dataAuth.id_user}
         });
-        if (updatedAccount <= 0) newError(500, 'Failed to update account', 'UpdateAccount Service');
+        if (updatedAccount <= 0) newError(500, 'Gagal mengupdate data pengguna', 'UpdateAccount Service');
         
         // Update peternakan
         const updatedPeternakan = await this.db.Peternakan.update({
@@ -328,7 +327,7 @@ class _auth{
         }, {
             where: {id_peternakan: req.dataAuth.id_peternakan}
         });
-        if (updatedPeternakan <= 0) newError(500, 'Failed to update peternakan', 'UpdateAccount Service');
+        if (updatedPeternakan <= 0) newError(500, 'Gagal mengupdate data peternakan', 'UpdateAccount Service');
 
         return {
             code : 200,
@@ -353,18 +352,18 @@ class _auth{
 
         // Check if user exist
         const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
-        if (!checkUser) newError(400, 'User not found', 'UpdatePassword Service');
+        if (!checkUser) newError(400, 'Pengguna tidak ditemukan', 'UpdatePassword Service');
 
         // Compare password
         const isMatch = await comparePassword(value.kata_sandi, checkUser.kata_sandi);
-        if (!isMatch) newError(400, 'Password not match', 'UpdatePassword Service');
+        if (!isMatch) newError(400, 'Password salah', 'UpdatePassword Service');
 
         // Hash password
         const newPassword = await hashPassword(value.kata_sandi_baru);
 
         // Update data
         const updatedPassword = await this.db.AuthUser.update({kata_sandi: newPassword}, {where: {id_user: req.dataAuth.id_user}});
-        if (updatedPassword <= 0) newError(500, 'Failed to update password', 'UpdatePassword Service');
+        if (updatedPassword <= 0) newError(500, 'Gagal mengupdate password', 'UpdatePassword Service');
 
         return {
             code : 200,
@@ -390,7 +389,7 @@ class _auth{
                     id_user: req.dataAuth.id_user
                 }
             });
-            if (!user) newError(400, 'User not found', 'Verify Service');
+            if (!user) newError(400, 'Pengguna tidak ditemukan', 'Verify Service');
 
             user.dataValues.image = user.dataValues.image ? `${req.protocol}://${req.get('host')}/avatar/${user.image}` : null;
             user.dataValues.iat = req.dataAuth.iat;
@@ -412,16 +411,14 @@ class _auth{
             
             if(decoded.message == 'verification'){
                 const user = await this.db.AuthUser.findOne({where : {id_user: decoded.id_user}});
-                if (!user) newError(400, 'User not found', 'VerifyAccount Service');
-                if(user.dataValues.status == 'active') newError(400, 'User already verified', 'VerifyAccount Service');
+                if (!user) newError(400, 'Pengguna tidak ditemukan', 'VerifyAccount Service');
+                if(user.dataValues.status == 'active') newError(400, 'Akun sudah aktif', 'VerifyAccount Service');
 
                 const activateAccount = await this.db.AuthUser.update({status: 'active'}, {where: {id_user: decoded.id_user}});
-                if (activateAccount <= 0) newError(500, 'Failed to activate account', 'VerifyAccount Service');
+                if (activateAccount <= 0) newError(500, 'Gagal memverifikasi akun', 'VerifyAccount Service');
             }else{
-                newError(400, 'Invalid token', 'VerifyAccount Service');
+                newError(400, 'Token tidak valid', 'VerifyAccount Service');
             }
-
-            console.log(decoded)
 
             // Generate token for peternakan
             const tokenPeternakan = jwt.sign({
@@ -433,7 +430,7 @@ class _auth{
             }, {
                 where: {id_peternakan: decoded.id_peternakan}
             });
-            if (createFarmToken <= 0) newError(500, 'Failed to create token', 'VerifyAccount Service');
+            if (createFarmToken <= 0) newError(500, 'Gagal membuat token peternakan', 'VerifyAccount Service');
 
             return {
                 code: 200,
@@ -457,13 +454,13 @@ class _auth{
             if (error) newError(400, error.details[0].message, 'ForgotPassword Service');
             // Check if user exist
             const checkUser = await this.db.AuthUser.findOne({where : {email: value.email}});
-            if (!checkUser) newError(400, 'User not found', 'ForgotPassword Service');
+            if (!checkUser) newError(400, 'Penguna tidak ditemukan', 'ForgotPassword Service');
 
             // updatedTempPassword
             const tempPassword = randomstring.generate(8);
             const tempPasswordHash = await hashPassword(tempPassword);
             const updatedTempPassword = await this.db.AuthUser.update({kata_sandi: tempPasswordHash}, {where: {id_user: checkUser.id_user}});
-            if (updatedTempPassword <= 0) newError(500, 'Failed to update temp password', 'ForgotPassword Service');
+            if (updatedTempPassword <= 0) newError(500, 'Gagal mengupdate password', 'ForgotPassword Service');
 
             verifyEmailForgotPassword(checkUser, tempPassword);
 
@@ -490,7 +487,7 @@ class _auth{
 
             // Check if user exist
             const checkUser = await this.db.AuthUser.findOne({where : {email: value.email}});
-            if (checkUser) newError(400, 'User already exist', 'RegisterBod Service');
+            if (checkUser) newError(400, 'Email sudah terdaftar', 'RegisterBod Service');
 
             // Generate random nama_pengguna
             let isUnique = false;
@@ -518,7 +515,7 @@ class _auth{
                 id_peternakan: req.dataAuth.id_peternakan,
                 kata_sandi
             });
-            if (!user) newError(500, 'Failed to create user', 'RegisterBod Service');
+            if (!user) newError(500, 'Gagal menambahkan pengguna baru', 'RegisterBod Service');
 
             bodEmailRegister(value.email, randomPassword);
 
@@ -541,10 +538,10 @@ class _auth{
         const t = await this.db.sequelize.transaction();
         try {
             // Remove old image
-            if(!req.file) newError(400, 'Please choose file', 'uploadImage Service')
+            if(!req.file) newError(400, 'Gambar tidak ditemukan', 'UploadImage Service');
 
             const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
-            if (!checkUser) newError(400, 'User not found', 'UploadImage Service');
+            if (!checkUser) newError(400, 'Pengguna tidak ditemukan', 'UploadImage Service');
 
             const image = req.file.filename;
 
@@ -553,7 +550,7 @@ class _auth{
                 console.log(image)
                 if (updatedImage <= 0) {
                     fs.unlinkSync(__basedir + '/public/static/images/' + image);
-                    newError(500, 'Failed to update image', 'UploadImage Service');
+                    newError(500, 'Gagal mengupdate gambar', 'UploadImage Service');
                 }
 
                 if (checkUser.dataValues.image != null) {
@@ -563,7 +560,7 @@ class _auth{
                     }
                 }
             }else{
-                newError(500, 'Failed to upload image', 'UploadImage Service');
+                newError(500, 'Gagal mengupload gambar', 'UploadImage Service');
             }
 
             // Commit transaction
@@ -585,11 +582,11 @@ class _auth{
         const t = await this.db.sequelize.transaction();
         try {
             const checkUser = await this.db.AuthUser.findOne({where : {id_user: req.dataAuth.id_user}});
-            if (!checkUser) newError(400, 'User not found', 'DeleteImage Service');
+            if (!checkUser) newError(400, 'Pengguna tidak ditemukan', 'DeleteImage Service');
 
             if (checkUser.dataValues.image != null) {
                 const updatedImage = await this.db.AuthUser.update({image: null}, {where: {id_user: req.dataAuth.id_user}, transaction: t});
-                if (updatedImage <= 0) newError(500, 'Failed to delete image', 'DeleteImage Service');
+                if (updatedImage <= 0) newError(500, 'Gagal menghapus gambar', 'DeleteImage Service');
 
                 const path = __basedir + '/public/static/images/' + checkUser.dataValues.image;
                 if (fs.existsSync(path)) {
@@ -606,7 +603,7 @@ class _auth{
                     }
                 }
             }else{
-                newError(400, 'Image not found', 'DeleteImage Service');
+                newError(400, 'Gambar tidak ditemukan', 'DeleteImage Service');
             }
         } catch (error) {
             await t.rollback();

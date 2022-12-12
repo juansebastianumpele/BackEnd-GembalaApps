@@ -27,7 +27,7 @@ class _superAdmin{
                     }
                 ],
                 where : req.query });
-            if(list.length <= 0) newError(404, 'Data Users not found', 'getUsers Service');
+            if(list.length <= 0) newError(404, 'Data Users tidak ditemukan', 'getUsers Service');
 
             return {
                 code: 200,
@@ -55,7 +55,7 @@ class _superAdmin{
                     }
                 ],
                 where : req.query });
-            if(list.length <= 0) newError(404, 'Data Peternakan not found', 'getPeternakan Service');
+            if(list.length <= 0) newError(404, 'Data Peternakan tidak ditemukan', 'getPeternakan Service');
 
             return {
                 code: 200,
@@ -114,14 +114,14 @@ class _superAdmin{
 
             // subcribe premium farm time
             const farmData = await this.db.Peternakan.findOne({ where: { id_peternakan: value.id_peternakan } });
-            if(!farmData) newError(404, 'Peternakan not found', 'setPremiumFarm Service');
+            if(!farmData) newError(404, 'Peternakan tidak ditemukan', 'setPremiumFarm Service');
 
             const oldDate = farmData.dataValues.subscribe ? new Date(farmData.dataValues.subscribe) : new Date();
             const newDate = new Date(oldDate.setMonth(oldDate.getMonth() + value.months));
 
             // Update data peternakan
             const farm = await this.db.Peternakan.update({ subscribe: newDate}, { where: { id_peternakan: value.id_peternakan } });
-            if(farm[0] <= 0) newError(500, 'Failed to update data', 'setPremiumFarm Service');
+            if(farm[0] <= 0) newError(500, 'Gagal update data peternakan', 'setPremiumFarm Service');
 
             return {
                 code: 200,
@@ -163,7 +163,7 @@ class _superAdmin{
 
             // Update data peternakan
             const farm = await this.db.Peternakan.update({ subscribe: null}, { where: { id_peternakan: value.id_peternakan } });
-            if(farm[0] <= 0) newError(500, 'Failed to update data', 'setFreeFarmManual Service');
+            if(farm[0] <= 0) newError(500, 'Gagal update data peternakan', 'setFreeFarmManual Service');
 
             return {
                 code: 200,

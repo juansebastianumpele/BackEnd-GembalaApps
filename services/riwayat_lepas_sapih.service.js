@@ -14,7 +14,7 @@ class _riwayatLepasSapih {
                 attributes: ['id_riwayat_lepas_sapih', 'id_ternak', 'tanggal_lepas_sapih', 'kode_kandang'],
                 where: req.query 
             });
-            if (list.length <= 0) newError(404, 'Data Riwayat Lepas Sapih not found', 'getRiwayatLepasSapih Service');
+            if (list.length <= 0) newError(404, 'Data Riwayat Lepas Sapih tidak ditemukan', 'getRiwayatLepasSapih Service');
 
             return {
                 code: 200,

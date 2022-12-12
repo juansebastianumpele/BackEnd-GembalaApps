@@ -133,11 +133,11 @@ class _ternak {
             if(req.query.id_fp){
                 // Get data fase kebuntingan
                 fase_kebuntingan = await this.db.Fase.findOne({where: {fase: 'Kebuntingan'}})
-                if(!fase_kebuntingan) newError(404, 'Fase kebuntingan not found', 'getTernak Service')
+                if(!fase_kebuntingan) newError(404, 'Fase kebuntingan tidak ditemukan', 'getTernak Service')
 
                 // Get data fase Laktasi
                 fase_laktasi = await this.db.Fase.findOne({where: {fase: 'Laktasi'}})
-                if(!fase_laktasi) newError(404, 'Fase laktasi not found', 'getTernak Service')
+                if(!fase_laktasi) newError(404, 'Fase laktasi tidak ditemukan', 'getTernak Service')
             }
 
             // Filter data
@@ -222,7 +222,7 @@ class _ternak {
                 delete list[i].dataValues.riwayat_fase;
             }
 
-            if (list.length <= 0) newError(404, 'Data Ternak not found', 'getTernak Service');
+            if (list.length <= 0) newError(404, 'Data Ternak tidak ditemukan', 'getTernak Service');
 
             return {
                 code: 200,
@@ -244,7 +244,7 @@ class _ternak {
                 let status_cempe;
                 if(req.query.jenis_ternak.includes('cempe')){
                     status_cempe = await this.db.StatusTernak.findOne({where: {status_ternak: 'Cempe'}});
-                    if(!status_cempe) newError(404, 'Status Ternak cempe not found', 'getTernakMobile Service');
+                    if(!status_cempe) newError(404, 'Status Ternak cempe tidak ditemukan', 'getTernakMobile Service');
                 }
 
                 if(req.query.jenis_ternak == 'jantan'){
@@ -259,22 +259,22 @@ class _ternak {
                     req.query.jenis_kelamin = 'Betina';
                 }else if(req.query.jenis_ternak == 'indukan'){
                     const status_indukan = await this.db.StatusTernak.findOne({where: {status_ternak: 'Indukan'}});
-                    if(!status_indukan) newError(404, 'Status Ternak indukan not found', 'getTernakMobile Service');
+                    if(!status_indukan) newError(404, 'Status Ternak indukan tidak ditemukan', 'getTernakMobile Service');
                     req.query.id_status_ternak = status_indukan.dataValues.id_status_ternak;
                 }else if(req.query.jenis_ternak == 'pejantan'){
                     const status_pejantan = await this.db.StatusTernak.findOne({where: {status_ternak: 'Pejantan'}});
-                    if(!status_pejantan) newError(404, 'Status Ternak pejantan not found', 'getTernakMobile Service');
+                    if(!status_pejantan) newError(404, 'Status Ternak pejantan tidak ditemukan', 'getTernakMobile Service');
                     req.query.id_status_ternak = status_pejantan.dataValues.id_status_ternak;
                 }else if(req.query.jenis_ternak == 'kebuntingan'){
                     const fase_kebuntingan = await this.db.Fase.findOne({where: {fase: 'Kebuntingan'}});
-                    if(!fase_kebuntingan) newError(404, 'Fase kebuntingan not found', 'getTernakMobile Service');
+                    if(!fase_kebuntingan) newError(404, 'Fase kebuntingan tidak ditemukan', 'getTernakMobile Service');
                     req.query.id_fp = fase_kebuntingan.dataValues.id_fp;
                 }else if(req.query.jenis_ternak == 'laktasi'){
                     const fase_laktasi = await this.db.Fase.findOne({where: {fase: 'Laktasi'}});
-                    if(!fase_laktasi) newError(404, 'Fase laktasi not found', 'getTernakMobile Service');
+                    if(!fase_laktasi) newError(404, 'Fase laktasi tidak ditemukan', 'getTernakMobile Service');
                     req.query.id_fp = fase_laktasi.dataValues.id_fp;
                 }else{
-                    newError(400, 'Jenis Ternak not found', 'getTernakMobile Service');
+                    newError(400, 'Jenis Ternak tidak ditemukan', 'getTernakMobile Service');
                 }
 
                 delete req.query.jenis_ternak;
@@ -323,11 +323,11 @@ class _ternak {
             if(req.query.id_fp){
                 // Get data fase kebuntingan
                 fase_kebuntingan = await this.db.Fase.findOne({where: {fase: 'Kebuntingan'}})
-                if(!fase_kebuntingan) newError(404, 'Fase kebuntingan not found', 'getTernak Service')
+                if(!fase_kebuntingan) newError(404, 'Fase kebuntingan tidak ditemukan', 'getTernak Service')
 
                 // Get data fase Laktasi
                 fase_laktasi = await this.db.Fase.findOne({where: {fase: 'Laktasi'}})
-                if(!fase_laktasi) newError(404, 'Fase laktasi not found', 'getTernak Service')
+                if(!fase_laktasi) newError(404, 'Fase laktasi tidak ditemukan', 'getTernak Service')
             }
 
             // Filter data
@@ -373,7 +373,7 @@ class _ternak {
                 delete list[i].dataValues.riwayat_fase;
             }
 
-            if (list.length <= 0) newError(404, 'Data Ternak not found', 'getTernak Service');
+            if (list.length <= 0) newError(404, 'Data Ternak tidak ditemukan', 'getTernak Service');
 
             return {
                 code: 200,
@@ -417,7 +417,7 @@ class _ternak {
                 const ternakCount = await this.db.Ternak.count({where: {id_peternakan: req.dataAuth.id_peternakan}});
                 console.log(ternakCount)
                 if(ternakCount >= config.premiumFarm.limitTernak) {
-                    newError(403, `Max ternak is ${config.premiumFarm.limitTernak}, please upgrade your account to premium`, 'createTernak Service');
+                    newError(403, `Maksimal ternak ${config.premiumFarm.limitTernak}, silahkan upgrade ke premium`, 'createTernak Service');
                 }
             } 
 
@@ -440,7 +440,7 @@ class _ternak {
 
             // Check if Ternak already exist
             const ternak = await this.db.Ternak.findOne({where: {rf_id: value.rf_id}});
-            if (ternak) newError(400, 'RFID Ternak already exist', 'createTernak Service');
+            if (ternak) newError(400, 'RFID Ternak sudah terdaftar', 'createTernak Service');
 
             // Add id_user to params
             value.id_peternakan = req.dataAuth.id_peternakan
@@ -462,7 +462,7 @@ class _ternak {
                 id_status_ternak: value.id_status_ternak,
                 id_kandang: value.id_kandang
             });
-            if (!add) newError(500, 'Failed to create Ternak', 'createTernak Service');
+            if (!add) newError(500, 'Gagal menambahkan ternak', 'createTernak Service');
 
             // Create suhu and berat
             if (value.berat || value.suhu) {
@@ -474,7 +474,7 @@ class _ternak {
                     suhu: add.suhu ? add.suhu : 0,
                     tanggal_timbang: new Date(),
                 });
-                if (!timbangan) newError(500, 'Failed to create Timbangan', 'createTernak Service');
+                if (!timbangan) newError(500, 'Gagal menambahkan timbangan', 'createTernak Service');
             }
 
             // Create riwayat fase
@@ -486,7 +486,7 @@ class _ternak {
                     id_fp: add.id_fp,
                     tanggal: new Date(),
                 });
-                if (!riwayat_fase) newError(500, 'Failed to create Riwayat Fase', 'createTernak Service');
+                if (!riwayat_fase) newError(500, 'Gagal menambahkan riwayat fase', 'createTernak Service');
             }
 
             return {
@@ -547,7 +547,7 @@ class _ternak {
 
             // Check if Ternak exist
             const ternak = await this.db.Ternak.findOne({where: {id_ternak: value.id_ternak, id_peternakan: req.dataAuth.id_peternakan}});
-            if (!ternak) newError(404, 'Ternak not found', 'updateTernak Service');
+            if (!ternak) newError(404, 'Ternak tidak ditemukan', 'updateTernak Service');
 
             // Update Ternak
             const update = await this.db.Ternak.update({
@@ -571,7 +571,7 @@ class _ternak {
                 },
                 transaction: t
             });
-            if (update <= 0) newError(500, 'Failed to update Ternak', 'updateTernak Service');
+            if (update <= 0) newError(500, 'Gagal update ternak', 'updateTernak Service');
 
             // Create timbangan
             if (value.berat || value.suhu) {
@@ -594,7 +594,7 @@ class _ternak {
                     suhu: value.suhu || (latest_timbangan && latest_timbangan.dataValues.suhu ? latest_timbangan.dataValues.suhu : 0),
                     tanggal_timbang: new Date(),
                 }, {transaction: t});
-                if (!timbangan) newError(500, 'Failed to create Timbangan', 'updateTernak Service');
+                if (!timbangan) newError(500, 'Gagal menambahkan timbangan', 'updateTernak Service');
             }
 
             // Create riwayat fase
@@ -606,7 +606,7 @@ class _ternak {
                     id_fp: value.id_fp,
                     tanggal: new Date(),
                 }, {transaction: t});
-                if (!riwayat_fase) newError(500, 'Failed to create Riwayat Fase', 'updateTernak Service');
+                if (!riwayat_fase) newError(500, 'Gagal menambahkan riwayat fase', 'updateTernak Service');
             }
 
             // Commit Transaction
@@ -644,7 +644,7 @@ class _ternak {
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if (del <= 0) newError(500, 'Failed to delete Ternak', 'deleteTernak Service');
+            if (del <= 0) newError(500, 'Gagal menghapus ternak', 'deleteTernak Service');
 
             return {
                 code: 200,
@@ -683,7 +683,7 @@ class _ternak {
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if (update <= 0) newError(500, 'Failed to update Ternak', 'ternakKeluar Service');
+            if (update <= 0) newError(500, 'Gagal update ternak', 'ternakKeluar Service');
 
             return {
                 code: 200,
@@ -707,7 +707,7 @@ class _ternak {
                     status_ternak: 'Indukan'
                 }
             });
-            if (!statusTernak) newError(500, 'Failed to get data Status Ternak', 'getDataIndukan Service');
+            if (!statusTernak) newError(500, 'Gagal mendapatkan data status ternak', 'getDataIndukan Service');
 
             // Query Data
             const list = await this.db.Ternak.findAll({
@@ -787,7 +787,7 @@ class _ternak {
                 },
                 order: [['createdAt', 'DESC']]
             });
-            if (list.length <= 0) newError(404, 'Data Ternak Indukan not found', 'getDataIndukan Service');
+            if (list.length <= 0) newError(404, 'Data Ternak Indukan tidak ditemukan', 'getDataIndukan Service');
 
             // Get data riwayat perkawinan
             const perkawinan = await this.db.RiwayatPerkawinan.findAll({
@@ -847,7 +847,7 @@ class _ternak {
                     status_ternak: 'Pejantan'
                 }
             });
-            if (!statusTernak) newError(500, 'Failed to get data Status Ternak', 'getDataPejantan Service');
+            if (!statusTernak) newError(500, 'Gagal mendapatkan data status ternak', 'getDataPejantan Service');
 
             // Query Data
             const list = await this.db.Ternak.findAll({
@@ -923,7 +923,7 @@ class _ternak {
                 order: [['createdAt', 'DESC']]
             });
 
-            if (list.length <= 0) newError(404, 'Data Ternak Pejantan not found', 'getDataPejantan Service');
+            if (list.length <= 0) newError(404, 'Data Ternak Pejantan tidak ditemukan', 'getDataPejantan Service');
 
             for (let i = 0; i < list.length; i++) {
                 list[i].dataValues.penyakit = list[i].dataValues.kesehatan.map((item) => item.dataValues.penyakit.dataValues.nama_penyakit);
@@ -1042,7 +1042,7 @@ class _ternak {
                 order: [['createdAt', 'DESC']]
             });
 
-            if (list.length <= 0) newError(404, 'Data Ternak keluar not found', 'getTernakKeluar Service');
+            if (list.length <= 0) newError(404, 'Data Ternak keluar tidak ditemukan', 'getTernakKeluar Service');
 
             for (let i = 0; i < list.length; i++) {
                 list[i].dataValues.penyakit = list[i].dataValues.kesehatan.map((item) => item.dataValues.penyakit.dataValues.nama_penyakit);

@@ -31,7 +31,7 @@ class _riwayatKesehatan{
                 ],
                 where : req.query
             });
-            if(list.length <= 0) newError(404, 'Data riwayat kesehatan not found', 'getRiwayatKesehatan Service');
+            if(list.length <= 0) newError(404, 'Data riwayat kesehatan tidak ditemukan', 'getRiwayatKesehatan Service');
 
             for(let i = 0; i < list.length; i++){
                 list[i].dataValues.kandang = list[i].dataValues.ternak.kandang;
@@ -67,7 +67,7 @@ class _riwayatKesehatan{
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(del <= 0) newError(500, 'Failed to delete data riwayat kesehatan', 'deleteRiwayatKesehatan Service');
+            if(del <= 0) newError(500, 'Gagal menghapus data riwayat kesehatan', 'deleteRiwayatKesehatan Service');
             return {
                 code: 200,
                 data: {

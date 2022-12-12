@@ -24,11 +24,11 @@ class _rfid{
             if(!req.dataAuth) newError(401, 'Not authorized, no token', 'rfid Service');
 
             // Check jenis ternak baru
-            if (value.jenis_ternak_baru.toLowerCase() !== "ternak baru" && value.jenis_ternak_baru.toLowerCase() !== "kelahiran") newError(400, "Jenis Ternak Baru must be 'Ternak Baru' or 'Kelahiran'", 'rfid Service');
+            if (value.jenis_ternak_baru.toLowerCase() !== "ternak baru" && value.jenis_ternak_baru.toLowerCase() !== "kelahiran") newError(400, "Jenis Ternak Baru harus 'Ternak Baru' atau 'Kelahiran'", 'rfid Service');
 
             // Get data status ternak cempe
             const statusTernakCempe = await this.db.StatusTernak.findOne({where: {status_ternak: "Cempe"}});
-            if(!statusTernakCempe) newError(404, 'Data Status Ternak Cempe not found', 'rfid Service');
+            if(!statusTernakCempe) newError(404, 'Data Status Ternak Cempe tidak ditemukan', 'rfid Service');
 
             // Check Ternak
             const checkTernak = await this.db.Ternak.findAll({
@@ -43,7 +43,7 @@ class _rfid{
                     code: 200,
                     data: {
                         id_ternak: checkTernak[0].dataValues.id_ternak,
-                        message: 'Ternak Registered'
+                        message: 'Ternak Sudah Terdaftar'
                     }
                 }
             }
@@ -53,7 +53,7 @@ class _rfid{
                 // Check ternak count
                 const ternakCount = await this.db.Ternak.count({where: {id_peternakan: req.dataAuth.id_peternakan}});
                 if(ternakCount >= config.premiumFarm.limitTernak) {
-                    newError(403, `Max ternak is ${config.premiumFarm.limitTernak}, please upgrade your account to premium`, 'rfid Service');
+                    newError(403, `Maksimal ternak ${config.premiumFarm.limitTernak}, silahkan upgrade ke premium farm`, 'rfid Service');
                 }
             } 
 
@@ -64,7 +64,7 @@ class _rfid{
                     fase: "Pemasukan"
                 }
             });
-            if(!idFasePemasukan) newError(404, 'Data Fase Pemasukan not found', 'rfid Service');
+            if(!idFasePemasukan) newError(404, 'Data Fase Pemasukan tidak ditemukan', 'rfid Service');
             
             // Add New Ternak
             const addTernak = await this.db.Ternak.create({
@@ -73,7 +73,7 @@ class _rfid{
                 id_status_ternak: value.jenis_ternak_baru.toLowerCase() == "kelahiran" ? (statusTernakCempe ? statusTernakCempe.dataValues.id_status_ternak : null) : null,
                 id_fp: value.jenis_ternak_baru.toLowerCase() == "ternak baru" ? idFasePemasukan.dataValues.id_fp : null
             })
-            if(!addTernak) newError(500, 'Failed to create new data ternak', 'rfid Service');
+            if(!addTernak) newError(500, 'Gagal menambahkan data ternak baru', 'rfid Service');
 
             // Create riwayat fase
             if(addTernak.dataValues.id_fp){
@@ -83,13 +83,13 @@ class _rfid{
                     id_fp: addTernak.dataValues.id_fp,
                     tanggal: new Date()
                 })
-                if(!addRiwayatFase) newError(500, 'Failed to create new data riwayat fase', 'rfid Service');
+                if(!addRiwayatFase) newError(500, 'Gagal menambahkan data riwayat fase', 'rfid Service');
             }
 
             return{
                 code: 200,
                 data: {
-                    message: "Ternak Added",
+                    message: "Ternak berhasil ditambahkan",
                     id_ternak: addTernak.id_ternak
                 }
             }
@@ -186,7 +186,7 @@ class _rfid{
                 }
             });
             
-            if(!list) newError(404, 'Data Ternak not found', 'rfid Service');
+            if(!list) newError(404, 'Data Ternak tidak ditemukan', 'rfid Service');
             
             list.dataValues.penyakit = list.dataValues.kesehatan.map((item) => item.dataValues.penyakit.dataValues.nama_penyakit);
             list.dataValues.status_kesehatan = list.dataValues.penyakit.length > 0 ? 'Sakit' : "Sehat";

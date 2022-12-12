@@ -14,7 +14,7 @@ class _riwayatKebuntingan {
                 attributes: ['id_riwayat_kebuntingan', 'id_indukan', 'id_pejantan', 'status', 'tanggal_perkawinan', 'tanggal_kebuntingan'],
                 where: req.query 
             });
-            if (list.length <= 0) newError(404, 'Data Riwayat Kebuntingan not found', 'getRiwayatKebuntingan Service');
+            if (list.length <= 0) newError(404, 'Data Riwayat Kebuntingan tidak ditemukan', 'getRiwayatKebuntingan Service');
 
             return {
                 code: 200,

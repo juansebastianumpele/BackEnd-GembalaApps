@@ -12,7 +12,7 @@ class _bangsa{
         try{
             // Query data
             const list = await this.db.Bangsa.findAll({ where : req.query });
-            if(list.length <= 0) newError(404, 'Data Bangsa not found', 'getBangsa');
+            if(list.length <= 0) newError(404, 'Data Bangsa tidak ditemukan', 'getBangsa');
             return {
                 code: 200,
                 data: {
@@ -39,7 +39,7 @@ class _bangsa{
             const add = await this.db.Bangsa.create({
                 bangsa: value.bangsa
             });
-            if(!add) newError(500, 'Failed to create new data', 'createBangsa');
+            if(!add) newError(500, 'Gagal menambahkan data bangsa', 'createBangsa');
 
             return {
                 code: 200,
@@ -74,7 +74,7 @@ class _bangsa{
                     id_bangsa: value.id_bangsa
                 }
             });
-            if(update <= 0) newError(500, 'Failed to update data', 'updateBangsa');
+            if(update <= 0) newError(500, 'Gagal mengubah data bangsa', 'updateBangsa');
 
             return {
                 code: 200,
@@ -105,7 +105,7 @@ class _bangsa{
                     id_bangsa: value.id_bangsa
                 }
             });
-            if(del <= 0) newError(500, 'Failed to delete data', 'deleteBangsa');
+            if(del <= 0) newError(500, 'Gagal menghapus data bangsa', 'deleteBangsa');
             
             return {
                 code: 200,

@@ -17,7 +17,7 @@ class _perkawinan {
                     fase: "Waiting List Perkawinan"
                 }
             });
-            if (!dataFase) newError(404, 'Data Fase not found', 'getTernakWaitingList Service');
+            if (!dataFase) newError(404, 'Data Fase tidak ditemukan', 'getTernakWaitingList Service');
 
             // Get ternak in waiting list perkawinan
             const ternakWaitingList = await this.db.Ternak.findAll({
@@ -46,7 +46,7 @@ class _perkawinan {
                 ternakWaitingList[i].dataValues.tanggal = ternakWaitingList[i].dataValues.riwayat_fase ? ternakWaitingList[i].dataValues.riwayat_fase[0].tanggal : null;
                 delete ternakWaitingList[i].dataValues.riwayat_fase;
             }
-            if (ternakWaitingList.length <= 0) newError(404, 'Data Ternak Waiting List Perkawinan not found', 'getTernakWaitingList Service');
+            if (ternakWaitingList.length <= 0) newError(404, 'Data Ternak Waiting List Perkawinan tidak ditemukan', 'getTernakWaitingList Service');
 
             return {
                 code: 200,
@@ -79,7 +79,7 @@ class _perkawinan {
                     fase: "Perkawinan"
                 }
             });
-            if(!idFasePerkawinan) newError(404, 'Data Fase not found', 'createPerkawinan Service');
+            if(!idFasePerkawinan) newError(404, 'Data Fase tidak ditemukan', 'createPerkawinan Service');
 
             // Get data ternak indukan
             const dataIndukan = await this.db.Ternak.findOne({
@@ -89,9 +89,9 @@ class _perkawinan {
                 }
             });
             if(!dataIndukan){
-                newError(404, 'Data Ternak Indukan not found', 'createPerkawinan Service');
+                newError(404, 'Data Ternak Indukan tidak ditemukan', 'createPerkawinan Service');
             }else if(dataIndukan.dataValues.id_fp == idFasePerkawinan.dataValues.id_fp){
-                newError(400, 'Ternak Indukan already in fase perkawinan', 'createPerkawinan Service');
+                newError(400, 'Ternak Indukan sudah dalam fase perkawinan', 'createPerkawinan Service');
             }
 
             // Get data ternak pejantan
@@ -102,16 +102,11 @@ class _perkawinan {
                 }
             });
             if(!dataPejantan){
-                newError(404, 'Data Ternak Pejantan not found', 'createPerkawinan Service');
+                newError(404, 'Data Ternak Pejantan tidak ditemukan', 'createPerkawinan Service');
             }else if(dataPejantan.dataValues.id_fp != idFasePerkawinan.dataValues.id_fp){
-                newError(400, 'Ternak Pejantan not in fase perkawinan', 'createPerkawinan Service');
+                newError(400, 'Ternak Pejantan tidak di fase perkawinan', 'createPerkawinan Service');
             }
 
-            console.log(`dataIndukan: ${dataIndukan.dataValues.id_ternak == dataPejantan.dataValues.id_dam}`);
-            console.log(dataIndukan.dataValues.id_ternak)
-            console.log(dataPejantan.dataValues.id_ternak)
-            console.log(dataPejantan.dataValues.id_dam)
-            console.log(dataIndukan.dataValues)
             // Check ternak indukan and pejantan
             if(dataIndukan.dataValues.id_ternak == dataPejantan.dataValues.id_dam){
                 newError(400, `Perkawinan tidak bisa dilakukan, ternak ${dataIndukan.dataValues.id_ternak} adalah 'Dam' ternak ${dataPejantan.dataValues.id_ternak}`, 'createPerkawinan Service');
@@ -127,7 +122,7 @@ class _perkawinan {
                 id_kandang: dataPejantan.dataValues.id_kandang,
                 tanggal_perkawinan: new Date()
             },{transaction: t});
-            if(!createPerkawinan) newError(500, 'Failed to create Perkawinan', 'createPerkawinan Service');
+            if(!createPerkawinan) newError(500, 'Gagal menambah data Perkawinan', 'createPerkawinan Service');
             
             // Update ternak indukan
             const updateIndukan = await this.db.Ternak.update({
@@ -139,7 +134,7 @@ class _perkawinan {
                 },
                 transaction: t
             });
-            if(!updateIndukan) newError(500, 'Failed to update Ternak Indukan', 'createPerkawinan Service');
+            if(!updateIndukan) newError(500, 'Gagal mengubah Ternak Indukan', 'createPerkawinan Service');
 
             // Create riwayat fase
             const historyFase = await this.db.RiwayatFase.create({
@@ -148,7 +143,7 @@ class _perkawinan {
                 id_peternakan: req.dataAuth.id_peternakan,
                 tanggal: new Date()
             },{transaction: t});
-            if(!historyFase) newError(500, 'Failed to create riwayat fase', 'setTernakAbortus Service');
+            if(!historyFase) newError(500, 'Gagal menambah riwayat fase', 'setTernakAbortus Service');
 
             // Commit transaction
             await t.commit();
@@ -193,17 +188,17 @@ class _perkawinan {
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(!dataPerkawinan) newError(404, 'Data Perkawinan not found', 'updatePerkawinan Service');
+            if(!dataPerkawinan) newError(404, 'Data Perkawinan tidak ditemukan', 'updatePerkawinan Service');
 
             // Check USG
             if(value.usg_1 == false && value.usg_2 == true){
-                newError(400, 'Can\'t update USG 2 before USG 1', 'updatePerkawinan Service');
+                newError(400, 'Tidak bisa update USG 2 sebelum USG 1', 'updatePerkawinan Service');
             }else if(dataPerkawinan.dataValues.usg_1 == false && value.usg_1 == true && value.usg_2 == true){
-                newError(400, 'Can\'t update USG 1 and USG 2 at the same time', 'updatePerkawinan Service');
+                newError(400, 'Tidak bisa update USG 1 dan USG 2 sekaligus', 'updatePerkawinan Service');
             }else if(value.usg_1 == false && value.usg_2 == false){
-                newError(400, 'USG 1 is required', 'updatePerkawinan Service');
+                newError(400, 'USG 1 tidak boleh kosong', 'updatePerkawinan Service');
             }else if(dataPerkawinan.dataValues.usg_1 == true && value.usg_1 == true && value.usg_2 == false){
-                newError(400, 'USG 2 is required', 'updatePerkawinan Service');
+                newError(400, 'USG 2 tidak boleh kosong', 'updatePerkawinan Service');
             }
 
             // Update perkawinan
@@ -219,7 +214,7 @@ class _perkawinan {
                 },
                 transaction: t
             });
-            if(updatePerkawinan <= 0) newError(500, 'Failed to update Perkawinan', 'updatePerkawinan Service');
+            if(updatePerkawinan <= 0) newError(500, 'Gagal update Perkawinan', 'updatePerkawinan Service');
 
             // Update kandang indukan
             const updateKandangInsukan = await this.db.Ternak.update({
@@ -231,7 +226,7 @@ class _perkawinan {
                 },
                 transaction: t
             });
-            if(updateKandangInsukan <= 0) newError(500, 'Failed to update kandang indukan', 'updatePerkawinan Service');
+            if(updateKandangInsukan <= 0) newError(500, 'Gagal update kandang indukan', 'updatePerkawinan Service');
 
             // Create Riwayat Fase usg1
             if(value.usg_1 == true && dataPerkawinan.dataValues.usg_1 == false){
@@ -245,7 +240,7 @@ class _perkawinan {
                     status: value.status,
                     usg: 1
                 },{transaction: t});
-                if(!riwayatPerkawinanUsg1) newError(500, 'Failed to create Riwayat Perkawinan USG 1', 'updatePerkawinan Service');
+                if(!riwayatPerkawinanUsg1) newError(500, 'Gagal menambah Riwayat Perkawinan USG 1', 'updatePerkawinan Service');
 
                 // Commit transaction
                 await t.commit();
@@ -270,7 +265,7 @@ class _perkawinan {
                     status: value.status,
                     usg: 2
                 },{transaction: t});
-                if(!riwayatPerkawinanUsg2) newError(500, 'Failed to create Riwayat Perkawinan USG 2', 'updatePerkawinan Service');
+                if(!riwayatPerkawinanUsg2) newError(500, 'Gagal menambahkan Riwayat Perkawinan USG 2', 'updatePerkawinan Service');
                 
                 // Get data fase kebuntingan
                 const dataFaseKebuntingan = await this.db.Fase.findOne({  
@@ -279,7 +274,7 @@ class _perkawinan {
                         fase: 'Kebuntingan'
                     }
                 });
-                if(!dataFaseKebuntingan) newError(404, 'Data Fase Kebuntingan not found', 'updatePerkawinan Service');
+                if(!dataFaseKebuntingan) newError(404, 'Data Fase Kebuntingan tidak ditemukan', 'updatePerkawinan Service');
 
                 // Get data fase waiting list perkawinan
                 const dataFaseWaitingListPerkawinan = await this.db.Fase.findOne({
@@ -288,11 +283,11 @@ class _perkawinan {
                         fase: 'Waiting List Perkawinan'
                     }
                 });
-                if(!dataFaseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan not found', 'updatePerkawinan Service');
+                if(!dataFaseWaitingListPerkawinan) newError(404, 'Data Fase Waiting List Perkawinan tidak ditemukan', 'updatePerkawinan Service');
 
                 // Get satus afkir
                 const statusAfkir = await this.db.StatusTernak.findOne({attributes: ['id_status_ternak', 'status_ternak'], where: {status_ternak: 'Afkir'}});
-                if(!statusAfkir) newError(404, 'Data Status Afkir not found', 'updatePerkawinan Service');
+                if(!statusAfkir) newError(404, 'Data Status Afkir tidak ditemukan', 'updatePerkawinan Service');
 
                 // Check ternak afkir
                 const totaTidakBunting = await this.db.RiwayatPerkawinan.count({where: {id_indukan: dataPerkawinan.dataValues.id_indukan, status: 'Tidak Bunting'}});
@@ -308,7 +303,7 @@ class _perkawinan {
                         },
                         transaction: t
                     });
-                    if(updateFaseIndukan <= 0) newError(500, 'Failed to update Fase Indukan', 'updatePerkawinan Service');
+                    if(updateFaseIndukan <= 0) newError(500, 'Gagal update Fase Indukan', 'updatePerkawinan Service');
                 }else{
                     // Update Fase Indukan
                     const updateFaseIndukan = await this.db.Ternak.update({
@@ -320,7 +315,7 @@ class _perkawinan {
                         },
                         transaction: t
                     });
-                    if(updateFaseIndukan <= 0) newError(500, 'Failed to update Fase Indukan', 'updatePerkawinan Service');
+                    if(updateFaseIndukan <= 0) newError(500, 'Gagal update Fase Indukan', 'updatePerkawinan Service');
 
                     // Create Riwayat Fase Indukan
                     const historyFaseIndukan = await this.db.RiwayatFase.create({
@@ -329,7 +324,7 @@ class _perkawinan {
                         id_fp: value.status == 'Bunting' ? dataFaseKebuntingan.dataValues.id_fp : dataFaseWaitingListPerkawinan.dataValues.id_fp,
                         tanggal: new Date()
                     },{transaction: t});
-                    if(!historyFaseIndukan) newError(500, 'Failed to create Riwayat Fase Indukan', 'updatePerkawinan Service');
+                    if(!historyFaseIndukan) newError(500, 'Gagal menambah Riwayat Fase Indukan', 'updatePerkawinan Service');
                 }
 
                 // Delete Perkawinan
@@ -340,7 +335,7 @@ class _perkawinan {
                     },
                     transaction: t
                 });
-                if(deletePerkawinan <= 0) newError(500, 'Failed to delete Perkawinan', 'updatePerkawinan Service');
+                if(deletePerkawinan <= 0) newError(500, 'Gagal menghapus Perkawinan', 'updatePerkawinan Service');
 
                 // Commit transaction
                 await t.commit();
@@ -352,7 +347,7 @@ class _perkawinan {
                     }
                 }
             }else{
-                newError(500, 'Failed to update Perkawinan', 'updatePerkawinan Service');
+                newError(500, 'Gagal update Perkawinan', 'updatePerkawinan Service');
             }
         }catch(error){
             // Rollback transaction
@@ -378,7 +373,7 @@ class _perkawinan {
                 ],
                 where: req.query
             });
-            if(dataPerkawinan.length <= 0) newError(404, 'Data Perkawinan not found', 'getPerkawinan Service');
+            if(dataPerkawinan.length <= 0) newError(404, 'Data Perkawinan tidak ditemukan', 'getPerkawinan Service');
 
             return {
                 code: 200,
@@ -402,7 +397,7 @@ class _perkawinan {
                     id_peternakan: req.dataAuth.id_peternakan
                 }
             });
-            if(dataKandang.length <= 0) newError(404, 'Data Kandang not found', 'getKandangPerkawinan Service');
+            if(dataKandang.length <= 0) newError(404, 'Data Kandang tidak ditemukan', 'getKandangPerkawinan Service');
 
             // Get data fase perkawinan
             const dataFasePerkawinan = await this.db.Fase.findOne({
@@ -411,7 +406,7 @@ class _perkawinan {
                     fase: 'Perkawinan'
                 }
             });
-            if(!dataFasePerkawinan) newError(404, 'Data Fase Perkawinan not found', 'getKandangPerkawinan Service');
+            if(!dataFasePerkawinan) newError(404, 'Data Fase Perkawinan tidak ditemukan', 'getKandangPerkawinan Service');
 
             // Get data ternak in fase perkawinan
             const dataTernakInFasePerkawinan = await this.db.Ternak.findAll({
@@ -445,7 +440,7 @@ class _perkawinan {
         try{
             // Get fase perkawinan
             const dataFasePerkawinan = await this.db.Fase.findOne({attributes: ['id_fp', 'fase'], where: {fase: 'Perkawinan'}});
-            if(!dataFasePerkawinan) newError(404, 'Data Fase Perkawinan not found', 'getTernakInPerkawinan Service');
+            if(!dataFasePerkawinan) newError(404, 'Data Fase Perkawinan tidak ditemukan', 'getTernakInPerkawinan Service');
 
             // Get ternak in fase perkawinan
             req.query.id_peternakan = req.dataAuth.id_peternakan;
@@ -471,7 +466,7 @@ class _perkawinan {
                 ],
                 where: req.query
             });
-            if(dataTernakInPerkawinan.length <= 0) newError(404, 'Data Ternak in Perkawinan not found', 'getTernakInPerkawinan Service');
+            if(dataTernakInPerkawinan.length <= 0) newError(404, 'Data Ternak in Perkawinan tidak ditemukan', 'getTernakInPerkawinan Service');
 
             // Get riwayat perkawinan
             const dataRiwayatPerkawinan = await this.db.RiwayatPerkawinan.findAll({
@@ -550,7 +545,7 @@ class _perkawinan {
                     usg: 2
                 }
             });
-            if(getIndukanInRiwayatPerkawinan.length <= 0) newError(404, 'Indukan not found', 'getIndukanPerkawinan Service');
+            if(getIndukanInRiwayatPerkawinan.length <= 0) newError(404, 'Indukan tidak ditemukan', 'getIndukanPerkawinan Service');
     
             for(let i = 0; i < getIndukanInRiwayatPerkawinan.length; i++){
                 const dataIndukan = await this.db.Ternak.findOne({

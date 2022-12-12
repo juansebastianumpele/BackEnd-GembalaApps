@@ -36,7 +36,7 @@ class _pemeliharaan{
                 item.dataValues.tanggal_pemeliharaan.getFullYear() === date.getFullYear()
             }); 
             
-            if(result.length <= 0) newError(404, 'Data Pemeliharaan not found', 'getPemeliharaan Service');
+            if(result.length <= 0) newError(404, 'Data Pemeliharaan tidak ditemukan', 'getPemeliharaan Service');
 
             return {
                 code: 200,
@@ -70,7 +70,7 @@ class _pemeliharaan{
                 ],
                 where : req.query
             });
-            if(list.length <= 0) newError(404, 'Data Pemeliharaan not found', 'getAllPemeliharaan Service');
+            if(list.length <= 0) newError(404, 'Data Pemeliharaan tidak ditemukan', 'getAllPemeliharaan Service');
 
             return {
                 code: 200,
@@ -111,7 +111,7 @@ class _pemeliharaan{
                     id_peternakan: req.dataAuth.id_peternakan
                 },
             );
-            if(!pemeliharaan) newError(500, 'Failed to create Pemeliharaan', 'createPemeliharaan Service');
+            if(!pemeliharaan) newError(500, 'Gagal menambah data Pemeliharaan', 'createPemeliharaan Service');
 
             return {
                 code: 200,
