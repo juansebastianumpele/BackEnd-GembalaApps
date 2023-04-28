@@ -26,8 +26,8 @@ module.exports = {
 
   // configuration geo location
   geocode:{
-    base_url: "http://geocode.xyz",
-    auth: "456468407355067343971x122723",
+    base_url: "https://geocode.xyz/",
+    auth: "928153620798657886089x85490 ",
     region: "ID",
     geoit: "JSON"
   }
